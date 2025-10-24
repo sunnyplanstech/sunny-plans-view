@@ -43,7 +43,7 @@ const CTA = () => {
   };
 
   return (
-    <section className="py-20 md:py-32 bg-gradient-subtle">
+    <section id="signup" className="py-20 md:py-32 bg-gradient-subtle">
       <div className="container px-4">
         <div className="max-w-4xl mx-auto">
           <div className="relative overflow-hidden rounded-3xl bg-gradient-hero p-1 shadow-glow">
