@@ -9,30 +9,43 @@ const Testimonial = () => {
           <Card className="border-border shadow-lg bg-card relative overflow-hidden">
             {/* Decorative gradient */}
             <div className="absolute top-0 left-0 w-full h-1 bg-gradient-hero"></div>
-            
+           
             <CardContent className="p-8 md:p-12">
               <div className="flex flex-col items-center text-center space-y-6">
                 {/* Quote Icon */}
                 <div className="w-16 h-16 rounded-full bg-gradient-card flex items-center justify-center">
                   <Quote className="w-8 h-8 text-primary" />
                 </div>
-
                 {/* Testimonial Text */}
                 <blockquote className="text-xl md:text-2xl font-medium leading-relaxed">
-                  "SunnyPlans revolutionized how we approach land acquisition for our solar and BESS projects. 
-                  The automated geo-analytics and constraint filtering save us countless hours of manual research. 
-                  Having substation proximity data and regulatory insights in one platform has accelerated our 
-                  development pipeline significantly."
+                  "My experience with SunnyPlans has been very positive, especially for its ability to identify areas with potential land suitable for our purpose.
+This feature has proven extremely useful, providing our local intermediaries with the necessary information to conduct direct inspections or establish contacts in the area of interest.
+This approach not only facilitated the understanding of local market dynamics, but also allowed us to focus on particularly promising areas, close to substations and therefore ideal for our projects.
+SunnyPlans did not limit itself to providing us with a list of potential land;
+it transformed the search into a strategic process, enabling us to navigate the market effectively and make informed decisions."
                 </blockquote>
-
                 {/* Author */}
                 <div className="pt-4">
-                  <p className="font-semibold text-lg">Manuel Falciatori</p>
+                  <p className="font-semibold text-lg">
+                    <a 
+                      href="https://it.linkedin.com/in/manuel-falciatori-a7131ab4" 
+                      target="_blank" 
+                      rel="noopener noreferrer"
+                    >
+                      Manuel Falciatori
+                    </a>
+                  </p>
                   <p className="text-muted-foreground">
-                    Project Development Manager, Soltec
+                    Business Development Coordinator,{" "}
+                    <a 
+                      href="https://www.linkedin.com/company/soltectrackers/" 
+                      target="_blank" 
+                      rel="noopener noreferrer"
+                    >
+                      Soltec
+                    </a>
                   </p>
                 </div>
-
                 {/* Company badge */}
                 <div className="pt-4 flex items-center gap-2 text-sm text-muted-foreground">
                   <div className="w-2 h-2 rounded-full bg-primary"></div>
