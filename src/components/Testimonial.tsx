@@ -19,24 +19,24 @@ const Testimonial = () => {
 
                 {/* Testimonial Text */}
                 <blockquote className="text-xl md:text-2xl font-medium leading-relaxed">
-                  "SunnyPlans completely changed our land acquisition process. Instead of spending 
-                  weeks manually researching substations and parcels, we now get pre-vetted opportunities 
-                  with full constraint analysis delivered directly to us. It's like having a dedicated 
-                  geo-analytics team without the overhead."
+                  "SunnyPlans revolutionized how we approach land acquisition for our solar and BESS projects. 
+                  The automated geo-analytics and constraint filtering save us countless hours of manual research. 
+                  Having substation proximity data and regulatory insights in one platform has accelerated our 
+                  development pipeline significantly."
                 </blockquote>
 
                 {/* Author */}
                 <div className="pt-4">
-                  <p className="font-semibold text-lg">Sarah Chen</p>
+                  <p className="font-semibold text-lg">Manuel Falciatori</p>
                   <p className="text-muted-foreground">
-                    Director of Development, GreenGrid Energy
+                    Project Development Manager, Soltec
                   </p>
                 </div>
 
                 {/* Company badge */}
                 <div className="pt-4 flex items-center gap-2 text-sm text-muted-foreground">
                   <div className="w-2 h-2 rounded-full bg-primary"></div>
-                  <span>50+ MW BESS Portfolio</span>
+                  <span>Global Solar Tracker Solutions</span>
                 </div>
               </div>
             </CardContent>
