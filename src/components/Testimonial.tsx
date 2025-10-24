@@ -3,26 +3,22 @@ import { Quote } from "lucide-react";
 
 const Testimonial = () => {
   return (
-    <section id="testimonial" className="py-20 md:py-32 bg-gradient-subtle">
+    <section id="testimonial" className="py-16 md:py-24 bg-gradient-subtle">
       <div className="container px-4">
-        <div className="max-w-4xl mx-auto">
+        <div className="max-w-3xl mx-auto">
           <Card className="border-border shadow-lg bg-card relative overflow-hidden">
             {/* Decorative gradient */}
             <div className="absolute top-0 left-0 w-full h-1 bg-gradient-hero"></div>
            
-            <CardContent className="p-8 md:p-12">
-              <div className="flex flex-col items-center text-center space-y-6">
+            <CardContent className="p-6 md:p-8">
+              <div className="flex flex-col items-center text-center space-y-4">
                 {/* Quote Icon */}
-                <div className="w-16 h-16 rounded-full bg-gradient-card flex items-center justify-center">
-                  <Quote className="w-8 h-8 text-primary" />
+                <div className="w-12 h-12 rounded-full bg-gradient-card flex items-center justify-center">
+                  <Quote className="w-6 h-6 text-primary" />
                 </div>
                 {/* Testimonial Text */}
-                <blockquote className="text-xl md:text-2xl font-medium leading-relaxed">
-                  "My experience with SunnyPlans has been very positive, especially for its ability to identify areas with potential land suitable for our purpose.
-This feature has proven extremely useful, providing our local intermediaries with the necessary information to conduct direct inspections or establish contacts in the area of interest.
-This approach not only facilitated the understanding of local market dynamics, but also allowed us to focus on particularly promising areas, close to substations and therefore ideal for our projects.
-SunnyPlans did not limit itself to providing us with a list of potential land;
-it transformed the search into a strategic process, enabling us to navigate the market effectively and make informed decisions."
+                <blockquote className="text-base md:text-lg font-medium leading-relaxed">
+                  "My experience with SunnyPlans has been very positive, especially for its ability to identify areas with potential land suitable for our purpose. This feature has proven extremely useful, providing our local intermediaries with the necessary information to conduct direct inspections or establish contacts in the area of interest. This approach not only facilitated the understanding of local market dynamics, but also allowed us to focus on particularly promising areas, close to substations and therefore ideal for our projects."
                 </blockquote>
                 {/* Author */}
                 <div className="pt-4">
