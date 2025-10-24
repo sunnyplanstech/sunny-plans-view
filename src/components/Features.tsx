@@ -46,8 +46,8 @@ const Features = () => {
             </span>
           </h2>
           <p className="text-lg text-muted-foreground">
-            From substation mapping to constraint analysis, SunnyPlans delivers the insights
-            small to medium-sized BESS and solar developers need to succeed.
+            Here's how we help small to medium-sized BESS and solar developers navigate the complexities 
+            of land acquisition—from substation mapping to constraint analysis, we're your partner in every step.
           </p>
         </div>
 

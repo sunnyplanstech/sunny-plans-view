@@ -36,8 +36,8 @@ const HowItWorks = () => {
             Land Acquisition
           </h2>
           <p className="text-lg text-muted-foreground">
-            Our geo-analytics platform reverses the traditional workflow—starting with land data,
-            then optimizing for substation proximity and constraint-free development.
+            Let's walk through how we transform your land acquisition process. We reverse the traditional 
+            workflow—starting with land data, then optimizing for substation proximity and constraint-free development.
           </p>
         </div>
 

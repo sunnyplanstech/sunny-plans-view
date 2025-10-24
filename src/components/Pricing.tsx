@@ -64,7 +64,8 @@ const Pricing = () => {
             </span>
           </h2>
           <p className="text-lg text-muted-foreground">
-            From free insights to enterprise-grade analytics, we scale with your renewable energy ambitions.
+            Whether you're exploring your first project or scaling a portfolio, we have a plan that fits. 
+            Let's find the right level of intelligence for your renewable energy goals.
           </p>
         </div>
 

@@ -24,8 +24,8 @@ const CTA = () => {
       console.log("Email signup:", validated.email);
 
       toast({
-        title: "Welcome to SunnyPlans!",
-        description: "Check your inbox for your first land data insights.",
+        title: "Welcome to SunnyPlans! 🌞",
+        description: "We're excited to partner with you. Check your inbox for your first land data insights.",
       });
 
       setEmail("");
@@ -57,8 +57,8 @@ const CTA = () => {
                   Today
                 </h2>
                 <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-                  Join renewable energy developers receiving actual sale-ready parcels,
-                  substation scores, and constraint analysis—completely free.
+                  Join the renewable energy developers who trust us to deliver actual sale-ready parcels,
+                  substation scores, and constraint analysis straight to their inbox—completely free. Let's get started.
                 </p>
               </div>
 

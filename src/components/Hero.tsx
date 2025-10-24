@@ -29,18 +29,18 @@ const Hero = () => {
 
           {/* Subheading */}
           <p className="text-lg md:text-xl text-muted-foreground max-w-3xl mx-auto leading-relaxed">
-            Automated geo-analytics that index real estate data, filter constraints, and deliver 
-            pre-vetted parcels optimized for battery storage and small solar development.
+            Let's simplify your land search together. Our automated geo-analytics index real estate data, 
+            filter out constraints, and deliver pre-vetted parcels optimized for battery storage and small solar development.
           </p>
 
           {/* CTA Buttons */}
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4 pt-4">
             <Button variant="hero" size="lg" className="group">
-              Get Free Land Data
+              Start Your Search Free
               <ArrowRight className="ml-2 w-4 h-4 group-hover:translate-x-1 transition-transform" />
             </Button>
             <Button variant="outline" size="lg">
-              Explore Features
+              See How It Works
             </Button>
           </div>
 
