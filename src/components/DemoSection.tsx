@@ -5,11 +5,51 @@ import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious
 const properties = [
   {
     id: 1,
-    image: "https://images.unsplash.com/photo-1500382017468-9049fed747ef?w=800&auto=format&fit=crop",
-    distanceToSubstation: 2.3,
-    pricePerSqft: 1.25,
-    listingPrice: 125000,
-    substationMaxVoltage: 345
+    image: "/1.png",
+    distanceToSubstation: 0.00,
+    pricePerSqft: 0.065,
+    listingPrice: 179000,
+    substationMaxVoltage: 230
+  },
+  {
+    id: 2,
+    image: "/2.png",
+    distanceToSubstation: 0.02,
+    pricePerSqft: 1.917,
+    listingPrice: 83500,
+    substationMaxVoltage: 60
+  },
+  {
+    id: 3,
+    image: "/3.png",
+    distanceToSubstation: 0.10,
+    pricePerSqft: 2.971,
+    listingPrice: 25000,
+    substationMaxVoltage: 92
+  },
+  {
+    id: 4,
+    image: "/4.png",
+    distanceToSubstation: 0.11,
+    pricePerSqft: 48.197,
+    listingPrice: 201944,
+    substationMaxVoltage: 230
+  },
+  {
+    id: 5,
+    image: "/5.png",
+    distanceToSubstation: 0.13,
+    pricePerSqft: 18.322,
+    listingPrice: 999000,
+    substationMaxVoltage: 34.5
+  },
+  {
+    id: 6,
+    image: "/6.png",
+    distanceToSubstation: 0.14,
+    pricePerSqft: 5.621,
+    listingPrice: 83250,
+    substationMaxVoltage: 33
   }
 ];
 
@@ -27,7 +67,6 @@ const DemoSection = () => {
               Explore real land data and substation proximity analysis. This interactive demo shows exactly how we help you find the perfect site for your renewable energy projects.
             </p>
           </div>
-
           {/* Property Carousel */}
           <Carousel className="w-full max-w-5xl mx-auto">
             <CarouselContent>
@@ -38,33 +77,33 @@ const DemoSection = () => {
                       <div className="grid md:grid-cols-2 gap-0">
                         {/* Image */}
                         <div className="relative h-64 md:h-full">
-                          <img 
-                            src={property.image} 
-                            alt="Property" 
+                          <img
+                            src={property.image}
+                            alt="Property"
                             className="w-full h-full object-cover"
                           />
                         </div>
-                        
+                       
                         {/* Property Details */}
                         <div className="p-6 md:p-8 space-y-6">
                           <h3 className="text-2xl font-bold text-foreground">Property Details</h3>
-                          
+                         
                           <div className="space-y-4">
                             <div className="flex justify-between items-center pb-3 border-b border-border">
                               <span className="text-muted-foreground">Distance to Substation</span>
                               <span className="text-lg font-semibold text-foreground">{property.distanceToSubstation} miles</span>
                             </div>
-                            
+                           
                             <div className="flex justify-between items-center pb-3 border-b border-border">
                               <span className="text-muted-foreground">Price per Sqft</span>
                               <span className="text-lg font-semibold text-foreground">${property.pricePerSqft}</span>
                             </div>
-                            
+                           
                             <div className="flex justify-between items-center pb-3 border-b border-border">
                               <span className="text-muted-foreground">Listing Price</span>
                               <span className="text-lg font-semibold text-foreground">${property.listingPrice.toLocaleString()}</span>
                             </div>
-                            
+                           
                             <div className="flex justify-between items-center">
                               <span className="text-muted-foreground">Substation Max Voltage</span>
                               <span className="text-lg font-semibold text-foreground">{property.substationMaxVoltage} kV</span>
@@ -80,11 +119,10 @@ const DemoSection = () => {
             <CarouselPrevious />
             <CarouselNext />
           </Carousel>
-
           {/* Call-to-action below demo */}
           <div className="text-center mt-8">
             <p className="text-sm text-muted-foreground">
-              Want access to the full platform with nationwide data? 
+              Want access to the full platform with nationwide data?
               <a href="#signup" className="text-primary hover:underline ml-1 font-medium">
                 Start your free search
               </a>
