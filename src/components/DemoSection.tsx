@@ -64,7 +64,7 @@ const DemoSection = () => {
               See Our Platform in Action
             </h2>
             <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-              Explore real land data and substation proximity analysis. This interactive demo shows exactly how we help you find the perfect site for your renewable energy projects.
+              Here are some examples of pre-vetted listings.
             </p>
           </div>
           {/* Property Carousel */}
