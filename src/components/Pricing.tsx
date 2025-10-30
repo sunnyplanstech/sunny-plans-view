@@ -53,7 +53,7 @@ const tiers = [
 ];
 
 const Pricing = () => {
-  const handlePaymentRedirect = (url) => {
+  const handleRedirect = (url) => {
     window.location.href = url;
   };
 
@@ -113,8 +113,12 @@ const Pricing = () => {
                   className="w-full"
                   size="lg"
                   onClick={
-                    tier.name === 'Premium' 
-                      ? () => handlePaymentRedirect('https://buy.stripe.com/4gM14pb5r7Wx4g1aOGaR200') 
+                    tier.name === 'Free Tier'
+                      ? () => handleRedirect('#signup')
+                      : tier.name === 'Premium'
+                      ? () => handleRedirect('https://buy.stripe.com/4gM14pb5r7Wx4g1aOGaR200')
+                      : tier.name === 'Enterprise'
+                      ? () => handleRedirect('https://calendly.com/eracle/introductory-call-sunnyplans')
                       : undefined
                   }
                 >
