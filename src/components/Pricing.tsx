@@ -6,44 +6,47 @@ const tiers = [
   {
     name: "Free Tier",
     price: "Free",
-    description: "Real land data delivered to your inbox",
+    description: "Tease into real land opportunities with monthly insights—no credit card needed. Perfect for discovering single-state parcels (selected at signup).",
     features: [
-      "Weekly newsletter with actual sale-ready parcels",
-      "Substation proximity scores",
-      "Basic constraint filtering (flood, grid)",
-      "Direct links to real estate listings",
+      "1 monthly email with a full list of sale-ready parcels (only a few include contact info/links)",
+      "Basic substation proximity scores",
+      "Simple constraint filtering (flood, grid)",
       "Community access",
-      "No credit card required",
+      "Single US state (selected at signup)",
+      "Direct links to select real estate listings",
     ],
-    cta: "Start Free",
+    cta: "Start Free – Select your state at signup",
     highlighted: false,
   },
   {
     name: "Premium",
     price: "$299",
-    period: "/month",
-    description: "Detailed data for active developers",
+    period: "/month per state",
+    description: "Curated data for active developers chasing vetted sites. Ideal for diving deep in one state (for multi-state, contact sales for Enterprise discounts). Select your state at signup.",
     features: [
-      "Bi-weekly detailed parcel lists",
+      "1 monthly email with ~50 selected parcel listings (full details)",
       "Full substation proximity analysis",
       "Grid constraint scoring",
       "Historical & naturalistic risk mapping",
-      "Priority email support",
       "Export to CSV/GIS formats",
+      "Priority email support",
+      "Single US state (selected at signup)",
     ],
-    cta: "Get Premium",
+    cta: "Get Premium – Select your state at signup",
     highlighted: true,
   },
   {
     name: "Enterprise",
     price: "Custom",
-    description: "Advanced analytics for your portfolio",
+    period: " (multi-state discounts available)",
+    description: "Advanced geo-analytics solution for portfolio growth. Map-based discovery tailored to your needs—no emails, just powerful tools.",
     features: [
-      "Custom geo-analytics mapping",
+      "Interactive map interface for parcel discovery",
       "Permitting viability simulations",
-      "Multi-state portfolio analysis",
+      "Multi-state or custom coverage (based on agreement)",
+      "Custom integrations (e.g., API for your systems)",
       "Dedicated account manager",
-      "API access for integration",
+      "Export to CSV/GIS formats (unlimited)",
       "White-label reporting",
       "EU expansion early access",
     ],
@@ -68,8 +71,7 @@ const Pricing = () => {
             </span>
           </h2>
           <p className="text-lg text-muted-foreground">
-            Whether you're exploring your first project or scaling a portfolio, we have a plan that fits.
-            Let's find the right level of intelligence for your renewable energy goals.
+            Pioneering geo-analytics that empower your BESS or small solar projects—whether you're starting with teasers or scaling with custom maps. Let's find the right fit to overcome permitting hurdles and slash infrastructure costs.
           </p>
         </div>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-7xl mx-auto">
