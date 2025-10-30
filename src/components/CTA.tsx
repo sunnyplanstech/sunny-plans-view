@@ -1,5 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { ArrowRight, Check } from "lucide-react";
 import { useState } from "react";
 import { toast } from "@/hooks/use-toast";
@@ -7,36 +8,42 @@ import { z } from "zod";
 
 const emailSchema = z.object({
   email: z.string().trim().email({ message: "Please enter a valid email address" }).max(255),
-  company: z.string().trim().max(255).optional(),
+  interestedState: z.string().trim().max(255).optional(),
 });
 
 const CTA = () => {
   const [email, setEmail] = useState("");
-  const [company, setCompany] = useState("");
+  const [interestedState, setInterestedState] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+
+  const usStates = [
+    "Alabama", "Alaska", "Arizona", "Arkansas", "California", "Colorado", "Connecticut", "Delaware",
+    "Florida", "Georgia", "Hawaii", "Idaho", "Illinois", "Indiana", "Iowa", "Kansas", "Kentucky",
+    "Louisiana", "Maine", "Maryland", "Massachusetts", "Michigan", "Minnesota", "Mississippi",
+    "Missouri", "Montana", "Nebraska", "Nevada", "New Hampshire", "New Jersey", "New Mexico",
+    "New York", "North Carolina", "North Dakota", "Ohio", "Oklahoma", "Oregon", "Pennsylvania",
+    "Rhode Island", "South Carolina", "South Dakota", "Tennessee", "Texas", "Utah", "Vermont",
+    "Virginia", "Washington", "West Virginia", "Wisconsin", "Wyoming"
+  ];
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
     try {
-      const validated = emailSchema.parse({ email, company });
-
+      const validated = emailSchema.parse({ email, interestedState });
       const formData = new FormData();
       formData.append("EMAIL", validated.email);
-      if (validated.company) {
-        formData.append("COMPANY", validated.company);
+      if (validated.interestedState) {
+        formData.append("STATE", validated.interestedState);
       }
       formData.append("b_351a2361ace4a073e652b3722_bc5e9b47ca", ""); // Honeypot field
-
       const url =
         "https://sunnyplans.us14.list-manage.com/subscribe/post-json?u=351a2361ace4a073e652b3722&id=bc5e9b47ca&f_id=0024c2e1f0";
-
       const response = await fetch(url, {
         method: "POST",
         body: formData,
         mode: "no-cors", // Mailchimp's endpoint supports this for AJAX submissions
       });
-
       // Since mode is no-cors, we can't read the response body directly.
       // For better error handling, consider using JSONP or a proxy if needed.
       // But assuming success if no fetch error.
@@ -45,7 +52,7 @@ const CTA = () => {
         description: "We're excited to partner with you. Check your inbox for your first land data insights.",
       });
       setEmail("");
-      setCompany("");
+      setInterestedState("");
     } catch (error) {
       if (error instanceof z.ZodError) {
         toast({
@@ -111,14 +118,22 @@ const CTA = () => {
                     disabled={isLoading}
                     required
                   />
-                  <Input
-                    type="text"
-                    placeholder="Company (optional)"
-                    className="flex-1 h-12"
-                    value={company}
-                    onChange={(e) => setCompany(e.target.value)}
+                  <Select
+                    value={interestedState}
+                    onValueChange={setInterestedState}
                     disabled={isLoading}
-                  />
+                  >
+                    <SelectTrigger className="h-12">
+                      <SelectValue placeholder="US state you are interested in (optional)" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {usStates.map((state) => (
+                        <SelectItem key={state} value={state}>
+                          {state}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
                   <Button
                     variant="hero"
                     size="lg"
