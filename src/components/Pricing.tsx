@@ -53,6 +53,10 @@ const tiers = [
 ];
 
 const Pricing = () => {
+  const handlePaymentRedirect = (url) => {
+    window.location.href = url;
+  };
+
   return (
     <section id="pricing" className="py-20 md:py-32">
       <div className="container px-4">
@@ -64,11 +68,10 @@ const Pricing = () => {
             </span>
           </h2>
           <p className="text-lg text-muted-foreground">
-            Whether you're exploring your first project or scaling a portfolio, we have a plan that fits. 
+            Whether you're exploring your first project or scaling a portfolio, we have a plan that fits.
             Let's find the right level of intelligence for your renewable energy goals.
           </p>
         </div>
-
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-7xl mx-auto">
           {tiers.map((tier, index) => (
             <Card
@@ -86,7 +89,6 @@ const Pricing = () => {
                   </span>
                 </div>
               )}
-
               <CardHeader className="text-center pb-8">
                 <CardTitle className="text-2xl mb-2">{tier.name}</CardTitle>
                 <CardDescription className="text-base">{tier.description}</CardDescription>
@@ -97,7 +99,6 @@ const Pricing = () => {
                   )}
                 </div>
               </CardHeader>
-
               <CardContent className="space-y-4">
                 {tier.features.map((feature, featureIndex) => (
                   <div key={featureIndex} className="flex items-start gap-3">
@@ -106,12 +107,16 @@ const Pricing = () => {
                   </div>
                 ))}
               </CardContent>
-
               <CardFooter>
                 <Button
                   variant={tier.highlighted ? "hero" : "outline"}
                   className="w-full"
                   size="lg"
+                  onClick={
+                    tier.name === 'Premium' 
+                      ? () => handlePaymentRedirect('https://buy.stripe.com/4gM14pb5r7Wx4g1aOGaR200') 
+                      : undefined
+                  }
                 >
                   {tier.cta}
                 </Button>
