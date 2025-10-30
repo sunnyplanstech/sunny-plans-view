@@ -6,49 +6,49 @@ const tiers = [
   {
     name: "Free Tier",
     price: "Free",
-    description: "Tease into real land opportunities with monthly insights—no credit card needed. Perfect for discovering single-state parcels (selected at signup).",
+    description: "Get started with monthly land insights—no card required. Focus on one state (chosen at signup).",
     features: [
-      "1 monthly email with a full list of sale-ready parcels (only a few include contact info/links)",
+      "Monthly email: Full list of sale-ready parcels (limited contacts/links)",
       "Basic substation proximity scores",
-      "Simple constraint filtering (flood, grid)",
+      "Simple filters (flood, grid)",
       "Community access",
-      "Single US state (selected at signup)",
-      "Direct links to select real estate listings",
+      "One US state",
+      "Links to select listings",
     ],
-    cta: "Start Free – Select your state at signup",
+    cta: "Start Free – Pick Your State",
     highlighted: false,
   },
   {
     name: "Premium",
     price: "$299",
     period: "/month per state",
-    description: "Curated data for active developers chasing vetted sites. Ideal for diving deep in one state (for multi-state, contact sales for Enterprise discounts). Select your state at signup.",
+    description: "Vetted sites for serious developers. Dive deep in one state (multi-state? Contact sales for discounts).",
     features: [
-      "1 monthly email with ~50 selected parcel listings (full details)",
-      "Full substation proximity analysis",
+      "Monthly email: ~50 curated parcels (full details)",
+      "Advanced substation analysis",
       "Grid constraint scoring",
-      "Historical & naturalistic risk mapping",
-      "Export to CSV/GIS formats",
-      "Priority email support",
-      "Single US state (selected at signup)",
+      "Risk mapping (historical/natural)",
+      "CSV/GIS exports",
+      "Priority support",
+      "One US state",
     ],
-    cta: "Get Premium – Select your state at signup",
+    cta: "Go Premium – Pick Your State",
     highlighted: true,
   },
   {
     name: "Enterprise",
     price: "Custom",
-    period: " (multi-state discounts available)",
-    description: "Advanced geo-analytics solution for portfolio growth. Map-based discovery tailored to your needs—no emails, just powerful tools.",
+    period: " (multi-state discounts)",
+    description: "Scalable geo-analytics for portfolio expansion. Interactive tools, no emails—just results.",
     features: [
-      "Interactive map interface for parcel discovery",
-      "Permitting viability simulations",
-      "Multi-state or custom coverage (based on agreement)",
-      "Custom integrations (e.g., API for your systems)",
-      "Dedicated account manager",
-      "Export to CSV/GIS formats (unlimited)",
-      "White-label reporting",
-      "EU expansion early access",
+      "Interactive map for discovery",
+      "Permitting simulations",
+      "Multi-state/custom coverage",
+      "API integrations",
+      "Dedicated manager",
+      "Unlimited exports",
+      "White-label reports",
+      "EU early access",
     ],
     cta: "Contact Sales",
     highlighted: false,
@@ -59,19 +59,18 @@ const Pricing = () => {
   const handleRedirect = (url) => {
     window.location.href = url;
   };
-
   return (
     <section id="pricing" className="py-20 md:py-32">
       <div className="container px-4">
         <div className="max-w-3xl mx-auto text-center mb-16">
           <h2 className="text-3xl md:text-5xl font-bold mb-6">
-            Choose Your{" "}
+            Select Your{" "}
             <span className="bg-gradient-hero bg-clip-text text-transparent">
-              Intelligence Level
+              Intelligence Tier
             </span>
           </h2>
           <p className="text-lg text-muted-foreground">
-            Pioneering geo-analytics that empower your BESS or small solar projects—whether you're starting with teasers or scaling with custom maps. Let's find the right fit to overcome permitting hurdles and slash infrastructure costs.
+            Cutting-edge geo-analytics for BESS and small solar projects. Overcome permitting challenges and cut costs—find your perfect plan.
           </p>
         </div>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-7xl mx-auto">
