@@ -76,11 +76,11 @@ const DemoSection = () => {
                     <CardContent className="p-0">
                       <div className="grid md:grid-cols-2 gap-0">
                         {/* Image */}
-                        <div className="relative h-64 md:h-full">
+                        <div className="relative h-64 md:h-full bg-muted">
                           <img
                             src={property.image}
                             alt="Property"
-                            className="w-full h-full object-cover"
+                            className="w-full h-full object-contain"
                           />
                         </div>
                        
