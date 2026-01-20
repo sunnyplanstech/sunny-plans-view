@@ -1,6 +1,6 @@
 import { useMemo } from "react";
 import { useParams, Link } from "react-router-dom";
-import { ArrowLeft, Lock, MapPin, Zap, Mountain, Ruler, ExternalLink, Share2 } from "lucide-react";
+import { ArrowLeft, Lock, MapPin, Zap, Mountain, Ruler, Share2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -8,9 +8,10 @@ import { cn } from "@/lib/utils";
 import SunnyScoreBar from "@/components/listings/SunnyScoreBar";
 import ListingsBreadcrumb from "@/components/listings/ListingsBreadcrumb";
 import ListingCard from "@/components/listings/ListingCard";
+import ListingsFooter from "@/components/listings/ListingsFooter";
 import SampleReportModal from "@/components/listings/SampleReportModal";
 import SEOHead from "@/components/listings/SEOHead";
-import { getListingById, getNearbyListings } from "@/data/mockListings";
+import { getListingById, getNearbyListings, seoKeywords } from "@/data/mockListings";
 
 const ListingDetail = () => {
   const { id } = useParams<{ id: string }>();
@@ -35,14 +36,25 @@ const ListingDetail = () => {
 
   const sizeUnit = listing.country === "italy" ? "Hectares" : "Acres";
 
-  // SEO data
-  const seoTitle = `Solar Land in ${listing.municipality || listing.province}, ${listing.region} - ${listing.sunnyScore}/100 | Sunnyplans`;
-  const seoDescription = `${listing.size} ${sizeUnit.toLowerCase()} ${listing.landType} land in ${listing.province}, ${listing.region}. ${listing.distanceToSubstation} from substation. SunnyScore™ ${listing.sunnyScore}/100.`;
+  // SEO data with homepage keywords
+  const seoTitle = `${listing.size} ${sizeUnit} Substation-Ready Land for BESS & Solar - ${listing.municipality || listing.province}, ${listing.region} | Sunnyplans`;
+  const seoDescription = `${listing.size} ${sizeUnit.toLowerCase()} ${listing.landType} land in ${listing.province}, ${listing.region}. ${listing.distanceToSubstation} from substation. Pre-vetted for BESS & solar projects with SunnyScore™ ${listing.sunnyScore}/100.`;
+  
+  // Combine homepage keywords with location-specific keywords
+  const combinedKeywords = [
+    ...seoKeywords.primary.slice(0, 3),
+    listing.region,
+    listing.province,
+    listing.landType,
+    "pre-vetted parcels",
+    "grid connection",
+    listing.country === "italy" ? "Italy solar land" : "USA solar land",
+  ].join(", ");
   
   const structuredData = {
     "@context": "https://schema.org",
     "@type": "RealEstateListing",
-    "name": `Solar Land Parcel in ${listing.province}, ${listing.region}`,
+    "name": `Substation-Ready ${listing.landType} Land for BESS & Solar in ${listing.province}, ${listing.region}`,
     "description": seoDescription,
     "image": listing.imageUrl,
     "offers": {
@@ -59,6 +71,7 @@ const ListingDetail = () => {
       { "@type": "PropertyValue", "name": "Size", "value": `${listing.size} ${sizeUnit}` },
       { "@type": "PropertyValue", "name": "SunnyScore", "value": listing.sunnyScore },
       { "@type": "PropertyValue", "name": "Land Type", "value": listing.landType },
+      { "@type": "PropertyValue", "name": "Grid Distance", "value": listing.distanceToSubstation },
     ]
   };
 
@@ -67,7 +80,7 @@ const ListingDetail = () => {
       <SEOHead
         title={seoTitle}
         description={seoDescription}
-        keywords={`solar land, ${listing.region}, ${listing.province}, renewable energy, photovoltaic, ${listing.landType}`}
+        keywords={combinedKeywords}
         structuredData={structuredData}
         ogImage={listing.imageUrl}
       />
@@ -306,6 +319,13 @@ const ListingDetail = () => {
                 </div>
               </section>
             )}
+
+            {/* Footer with regional links */}
+            <ListingsFooter
+              currentCountry={listing.country}
+              currentRegion={listing.region}
+              currentProvince={listing.province}
+            />
           </article>
         </main>
       </div>

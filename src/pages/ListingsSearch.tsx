@@ -6,10 +6,10 @@ import { cn } from "@/lib/utils";
 import ListingCard from "@/components/listings/ListingCard";
 import ListingsMap from "@/components/listings/ListingsMap";
 import ListingsBreadcrumb from "@/components/listings/ListingsBreadcrumb";
-import NearbyListings from "@/components/listings/NearbyListings";
+import ListingsFooter from "@/components/listings/ListingsFooter";
 import SampleReportModal from "@/components/listings/SampleReportModal";
 import SEOHead from "@/components/listings/SEOHead";
-import { getListingsByLocation, locationHierarchy } from "@/data/mockListings";
+import { getListingsByLocation, locationHierarchy, generateListingSEODescription, generateListingKeywords } from "@/data/mockListings";
 
 const ListingsSearch = () => {
   const { country, region, province, municipality } = useParams();
@@ -38,14 +38,19 @@ const ListingsSearch = () => {
   // Check if we have zero results
   const hasNoResults = listings.length === 0;
 
-  // SEO data
-  const seoTitle = `Top Rated Solar Land for Sale in ${locationName} | Sunnyplans`;
-  const seoDescription = `Explore ${listings.length} off-market solar & BESS opportunities in ${locationName}${parentName ? `, ${parentName}` : ""}. Vetted for grid connection and constraints. View SunnyScores™ now.`;
+  // SEO data with homepage keywords
+  const seoTitle = `Substation-Ready Land for BESS & Solar in ${locationName} | Sunnyplans`;
+  const seoDescription = generateListingSEODescription(locationName, listings.length, parentName);
+  const seoKeywordsStr = generateListingKeywords(
+    locationName, 
+    region, 
+    [...new Set(listings.map(l => l.landType))]
+  );
   
   const structuredData = {
     "@context": "https://schema.org",
     "@type": "ItemList",
-    "name": `Solar Land Listings in ${locationName}`,
+    "name": `Substation-Ready Solar Land in ${locationName}`,
     "description": seoDescription,
     "numberOfItems": listings.length,
     "itemListElement": listings.slice(0, 10).map((listing, index) => ({
@@ -53,8 +58,8 @@ const ListingsSearch = () => {
       "position": index + 1,
       "item": {
         "@type": "RealEstateListing",
-        "name": `Solar Land in ${listing.province}, ${listing.region}`,
-        "description": `${listing.size} ${listing.country === "italy" ? "hectare" : "acre"} ${listing.landType} land with SunnyScore ${listing.sunnyScore}/100`,
+        "name": `BESS & Solar Land in ${listing.province}, ${listing.region}`,
+        "description": `${listing.size} ${listing.country === "italy" ? "hectare" : "acre"} ${listing.landType} land with SunnyScore ${listing.sunnyScore}/100. Pre-vetted for grid connection.`,
       }
     }))
   };
@@ -64,7 +69,7 @@ const ListingsSearch = () => {
       <SEOHead
         title={seoTitle}
         description={seoDescription}
-        keywords={`solar land, renewable energy, ${locationName}, land for sale, photovoltaic, BESS, grid connection`}
+        keywords={seoKeywordsStr}
         structuredData={structuredData}
       />
 
@@ -182,8 +187,8 @@ const ListingsSearch = () => {
             </div>
           </div>
 
-          {/* Nearby listings for internal linking */}
-          <NearbyListings
+          {/* Footer with regional links */}
+          <ListingsFooter
             currentCountry={country}
             currentRegion={region}
             currentProvince={province}
