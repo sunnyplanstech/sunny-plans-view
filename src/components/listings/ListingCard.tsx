@@ -4,9 +4,9 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Lock, MapPin, Zap, Mountain, Ruler } from "lucide-react";
 import SunnyScoreBar from "./SunnyScoreBar";
+import SampleReportModal from "./SampleReportModal";
 import { Listing } from "@/data/mockListings";
 import { cn } from "@/lib/utils";
-
 interface ListingCardProps {
   listing: Listing;
   isUnlocked?: boolean;
@@ -110,12 +110,19 @@ const ListingCard = ({ listing, isUnlocked = false }: ListingCardProps) => {
         )}
       </CardContent>
 
-      <CardFooter className="p-4 pt-0 flex gap-2">
-        <Button asChild className="flex-1">
+      <CardFooter className="p-4 pt-0 flex flex-col gap-2">
+        <Button asChild className="w-full">
           <Link to={`/listings/${listing.id}`}>
             {isUnlocked ? "View Details" : "Unlock Parcel Details"}
           </Link>
         </Button>
+        {!isUnlocked && (
+          <SampleReportModal>
+            <button className="text-sm text-primary hover:underline w-full text-center py-1">
+              See a Sample Report
+            </button>
+          </SampleReportModal>
+        )}
       </CardFooter>
     </Card>
   );
