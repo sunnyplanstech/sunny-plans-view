@@ -61,6 +61,62 @@ export const demoProperties: DemoProperty[] = [
   }
 ];
 
+// SEO keywords extracted from homepage for programmatic SEO
+export const seoKeywords = {
+  primary: [
+    "substation-ready land",
+    "BESS",
+    "solar projects",
+    "battery storage",
+    "renewable energy",
+  ],
+  secondary: [
+    "geo-analytics",
+    "pre-vetted parcels",
+    "grid connection",
+    "interconnection",
+    "constraint filtering",
+    "photovoltaic",
+    "site acquisition",
+  ],
+  features: [
+    "automated land indexing",
+    "substation-proximate",
+    "infrastructure costs",
+    "permitting viability",
+    "regulatory compliance",
+  ],
+};
+
+// Generate SEO-optimized description for listings pages
+export function generateListingSEODescription(
+  locationName: string,
+  listingCount: number,
+  parentName?: string
+): string {
+  return `Discover ${listingCount} substation-ready land opportunities for BESS & solar projects in ${locationName}${parentName ? `, ${parentName}` : ""}. Pre-vetted parcels with constraint analysis and SunnyScore™ ratings.`;
+}
+
+// Generate SEO-optimized keywords for listings pages
+export function generateListingKeywords(
+  locationName: string,
+  region?: string,
+  landTypes?: string[]
+): string {
+  const locationKeywords = [locationName, region].filter(Boolean);
+  const landTypeKeywords = landTypes?.length 
+    ? landTypes 
+    : ["agricultural", "industrial", "brownfield"];
+  
+  return [
+    ...seoKeywords.primary.slice(0, 3),
+    ...locationKeywords,
+    "land for sale",
+    ...landTypeKeywords.map(t => `${t} land`),
+    "grid connection",
+  ].join(", ");
+}
+
 // Listings data
 export interface Listing {
   id: string;
