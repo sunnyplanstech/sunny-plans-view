@@ -2,128 +2,144 @@ import { Link } from "react-router-dom";
 import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Lock, MapPin, Zap, Mountain, Ruler } from "lucide-react";
+import { Lock, MapPin, Zap, Mountain, Ruler, Sun, ArrowRight } from "lucide-react";
 import SunnyScoreBar from "./SunnyScoreBar";
 import SampleReportModal from "./SampleReportModal";
 import { Listing } from "@/data/mockListings";
 import { cn } from "@/lib/utils";
+
 interface ListingCardProps {
   listing: Listing;
   isUnlocked?: boolean;
 }
 
 const ListingCard = ({ listing, isUnlocked = false }: ListingCardProps) => {
-  const sizeUnit = listing.country === "italy" ? "Hectares" : "Acres";
+  const sizeUnit = listing.country === "italy" ? "ha" : "ac";
+
+  const getScoreColor = (score: number) => {
+    if (score >= 90) return "bg-primary text-primary-foreground";
+    if (score >= 80) return "bg-primary/80 text-primary-foreground";
+    return "bg-secondary text-secondary-foreground";
+  };
 
   return (
-    <Card className="group overflow-hidden hover:shadow-lg transition-all duration-300 border-border/50">
-      {/* Image with blur overlay for freemium */}
-      <div className="relative h-48 overflow-hidden">
-        <img
-          src={listing.imageUrl}
-          alt={`Land parcel in ${listing.province}`}
-          className={cn(
-            "w-full h-full object-cover transition-transform duration-300 group-hover:scale-105",
-            !isUnlocked && "blur-md"
+    <Card className="group overflow-hidden hover:shadow-lg transition-all duration-300 border-border/60 bg-card">
+      <div className="flex flex-col sm:flex-row">
+        {/* Image section */}
+        <div className="relative w-full sm:w-40 h-32 sm:h-auto sm:min-h-[180px] flex-shrink-0 overflow-hidden">
+          <img
+            src={listing.imageUrl}
+            alt={`Land parcel in ${listing.province}`}
+            className={cn(
+              "w-full h-full object-cover transition-transform duration-500 group-hover:scale-110",
+              !isUnlocked && "blur-md scale-105"
+            )}
+          />
+          
+          {/* Privacy overlay */}
+          {!isUnlocked && (
+            <div className="absolute inset-0 bg-gradient-to-br from-background/60 via-background/40 to-transparent flex items-center justify-center">
+              <div className="text-center">
+                <Lock className="w-6 h-6 mx-auto mb-1 text-muted-foreground/80" />
+                <p className="text-xs text-muted-foreground font-medium">Subscribe to view</p>
+              </div>
+            </div>
           )}
-        />
-        
-        {/* Privacy overlay */}
-        {!isUnlocked && (
-          <div className="absolute inset-0 bg-gradient-to-t from-background/80 to-transparent flex items-center justify-center">
-            <div className="text-center p-4">
-              <Lock className="w-8 h-8 mx-auto mb-2 text-muted-foreground" />
-              <p className="text-sm text-muted-foreground">Subscribe to view</p>
+
+          {/* Score badge - positioned on image */}
+          <div className="absolute top-2 left-2">
+            <div className={cn(
+              "flex items-center gap-1.5 px-2.5 py-1 rounded-full font-bold text-sm shadow-md",
+              getScoreColor(listing.sunnyScore)
+            )}>
+              <Sun className="w-3.5 h-3.5" />
+              {listing.sunnyScore}
             </div>
           </div>
-        )}
+        </div>
 
-        {/* Badges */}
-        <div className="absolute top-3 left-3 flex flex-wrap gap-2">
-          <Badge 
-            variant="default" 
-            className={cn(
-              "font-bold",
-              listing.sunnyScore >= 90 ? "bg-primary" : 
-              listing.sunnyScore >= 80 ? "bg-primary/80" : "bg-secondary"
+        {/* Content section */}
+        <div className="flex-1 flex flex-col min-w-0">
+          <CardContent className="p-4 flex-1 space-y-3">
+            {/* Header with location and badges */}
+            <div className="flex items-start justify-between gap-2">
+              <div className="flex items-start gap-2 min-w-0">
+                <MapPin className="w-4 h-4 text-primary mt-0.5 flex-shrink-0" />
+                <div className="min-w-0">
+                  <h3 className="font-semibold text-foreground truncate">
+                    {listing.province}, {listing.region}
+                  </h3>
+                  {listing.municipality && (
+                    <p className="text-sm text-muted-foreground truncate">{listing.municipality}</p>
+                  )}
+                </div>
+              </div>
+              <div className="flex flex-wrap gap-1.5 flex-shrink-0">
+                <Badge variant="secondary" className="text-xs font-medium">
+                  {listing.landType}
+                </Badge>
+                {listing.isOffMarket && (
+                  <Badge variant="outline" className="text-xs border-primary/50 text-primary bg-primary/5">
+                    Off-Market
+                  </Badge>
+                )}
+              </div>
+            </div>
+
+            {/* SunnyScore mini bar */}
+            <SunnyScoreBar score={listing.sunnyScore} breakdown={listing.scoreBreakdown} compact />
+
+            {/* Specs - horizontal layout */}
+            <div className="flex flex-wrap items-center gap-x-4 gap-y-2 text-sm text-muted-foreground">
+              <div className="flex items-center gap-1.5">
+                <Ruler className="w-3.5 h-3.5" />
+                <span className="font-medium text-foreground">{listing.size}</span>
+                <span>{sizeUnit}</span>
+              </div>
+              <div className="flex items-center gap-1.5">
+                <Mountain className="w-3.5 h-3.5" />
+                <span className="capitalize">{listing.terrain}</span>
+                <span className="text-xs">({listing.slopePercentage}%)</span>
+              </div>
+              <div className="flex items-center gap-1.5">
+                <Zap className="w-3.5 h-3.5" />
+                <span>{listing.distanceToSubstation}</span>
+                <span className={cn(
+                  "text-xs",
+                  !isUnlocked && "blur-sm select-none"
+                )}>
+                  {isUnlocked ? `to ${listing.substationName}` : "to ████████"}
+                </span>
+              </div>
+            </div>
+
+            {/* Blurred coordinates hint */}
+            {!isUnlocked && (
+              <div className="flex items-center gap-1.5 text-xs text-muted-foreground/70 pt-1">
+                <Lock className="w-3 h-3" />
+                <span className="blur-sm select-none font-mono">42.4186, 11.8678</span>
+                <span>· Coordinates hidden</span>
+              </div>
             )}
-          >
-            {listing.sunnyScore}/100
-          </Badge>
-          <Badge variant="secondary">{listing.landType}</Badge>
-          {listing.isOffMarket && (
-            <Badge variant="outline" className="bg-background/80 border-primary text-primary">
-              Off-Market
-            </Badge>
-          )}
+          </CardContent>
+
+          <CardFooter className="p-4 pt-0 flex items-center gap-3">
+            <Button asChild className="flex-1 group/btn">
+              <Link to={`/listings/${listing.id}`} className="flex items-center justify-center gap-2">
+                {isUnlocked ? "View Details" : "Unlock Details"}
+                <ArrowRight className="w-4 h-4 transition-transform group-hover/btn:translate-x-0.5" />
+              </Link>
+            </Button>
+            {!isUnlocked && (
+              <SampleReportModal>
+                <Button variant="ghost" size="sm" className="text-primary hover:text-primary hover:bg-primary/5">
+                  Sample Report
+                </Button>
+              </SampleReportModal>
+            )}
+          </CardFooter>
         </div>
       </div>
-
-      <CardContent className="p-4 space-y-4">
-        {/* Location */}
-        <div className="flex items-start gap-2">
-          <MapPin className="w-4 h-4 text-muted-foreground mt-0.5 flex-shrink-0" />
-          <div>
-            <p className="font-semibold text-foreground">
-              {listing.province}, {listing.region}
-            </p>
-            {listing.municipality && (
-              <p className="text-sm text-muted-foreground">{listing.municipality}</p>
-            )}
-          </div>
-        </div>
-
-        {/* SunnyScore mini bar */}
-        <SunnyScoreBar score={listing.sunnyScore} breakdown={listing.scoreBreakdown} compact />
-
-        {/* Specs grid */}
-        <div className="grid grid-cols-2 gap-3 text-sm">
-          <div className="flex items-center gap-2">
-            <Ruler className="w-4 h-4 text-muted-foreground" />
-            <span>{listing.size} {sizeUnit}</span>
-          </div>
-          <div className="flex items-center gap-2">
-            <Mountain className="w-4 h-4 text-muted-foreground" />
-            <span>
-              {listing.terrain === "flat" ? "Flat" : listing.terrain === "moderate" ? "Moderate" : "Hilly"} 
-              ({listing.slopePercentage}% slope)
-            </span>
-          </div>
-          <div className="flex items-center gap-2 col-span-2">
-            <Zap className="w-4 h-4 text-muted-foreground" />
-            <span className="truncate">
-              {listing.distanceToSubstation} to{" "}
-              <span className={cn(!isUnlocked && "blur-sm select-none")}>
-                {isUnlocked ? listing.substationName : "████████████"}
-              </span>
-            </span>
-          </div>
-        </div>
-
-        {/* Blurred coordinates hint */}
-        {!isUnlocked && (
-          <div className="flex items-center gap-2 text-sm text-muted-foreground">
-            <Lock className="w-3 h-3" />
-            <span className="blur-sm select-none">42.4186, 11.8678</span>
-            <span className="text-xs">(Coordinates hidden)</span>
-          </div>
-        )}
-      </CardContent>
-
-      <CardFooter className="p-4 pt-0 flex flex-col gap-2">
-        <Button asChild className="w-full">
-          <Link to={`/listings/${listing.id}`}>
-            {isUnlocked ? "View Details" : "Unlock Parcel Details"}
-          </Link>
-        </Button>
-        {!isUnlocked && (
-          <SampleReportModal>
-            <button className="text-sm text-primary hover:underline w-full text-center py-1">
-              See a Sample Report
-            </button>
-          </SampleReportModal>
-        )}
-      </CardFooter>
     </Card>
   );
 };
