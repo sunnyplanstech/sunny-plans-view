@@ -1,5 +1,67 @@
 // Mock data for listings - will be replaced with database calls when Cloud is enabled
 
+// Demo carousel properties (landing page)
+export interface DemoProperty {
+  id: number;
+  image: string;
+  distanceToSubstation: number;
+  pricePerSqft: number;
+  listingPrice: number;
+  substationMaxVoltage: number;
+}
+
+export const demoProperties: DemoProperty[] = [
+  {
+    id: 1,
+    image: "/1.png",
+    distanceToSubstation: 0.00,
+    pricePerSqft: 0.065,
+    listingPrice: 179000,
+    substationMaxVoltage: 230
+  },
+  {
+    id: 2,
+    image: "/2.png",
+    distanceToSubstation: 0.02,
+    pricePerSqft: 1.917,
+    listingPrice: 83500,
+    substationMaxVoltage: 60
+  },
+  {
+    id: 3,
+    image: "/3.png",
+    distanceToSubstation: 0.10,
+    pricePerSqft: 2.971,
+    listingPrice: 25000,
+    substationMaxVoltage: 92
+  },
+  {
+    id: 4,
+    image: "/4.png",
+    distanceToSubstation: 0.11,
+    pricePerSqft: 48.197,
+    listingPrice: 201944,
+    substationMaxVoltage: 230
+  },
+  {
+    id: 5,
+    image: "/5.png",
+    distanceToSubstation: 0.13,
+    pricePerSqft: 18.322,
+    listingPrice: 999000,
+    substationMaxVoltage: 34.5
+  },
+  {
+    id: 6,
+    image: "/6.png",
+    distanceToSubstation: 0.14,
+    pricePerSqft: 5.621,
+    listingPrice: 83250,
+    substationMaxVoltage: 33
+  }
+];
+
+// Listings data
 export interface Listing {
   id: string;
   country: "italy" | "usa";
