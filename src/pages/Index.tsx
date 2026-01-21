@@ -7,6 +7,7 @@ import Pricing from "@/components/Pricing";
 import FAQ from "@/components/FAQ";
 import CTA from "@/components/CTA";
 import Footer from "@/components/Footer";
+import CalendlyEmbed from "@/components/CalendlyEmbed";
 
 const Index = () => {
   return (
@@ -17,6 +18,7 @@ const Index = () => {
       <HowItWorks />
       <Testimonial />
       <Pricing />
+      <CalendlyEmbed />
       <FAQ />
       <CTA />
       <Footer />
