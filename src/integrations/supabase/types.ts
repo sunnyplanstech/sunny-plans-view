@@ -14,7 +14,36 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      demo_properties: {
+        Row: {
+          created_at: string
+          distance_to_substation: number
+          id: number
+          image: string
+          listing_price: number
+          price_per_sqft: number
+          substation_max_voltage: number
+        }
+        Insert: {
+          created_at?: string
+          distance_to_substation: number
+          id?: number
+          image: string
+          listing_price: number
+          price_per_sqft: number
+          substation_max_voltage: number
+        }
+        Update: {
+          created_at?: string
+          distance_to_substation?: number
+          id?: number
+          image?: string
+          listing_price?: number
+          price_per_sqft?: number
+          substation_max_voltage?: number
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
