@@ -9,6 +9,7 @@ import ListingsBreadcrumb from "@/components/listings/ListingsBreadcrumb";
 import ListingsFooter from "@/components/listings/ListingsFooter";
 import SampleReportModal from "@/components/listings/SampleReportModal";
 import SEOHead from "@/components/listings/SEOHead";
+import ListingsSEOContent from "@/components/listings/ListingsSEOContent";
 import { getListingsByLocation, locationHierarchy, generateListingSEODescription, generateListingKeywords } from "@/data/mockListings";
 
 const ListingsSearch = () => {
@@ -186,6 +187,12 @@ const ListingsSearch = () => {
               </div>
             </div>
           </div>
+
+          {/* SEO Content Section */}
+          <ListingsSEOContent 
+            locationName={locationName} 
+            listingsCount={listings.length} 
+          />
 
           {/* Footer with regional links */}
           <ListingsFooter
