@@ -90,18 +90,17 @@ export const COUNTRIES = {
 
 // Helper to get all top-level paths (useful for sitemap / static generation)
 export function getStaticCountryPaths() {
-  return Object.values(COUNTRIES).flatMap(country => {
-    const countrySlug = country.slug;
-
-    if (countrySlug === "united-states") {
-      return country.states.map(state => ({
-        params: { country: countrySlug, state: state.slug },
-      }));
-    } else if (countrySlug === "italy") {
-      return country.regions.map(region => ({
-        params: { country: countrySlug, region: region.slug },
-      }));
-    }
-    return [];
-  });
+  const paths: { params: { country: string; state?: string; region?: string } }[] = [];
+  
+  const us = COUNTRIES["united-states"];
+  for (const state of us.states) {
+    paths.push({ params: { country: us.slug, state: state.slug } });
+  }
+  
+  const italy = COUNTRIES["italy"];
+  for (const region of italy.regions) {
+    paths.push({ params: { country: italy.slug, region: region.slug } });
+  }
+  
+  return paths;
 }
