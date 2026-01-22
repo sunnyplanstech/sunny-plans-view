@@ -4,7 +4,7 @@ import path from "path";
 import { componentTagger } from "lovable-tagger";
 import Sitemap from 'vite-plugin-sitemap';
 
-import { generateDynamicSeoPaths } from './src/data/seoPaths';
+import { generateDynamicSeoPaths } from '@/data/seoPaths';
 
 // https://vitejs.dev/config/
 export default defineConfig(({ mode }) => ({
