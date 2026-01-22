@@ -22,6 +22,16 @@ const ListingCard = ({ listing, isUnlocked = false }: ListingCardProps) => {
     return "bg-secondary text-secondary-foreground";
   };
 
+  // Build the listing detail URL based on the new structure
+  const countrySlug = listing.country === "italy" ? "italy" : "united-states";
+  const regionSlug = listing.region.toLowerCase().replace(/\s+/g, '-');
+  const provinceSlug = listing.province.toLowerCase().replace(/\s+/g, '-');
+  const municipalitySlug = listing.municipality?.toLowerCase().replace(/\s+/g, '-');
+  
+  const listingUrl = municipalitySlug
+    ? `/${countrySlug}/${regionSlug}/${provinceSlug}/${municipalitySlug}/listing/${listing.id}`
+    : `/${countrySlug}/${regionSlug}/${provinceSlug}/listing/${listing.id}`;
+
   return (
     <Card className="group overflow-hidden hover:shadow-lg transition-all duration-300 border-border/60 bg-card">
       <div className="flex flex-col sm:flex-row">
@@ -125,7 +135,7 @@ const ListingCard = ({ listing, isUnlocked = false }: ListingCardProps) => {
 
           <CardFooter className="p-4 pt-0 flex items-center gap-3">
             <Button asChild className="flex-1 group/btn">
-              <Link to={`/listings/${listing.id}`} className="flex items-center justify-center gap-2">
+              <Link to={listingUrl} className="flex items-center justify-center gap-2">
                 {isUnlocked ? "View Details" : "Unlock Details"}
                 <ArrowRight className="w-4 h-4 transition-transform group-hover/btn:translate-x-0.5" />
               </Link>

@@ -14,7 +14,13 @@ import SEOHead from "@/components/listings/SEOHead";
 import { getListingById, getNearbyListings, seoKeywords } from "@/data/mockListings";
 
 const ListingDetail = () => {
-  const { id } = useParams<{ id: string }>();
+  const { id, country, region, province, municipality } = useParams<{ 
+    id: string; 
+    country: string; 
+    region: string; 
+    province: string; 
+    municipality?: string;
+  }>();
   const isUnlocked = false; // This would come from subscription state
 
   const listing = useMemo(() => getListingById(id || ""), [id]);
@@ -27,7 +33,7 @@ const ListingDetail = () => {
           <h1 className="text-2xl font-bold mb-2">Listing Not Found</h1>
           <p className="text-muted-foreground mb-4">The listing you're looking for doesn't exist.</p>
           <Button asChild>
-            <Link to="/listings">Browse All Listings</Link>
+            <Link to={country ? `/${country}` : "/"}>Browse All Listings</Link>
           </Button>
         </div>
       </div>
@@ -35,6 +41,11 @@ const ListingDetail = () => {
   }
 
   const sizeUnit = listing.country === "italy" ? "Hectares" : "Acres";
+
+  // Build back URL based on current location
+  const backUrl = municipality 
+    ? `/${country}/${region}/${province}/${municipality}`
+    : `/${country}/${region}/${province}`;
 
   // SEO data with homepage keywords
   const seoTitle = `${listing.size} ${sizeUnit} Substation-Ready Land for BESS & Solar - ${listing.municipality || listing.province}, ${listing.region} | Sunnyplans`;
@@ -91,16 +102,16 @@ const ListingDetail = () => {
           <div className="container mx-auto px-4 py-4">
             <div className="flex items-center gap-4 mb-4">
               <Button variant="ghost" size="sm" asChild>
-                <Link to={`/listings/${listing.country}/${listing.region.toLowerCase()}`}>
+                <Link to={backUrl}>
                   <ArrowLeft className="w-4 h-4 mr-1" /> Back to results
                 </Link>
               </Button>
             </div>
             <ListingsBreadcrumb 
-              country={listing.country}
-              region={listing.region}
-              province={listing.province}
-              municipality={listing.municipality}
+              country={country}
+              region={region}
+              province={province}
+              municipality={municipality}
             />
           </div>
         </header>
@@ -322,9 +333,9 @@ const ListingDetail = () => {
 
             {/* Footer with regional links */}
             <ListingsFooter
-              currentCountry={listing.country}
-              currentRegion={listing.region}
-              currentProvince={listing.province}
+              currentCountry={country}
+              currentRegion={region}
+              currentProvince={province}
             />
           </article>
         </main>

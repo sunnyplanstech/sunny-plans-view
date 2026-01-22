@@ -18,13 +18,29 @@ const App = () => (
       <BrowserRouter>
         <Routes>
           <Route path="/" element={<Index />} />
-          {/* Listings routes - Programmatic SEO pages */}
-          <Route path="/listings" element={<ListingsSearch />} />
-          <Route path="/listings/:country" element={<ListingsSearch />} />
-          <Route path="/listings/:country/:region" element={<ListingsSearch />} />
-          <Route path="/listings/:country/:region/:province" element={<ListingsSearch />} />
-          <Route path="/listings/:country/:region/:province/:municipality" element={<ListingsSearch />} />
-          <Route path="/listings/:id" element={<ListingDetail />} />
+          
+          {/* Country-level pages */}
+          <Route path="/:country" element={<ListingsSearch />} />
+          
+          {/* Region/State-level pages */}
+          <Route path="/:country/:region" element={<ListingsSearch />} />
+          
+          {/* Province/County-level pages */}
+          <Route path="/:country/:region/:province" element={<ListingsSearch />} />
+          
+          {/* Listings pages (with /listings/ or /particelle/ suffix) */}
+          <Route path="/:country/:region/:province/listings" element={<ListingsSearch />} />
+          <Route path="/:country/:region/:province/particelle" element={<ListingsSearch />} />
+          
+          {/* Municipality/Comuni-level pages */}
+          <Route path="/:country/:region/:province/:municipality" element={<ListingsSearch />} />
+          <Route path="/:country/:region/:province/:municipality/listings" element={<ListingsSearch />} />
+          <Route path="/:country/:region/:province/:municipality/particelle" element={<ListingsSearch />} />
+          
+          {/* Individual listing detail */}
+          <Route path="/:country/:region/:province/listing/:id" element={<ListingDetail />} />
+          <Route path="/:country/:region/:province/:municipality/listing/:id" element={<ListingDetail />} />
+          
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>

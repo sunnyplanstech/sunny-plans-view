@@ -1,5 +1,5 @@
 import { useState, useMemo } from "react";
-import { useParams } from "react-router-dom";
+import { useParams, useLocation } from "react-router-dom";
 import { List, MapIcon, SlidersHorizontal } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
@@ -11,30 +11,66 @@ import SampleReportModal from "@/components/listings/SampleReportModal";
 import SEOHead from "@/components/listings/SEOHead";
 import ListingsSEOContent from "@/components/listings/ListingsSEOContent";
 import { getListingsByLocation, locationHierarchy, generateListingSEODescription, generateListingKeywords } from "@/data/mockListings";
+import { COUNTRIES } from "@/data/locations";
+
+// Helper to format slug to display name
+const formatName = (slug: string) => {
+  return slug
+    .split('-')
+    .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+    .join(' ');
+};
+
+// Helper to get region/state name from slug
+const getLocationName = (country?: string, region?: string, province?: string, municipality?: string) => {
+  if (municipality) return formatName(municipality);
+  if (province) return formatName(province);
+  if (region) {
+    if (country === "united-states") {
+      const state = COUNTRIES["united-states"].states.find(s => s.slug === region);
+      return state?.name || formatName(region);
+    }
+    if (country === "italy") {
+      const italyRegion = COUNTRIES["italy"].regions.find(r => r.slug === region);
+      return italyRegion?.name || formatName(region);
+    }
+    return formatName(region);
+  }
+  if (country === "united-states") return "United States";
+  if (country === "italy") return "Italy";
+  return "All Regions";
+};
 
 const ListingsSearch = () => {
   const { country, region, province, municipality } = useParams();
+  const location = useLocation();
   const [viewMode, setViewMode] = useState<"list" | "map">("list");
+
+  // Determine if this is a /listings or /particelle page
+  const isListingsPage = location.pathname.endsWith('/listings') || location.pathname.endsWith('/particelle');
+
+  // Convert URL params to match mock data format
+  const countryForData = country === "united-states" ? "usa" : country;
 
   // Fetch listings based on URL params
   const listings = useMemo(() => {
-    return getListingsByLocation(country, region, province, municipality);
-  }, [country, region, province, municipality]);
+    return getListingsByLocation(countryForData, region, province, municipality);
+  }, [countryForData, region, province, municipality]);
 
   // Get location stats
   const locationStats = useMemo(() => {
     const matchingLocation = locationHierarchy.find(loc => {
-      if (province) return loc.province?.toLowerCase() === province.toLowerCase();
-      if (region) return loc.region.toLowerCase() === region.toLowerCase();
-      if (country) return loc.country === country;
+      if (province) return loc.province?.toLowerCase().replace(/\s+/g, '-') === province.toLowerCase();
+      if (region) return loc.region.toLowerCase().replace(/\s+/g, '-') === region.toLowerCase();
+      if (countryForData) return loc.country === countryForData;
       return false;
     });
     return matchingLocation || { avgDistanceToSubstation: "varies", rating: "good" as const };
-  }, [country, region, province]);
+  }, [countryForData, region, province]);
 
   // Format location name for display
-  const locationName = province || region || (country === "italy" ? "Italy" : country === "usa" ? "USA" : "All Regions");
-  const parentName = province ? region : country === "italy" ? "Italy" : "USA";
+  const locationName = getLocationName(country, region, province, municipality);
+  const parentName = province ? getLocationName(country, region) : country === "italy" ? "Italy" : "United States";
 
   // Check if we have zero results
   const hasNoResults = listings.length === 0;
@@ -44,7 +80,7 @@ const ListingsSearch = () => {
   const seoDescription = generateListingSEODescription(locationName, listings.length, parentName);
   const seoKeywordsStr = generateListingKeywords(
     locationName, 
-    region, 
+    region ? getLocationName(country, region) : undefined, 
     [...new Set(listings.map(l => l.landType))]
   );
   

@@ -1,6 +1,6 @@
 import { Link } from "react-router-dom";
 import { Sun, Home } from "lucide-react";
-import { locationHierarchy } from "@/data/mockListings";
+import { COUNTRIES } from "@/data/locations";
 
 interface ListingsFooterProps {
   currentCountry?: string;
@@ -9,15 +9,8 @@ interface ListingsFooterProps {
 }
 
 const ListingsFooter = ({ currentCountry, currentRegion, currentProvince }: ListingsFooterProps) => {
-  // Group locations by country
-  const italyLocations = locationHierarchy.filter(loc => loc.country === "italy");
-  const usaLocations = locationHierarchy.filter(loc => loc.country === "usa");
-
-  // Filter out current location
-  const filterCurrent = (loc: typeof locationHierarchy[0]) => {
-    if (currentProvince && loc.province?.toLowerCase() === currentProvince.toLowerCase()) return false;
-    return true;
-  };
+  const usStates = COUNTRIES["united-states"].states;
+  const italyRegions = COUNTRIES["italy"].regions;
 
   return (
     <footer className="mt-12 border-t border-border bg-muted/30">
@@ -36,19 +29,19 @@ const ListingsFooter = ({ currentCountry, currentRegion, currentProvince }: List
                 Italy
               </h4>
               <ul className="grid grid-cols-2 gap-x-4 gap-y-2">
-                {italyLocations.filter(filterCurrent).map((location) => (
-                  <li key={`${location.region}-${location.province}`}>
-                    <Link
-                      to={`/listings/${location.country}/${location.region.toLowerCase()}/${location.province?.toLowerCase().replace(/\s+/g, '-')}`}
-                      className="text-sm text-muted-foreground hover:text-primary transition-colors"
-                    >
-                      {location.province || location.region}
-                      <span className="text-xs ml-1 text-muted-foreground/60">
-                        ({location.listingCount})
-                      </span>
-                    </Link>
-                  </li>
-                ))}
+                {italyRegions
+                  .filter(region => region.slug !== currentRegion?.toLowerCase())
+                  .slice(0, 12)
+                  .map((region) => (
+                    <li key={region.slug}>
+                      <Link
+                        to={`/italy/${region.slug}`}
+                        className="text-sm text-muted-foreground hover:text-primary transition-colors"
+                      >
+                        {region.name}
+                      </Link>
+                    </li>
+                  ))}
               </ul>
             </div>
 
@@ -59,19 +52,19 @@ const ListingsFooter = ({ currentCountry, currentRegion, currentProvince }: List
                 United States
               </h4>
               <ul className="grid grid-cols-2 gap-x-4 gap-y-2">
-                {usaLocations.filter(filterCurrent).map((location) => (
-                  <li key={`${location.region}-${location.province}`}>
-                    <Link
-                      to={`/listings/${location.country}/${location.region.toLowerCase()}/${location.province?.toLowerCase().replace(/\s+/g, '-')}`}
-                      className="text-sm text-muted-foreground hover:text-primary transition-colors"
-                    >
-                      {location.province || location.region}
-                      <span className="text-xs ml-1 text-muted-foreground/60">
-                        ({location.listingCount})
-                      </span>
-                    </Link>
-                  </li>
-                ))}
+                {usStates
+                  .filter(state => state.slug !== currentRegion?.toLowerCase())
+                  .slice(0, 12)
+                  .map((state) => (
+                    <li key={state.slug}>
+                      <Link
+                        to={`/united-states/${state.slug}`}
+                        className="text-sm text-muted-foreground hover:text-primary transition-colors"
+                      >
+                        {state.name}
+                      </Link>
+                    </li>
+                  ))}
               </ul>
             </div>
           </div>

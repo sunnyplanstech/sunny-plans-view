@@ -18,14 +18,18 @@ interface ListingsBreadcrumbProps {
 
 const ListingsBreadcrumb = ({ country, region, province, municipality }: ListingsBreadcrumbProps) => {
   const formatName = (name: string) => {
-    return name.charAt(0).toUpperCase() + name.slice(1).toLowerCase();
+    // Handle special cases like "united-states" -> "United States"
+    return name
+      .split('-')
+      .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+      .join(' ');
   };
 
   const items = [
     { label: "Home", href: "/", icon: Home },
-    country && { label: formatName(country), href: `/listings/${country}` },
-    region && { label: formatName(region), href: `/listings/${country}/${region.toLowerCase()}` },
-    province && { label: formatName(province), href: `/listings/${country}/${region?.toLowerCase()}/${province.toLowerCase()}` },
+    country && { label: formatName(country), href: `/${country}` },
+    region && { label: formatName(region), href: `/${country}/${region.toLowerCase()}` },
+    province && { label: formatName(province), href: `/${country}/${region?.toLowerCase()}/${province.toLowerCase()}` },
     municipality && { label: formatName(municipality), href: null }, // Current page, no link
   ].filter(Boolean) as Array<{ label: string; href: string | null; icon?: typeof Home }>;
 
