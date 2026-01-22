@@ -2,7 +2,9 @@ import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react-swc";
 import path from "path";
 import { componentTagger } from "lovable-tagger";
-import Sitemap from 'vite-plugin-sitemap';   // ← added this line
+import Sitemap from 'vite-plugin-sitemap';
+
+import { generateDynamicSeoPaths } from './src/data/seoPaths';
 
 // https://vitejs.dev/config/
 export default defineConfig(({ mode }) => ({
@@ -16,11 +18,8 @@ export default defineConfig(({ mode }) => ({
     Sitemap({
       hostname: 'https://sunnyplans.com',
 
-      // Placeholder — replace this with your dynamic routes array when ready
-      // Example: dynamicRoutes: ['/plans/abc', '/plans/xyz', ...],
-      dynamicRoutes: ['/listings/'],
+      dynamicRoutes: generateDynamicSeoPaths(),
 
-      // Optional minimal settings (you can delete or customize later)
       generateRobotsTxt: true,
       changefreq: 'weekly',
       priority: 0.7,
