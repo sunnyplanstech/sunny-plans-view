@@ -7,6 +7,7 @@ import ListingCard from "@/components/listings/ListingCard";
 import ListingsMap from "@/components/listings/ListingsMap";
 import ListingsBreadcrumb from "@/components/listings/ListingsBreadcrumb";
 import ListingsFooter from "@/components/listings/ListingsFooter";
+import SubdivisionNav from "@/components/listings/SubdivisionNav";
 import SampleReportModal from "@/components/listings/SampleReportModal";
 import SEOHead from "@/components/listings/SEOHead";
 import ListingsSEOContent from "@/components/listings/ListingsSEOContent";
@@ -223,6 +224,13 @@ const ListingsSearch = () => {
               </div>
             </div>
           </div>
+
+          {/* Subdivision Navigation */}
+          <SubdivisionNav
+            country={country}
+            region={region}
+            province={province}
+          />
 
           {/* SEO Content Section */}
           <ListingsSEOContent 
