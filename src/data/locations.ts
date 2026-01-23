@@ -1,68 +1,66 @@
-// src/data/static-locations.js
+// src/data/locations.ts - Static location data for nations and first-level divisions
 
 export const COUNTRIES = {
   "united-states": {
     name: "United States",
     slug: "united-states",
-    // Use USPS two-letter codes as slugs for states (clean, SEO-friendly, standard)
     states: [
-      { name: "Alabama", slug: "al" },
-      { name: "Alaska", slug: "ak" },
-      { name: "Arizona", slug: "az" },
-      { name: "Arkansas", slug: "ar" },
-      { name: "California", slug: "ca" },
-      { name: "Colorado", slug: "co" },
-      { name: "Connecticut", slug: "ct" },
-      { name: "Delaware", slug: "de" },
-      { name: "Florida", slug: "fl" },
-      { name: "Georgia", slug: "ga" },
-      { name: "Hawaii", slug: "hi" },
-      { name: "Idaho", slug: "id" },
-      { name: "Illinois", slug: "il" },
-      { name: "Indiana", slug: "in" },
-      { name: "Iowa", slug: "ia" },
-      { name: "Kansas", slug: "ks" },
-      { name: "Kentucky", slug: "ky" },
-      { name: "Louisiana", slug: "la" },
-      { name: "Maine", slug: "me" },
-      { name: "Maryland", slug: "md" },
-      { name: "Massachusetts", slug: "ma" },
-      { name: "Michigan", slug: "mi" },
-      { name: "Minnesota", slug: "mn" },
-      { name: "Mississippi", slug: "ms" },
-      { name: "Missouri", slug: "mo" },
-      { name: "Montana", slug: "mt" },
-      { name: "Nebraska", slug: "ne" },
-      { name: "Nevada", slug: "nv" },
-      { name: "New Hampshire", slug: "nh" },
-      { name: "New Jersey", slug: "nj" },
-      { name: "New Mexico", slug: "nm" },
-      { name: "New York", slug: "ny" },
-      { name: "North Carolina", slug: "nc" },
-      { name: "North Dakota", slug: "nd" },
-      { name: "Ohio", slug: "oh" },
-      { name: "Oklahoma", slug: "ok" },
-      { name: "Oregon", slug: "or" },
-      { name: "Pennsylvania", slug: "pa" },
-      { name: "Rhode Island", slug: "ri" },
-      { name: "South Carolina", slug: "sc" },
-      { name: "South Dakota", slug: "sd" },
-      { name: "Tennessee", slug: "tn" },
-      { name: "Texas", slug: "tx" },
-      { name: "Utah", slug: "ut" },
-      { name: "Vermont", slug: "vt" },
-      { name: "Virginia", slug: "va" },
-      { name: "Washington", slug: "wa" },
-      { name: "West Virginia", slug: "wv" },
-      { name: "Wisconsin", slug: "wi" },
-      { name: "Wyoming", slug: "wy" },
+      { name: "Alabama", slug: "alabama" },
+      { name: "Alaska", slug: "alaska" },
+      { name: "Arizona", slug: "arizona" },
+      { name: "Arkansas", slug: "arkansas" },
+      { name: "California", slug: "california" },
+      { name: "Colorado", slug: "colorado" },
+      { name: "Connecticut", slug: "connecticut" },
+      { name: "Delaware", slug: "delaware" },
+      { name: "Florida", slug: "florida" },
+      { name: "Georgia", slug: "georgia" },
+      { name: "Hawaii", slug: "hawaii" },
+      { name: "Idaho", slug: "idaho" },
+      { name: "Illinois", slug: "illinois" },
+      { name: "Indiana", slug: "indiana" },
+      { name: "Iowa", slug: "iowa" },
+      { name: "Kansas", slug: "kansas" },
+      { name: "Kentucky", slug: "kentucky" },
+      { name: "Louisiana", slug: "louisiana" },
+      { name: "Maine", slug: "maine" },
+      { name: "Maryland", slug: "maryland" },
+      { name: "Massachusetts", slug: "massachusetts" },
+      { name: "Michigan", slug: "michigan" },
+      { name: "Minnesota", slug: "minnesota" },
+      { name: "Mississippi", slug: "mississippi" },
+      { name: "Missouri", slug: "missouri" },
+      { name: "Montana", slug: "montana" },
+      { name: "Nebraska", slug: "nebraska" },
+      { name: "Nevada", slug: "nevada" },
+      { name: "New Hampshire", slug: "new-hampshire" },
+      { name: "New Jersey", slug: "new-jersey" },
+      { name: "New Mexico", slug: "new-mexico" },
+      { name: "New York", slug: "new-york" },
+      { name: "North Carolina", slug: "north-carolina" },
+      { name: "North Dakota", slug: "north-dakota" },
+      { name: "Ohio", slug: "ohio" },
+      { name: "Oklahoma", slug: "oklahoma" },
+      { name: "Oregon", slug: "oregon" },
+      { name: "Pennsylvania", slug: "pennsylvania" },
+      { name: "Rhode Island", slug: "rhode-island" },
+      { name: "South Carolina", slug: "south-carolina" },
+      { name: "South Dakota", slug: "south-dakota" },
+      { name: "Tennessee", slug: "tennessee" },
+      { name: "Texas", slug: "texas" },
+      { name: "Utah", slug: "utah" },
+      { name: "Vermont", slug: "vermont" },
+      { name: "Virginia", slug: "virginia" },
+      { name: "Washington", slug: "washington" },
+      { name: "West Virginia", slug: "west-virginia" },
+      { name: "Wisconsin", slug: "wisconsin" },
+      { name: "Wyoming", slug: "wyoming" },
     ],
   },
 
   italy: {
     name: "Italy",
     slug: "italy",
-    // Use lowercase + kebab-case for Italian regions (common in Italian URLs)
     regions: [
       { name: "Abruzzo", slug: "abruzzo" },
       { name: "Basilicata", slug: "basilicata" },
@@ -88,8 +86,21 @@ export const COUNTRIES = {
   },
 };
 
-// Helper to get all top-level paths (useful for sitemap / static generation)
-export function getStaticCountryPaths() {
+// Helper functions for location lookups
+export function getCountryBySlug(slug: string) {
+  return Object.values(COUNTRIES).find(c => c.slug === slug);
+}
+
+export function getStateBySlug(stateSlug: string) {
+  return COUNTRIES["united-states"].states.find(s => s.slug === stateSlug);
+}
+
+export function getRegionBySlug(regionSlug: string) {
+  return COUNTRIES["italy"].regions.find(r => r.slug === regionSlug);
+}
+
+// Helper to get all static paths (used for sitemap generation)
+export function getStaticLocationPaths() {
   const paths: { params: { country: string; state?: string; region?: string } }[] = [];
   
   const us = COUNTRIES["united-states"];
