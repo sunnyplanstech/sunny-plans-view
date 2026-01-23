@@ -44,6 +44,81 @@ export type Database = {
         }
         Relationships: []
       }
+      italian_comuni: {
+        Row: {
+          created_at: string
+          id: string
+          name: string
+          province_slug: string
+          region_slug: string
+          slug: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          name: string
+          province_slug: string
+          region_slug: string
+          slug: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          name?: string
+          province_slug?: string
+          region_slug?: string
+          slug?: string
+        }
+        Relationships: []
+      }
+      italian_provinces: {
+        Row: {
+          created_at: string
+          id: string
+          name: string
+          region_slug: string
+          slug: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          name: string
+          region_slug: string
+          slug: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          name?: string
+          region_slug?: string
+          slug?: string
+        }
+        Relationships: []
+      }
+      us_counties: {
+        Row: {
+          created_at: string
+          id: string
+          name: string
+          slug: string
+          state_slug: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          name: string
+          slug: string
+          state_slug: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          name?: string
+          slug?: string
+          state_slug?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never

@@ -1,49 +1,40 @@
 // src/data/seoPaths.ts
+// This file generates static SEO paths for the sitemap
+// Nation + first level (states/regions) are hardcoded
+// Lower levels (counties/provinces/comuni) come from database - add them here as needed
+
 import { COUNTRIES } from './locations';
 
 export function generateDynamicSeoPaths(): string[] {
   const paths: string[] = [];
 
-  // United States paths
+  // United States paths - nation and state level only (hardcoded)
   const us = COUNTRIES["united-states"];
   paths.push(`/${us.slug}/`);
   
   for (const state of us.states) {
     const statePath = `/${us.slug}/${state.slug}/`;
     paths.push(statePath);
-    
-    // Add mock county-level paths
-    const mockCounties = ['example-county', 'north-county', 'south-county'];
-    for (const county of mockCounties) {
-      const countyPath = `${statePath}${county}/`;
-      paths.push(countyPath);
-      paths.push(`${countyPath}listings/`);
-    }
+    paths.push(`${statePath}listings/`);
+    // County-level paths will be added dynamically when you populate the us_counties table
   }
 
-  // Italy paths
+  // Italy paths - nation and region level only (hardcoded)
   const italy = COUNTRIES["italy"];
   paths.push(`/${italy.slug}/`);
   
   for (const region of italy.regions) {
     const regionPath = `/${italy.slug}/${region.slug}/`;
     paths.push(regionPath);
-    
-    // Add mock province-level paths
-    const mockProvinces = ['roma', 'milano', 'napoli', 'torino', 'bari', 'palermo'];
-    for (const province of mockProvinces) {
-      const provincePath = `${regionPath}${province}/`;
-      paths.push(provincePath);
-      
-      // Add mock comuni
-      const mockComuni = ['centro', 'nord', 'sud'];
-      for (const comune of mockComuni) {
-        const comunePath = `${provincePath}${comune}/`;
-        paths.push(comunePath);
-        paths.push(`${comunePath}particelle/`);
-      }
-    }
+    paths.push(`${regionPath}particelle/`);
+    // Province and comuni paths will be added dynamically when you populate the tables
   }
 
   return paths;
+}
+
+// Helper to generate paths from database data (call this server-side or at build time)
+// You can extend this to fetch from Supabase and generate additional paths
+export function getStaticSeoPaths(): string[] {
+  return generateDynamicSeoPaths();
 }
