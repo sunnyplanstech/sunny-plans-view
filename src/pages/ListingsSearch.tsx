@@ -234,12 +234,6 @@ const ListingsSearch = () => {
             </div>
           </div>
 
-          {/* Subdivision Navigation */}
-          <SubdivisionNav
-            country={country}
-            region={region}
-            province={province}
-          />
 
           {/* SEO Content Section */}
           <ListingsSEOContent 
