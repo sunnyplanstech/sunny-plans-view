@@ -84,6 +84,14 @@ const ListingsSearch = () => {
     region ? getLocationName(country, region) : undefined, 
     [...new Set(listings.map(l => l.landType))]
   );
+  // Build canonical URL (clean URL without query params)
+  const buildCanonicalUrl = () => {
+    const base = "https://sunnyplans.com";
+    const pathParts = [country, region, province, municipality].filter(Boolean);
+    if (pathParts.length === 0) return base;
+    return `${base}/${pathParts.join("/")}`;
+  };
+  const canonicalUrl = buildCanonicalUrl();
   
   const structuredData = {
     "@context": "https://schema.org",
@@ -108,6 +116,7 @@ const ListingsSearch = () => {
         title={seoTitle}
         description={seoDescription}
         keywords={seoKeywordsStr}
+        canonicalUrl={canonicalUrl}
         structuredData={structuredData}
       />
 
