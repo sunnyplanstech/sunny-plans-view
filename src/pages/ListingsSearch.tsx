@@ -134,11 +134,7 @@ const ListingsSearch = () => {
             <div className="mt-4 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
               <div>
                 <h1 className="text-2xl md:text-3xl font-bold text-foreground">
-                  {hasNoResults ? (
-                    <>Solar Land Opportunities near <span className="text-primary">{locationName}</span></>
-                  ) : (
-                    <>Top Rated Solar Land in <span className="text-primary">{locationName}</span></>
-                  )}
+                  Best Parcels for Solar in <span className="text-primary">{locationName}</span>
                 </h1>
                 <p className="text-muted-foreground mt-1">
                   {hasNoResults ? (
