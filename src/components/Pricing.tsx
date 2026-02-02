@@ -119,7 +119,7 @@ const Pricing = () => {
                       : tier.name === 'Premium'
                       ? () => handleRedirect('https://buy.stripe.com/4gM14pb5r7Wx4g1aOGaR200')
                       : tier.name === 'Enterprise'
-                      ? () => handleRedirect('https://calendly.com/eracle/introductory-call-sunnyplans')
+                      ? () => handleRedirect('https://calendly.com/eracle/new-meeting')
                       : undefined
                   }
                 >

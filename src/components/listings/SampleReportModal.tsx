@@ -8,30 +8,37 @@ import {
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { MapPin, Zap, Mountain, Ruler, FileText, CheckCircle } from "lucide-react";
-import SunnyScoreBar from "./SunnyScoreBar";
+import { Zap, Ruler, FileText, CheckCircle, Sun, CreditCard, Calendar, ExternalLink, DollarSign, Trophy } from "lucide-react";
+
+const STRIPE_LINK = "https://buy.stripe.com/4gM14pb5r7Wx4g1aOGaR200";
+const CALENDLY_LINK = "https://calendly.com/eracle/new-meeting";
 
 interface SampleReportModalProps {
   children: React.ReactNode;
 }
 
 const SampleReportModal = ({ children }: SampleReportModalProps) => {
-  // Dummy listing data for the sample report
+  // Sample US listing data for the report
   const sampleListing = {
-    sunnyScore: 94,
-    scoreBreakdown: { grid: 40, solar: 28, terrain: 20, other: 6 },
-    region: "Lazio",
-    province: "Viterbo",
-    municipality: "Tuscania",
-    size: 5.2,
-    terrain: "Flat",
-    slopePercentage: 3,
-    distanceToSubstation: "420m",
-    substationName: "Terna - Viterbo North",
-    landType: "Agricultural",
-    coordinates: { lat: 42.4186, lng: 11.8678 },
-    cadastralId: "Foglio 4, Particella 22",
-    imageUrl: "/1.png",
+    probSolar: 87,
+    county: "Pike",
+    stateCode: "MS",
+    stateName: "Mississippi",
+    lotAcres: 42.5,
+    listPrice: 125000,
+    pricePerAcre: 2941,
+    powerSubstation: 1.2,
+    rankInState: 3,
+    coordinates: { lat: 31.1745, lng: -90.4018 },
+    parcelId: "PIKE-2024-00847",
+  };
+
+  const formatPrice = (price: number) => {
+    return new Intl.NumberFormat("en-US", {
+      style: "currency",
+      currency: "USD",
+      maximumFractionDigits: 0,
+    }).format(price);
   };
 
   return (
@@ -51,15 +58,22 @@ const SampleReportModal = ({ children }: SampleReportModalProps) => {
         </DialogHeader>
 
         <div className="space-y-6">
-          {/* Full resolution image */}
-          <div className="relative rounded-lg overflow-hidden">
+          {/* Sample satellite image */}
+          <div className="relative rounded-lg overflow-hidden h-64">
             <img
-              src={sampleListing.imageUrl}
-              alt="Sample parcel satellite view"
-              className="w-full h-64 object-cover"
+              src="/1.png"
+              alt="Sample parcel satellite view with boundary"
+              className="w-full h-full object-cover"
             />
             <div className="absolute top-3 left-3 flex gap-2">
-              <Badge className="bg-primary">{sampleListing.sunnyScore}/100</Badge>
+              <Badge className="bg-primary">
+                <Sun className="w-3 h-3 mr-1" />
+                {sampleListing.probSolar}%
+              </Badge>
+              <Badge variant="outline" className="bg-amber-50/90 border-amber-300 text-amber-700">
+                <Trophy className="w-3 h-3 mr-1" />
+                #{sampleListing.rankInState} in {sampleListing.stateCode}
+              </Badge>
               <Badge variant="outline" className="bg-background/80 border-primary text-primary">
                 Sample
               </Badge>
@@ -76,29 +90,40 @@ const SampleReportModal = ({ children }: SampleReportModalProps) => {
               <div>
                 <p className="text-muted-foreground">Exact Coordinates</p>
                 <p className="font-mono font-medium">
-                  {sampleListing.coordinates.lat}°N, {sampleListing.coordinates.lng}°E
+                  {sampleListing.coordinates.lat}°N, {Math.abs(sampleListing.coordinates.lng)}°W
                 </p>
               </div>
               <div>
-                <p className="text-muted-foreground">Cadastral ID</p>
-                <p className="font-medium">{sampleListing.cadastralId}</p>
+                <p className="text-muted-foreground">Parcel ID</p>
+                <p className="font-medium">{sampleListing.parcelId}</p>
               </div>
               <div className="col-span-2">
                 <p className="text-muted-foreground">Full Location</p>
                 <p className="font-medium">
-                  {sampleListing.municipality}, {sampleListing.province}, {sampleListing.region}
+                  {sampleListing.county} County, {sampleListing.stateName}
                 </p>
               </div>
             </div>
           </div>
 
-          {/* SunnyScore breakdown */}
+          {/* Solar Probability */}
           <div>
-            <h4 className="font-semibold mb-3">SunnyScore™ Analysis</h4>
-            <SunnyScoreBar 
-              score={sampleListing.sunnyScore} 
-              breakdown={sampleListing.scoreBreakdown} 
-            />
+            <h4 className="font-semibold mb-3">Solar Probability Analysis</h4>
+            <div className="space-y-2">
+              <div className="flex justify-between text-sm">
+                <span className="text-muted-foreground">Solar Development Probability</span>
+                <span className="font-bold text-primary">{sampleListing.probSolar}%</span>
+              </div>
+              <div className="h-4 bg-muted rounded-full overflow-hidden">
+                <div
+                  className="h-full bg-gradient-to-r from-primary/80 to-primary rounded-full transition-all"
+                  style={{ width: `${sampleListing.probSolar}%` }}
+                />
+              </div>
+              <p className="text-xs text-muted-foreground">
+                Based on terrain analysis, grid proximity, zoning, and environmental factors.
+              </p>
+            </div>
           </div>
 
           {/* Technical specs */}
@@ -107,35 +132,53 @@ const SampleReportModal = ({ children }: SampleReportModalProps) => {
               <Ruler className="w-5 h-5 text-muted-foreground mt-0.5" />
               <div>
                 <p className="text-sm text-muted-foreground">Size</p>
-                <p className="font-medium">{sampleListing.size} Hectares</p>
+                <p className="font-medium">{sampleListing.lotAcres} Acres</p>
               </div>
             </div>
             <div className="flex items-start gap-3 p-3 bg-muted/50 rounded-lg">
-              <Mountain className="w-5 h-5 text-muted-foreground mt-0.5" />
-              <div>
-                <p className="text-sm text-muted-foreground">Terrain</p>
-                <p className="font-medium">{sampleListing.terrain} ({sampleListing.slopePercentage}% slope)</p>
-              </div>
-            </div>
-            <div className="flex items-start gap-3 p-3 bg-muted/50 rounded-lg col-span-2">
               <Zap className="w-5 h-5 text-muted-foreground mt-0.5" />
               <div>
-                <p className="text-sm text-muted-foreground">Grid Connection</p>
-                <p className="font-medium">
-                  {sampleListing.distanceToSubstation} to {sampleListing.substationName}
-                </p>
+                <p className="text-sm text-muted-foreground">Substation Distance</p>
+                <p className="font-medium">{sampleListing.powerSubstation} miles</p>
+              </div>
+            </div>
+            <div className="flex items-start gap-3 p-3 bg-muted/50 rounded-lg">
+              <DollarSign className="w-5 h-5 text-muted-foreground mt-0.5" />
+              <div>
+                <p className="text-sm text-muted-foreground">List Price</p>
+                <p className="font-medium">{formatPrice(sampleListing.listPrice)}</p>
+              </div>
+            </div>
+            <div className="flex items-start gap-3 p-3 bg-muted/50 rounded-lg">
+              <DollarSign className="w-5 h-5 text-muted-foreground mt-0.5" />
+              <div>
+                <p className="text-sm text-muted-foreground">Price per Acre</p>
+                <p className="font-medium">{formatPrice(sampleListing.pricePerAcre)}/ac</p>
               </div>
             </div>
           </div>
 
           {/* CTA */}
-          <div className="text-center pt-4 border-t">
-            <p className="text-sm text-muted-foreground mb-3">
-              Get access to all parcels in {sampleListing.region} with a subscription
+          <div className="pt-4 border-t space-y-4">
+            <p className="text-sm text-muted-foreground text-center">
+              Get full access to our US solar land database
             </p>
-            <Button size="lg">
-              Subscribe to {sampleListing.region}
-            </Button>
+            <div className="flex flex-col sm:flex-row gap-3">
+              <Button asChild className="flex-1" size="lg">
+                <a href={STRIPE_LINK} target="_blank" rel="noopener noreferrer">
+                  <CreditCard className="w-4 h-4 mr-2" />
+                  Subscribe Now
+                  <ExternalLink className="w-3 h-3 ml-2" />
+                </a>
+              </Button>
+              <Button asChild variant="outline" className="flex-1" size="lg">
+                <a href={CALENDLY_LINK} target="_blank" rel="noopener noreferrer">
+                  <Calendar className="w-4 h-4 mr-2" />
+                  Schedule a Call
+                  <ExternalLink className="w-3 h-3 ml-2" />
+                </a>
+              </Button>
+            </div>
           </div>
         </div>
       </DialogContent>

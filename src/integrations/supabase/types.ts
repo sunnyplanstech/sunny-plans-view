@@ -14,6 +14,54 @@ export type Database = {
   }
   public: {
     Tables: {
+      mart_us_land_solar_prob: {
+        Row: {
+          land_id: string
+          state_code: string
+          county: string
+          lot_acres: number | null
+          list_price: number | null
+          price_per_acre: number | null
+          prob_solar: number | null
+          power_substation: number | null
+          geom: string | null
+          rank_global: number | null
+          rank_in_state: number | null
+          rank_in_county: number | null
+          created_at: string | null
+        }
+        Insert: {
+          land_id: string
+          state_code: string
+          county: string
+          lot_acres?: number | null
+          list_price?: number | null
+          price_per_acre?: number | null
+          prob_solar?: number | null
+          power_substation?: number | null
+          geom?: string | null
+          rank_global?: number | null
+          rank_in_state?: number | null
+          rank_in_county?: number | null
+          created_at?: string | null
+        }
+        Update: {
+          land_id?: string
+          state_code?: string
+          county?: string
+          lot_acres?: number | null
+          list_price?: number | null
+          price_per_acre?: number | null
+          prob_solar?: number | null
+          power_substation?: number | null
+          geom?: string | null
+          rank_global?: number | null
+          rank_in_state?: number | null
+          rank_in_county?: number | null
+          created_at?: string | null
+        }
+        Relationships: []
+      }
       demo_properties: {
         Row: {
           created_at: string

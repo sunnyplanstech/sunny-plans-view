@@ -86,6 +86,87 @@ export const COUNTRIES = {
   },
 };
 
+// US State code mappings (2-letter code to slug)
+export const STATE_CODE_TO_SLUG: Record<string, string> = {
+  AL: "alabama",
+  AK: "alaska",
+  AZ: "arizona",
+  AR: "arkansas",
+  CA: "california",
+  CO: "colorado",
+  CT: "connecticut",
+  DE: "delaware",
+  FL: "florida",
+  GA: "georgia",
+  HI: "hawaii",
+  ID: "idaho",
+  IL: "illinois",
+  IN: "indiana",
+  IA: "iowa",
+  KS: "kansas",
+  KY: "kentucky",
+  LA: "louisiana",
+  ME: "maine",
+  MD: "maryland",
+  MA: "massachusetts",
+  MI: "michigan",
+  MN: "minnesota",
+  MS: "mississippi",
+  MO: "missouri",
+  MT: "montana",
+  NE: "nebraska",
+  NV: "nevada",
+  NH: "new-hampshire",
+  NJ: "new-jersey",
+  NM: "new-mexico",
+  NY: "new-york",
+  NC: "north-carolina",
+  ND: "north-dakota",
+  OH: "ohio",
+  OK: "oklahoma",
+  OR: "oregon",
+  PA: "pennsylvania",
+  RI: "rhode-island",
+  SC: "south-carolina",
+  SD: "south-dakota",
+  TN: "tennessee",
+  TX: "texas",
+  UT: "utah",
+  VT: "vermont",
+  VA: "virginia",
+  WA: "washington",
+  WV: "west-virginia",
+  WI: "wisconsin",
+  WY: "wyoming",
+};
+
+// Reverse mapping: slug to state code
+export const SLUG_TO_STATE_CODE: Record<string, string> = Object.fromEntries(
+  Object.entries(STATE_CODE_TO_SLUG).map(([code, slug]) => [slug, code])
+);
+
+// Helper functions for state code conversion
+export function stateCodeToSlug(code: string): string | undefined {
+  return STATE_CODE_TO_SLUG[code.toUpperCase()];
+}
+
+export function slugToStateCode(slug: string): string | undefined {
+  return SLUG_TO_STATE_CODE[slug.toLowerCase()];
+}
+
+// Convert county name to URL slug
+export function countyToSlug(county: string): string {
+  return county.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '');
+}
+
+// Convert URL slug back to county name for query (title case)
+export function slugToCounty(slug: string): string {
+  return slug
+    .split('-')
+    .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+    .join(' ');
+}
+
 // Helper functions for location lookups
 export function getCountryBySlug(slug: string) {
   return Object.values(COUNTRIES).find(c => c.slug === slug);

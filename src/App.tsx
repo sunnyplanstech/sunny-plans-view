@@ -7,15 +7,17 @@ import Index from "./pages/Index";
 import ListingsSearch from "./pages/ListingsSearch";
 import ListingDetail from "./pages/ListingDetail";
 import NotFound from "./pages/NotFound";
+import { GoogleMapsProvider } from "@/components/maps/GoogleMapsProvider";
 
 const queryClient = new QueryClient();
 
 const App = () => (
   <QueryClientProvider client={queryClient}>
-    <TooltipProvider>
-      <Toaster />
-      <Sonner />
-      <BrowserRouter>
+    <GoogleMapsProvider>
+      <TooltipProvider>
+        <Toaster />
+        <Sonner />
+        <BrowserRouter>
         <Routes>
           <Route path="/" element={<Index />} />
           
@@ -45,7 +47,8 @@ const App = () => (
           <Route path="*" element={<NotFound />} />
         </Routes>
       </BrowserRouter>
-    </TooltipProvider>
+      </TooltipProvider>
+    </GoogleMapsProvider>
   </QueryClientProvider>
 );
 

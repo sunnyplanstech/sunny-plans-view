@@ -1,32 +1,69 @@
 import { useMemo } from "react";
 import { useParams, Link } from "react-router-dom";
-import { ArrowLeft, Lock, MapPin, Zap, Mountain, Ruler, Share2 } from "lucide-react";
+import { ArrowLeft, MapPin, Zap, Ruler, Sun, Calendar, CreditCard, Trophy, ExternalLink } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { cn } from "@/lib/utils";
-import SunnyScoreBar from "@/components/listings/SunnyScoreBar";
 import ListingsBreadcrumb from "@/components/listings/ListingsBreadcrumb";
-import ListingCard from "@/components/listings/ListingCard";
 import ListingsFooter from "@/components/listings/ListingsFooter";
-import SampleReportModal from "@/components/listings/SampleReportModal";
 import SEOHead from "@/components/listings/SEOHead";
-import { getListingById, getNearbyListings, seoKeywords } from "@/data/mockListings";
+import MiniParcelMap from "@/components/maps/MiniParcelMap";
+import { useUSListingById } from "@/hooks/useUSListings";
+import { stateCodeToSlug, slugToCounty } from "@/data/locations";
+import { seoKeywords } from "@/data/mockListings";
+
+const STRIPE_LINK = "https://buy.stripe.com/4gM14pb5r7Wx4g1aOGaR200";
+const CALENDLY_LINK = "https://calendly.com/eracle/new-meeting";
+
+function formatPrice(price: number | null): string {
+  if (!price) return "N/A";
+  return new Intl.NumberFormat("en-US", {
+    style: "currency",
+    currency: "USD",
+    maximumFractionDigits: 0,
+  }).format(price);
+}
+
+function formatPricePerAcre(price: number | null): string {
+  if (!price) return "N/A";
+  return new Intl.NumberFormat("en-US", {
+    style: "currency",
+    currency: "USD",
+    maximumFractionDigits: 0,
+  }).format(price) + "/acre";
+}
 
 const ListingDetail = () => {
-  const { id, country, region, province, municipality } = useParams<{ 
-    id: string; 
-    country: string; 
-    region: string; 
-    province: string; 
-    municipality?: string;
+  const { id, country, region, province } = useParams<{
+    id: string;
+    country: string;
+    region: string;
+    province: string;
   }>();
-  const isUnlocked = false; // This would come from subscription state
 
-  const listing = useMemo(() => getListingById(id || ""), [id]);
-  const nearbyListings = useMemo(() => getNearbyListings(id || ""), [id]);
+  const isUS = country === "united-states";
+  const { data: usListing, isLoading, error } = useUSListingById(isUS ? id : undefined);
 
-  if (!listing) {
+  // Build back URL based on current location
+  const backUrl = province && region ? `/${country}/${region}/${province}` : `/${country}/${region}`;
+
+  // Format county name for display
+  const countyName = province ? slugToCounty(province) : "";
+
+  // Loading state
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <div className="text-center">
+          <div className="w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin mx-auto mb-4" />
+          <p className="text-muted-foreground">Loading listing details...</p>
+        </div>
+      </div>
+    );
+  }
+
+  // Error or not found state
+  if (error || !usListing) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
         <div className="text-center">
@@ -40,50 +77,42 @@ const ListingDetail = () => {
     );
   }
 
-  const sizeUnit = listing.country === "italy" ? "Hectares" : "Acres";
+  const solarPercentage = usListing.prob_solar ? Math.round(usListing.prob_solar * 100) : null;
+  const stateSlug = stateCodeToSlug(usListing.state_code) || usListing.state_code.toLowerCase();
 
-  // Build back URL based on current location
-  const backUrl = municipality 
-    ? `/${country}/${region}/${province}/${municipality}`
-    : `/${country}/${region}/${province}`;
+  // SEO data
+  const seoTitle = `${usListing.lot_acres?.toFixed(1) || ""} Acres Solar Land for Sale - ${usListing.county}, ${usListing.state_code} | Sunnyplans`;
+  const seoDescription = `${usListing.lot_acres?.toFixed(1)} acres of land in ${usListing.county}, ${usListing.state_code}. ${solarPercentage}% solar probability. ${usListing.power_substation?.toFixed(1)} miles from substation. Pre-vetted for BESS & solar projects.`;
 
-  // SEO data with homepage keywords
-  const seoTitle = `${listing.size} ${sizeUnit} Substation-Ready Land for BESS & Solar - ${listing.municipality || listing.province}, ${listing.region} | Sunnyplans`;
-  const seoDescription = `${listing.size} ${sizeUnit.toLowerCase()} ${listing.landType} land in ${listing.province}, ${listing.region}. ${listing.distanceToSubstation} from substation. Pre-vetted for BESS & solar projects with SunnyScore™ ${listing.sunnyScore}/100.`;
-  
-  // Combine homepage keywords with location-specific keywords
   const combinedKeywords = [
     ...seoKeywords.primary.slice(0, 3),
-    listing.region,
-    listing.province,
-    listing.landType,
-    "pre-vetted parcels",
-    "grid connection",
-    listing.country === "italy" ? "Italy solar land" : "USA solar land",
+    usListing.state_code,
+    usListing.county,
+    "solar land for sale",
+    "USA solar land",
   ].join(", ");
-  
+
   const structuredData = {
     "@context": "https://schema.org",
     "@type": "RealEstateListing",
-    "name": `Substation-Ready ${listing.landType} Land for BESS & Solar in ${listing.province}, ${listing.region}`,
+    "name": `Solar Land for Sale in ${usListing.county}, ${usListing.state_code}`,
     "description": seoDescription,
-    "image": listing.imageUrl,
     "offers": {
       "@type": "Offer",
-      "priceCurrency": listing.country === "italy" ? "EUR" : "USD",
-      "availability": "https://schema.org/InStock"
+      "priceCurrency": "USD",
+      "price": usListing.list_price,
+      "availability": "https://schema.org/InStock",
     },
     "geo": {
       "@type": "GeoCoordinates",
-      "addressCountry": listing.country === "italy" ? "IT" : "US",
-      "addressRegion": listing.region,
+      "addressCountry": "US",
+      "addressRegion": usListing.state_code,
     },
     "additionalProperty": [
-      { "@type": "PropertyValue", "name": "Size", "value": `${listing.size} ${sizeUnit}` },
-      { "@type": "PropertyValue", "name": "SunnyScore", "value": listing.sunnyScore },
-      { "@type": "PropertyValue", "name": "Land Type", "value": listing.landType },
-      { "@type": "PropertyValue", "name": "Grid Distance", "value": listing.distanceToSubstation },
-    ]
+      { "@type": "PropertyValue", "name": "Size", "value": `${usListing.lot_acres} Acres` },
+      { "@type": "PropertyValue", "name": "Solar Probability", "value": `${solarPercentage}%` },
+      { "@type": "PropertyValue", "name": "Substation Distance", "value": `${usListing.power_substation} miles` },
+    ],
   };
 
   return (
@@ -93,7 +122,6 @@ const ListingDetail = () => {
         description={seoDescription}
         keywords={combinedKeywords}
         structuredData={structuredData}
-        ogImage={listing.imageUrl}
       />
 
       <div className="min-h-screen bg-background">
@@ -107,229 +135,157 @@ const ListingDetail = () => {
                 </Link>
               </Button>
             </div>
-            <ListingsBreadcrumb 
+            <ListingsBreadcrumb
               country={country}
               region={region}
               province={province}
-              municipality={municipality}
             />
           </div>
         </header>
 
         <main className="container mx-auto px-4 py-6">
           <article className="max-w-4xl mx-auto">
-            {/* Hero image */}
-            <section className="relative rounded-xl overflow-hidden mb-6">
-              <img
-                src={listing.imageUrl}
-                alt={`Land parcel in ${listing.province}, ${listing.region}`}
-                className={cn(
-                  "w-full h-64 md:h-96 object-cover",
-                  !isUnlocked && "blur-lg"
-                )}
-              />
-              
-              {!isUnlocked && (
-                <div className="absolute inset-0 bg-gradient-to-t from-background via-background/50 to-transparent flex items-center justify-center">
-                  <div className="text-center p-6">
-                    <Lock className="w-12 h-12 mx-auto mb-3 text-muted-foreground" />
-                    <h3 className="text-lg font-semibold mb-2">High-Resolution Image Locked</h3>
-                    <p className="text-sm text-muted-foreground mb-4 max-w-sm">
-                      Subscribe to {listing.region} to unlock precise satellite imagery and parcel boundaries.
-                    </p>
-                  </div>
-                </div>
-              )}
+            {/* Parcel Map - Main Hero */}
+            <section className="relative rounded-xl overflow-hidden mb-6 h-64 md:h-96">
+              <MiniParcelMap geom={usListing.geom} className="w-full h-full" />
 
-              {/* Badges */}
+              {/* Badges overlay */}
               <div className="absolute top-4 left-4 flex flex-wrap gap-2">
-                <Badge 
-                  className={cn(
-                    "text-lg py-1 px-3",
-                    listing.sunnyScore >= 90 ? "bg-primary" : 
-                    listing.sunnyScore >= 80 ? "bg-primary/80" : "bg-secondary"
-                  )}
-                >
-                  {listing.sunnyScore}/100
+                <Badge className="text-lg py-1 px-3 bg-primary">
+                  <Sun className="w-4 h-4 mr-1" />
+                  {solarPercentage}%
                 </Badge>
-                <Badge variant="secondary" className="py-1">{listing.landType}</Badge>
-                {listing.isOffMarket && (
-                  <Badge variant="outline" className="bg-background/80 border-primary text-primary py-1">
-                    Off-Market
+                {usListing.rank_global && (
+                  <Badge variant="outline" className="bg-amber-50/90 border-amber-300 text-amber-700 py-1">
+                    <Trophy className="w-3 h-3 mr-1" />
+                    #{usListing.rank_global} in US
                   </Badge>
                 )}
               </div>
-
-              {/* Share button */}
-              <Button 
-                variant="secondary" 
-                size="icon"
-                className="absolute top-4 right-4"
-              >
-                <Share2 className="w-4 h-4" />
-              </Button>
             </section>
 
             {/* Title and location */}
             <section className="mb-6">
               <h1 className="text-2xl md:text-3xl font-bold text-foreground mb-2">
-                {listing.size} {sizeUnit} {listing.landType.charAt(0).toUpperCase() + listing.landType.slice(1)} Land
+                {usListing.lot_acres?.toFixed(1)} Acres in {usListing.county}, {usListing.state_code}
               </h1>
               <div className="flex items-center gap-2 text-muted-foreground">
                 <MapPin className="w-4 h-4" />
-                <span>
-                  {listing.municipality && `${listing.municipality}, `}
-                  {listing.province}, {listing.region}
-                </span>
+                <span>{usListing.county} County, {usListing.state_code}</span>
               </div>
             </section>
 
             {/* Main content grid */}
             <div className="grid md:grid-cols-3 gap-6 mb-8">
-              {/* Left column - Score */}
+              {/* Left column - Specs */}
               <Card className="md:col-span-2">
                 <CardHeader>
-                  <CardTitle>SunnyScore™ Analysis</CardTitle>
+                  <CardTitle>Property Details</CardTitle>
                 </CardHeader>
-                <CardContent>
-                  <SunnyScoreBar 
-                    score={listing.sunnyScore} 
-                    breakdown={listing.scoreBreakdown} 
-                  />
-                  <p className="mt-4 text-sm text-muted-foreground">
-                    This parcel scores in the top {100 - listing.sunnyScore + 10}% of all analyzed lands in {listing.region}. 
-                    All displayed parcels are pre-vetted and cleared of known environmental constraints.
-                  </p>
-                </CardContent>
-              </Card>
+                <CardContent className="space-y-6">
+                  {/* Solar Score Bar */}
+                  <div className="space-y-2">
+                    <div className="flex justify-between">
+                      <span className="text-sm font-medium">Solar Probability</span>
+                      <span className="text-sm font-bold text-primary">{solarPercentage}%</span>
+                    </div>
+                    <div className="h-3 bg-muted rounded-full overflow-hidden">
+                      <div
+                        className="h-full bg-gradient-to-r from-primary/80 to-primary rounded-full transition-all"
+                        style={{ width: `${solarPercentage || 0}%` }}
+                      />
+                    </div>
+                    <p className="text-xs text-muted-foreground">
+                      This parcel has a {solarPercentage}% probability of being suitable for solar development based on our analysis.
+                    </p>
+                  </div>
 
-              {/* Right column - CTA */}
-              <Card className="bg-primary/5 border-primary/20">
-                <CardContent className="pt-6 text-center">
-                  <Lock className="w-8 h-8 mx-auto mb-3 text-primary" />
-                  <h3 className="font-semibold mb-2">Unlock Full Details</h3>
-                  <p className="text-sm text-muted-foreground mb-4">
-                    Get exact coordinates, cadastral ID, and high-res maps.
-                  </p>
-                  <Button className="w-full mb-2">
-                    Subscribe to {listing.region}
-                  </Button>
-                  <SampleReportModal>
-                    <Button variant="link" className="text-sm">
-                      See a Sample Report
-                    </Button>
-                  </SampleReportModal>
-                </CardContent>
-              </Card>
-            </div>
-
-            {/* Specifications */}
-            <section className="mb-8">
-              <h2 className="text-xl font-semibold mb-4">Technical Specifications</h2>
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                <Card>
-                  <CardContent className="pt-4">
-                    <div className="flex items-center gap-3">
+                  {/* Specs grid */}
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="flex items-center gap-3 p-3 bg-muted/30 rounded-lg">
                       <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center">
                         <Ruler className="w-5 h-5 text-primary" />
                       </div>
                       <div>
                         <p className="text-sm text-muted-foreground">Size</p>
-                        <p className="font-semibold">{listing.size} {sizeUnit}</p>
+                        <p className="font-semibold">{usListing.lot_acres?.toFixed(1)} Acres</p>
                       </div>
                     </div>
-                  </CardContent>
-                </Card>
 
-                <Card>
-                  <CardContent className="pt-4">
-                    <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center">
-                        <Mountain className="w-5 h-5 text-primary" />
-                      </div>
-                      <div>
-                        <p className="text-sm text-muted-foreground">Terrain</p>
-                        <p className="font-semibold">
-                          {listing.terrain === "flat" ? "Flat" : listing.terrain === "moderate" ? "Moderate" : "Hilly"}
-                        </p>
-                        <p className="text-xs text-muted-foreground">{listing.slopePercentage}% slope</p>
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-
-                <Card>
-                  <CardContent className="pt-4">
-                    <div className="flex items-center gap-3">
+                    <div className="flex items-center gap-3 p-3 bg-muted/30 rounded-lg">
                       <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center">
                         <Zap className="w-5 h-5 text-primary" />
                       </div>
                       <div>
-                        <p className="text-sm text-muted-foreground">Grid Distance</p>
-                        <p className="font-semibold">{listing.distanceToSubstation}</p>
+                        <p className="text-sm text-muted-foreground">Substation Distance</p>
+                        <p className="font-semibold">{usListing.power_substation?.toFixed(1)} miles</p>
                       </div>
                     </div>
-                  </CardContent>
-                </Card>
 
-                <Card>
-                  <CardContent className="pt-4">
-                    <div className="flex items-center gap-3">
+                    <div className="flex items-center gap-3 p-3 bg-muted/30 rounded-lg">
                       <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center">
-                        <Zap className="w-5 h-5 text-primary" />
+                        <CreditCard className="w-5 h-5 text-primary" />
                       </div>
                       <div>
-                        <p className="text-sm text-muted-foreground">Substation</p>
-                        <p className={cn("font-semibold", !isUnlocked && "blur-sm select-none")}>
-                          {isUnlocked ? listing.substationName : "████████"}
-                        </p>
+                        <p className="text-sm text-muted-foreground">List Price</p>
+                        <p className="font-semibold">{formatPrice(usListing.list_price)}</p>
                       </div>
                     </div>
-                  </CardContent>
-                </Card>
-              </div>
-            </section>
 
-            {/* Locked data preview */}
-            {!isUnlocked && (
-              <section className="mb-8">
-                <Card className="border-dashed">
-                  <CardContent className="py-6">
-                    <div className="grid grid-cols-2 md:grid-cols-3 gap-4 text-center">
-                      <div>
-                        <p className="text-sm text-muted-foreground mb-1">Coordinates</p>
-                        <p className="font-mono blur-sm select-none">42.4186, 11.8678</p>
-                        <Lock className="w-3 h-3 mx-auto mt-1 text-muted-foreground" />
+                    <div className="flex items-center gap-3 p-3 bg-muted/30 rounded-lg">
+                      <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center">
+                        <CreditCard className="w-5 h-5 text-primary" />
                       </div>
-                      {listing.country === "italy" && (
-                        <div>
-                          <p className="text-sm text-muted-foreground mb-1">Cadastral ID</p>
-                          <p className="blur-sm select-none">Foglio 4, Particella 22</p>
-                          <Lock className="w-3 h-3 mx-auto mt-1 text-muted-foreground" />
-                        </div>
-                      )}
                       <div>
-                        <p className="text-sm text-muted-foreground mb-1">Substation Name</p>
-                        <p className="blur-sm select-none">{listing.substationName}</p>
-                        <Lock className="w-3 h-3 mx-auto mt-1 text-muted-foreground" />
+                        <p className="text-sm text-muted-foreground">Price per Acre</p>
+                        <p className="font-semibold">{formatPricePerAcre(usListing.price_per_acre)}</p>
                       </div>
                     </div>
-                  </CardContent>
-                </Card>
-              </section>
-            )}
+                  </div>
+                </CardContent>
+              </Card>
 
-            {/* Similar listings */}
-            {nearbyListings.length > 0 && (
-              <section>
-                <h2 className="text-xl font-semibold mb-4">Similar Opportunities</h2>
-                <div className="grid md:grid-cols-2 gap-4">
-                  {nearbyListings.slice(0, 2).map((nearby) => (
-                    <ListingCard key={nearby.id} listing={nearby} />
-                  ))}
-                </div>
-              </section>
-            )}
+              {/* Right column - CTA */}
+              <Card className="bg-primary/5 border-primary/20">
+                <CardContent className="pt-6 space-y-4">
+                  <div className="text-center mb-4">
+                    <h3 className="text-lg font-semibold mb-2">Interested in this property?</h3>
+                    <p className="text-sm text-muted-foreground">
+                      Get full access to our database and connect with our team.
+                    </p>
+                  </div>
+
+                  <Button asChild className="w-full" size="lg">
+                    <a href={STRIPE_LINK} target="_blank" rel="noopener noreferrer">
+                      <CreditCard className="w-4 h-4 mr-2" />
+                      Subscribe Now
+                      <ExternalLink className="w-3 h-3 ml-2" />
+                    </a>
+                  </Button>
+
+                  <div className="relative">
+                    <div className="absolute inset-0 flex items-center">
+                      <span className="w-full border-t" />
+                    </div>
+                    <div className="relative flex justify-center text-xs uppercase">
+                      <span className="bg-card px-2 text-muted-foreground">or</span>
+                    </div>
+                  </div>
+
+                  <Button asChild variant="outline" className="w-full" size="lg">
+                    <a href={CALENDLY_LINK} target="_blank" rel="noopener noreferrer">
+                      <Calendar className="w-4 h-4 mr-2" />
+                      Schedule a Call
+                      <ExternalLink className="w-3 h-3 ml-2" />
+                    </a>
+                  </Button>
+
+                  <p className="text-xs text-center text-muted-foreground pt-2">
+                    Get personalized guidance on solar land opportunities.
+                  </p>
+                </CardContent>
+              </Card>
+            </div>
 
             {/* Footer with regional links */}
             <ListingsFooter
