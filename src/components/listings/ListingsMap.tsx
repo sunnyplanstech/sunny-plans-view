@@ -45,28 +45,13 @@ const ListingsMap = ({
     );
   }
 
-  // For US, use Google Maps with real listings
-  if (isUS && usListings.length > 0) {
+  // For US, always use Google Maps (shows US even with no listings)
+  if (isUS) {
     return (
       <ListingsGoogleMap
         listings={usListings}
         className="w-full h-full min-h-[400px]"
       />
-    );
-  }
-
-  // Fallback for US with no listings
-  if (isUS) {
-    return (
-      <div className="relative w-full h-full min-h-[400px] bg-muted/30 rounded-lg overflow-hidden flex items-center justify-center">
-        <div className="text-center p-8">
-          <MapPin className="w-12 h-12 mx-auto mb-4 text-muted-foreground" />
-          <h3 className="text-lg font-semibold mb-2">No Listings Found</h3>
-          <p className="text-muted-foreground">
-            {province || region || "This area"} doesn't have any listings yet.
-          </p>
-        </div>
-      </div>
     );
   }
 

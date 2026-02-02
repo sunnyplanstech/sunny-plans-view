@@ -1,5 +1,7 @@
 import { GoogleMap, Polygon } from "@react-google-maps/api";
 import { useMemo } from "react";
+import { MapPin } from "lucide-react";
+import { useGoogleMaps } from "./GoogleMapsProvider";
 
 interface MiniParcelMapProps {
   geom: string | null;
@@ -14,7 +16,7 @@ const mapContainerStyle = {
 const defaultCenter = { lat: 39.8283, lng: -98.5795 }; // Center of US
 
 // Parse WKT or GeoJSON geometry string to lat/lng coordinates
-function parseGeometry(geom: string | null): google.maps.LatLngLiteral[] {
+function parseGeometry(geom: string | null): { lat: number; lng: number }[] {
   if (!geom) return [];
 
   try {
@@ -62,7 +64,7 @@ function parseGeometry(geom: string | null): google.maps.LatLngLiteral[] {
 }
 
 // Calculate center of polygon
-function getPolygonCenter(coords: google.maps.LatLngLiteral[]): google.maps.LatLngLiteral {
+function getPolygonCenter(coords: { lat: number; lng: number }[]): { lat: number; lng: number } {
   if (coords.length === 0) return defaultCenter;
 
   const sum = coords.reduce(
@@ -77,8 +79,18 @@ function getPolygonCenter(coords: google.maps.LatLngLiteral[]): google.maps.LatL
 }
 
 export function MiniParcelMap({ geom, className }: MiniParcelMapProps) {
+  const { isLoaded } = useGoogleMaps();
   const coordinates = useMemo(() => parseGeometry(geom), [geom]);
   const center = useMemo(() => getPolygonCenter(coordinates), [coordinates]);
+
+  // Show fallback if Google Maps is not loaded or no coordinates
+  if (!isLoaded || coordinates.length === 0) {
+    return (
+      <div className={`bg-muted/50 flex items-center justify-center ${className}`}>
+        <MapPin className="w-6 h-6 text-muted-foreground" />
+      </div>
+    );
+  }
 
   const mapOptions: google.maps.MapOptions = {
     mapTypeId: "satellite",
@@ -96,14 +108,6 @@ export function MiniParcelMap({ geom, className }: MiniParcelMapProps) {
     strokeWeight: 2,
     strokeOpacity: 0.8,
   };
-
-  if (coordinates.length === 0) {
-    return (
-      <div className={`bg-muted flex items-center justify-center ${className}`}>
-        <span className="text-xs text-muted-foreground">No map data</span>
-      </div>
-    );
-  }
 
   return (
     <div className={className}>

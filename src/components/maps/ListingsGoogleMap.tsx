@@ -1,7 +1,9 @@
 import { GoogleMap, Polygon, InfoWindow, Marker } from "@react-google-maps/api";
 import { useMemo, useState, useCallback } from "react";
+import { MapPin } from "lucide-react";
 import { USListing } from "@/hooks/useUSListings";
 import { stateCodeToSlug, countyToSlug } from "@/data/locations";
+import { useGoogleMaps } from "./GoogleMapsProvider";
 
 interface ListingsGoogleMapProps {
   listings: USListing[];
@@ -16,7 +18,7 @@ const mapContainerStyle = {
 const defaultCenter = { lat: 39.8283, lng: -98.5795 }; // Center of US
 
 // Parse WKT or GeoJSON geometry string to lat/lng coordinates
-function parseGeometry(geom: string | null): google.maps.LatLngLiteral[] {
+function parseGeometry(geom: string | null): { lat: number; lng: number }[] {
   if (!geom) return [];
 
   try {
@@ -63,7 +65,7 @@ function parseGeometry(geom: string | null): google.maps.LatLngLiteral[] {
 }
 
 // Calculate center of polygon
-function getPolygonCenter(coords: google.maps.LatLngLiteral[]): google.maps.LatLngLiteral {
+function getPolygonCenter(coords: { lat: number; lng: number }[]): { lat: number; lng: number } {
   if (coords.length === 0) return defaultCenter;
 
   const sum = coords.reduce(
@@ -77,24 +79,6 @@ function getPolygonCenter(coords: google.maps.LatLngLiteral[]): google.maps.LatL
   };
 }
 
-// Calculate bounds to fit all listings
-function getBounds(listings: USListing[]): google.maps.LatLngBounds | null {
-  if (typeof google === "undefined" || listings.length === 0) return null;
-
-  const bounds = new google.maps.LatLngBounds();
-  let hasValidCoords = false;
-
-  listings.forEach((listing) => {
-    const coords = parseGeometry(listing.geom);
-    if (coords.length > 0) {
-      coords.forEach((coord) => bounds.extend(coord));
-      hasValidCoords = true;
-    }
-  });
-
-  return hasValidCoords ? bounds : null;
-}
-
 function formatPrice(price: number | null): string {
   if (!price) return "N/A";
   return new Intl.NumberFormat("en-US", {
@@ -105,16 +89,9 @@ function formatPrice(price: number | null): string {
 }
 
 export function ListingsGoogleMap({ listings, className }: ListingsGoogleMapProps) {
+  const { isLoaded, hasApiKey } = useGoogleMaps();
   const [selectedListing, setSelectedListing] = useState<USListing | null>(null);
   const [map, setMap] = useState<google.maps.Map | null>(null);
-
-  const onLoad = useCallback((map: google.maps.Map) => {
-    setMap(map);
-    const bounds = getBounds(listings);
-    if (bounds) {
-      map.fitBounds(bounds, { top: 50, right: 50, bottom: 50, left: 50 });
-    }
-  }, [listings]);
 
   const listingsWithCoords = useMemo(() => {
     return listings.map((listing) => ({
@@ -124,21 +101,71 @@ export function ListingsGoogleMap({ listings, className }: ListingsGoogleMapProp
     }));
   }, [listings]);
 
-  // Update bounds when listings change
+  const onLoad = useCallback((mapInstance: google.maps.Map) => {
+    setMap(mapInstance);
+  }, []);
+
+  // Update bounds when map or listings change
   useMemo(() => {
-    if (map && listings.length > 0) {
-      const bounds = getBounds(listings);
-      if (bounds) {
+    if (map && isLoaded && listings.length > 0 && typeof google !== "undefined") {
+      const bounds = new google.maps.LatLngBounds();
+      let hasValidCoords = false;
+
+      listings.forEach((listing) => {
+        const coords = parseGeometry(listing.geom);
+        if (coords.length > 0) {
+          coords.forEach((coord) => bounds.extend(coord));
+          hasValidCoords = true;
+        }
+      });
+
+      if (hasValidCoords) {
         map.fitBounds(bounds, { top: 50, right: 50, bottom: 50, left: 50 });
       }
     }
-  }, [map, listings]);
+  }, [map, listings, isLoaded]);
+
+  const handlePolygonClick = useCallback((listing: USListing) => {
+    setSelectedListing(listing);
+  }, []);
+
+  const buildListingUrl = useCallback((listing: USListing) => {
+    const stateSlug = stateCodeToSlug(listing.state_code) || listing.state_code.toLowerCase();
+    const countySlugStr = countyToSlug(listing.county);
+    return `/united-states/${stateSlug}/${countySlugStr}/listing/${listing.land_id}`;
+  }, []);
+
+  // Show fallback if Google Maps is not available
+  if (!isLoaded) {
+    return (
+      <div className={`bg-muted/30 flex flex-col items-center justify-center ${className}`}>
+        <MapPin className="w-12 h-12 text-muted-foreground mb-4" />
+        {!hasApiKey ? (
+          <>
+            <p className="text-muted-foreground text-center">
+              Google Maps API key not configured
+            </p>
+            <p className="text-xs text-muted-foreground mt-2">
+              Set VITE_GOOGLE_MAPS_API_KEY in .env
+            </p>
+          </>
+        ) : (
+          <p className="text-muted-foreground">Loading map...</p>
+        )}
+        {listings.length > 0 && (
+          <p className="text-sm text-muted-foreground mt-4">
+            {listings.length} listings available
+          </p>
+        )}
+      </div>
+    );
+  }
 
   const mapOptions: google.maps.MapOptions = {
     mapTypeId: "satellite",
     mapTypeControl: true,
     mapTypeControlOptions: {
-      position: typeof google !== "undefined" ? google.maps.ControlPosition.TOP_RIGHT : undefined,
+      position: google.maps.ControlPosition.TOP_RIGHT,
     },
     zoomControl: true,
     streetViewControl: false,
@@ -155,24 +182,6 @@ export function ListingsGoogleMap({ listings, className }: ListingsGoogleMapProp
       strokeOpacity: 0.9,
     };
   };
-
-  const handlePolygonClick = (listing: USListing) => {
-    setSelectedListing(listing);
-  };
-
-  const buildListingUrl = (listing: USListing) => {
-    const stateSlug = stateCodeToSlug(listing.state_code) || listing.state_code.toLowerCase();
-    const countySlugStr = countyToSlug(listing.county);
-    return `/united-states/${stateSlug}/${countySlugStr}/listing/${listing.land_id}`;
-  };
-
-  if (listings.length === 0) {
-    return (
-      <div className={`bg-muted flex items-center justify-center ${className}`}>
-        <span className="text-muted-foreground">No listings to display</span>
-      </div>
-    );
-  }
 
   return (
     <div className={className}>
