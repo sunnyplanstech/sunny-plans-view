@@ -17,33 +17,25 @@ const ListingsFooter = ({ currentCountry, currentRegion, currentProvince }: List
         {/* Explore Regions Section */}
         <div className="mb-8">
           <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider mb-6">
-            Explore Solar Land by Region
+            Explore Solar Land by State
           </h3>
 
-          <div>
-            {/* USA */}
-            <div>
-              <h4 className="text-sm font-medium text-foreground mb-3 flex items-center gap-2">
-                <span className="w-5 h-5 rounded-full bg-primary/10 flex items-center justify-center text-xs">🇺🇸</span>
-                United States
-              </h4>
-              <ul className="grid grid-cols-2 md:grid-cols-4 gap-x-4 gap-y-2">
-                {usStates
-                  .filter(state => state.slug !== currentRegion?.toLowerCase())
-                  .slice(0, 16)
-                  .map((state) => (
-                    <li key={state.slug}>
-                      <Link
-                        to={`/united-states/${state.slug}`}
-                        className="text-sm text-muted-foreground hover:text-primary transition-colors"
-                      >
-                        {state.name}
-                      </Link>
-                    </li>
-                  ))}
-              </ul>
-            </div>
-          </div>
+          <ul className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-x-4 gap-y-2">
+            {usStates.map((state) => (
+              <li key={state.slug}>
+                <Link
+                  to={`/united-states/${state.slug}`}
+                  className={`text-sm transition-colors ${
+                    state.slug === currentRegion?.toLowerCase()
+                      ? "text-primary font-medium"
+                      : "text-muted-foreground hover:text-primary"
+                  }`}
+                >
+                  {state.name}
+                </Link>
+              </li>
+            ))}
+          </ul>
         </div>
 
         {/* Footer bottom */}

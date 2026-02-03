@@ -1,13 +1,7 @@
 import { Link } from "react-router-dom";
 import { ChevronRight, MapPin } from "lucide-react";
 import { cn } from "@/lib/utils";
-import {
-  useUSCounties,
-  useItalianProvinces,
-  useItalianComuni,
-  type ItalianProvince,
-  type ItalianComune
-} from "@/hooks/useLocationData";
+import { useUSCounties } from "@/hooks/useLocationData";
 import { COUNTRIES } from "@/data/locations";
 
 interface SubdivisionNavProps {
@@ -18,35 +12,24 @@ interface SubdivisionNavProps {
 
 const SubdivisionNav = ({ country, region, province }: SubdivisionNavProps) => {
   const isUSA = country === "united-states";
-  const isItaly = country === "italy";
 
-  // Fetch subdivisions based on current level
+  // Fetch counties for the current state (used for both state-level and county-level views)
   const { data: usCounties, isLoading: loadingCounties } = useUSCounties(isUSA ? region : undefined);
-  const { data: italianProvinces, isLoading: loadingProvinces } = useItalianProvinces(isItaly && !province ? region : undefined);
-  const { data: italianComuni, isLoading: loadingComuni } = useItalianComuni(isItaly && province ? province : undefined);
 
-  // Show states/regions if at country level
+  // Show states if at country level (no region selected)
   const showStates = isUSA && !region;
-  const showRegions = isItaly && !region;
-  
-  // Show counties/provinces if at state/region level
-  const showCounties = isUSA && region && !province;
-  const showProvinces = isItaly && region && !province;
-  
-  // Show comuni if at province level (Italy only)
-  const showComuni = isItaly && province;
+
+  // Show counties if at state level or county level (show siblings at county level)
+  const showCounties = isUSA && region;
 
   // Get data to display
   const states = showStates ? COUNTRIES["united-states"].states : [];
-  const regions = showRegions ? COUNTRIES["italy"].regions : [];
   const counties = showCounties ? (usCounties || []) : [];
-  const provinces = showProvinces ? (italianProvinces || []) : [];
-  const comuni = showComuni ? (italianComuni || []) : [];
 
-  const isLoading = loadingCounties || loadingProvinces || loadingComuni;
+  const isLoading = loadingCounties;
 
   // Build navigation items
-  const navItems: { name: string; slug: string; href: string }[] = [];
+  const navItems: { name: string; slug: string; href: string; isCurrent?: boolean }[] = [];
 
   if (showStates) {
     states.forEach(state => {
@@ -56,36 +39,13 @@ const SubdivisionNav = ({ country, region, province }: SubdivisionNavProps) => {
         href: `/${country}/${state.slug}`
       });
     });
-  } else if (showRegions) {
-    regions.forEach(r => {
-      navItems.push({
-        name: r.name,
-        slug: r.slug,
-        href: `/${country}/${r.slug}`
-      });
-    });
   } else if (showCounties) {
     counties.forEach((c: { name: string; slug: string }) => {
       navItems.push({
         name: c.name,
         slug: c.slug,
-        href: `/${country}/${region}/${c.slug}`
-      });
-    });
-  } else if (showProvinces) {
-    provinces.forEach((p: ItalianProvince) => {
-      navItems.push({
-        name: p.name,
-        slug: p.slug,
-        href: `/${country}/${region}/${p.slug}`
-      });
-    });
-  } else if (showComuni) {
-    comuni.forEach((c: ItalianComune) => {
-      navItems.push({
-        name: c.name,
-        slug: c.slug,
-        href: `/${country}/${region}/${province}/${c.slug}`
+        href: `/${country}/${region}/${c.slug}`,
+        isCurrent: province === c.slug
       });
     });
   }
@@ -93,14 +53,13 @@ const SubdivisionNav = ({ country, region, province }: SubdivisionNavProps) => {
   // Determine section title
   const getSectionTitle = () => {
     if (showStates) return "Explore States";
-    if (showRegions) return "Explore Regions";
+    if (showCounties && province) return "Other Counties in This State";
     if (showCounties) return "Explore Counties";
-    if (showProvinces) return "Explore Provinces";
-    if (showComuni) return "Explore Comuni";
     return "Explore Areas";
   };
 
-  // Don't render if no items
+  // Don't render if no items or not USA
+  if (!isUSA) return null;
   if (!isLoading && navItems.length === 0) return null;
 
   return (
@@ -124,21 +83,27 @@ const SubdivisionNav = ({ country, region, province }: SubdivisionNavProps) => {
               to={item.href}
               className={cn(
                 "flex items-center justify-between px-3 py-2 rounded-md",
-                "bg-muted/50 hover:bg-muted transition-colors",
-                "text-sm text-foreground hover:text-primary",
-                "group"
+                "transition-colors",
+                "text-sm",
+                "group",
+                item.isCurrent
+                  ? "bg-primary/10 text-primary font-medium"
+                  : "bg-muted/50 hover:bg-muted text-foreground hover:text-primary"
               )}
             >
               <span className="truncate">{item.name}</span>
-              <ChevronRight className="w-4 h-4 text-muted-foreground group-hover:text-primary shrink-0" />
+              <ChevronRight className={cn(
+                "w-4 h-4 shrink-0",
+                item.isCurrent ? "text-primary" : "text-muted-foreground group-hover:text-primary"
+              )} />
             </Link>
           ))}
         </div>
       )}
 
-      {!isLoading && navItems.length === 0 && (showCounties || showProvinces || showComuni) && (
+      {!isLoading && navItems.length === 0 && showCounties && (
         <p className="text-sm text-muted-foreground italic">
-          No subdivisions available yet. Check back soon!
+          No counties available yet. Check back soon!
         </p>
       )}
     </section>
