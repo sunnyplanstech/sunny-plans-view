@@ -7,7 +7,6 @@ import Pricing from "@/components/Pricing";
 import FAQ from "@/components/FAQ";
 import CTA from "@/components/CTA";
 import Footer from "@/components/Footer";
-import ListingsFooter from "@/components/listings/ListingsFooter";
 import CalendlyEmbed from "@/components/CalendlyEmbed";
 
 const Index = () => {
@@ -22,7 +21,6 @@ const Index = () => {
       <CalendlyEmbed />
       <FAQ />
       <CTA />
-      <ListingsFooter />
       <Footer />
     </div>
   );
