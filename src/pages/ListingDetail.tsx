@@ -147,7 +147,7 @@ const ListingDetail = () => {
           <article className="max-w-4xl mx-auto">
             {/* Parcel Map - Main Hero */}
             <section className="relative rounded-xl overflow-hidden mb-6 h-64 md:h-96">
-              <MiniParcelMap geom={usListing.geom} className="w-full h-full" />
+              <MiniParcelMap latitude={usListing.latitude} longitude={usListing.longitude} className="w-full h-full" />
 
               {/* Badges overlay */}
               <div className="absolute top-4 left-4 flex flex-wrap gap-2">

@@ -24,11 +24,12 @@ export type Database = {
           price_per_acre: number | null
           prob_solar: number | null
           power_substation: number | null
-          geom: string | null
+          latitude: number | null
+          longitude: number | null
+          geom_json: string | null
           rank_global: number | null
           rank_in_state: number | null
           rank_in_county: number | null
-          created_at: string | null
         }
         Insert: {
           land_id: string
@@ -39,11 +40,12 @@ export type Database = {
           price_per_acre?: number | null
           prob_solar?: number | null
           power_substation?: number | null
-          geom?: string | null
+          latitude?: number | null
+          longitude?: number | null
+          geom_json?: string | null
           rank_global?: number | null
           rank_in_state?: number | null
           rank_in_county?: number | null
-          created_at?: string | null
         }
         Update: {
           land_id?: string
@@ -54,11 +56,12 @@ export type Database = {
           price_per_acre?: number | null
           prob_solar?: number | null
           power_substation?: number | null
-          geom?: string | null
+          latitude?: number | null
+          longitude?: number | null
+          geom_json?: string | null
           rank_global?: number | null
           rank_in_state?: number | null
           rank_in_county?: number | null
-          created_at?: string | null
         }
         Relationships: []
       }

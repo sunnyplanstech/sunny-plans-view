@@ -81,7 +81,8 @@ const USListingCard = ({ listing, showRank = "global" }: USListingCardProps) => 
         {/* Map section */}
         <div className="relative w-full sm:w-40 h-32 sm:h-auto sm:min-h-[180px] flex-shrink-0 overflow-hidden">
           <MiniParcelMap
-            geom={listing.geom}
+            latitude={listing.latitude}
+            longitude={listing.longitude}
             className="w-full h-full"
           />
 

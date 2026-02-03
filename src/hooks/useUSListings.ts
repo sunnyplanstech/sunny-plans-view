@@ -11,7 +11,9 @@ export interface USListing {
   price_per_acre: number | null;
   prob_solar: number | null;
   power_substation: number | null;
-  geom: string | null;
+  latitude: number | null;
+  longitude: number | null;
+  geom_json: string | null;
   rank_global: number | null;
   rank_in_state: number | null;
   rank_in_county: number | null;
