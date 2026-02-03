@@ -33,6 +33,12 @@ function formatPricePerAcre(price: number | null): string {
   }).format(price) + "/acre";
 }
 
+function formatSubstationDistance(meters: number | null): string {
+  if (!meters) return "N/A";
+  const miles = meters * 0.000621371;
+  return `${Math.round(meters)} m (${miles.toFixed(1)} mi)`;
+}
+
 const ListingDetail = () => {
   const { id, country, region, province } = useParams<{
     id: string;
@@ -82,7 +88,7 @@ const ListingDetail = () => {
 
   // SEO data
   const seoTitle = `${usListing.lot_acres?.toFixed(1) || ""} Acres Solar Land for Sale - ${usListing.county}, ${usListing.state_code} | Sunnyplans`;
-  const seoDescription = `${usListing.lot_acres?.toFixed(1)} acres of land in ${usListing.county}, ${usListing.state_code}. ${solarPercentage}% solar probability. ${usListing.power_substation?.toFixed(1)} miles from substation. Pre-vetted for BESS & solar projects.`;
+  const seoDescription = `${usListing.lot_acres?.toFixed(1)} acres of land in ${usListing.county}, ${usListing.state_code}. ${solarPercentage}% solar probability. ${formatSubstationDistance(usListing.power_substation)} from substation. Pre-vetted for BESS & solar projects.`;
 
   const combinedKeywords = [
     ...seoKeywords.primary.slice(0, 3),
@@ -111,7 +117,7 @@ const ListingDetail = () => {
     "additionalProperty": [
       { "@type": "PropertyValue", "name": "Size", "value": `${usListing.lot_acres} Acres` },
       { "@type": "PropertyValue", "name": "Solar Probability", "value": `${solarPercentage}%` },
-      { "@type": "PropertyValue", "name": "Substation Distance", "value": `${usListing.power_substation} miles` },
+      { "@type": "PropertyValue", "name": "Substation Distance", "value": formatSubstationDistance(usListing.power_substation) },
     ],
   };
 
@@ -218,7 +224,7 @@ const ListingDetail = () => {
                       </div>
                       <div>
                         <p className="text-sm text-muted-foreground">Substation Distance</p>
-                        <p className="font-semibold">{usListing.power_substation?.toFixed(1)} miles</p>
+                        <p className="font-semibold">{formatSubstationDistance(usListing.power_substation)}</p>
                       </div>
                     </div>
 

@@ -31,6 +31,12 @@ function formatPricePerAcre(price: number | null): string {
   }).format(price) + "/ac";
 }
 
+function formatSubstationDistance(meters: number | null): string {
+  if (!meters) return "N/A";
+  const miles = meters * 0.000621371;
+  return `${Math.round(meters)} m (${miles.toFixed(1)} mi)`;
+}
+
 function getSolarScoreColor(prob: number | null) {
   if (!prob) return "bg-secondary text-secondary-foreground";
   const percentage = prob * 100;
@@ -147,11 +153,7 @@ const USListingCard = ({ listing, showRank = "global" }: USListingCardProps) => 
               </div>
               <div className="flex items-center gap-1.5">
                 <Zap className="w-3.5 h-3.5" />
-                <span>
-                  {listing.power_substation
-                    ? `${listing.power_substation.toFixed(1)} mi to substation`
-                    : "N/A"}
-                </span>
+                <span>{formatSubstationDistance(listing.power_substation)} to substation</span>
               </div>
             </div>
           </CardContent>
