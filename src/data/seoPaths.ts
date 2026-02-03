@@ -13,7 +13,6 @@ export function generateDynamicSeoPaths(): string[] {
 
   for (const state of us.states) {
     paths.push(`/${us.slug}/${state.slug}`);
-    paths.push(`/${us.slug}/${state.slug}/listings`);
   }
 
   // County-level paths from counties.json
@@ -23,17 +22,7 @@ export function generateDynamicSeoPaths(): string[] {
 
     for (const countySlug of counties) {
       paths.push(`/${us.slug}/${stateSlug}/${countySlug}`);
-      paths.push(`/${us.slug}/${stateSlug}/${countySlug}/listings`);
     }
-  }
-
-  // Italy paths - nation and region level only
-  const italy = COUNTRIES["italy"];
-  paths.push(`/${italy.slug}`);
-
-  for (const region of italy.regions) {
-    paths.push(`/${italy.slug}/${region.slug}`);
-    paths.push(`/${italy.slug}/${region.slug}/particelle`);
   }
 
   return paths;
