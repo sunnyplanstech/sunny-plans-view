@@ -1,11 +1,10 @@
 import { Link } from "react-router-dom";
 import { ChevronRight, MapPin } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { 
-  useUSCounties, 
-  useItalianProvinces, 
+import {
+  useUSCounties,
+  useItalianProvinces,
   useItalianComuni,
-  type USCounty,
   type ItalianProvince,
   type ItalianComune
 } from "@/hooks/useLocationData";
@@ -66,7 +65,7 @@ const SubdivisionNav = ({ country, region, province }: SubdivisionNavProps) => {
       });
     });
   } else if (showCounties) {
-    counties.forEach((c: USCounty) => {
+    counties.forEach((c: { name: string; slug: string }) => {
       navItems.push({
         name: c.name,
         slug: c.slug,

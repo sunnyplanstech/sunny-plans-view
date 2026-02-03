@@ -1,40 +1,44 @@
 // src/data/seoPaths.ts
-// This file generates static SEO paths for the sitemap
-// Nation + first level (states/regions) are hardcoded
-// Lower levels (counties/provinces/comuni) come from database - add them here as needed
+// Generates static SEO paths for the sitemap
 
-import { COUNTRIES } from './locations';
+import { COUNTRIES, STATE_CODE_TO_SLUG } from './locations';
+import countiesByState from './counties.json';
 
 export function generateDynamicSeoPaths(): string[] {
   const paths: string[] = [];
 
-  // United States paths - nation and state level only (hardcoded)
+  // United States paths
   const us = COUNTRIES["united-states"];
-  paths.push(`/${us.slug}/`);
-  
+  paths.push(`/${us.slug}`);
+
   for (const state of us.states) {
-    const statePath = `/${us.slug}/${state.slug}/`;
-    paths.push(statePath);
-    paths.push(`${statePath}listings/`);
-    // County-level paths will be added dynamically when you populate the us_counties table
+    paths.push(`/${us.slug}/${state.slug}`);
+    paths.push(`/${us.slug}/${state.slug}/listings`);
   }
 
-  // Italy paths - nation and region level only (hardcoded)
+  // County-level paths from counties.json
+  for (const [stateCode, counties] of Object.entries(countiesByState)) {
+    const stateSlug = STATE_CODE_TO_SLUG[stateCode];
+    if (!stateSlug) continue;
+
+    for (const countySlug of counties) {
+      paths.push(`/${us.slug}/${stateSlug}/${countySlug}`);
+      paths.push(`/${us.slug}/${stateSlug}/${countySlug}/listings`);
+    }
+  }
+
+  // Italy paths - nation and region level only
   const italy = COUNTRIES["italy"];
-  paths.push(`/${italy.slug}/`);
-  
+  paths.push(`/${italy.slug}`);
+
   for (const region of italy.regions) {
-    const regionPath = `/${italy.slug}/${region.slug}/`;
-    paths.push(regionPath);
-    paths.push(`${regionPath}particelle/`);
-    // Province and comuni paths will be added dynamically when you populate the tables
+    paths.push(`/${italy.slug}/${region.slug}`);
+    paths.push(`/${italy.slug}/${region.slug}/particelle`);
   }
 
   return paths;
 }
 
-// Helper to generate paths from database data (call this server-side or at build time)
-// You can extend this to fetch from Supabase and generate additional paths
 export function getStaticSeoPaths(): string[] {
   return generateDynamicSeoPaths();
 }

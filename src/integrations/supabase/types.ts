@@ -146,27 +146,36 @@ export type Database = {
         }
         Relationships: []
       }
-      us_counties: {
+      mart_us_counties_seo: {
         Row: {
-          created_at: string
-          id: string
-          name: string
-          slug: string
-          state_slug: string
+          state_code: string
+          county_name: string
+          county_slug: string
+          listing_count: number
+          avg_prob_solar: number | null
+          max_prob_solar: number | null
+          min_price_per_acre: number | null
+          avg_price_per_acre: number | null
         }
         Insert: {
-          created_at?: string
-          id?: string
-          name: string
-          slug: string
-          state_slug: string
+          state_code: string
+          county_name: string
+          county_slug: string
+          listing_count: number
+          avg_prob_solar?: number | null
+          max_prob_solar?: number | null
+          min_price_per_acre?: number | null
+          avg_price_per_acre?: number | null
         }
         Update: {
-          created_at?: string
-          id?: string
-          name?: string
-          slug?: string
-          state_slug?: string
+          state_code?: string
+          county_name?: string
+          county_slug?: string
+          listing_count?: number
+          avg_prob_solar?: number | null
+          max_prob_solar?: number | null
+          min_price_per_acre?: number | null
+          avg_price_per_acre?: number | null
         }
         Relationships: []
       }
