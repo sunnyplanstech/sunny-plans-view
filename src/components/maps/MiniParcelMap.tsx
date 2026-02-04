@@ -1,5 +1,5 @@
 import { GoogleMap, Marker } from "@react-google-maps/api";
-import { useMemo } from "react";
+import { useMemo, useRef, useState, useEffect } from "react";
 import { MapPin } from "lucide-react";
 import { useGoogleMaps } from "./GoogleMapsProvider";
 
@@ -18,6 +18,8 @@ const defaultCenter = { lat: 39.8283, lng: -98.5795 }; // Center of US
 
 export function MiniParcelMap({ latitude, longitude, className }: MiniParcelMapProps) {
   const { isLoaded } = useGoogleMaps();
+  const containerRef = useRef<HTMLDivElement>(null);
+  const [isVisible, setIsVisible] = useState(false);
 
   const hasCoords = latitude != null && longitude != null;
   const center = useMemo(() => {
@@ -27,10 +29,32 @@ export function MiniParcelMap({ latitude, longitude, className }: MiniParcelMapP
     return defaultCenter;
   }, [latitude, longitude, hasCoords]);
 
-  // Show fallback if Google Maps is not loaded or no coordinates
-  if (!isLoaded || !hasCoords) {
+  // Lazy load: only render map when visible in viewport
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          setIsVisible(true);
+          observer.disconnect();
+        }
+      },
+      { rootMargin: "100px" } // Start loading 100px before visible
+    );
+
+    if (containerRef.current) {
+      observer.observe(containerRef.current);
+    }
+
+    return () => observer.disconnect();
+  }, []);
+
+  // Show placeholder if not visible yet, not loaded, or no coordinates
+  if (!isVisible || !isLoaded || !hasCoords) {
     return (
-      <div className={`bg-muted/50 flex items-center justify-center ${className}`}>
+      <div
+        ref={containerRef}
+        className={`bg-muted/50 flex items-center justify-center ${className}`}
+      >
         <MapPin className="w-6 h-6 text-muted-foreground" />
       </div>
     );
@@ -46,7 +70,7 @@ export function MiniParcelMap({ latitude, longitude, className }: MiniParcelMapP
   };
 
   return (
-    <div className={className}>
+    <div ref={containerRef} className={className}>
       <GoogleMap
         mapContainerStyle={mapContainerStyle}
         center={center}

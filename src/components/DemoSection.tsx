@@ -4,9 +4,16 @@ import { ArrowRight } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useUSListingsNational } from "@/hooks/useUSListings";
 import USListingCard from "@/components/listings/USListingCard";
+import {
+  Carousel,
+  CarouselContent,
+  CarouselItem,
+  CarouselPrevious,
+  CarouselNext,
+} from "@/components/ui/carousel";
 
 const DemoSection = () => {
-  const { data: listings, isLoading } = useUSListingsNational(10);
+  const { data: listings, isLoading } = useUSListingsNational(5);
 
   if (isLoading) {
     return (
@@ -17,11 +24,7 @@ const DemoSection = () => {
               <Skeleton className="h-10 w-80 mx-auto mb-4" />
               <Skeleton className="h-6 w-96 mx-auto" />
             </div>
-            <div className="grid gap-4 md:grid-cols-2">
-              {[1, 2, 3, 4].map((i) => (
-                <Skeleton key={i} className="h-48 w-full" />
-              ))}
-            </div>
+            <Skeleton className="h-48 w-full" />
           </div>
         </div>
       </section>
@@ -42,16 +45,32 @@ const DemoSection = () => {
             </p>
           </div>
 
-          {/* Listings Grid */}
-          <div className="grid gap-4 md:grid-cols-2">
-            {listings?.map((listing) => (
-              <USListingCard
-                key={listing.land_id}
-                listing={listing}
-                showRank="global"
-              />
-            ))}
-          </div>
+          {/* Listings Carousel */}
+          <Carousel
+            opts={{
+              align: "start",
+              loop: true,
+            }}
+            className="w-full"
+          >
+            <CarouselContent className="-ml-2 md:-ml-4">
+              {listings?.map((listing) => (
+                <CarouselItem key={listing.land_id} className="pl-2 md:pl-4 md:basis-1/2">
+                  <USListingCard
+                    listing={listing}
+                    showRank="global"
+                  />
+                </CarouselItem>
+              ))}
+            </CarouselContent>
+            <CarouselPrevious className="hidden md:flex -left-12" />
+            <CarouselNext className="hidden md:flex -right-12" />
+          </Carousel>
+
+          {/* Mobile swipe hint */}
+          <p className="text-center text-sm text-muted-foreground mt-4 md:hidden">
+            Swipe to see more listings
+          </p>
 
           {/* Call-to-action below listings */}
           <div className="text-center mt-10">
