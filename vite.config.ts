@@ -12,6 +12,10 @@ export default defineConfig(({ mode }) => ({
     host: "::",
     port: 8080,
   },
+  optimizeDeps: {
+    // Force re-optimization to avoid stale cache issues
+    force: true,
+  },
   plugins: [
     react(),
     mode === "development" && componentTagger(),
@@ -30,5 +34,19 @@ export default defineConfig(({ mode }) => ({
     alias: {
       "@": path.resolve(__dirname, "./src"),
     },
+  },
+  build: {
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          'vendor-react': ['react', 'react-dom', 'react-router-dom'],
+          'vendor-ui': ['@radix-ui/react-dialog', '@radix-ui/react-dropdown-menu', '@radix-ui/react-select', '@radix-ui/react-tabs', '@radix-ui/react-tooltip'],
+          'vendor-query': ['@tanstack/react-query'],
+        },
+      },
+    },
+    // Enable minification and tree shaking
+    minify: 'esbuild',
+    target: 'es2020',
   },
 }));

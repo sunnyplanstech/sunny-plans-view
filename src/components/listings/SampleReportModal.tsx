@@ -9,6 +9,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Zap, Ruler, FileText, CheckCircle, Sun, CreditCard, Calendar, ExternalLink, DollarSign, Trophy } from "lucide-react";
+import { MiniParcelMap } from "@/components/maps/MiniParcelMap";
 
 const STRIPE_LINK = "https://buy.stripe.com/4gM14pb5r7Wx4g1aOGaR200";
 const CALENDLY_LINK = "https://calendly.com/eracle/new-meeting";
@@ -18,19 +19,19 @@ interface SampleReportModalProps {
 }
 
 const SampleReportModal = ({ children }: SampleReportModalProps) => {
-  // Sample US listing data for the report
+  // Sample US listing data for the report - West Texas Solar Belt
   const sampleListing = {
-    probSolar: 87,
-    county: "Pike",
-    stateCode: "MS",
-    stateName: "Mississippi",
-    lotAcres: 42.5,
-    listPrice: 125000,
-    pricePerAcre: 2941,
-    powerSubstation: 1.2,
-    rankInState: 3,
-    coordinates: { lat: 31.1745, lng: -90.4018 },
-    parcelId: "PIKE-2024-00847",
+    probSolar: 92,
+    county: "Ector",
+    stateCode: "TX",
+    stateName: "Texas",
+    lotAcres: 85.3,
+    listPrice: 298000,
+    pricePerAcre: 3494,
+    powerSubstation: 0.8,
+    rankInState: 5,
+    coordinates: { lat: 31.7619, lng: -102.4892 },
+    parcelId: "ECTOR-2024-01293",
   };
 
   const formatPrice = (price: number) => {
@@ -58,12 +59,12 @@ const SampleReportModal = ({ children }: SampleReportModalProps) => {
         </DialogHeader>
 
         <div className="space-y-6">
-          {/* Sample satellite image */}
+          {/* Satellite map view */}
           <div className="relative rounded-lg overflow-hidden h-64">
-            <img
-              src="/1.png"
-              alt="Sample parcel satellite view with boundary"
-              className="w-full h-full object-cover"
+            <MiniParcelMap
+              latitude={sampleListing.coordinates.lat}
+              longitude={sampleListing.coordinates.lng}
+              className="h-full"
             />
             <div className="absolute top-3 left-3 flex gap-2">
               <Badge className="bg-primary">

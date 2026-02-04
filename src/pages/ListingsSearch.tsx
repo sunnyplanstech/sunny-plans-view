@@ -1,6 +1,6 @@
 import { useState, useMemo } from "react";
 import { useParams, useLocation } from "react-router-dom";
-import { List, MapIcon, SlidersHorizontal, Clock } from "lucide-react";
+import { List, MapIcon, SlidersHorizontal, Clock, Sun, DollarSign, TrendingUp, BarChart3 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import USListingCard from "@/components/listings/USListingCard";
@@ -19,6 +19,7 @@ import {
   useUSListingsByCounty,
   USListing,
 } from "@/hooks/useUSListings";
+import { useUSCounty } from "@/hooks/useLocationData";
 
 // Helper to format slug to display name
 const formatName = (slug: string) => {
@@ -157,6 +158,10 @@ const ListingsSearch = () => {
     10
   );
 
+  // Fetch county-level SEO stats (only at county level)
+  const countyStatsQuery = useUSCounty(isCounty ? region : undefined, isCounty ? province : undefined);
+  const countyStats = countyStatsQuery.data;
+
   // Get the appropriate listings based on URL depth
   const usListings: USListing[] = useMemo(() => {
     if (isCounty && countyQuery.data) return countyQuery.data;
@@ -184,13 +189,11 @@ const ListingsSearch = () => {
   // Check if we have zero results
   const hasNoResults = usListings.length === 0 && !isLoading;
 
-  // SEO data
+  // SEO data - enhanced with county stats when available
   const seoTitle = `Substation-Ready Land for BESS & Solar in ${locationName} | Sunnyplans`;
-  const seoDescription = generateListingSEODescription(
-    locationName,
-    usListings.length,
-    parentName
-  );
+  const seoDescription = countyStats
+    ? `Discover ${countyStats.listing_count} solar land opportunities in ${locationName}, ${parentName}. Avg solar probability: ${Math.round((countyStats.avg_prob_solar || 0) * 100)}%. Land from $${countyStats.min_price_per_acre?.toLocaleString()}/acre. Pre-vetted for BESS & solar.`
+    : generateListingSEODescription(locationName, usListings.length, parentName);
   const seoKeywordsStr = generateListingKeywords(
     locationName,
     region ? getLocationName(country, region) : undefined
@@ -210,7 +213,16 @@ const ListingsSearch = () => {
     "@type": "ItemList",
     name: `Substation-Ready Solar Land in ${locationName}`,
     description: seoDescription,
-    numberOfItems: usListings.length,
+    numberOfItems: countyStats?.listing_count || usListings.length,
+    ...(countyStats && {
+      aggregateRating: {
+        "@type": "AggregateRating",
+        ratingValue: Math.round((countyStats.avg_prob_solar || 0) * 100),
+        bestRating: 100,
+        worstRating: 0,
+        ratingCount: countyStats.listing_count,
+      },
+    }),
     itemListElement: usListings.slice(0, 10).map((listing, index) => ({
       "@type": "ListItem",
       position: index + 1,

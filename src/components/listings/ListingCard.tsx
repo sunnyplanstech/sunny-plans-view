@@ -40,6 +40,8 @@ const ListingCard = ({ listing, isUnlocked = false }: ListingCardProps) => {
           <img
             src={listing.imageUrl}
             alt={`Land parcel in ${listing.province}`}
+            loading="lazy"
+            decoding="async"
             className={cn(
               "w-full h-full object-cover transition-transform duration-500 group-hover:scale-110",
               !isUnlocked && "blur-md scale-105"

@@ -15,7 +15,7 @@ const SEOHead = ({
   keywords,
   canonicalUrl,
   structuredData,
-  ogImage = "/1.png"
+  ogImage = "/android-chrome-512x512.png"
 }: SEOHeadProps) => {
   useEffect(() => {
     // Update document title
