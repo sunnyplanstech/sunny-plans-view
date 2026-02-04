@@ -1,5 +1,6 @@
 import { lazy, Suspense } from "react";
 import Hero from "@/components/Hero";
+import SEOHead from "@/components/listings/SEOHead";
 
 // Lazy load below-fold components
 const DemoSection = lazy(() => import("@/components/DemoSection"));
@@ -21,6 +22,12 @@ const SectionFallback = () => (
 const Index = () => {
   return (
     <div className="min-h-screen">
+      <SEOHead
+        title="Sunnyplans - Find Substation-Ready Land for Solar & BESS Projects"
+        description="Discover premium land parcels near electrical substations with our proprietary SunnyScore™ ratings. Find the perfect site for your solar or battery storage project."
+        canonicalUrl="https://sunnyplans.com/"
+        keywords="solar land, BESS land, substation-ready land, renewable energy land, solar farm sites"
+      />
       <Hero />
       <Suspense fallback={<SectionFallback />}>
         <DemoSection />
