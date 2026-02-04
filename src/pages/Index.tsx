@@ -1,8 +1,8 @@
 import { lazy, Suspense } from "react";
 import Hero from "@/components/Hero";
-import DemoSection from "@/components/DemoSection";
 
 // Lazy load below-fold components
+const DemoSection = lazy(() => import("@/components/DemoSection"));
 const Features = lazy(() => import("@/components/Features"));
 const HowItWorks = lazy(() => import("@/components/HowItWorks"));
 const Testimonial = lazy(() => import("@/components/Testimonial"));
@@ -22,7 +22,9 @@ const Index = () => {
   return (
     <div className="min-h-screen">
       <Hero />
-      <DemoSection />
+      <Suspense fallback={<SectionFallback />}>
+        <DemoSection />
+      </Suspense>
       <Suspense fallback={<SectionFallback />}>
         <Features />
       </Suspense>

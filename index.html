@@ -9,6 +9,36 @@
     <link rel="preconnect" href="https://maps.gstatic.com" crossorigin />
     <link rel="dns-prefetch" href="https://www.googletagmanager.com" />
 
+    <!-- Critical CSS - inline for instant first paint -->
+    <style>
+      :root {
+        --background: 0 0% 100%;
+        --foreground: 88 68% 20%;
+        --primary: 88 68% 26%;
+        --primary-foreground: 0 0% 100%;
+        --secondary: 66 56% 48%;
+        --muted: 72 35% 90%;
+        --muted-foreground: 72 35% 40%;
+        --border: 72 35% 85%;
+        --gradient-hero: linear-gradient(135deg, hsl(88 68% 26%) 0%, hsl(66 56% 48%) 100%);
+        --gradient-subtle: linear-gradient(180deg, hsl(0 0% 100%) 0%, hsl(72 35% 96%) 100%);
+      }
+      *, *::before, *::after { box-sizing: border-box; border-width: 0; border-style: solid; }
+      html { line-height: 1.5; -webkit-text-size-adjust: 100%; font-family: ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji", "Segoe UI Emoji"; }
+      body { margin: 0; background-color: hsl(var(--background)); color: hsl(var(--foreground)); }
+      #root { min-height: 100vh; }
+      .min-h-screen { min-height: 100vh; }
+      .flex { display: flex; }
+      .items-center { align-items: center; }
+      .justify-center { justify-content: center; }
+      .text-center { text-align: center; }
+      .relative { position: relative; }
+      .overflow-hidden { overflow: hidden; }
+      .bg-gradient-subtle { background: var(--gradient-subtle); }
+      .container { width: 100%; margin-left: auto; margin-right: auto; padding-left: 1rem; padding-right: 1rem; }
+      @media (min-width: 1280px) { .container { max-width: 1280px; } }
+    </style>
+
     <!-- Favicons -->
     <link rel="icon" type="image/x-icon" href="/favicon.ico" />
     <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png" />
