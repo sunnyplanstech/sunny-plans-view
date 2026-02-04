@@ -17,7 +17,6 @@ const mapContainerStyle = {
 const defaultCenter = { lat: 39.8283, lng: -98.5795 }; // Center of US
 
 export function MiniParcelMap({ latitude, longitude, className }: MiniParcelMapProps) {
-  const { isLoaded } = useGoogleMaps();
   const containerRef = useRef<HTMLDivElement>(null);
   const [isVisible, setIsVisible] = useState(false);
 
@@ -29,12 +28,16 @@ export function MiniParcelMap({ latitude, longitude, className }: MiniParcelMapP
     return defaultCenter;
   }, [latitude, longitude, hasCoords]);
 
+  const { isLoaded, requestLoad } = useGoogleMaps();
+
   // Lazy load: only render map when visible in viewport
   useEffect(() => {
     const observer = new IntersectionObserver(
       ([entry]) => {
         if (entry.isIntersecting) {
           setIsVisible(true);
+          // Request Google Maps to load when map becomes visible
+          requestLoad();
           observer.disconnect();
         }
       },
@@ -46,7 +49,7 @@ export function MiniParcelMap({ latitude, longitude, className }: MiniParcelMapP
     }
 
     return () => observer.disconnect();
-  }, []);
+  }, [requestLoad]);
 
   // Show placeholder if not visible yet, not loaded, or no coordinates
   if (!isVisible || !isLoaded || !hasCoords) {
