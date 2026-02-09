@@ -1,6 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
-import { SLUG_TO_STATE_CODE, STATE_CODE_TO_SLUG } from '@/data/locations';
+import { SLUG_TO_STATE_CODE } from '@/data/locations';
 
 // Types for location data
 export interface USCountySEO {
@@ -14,19 +14,15 @@ export interface USCountySEO {
   avg_price_per_acre: number | null;
 }
 
-export interface ItalianProvince {
-  id: string;
-  name: string;
-  slug: string;
+export interface ITComuneSEO {
+  comune_code: string;
+  comune_name: string;
+  comune_slug: string;
+  region_name: string;
   region_slug: string;
-}
-
-export interface ItalianComune {
-  id: string;
-  name: string;
-  slug: string;
-  province_slug: string;
-  region_slug: string;
+  listing_count: number;
+  avg_prob_solar: number | null;
+  max_prob_solar: number | null;
 }
 
 // Fetch US counties by state slug (maps to state_code internally)
@@ -80,84 +76,47 @@ export function useUSCounty(stateSlug: string | undefined, countySlug: string | 
   });
 }
 
-// Fetch Italian provinces by region
-export function useItalianProvinces(regionSlug: string | undefined) {
+// Fetch Italian comuni by region slug (for SubdivisionNav)
+export function useITComuni(regionSlug: string | undefined) {
   return useQuery({
-    queryKey: ['italian-provinces', regionSlug],
+    queryKey: ['it-comuni-seo', regionSlug],
     queryFn: async () => {
       if (!regionSlug) return [];
 
       const { data, error } = await supabase
-        .from('italian_provinces')
+        .from('mart_it_comuni_seo')
         .select('*')
         .eq('region_slug', regionSlug)
-        .order('name');
+        .order('comune_name');
 
       if (error) throw error;
-      return data as ItalianProvince[];
+
+      return (data as ITComuneSEO[]).map(comune => ({
+        ...comune,
+        name: comune.comune_name,
+        slug: comune.comune_slug,
+      }));
     },
     enabled: !!regionSlug,
   });
 }
 
-// Fetch Italian comuni by province
-export function useItalianComuni(provinceSlug: string | undefined) {
-  return useQuery({
-    queryKey: ['italian-comuni', provinceSlug],
-    queryFn: async () => {
-      if (!provinceSlug) return [];
-
-      const { data, error } = await supabase
-        .from('italian_comuni')
-        .select('*')
-        .eq('province_slug', provinceSlug)
-        .order('name');
-
-      if (error) throw error;
-      return data as ItalianComune[];
-    },
-    enabled: !!provinceSlug,
-  });
-}
-
-// Fetch a single Italian province by slug
-export function useItalianProvince(regionSlug: string | undefined, provinceSlug: string | undefined) {
-  return useQuery({
-    queryKey: ['italian-province', regionSlug, provinceSlug],
-    queryFn: async () => {
-      if (!regionSlug || !provinceSlug) return null;
-
-      const { data, error } = await supabase
-        .from('italian_provinces')
-        .select('*')
-        .eq('region_slug', regionSlug)
-        .eq('slug', provinceSlug)
-        .maybeSingle();
-
-      if (error) throw error;
-      return data as ItalianProvince | null;
-    },
-    enabled: !!regionSlug && !!provinceSlug,
-  });
-}
-
 // Fetch a single Italian comune by slug
-export function useItalianComune(provinceSlug: string | undefined, comuneSlug: string | undefined) {
+export function useITComune(comuneSlug: string | undefined) {
   return useQuery({
-    queryKey: ['italian-comune', provinceSlug, comuneSlug],
+    queryKey: ['it-comune-seo', comuneSlug],
     queryFn: async () => {
-      if (!provinceSlug || !comuneSlug) return null;
+      if (!comuneSlug) return null;
 
       const { data, error } = await supabase
-        .from('italian_comuni')
+        .from('mart_it_comuni_seo')
         .select('*')
-        .eq('province_slug', provinceSlug)
-        .eq('slug', comuneSlug)
+        .eq('comune_slug', comuneSlug)
         .maybeSingle();
 
       if (error) throw error;
-      return data as ItalianComune | null;
+      return data as ITComuneSEO | null;
     },
-    enabled: !!provinceSlug && !!comuneSlug,
+    enabled: !!comuneSlug,
   });
 }

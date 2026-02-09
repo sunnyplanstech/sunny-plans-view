@@ -3,6 +3,7 @@
 
 import { COUNTRIES, STATE_CODE_TO_SLUG } from './locations';
 import countiesByState from './counties.json';
+import comuniByRegion from './comuni.json';
 
 export function generateDynamicSeoPaths(): string[] {
   const paths: string[] = [];
@@ -22,6 +23,21 @@ export function generateDynamicSeoPaths(): string[] {
 
     for (const countySlug of counties) {
       paths.push(`/${us.slug}/${stateSlug}/${countySlug}`);
+    }
+  }
+
+  // Italy paths
+  const it = COUNTRIES["italy"];
+  paths.push(`/${it.slug}`);
+
+  for (const region of it.regions) {
+    paths.push(`/${it.slug}/${region.slug}`);
+  }
+
+  // Comune-level paths from comuni.json
+  for (const [regionSlug, comuni] of Object.entries(comuniByRegion)) {
+    for (const comuneSlug of comuni) {
+      paths.push(`/${it.slug}/${regionSlug}/${comuneSlug}`);
     }
   }
 

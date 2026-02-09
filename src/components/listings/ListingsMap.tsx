@@ -1,5 +1,6 @@
-import { Clock, MapPin } from "lucide-react";
+import { MapPin } from "lucide-react";
 import { USListing } from "@/hooks/useUSListings";
+import { ITListing } from "@/hooks/useITListings";
 import ListingsGoogleMap from "@/components/maps/ListingsGoogleMap";
 
 interface ListingsMapProps {
@@ -9,6 +10,51 @@ interface ListingsMapProps {
   listingCount: number;
   isUnlocked?: boolean;
   usListings?: USListing[];
+  itListings?: ITListing[];
+}
+
+function itListingsToMapFormat(listings: ITListing[]) {
+  return listings
+    .map((listing) => {
+      const center = getParcelCenter(listing.geom_json);
+      if (!center) return null;
+      return {
+        land_id: listing.gml_id,
+        latitude: center.lat,
+        longitude: center.lng,
+        state_code: listing.region_slug,
+        county: listing.comune_name,
+        lot_acres: null as number | null,
+        list_price: null as number | null,
+        price_per_acre: null as number | null,
+        prob_solar: listing.prob_solar,
+        power_substation: null as number | null,
+        geom_json: listing.geom_json,
+        rank_global: listing.rank_global,
+        rank_in_state: null as number | null,
+        rank_in_county: listing.rank_in_comune,
+      };
+    })
+    .filter((l): l is NonNullable<typeof l> => l !== null);
+}
+
+function getParcelCenter(geomJson: string | object | null): { lat: number; lng: number } | null {
+  if (!geomJson) return null;
+  try {
+    const geom = typeof geomJson === "string" ? JSON.parse(geomJson) : geomJson;
+    const coords =
+      geom.type === "MultiPolygon"
+        ? geom.coordinates[0][0]
+        : geom.type === "Polygon"
+        ? geom.coordinates[0]
+        : null;
+    if (!coords || coords.length === 0) return null;
+    const sumLat = coords.reduce((s: number, c: number[]) => s + c[1], 0);
+    const sumLng = coords.reduce((s: number, c: number[]) => s + c[0], 0);
+    return { lat: sumLat / coords.length, lng: sumLng / coords.length };
+  } catch {
+    return null;
+  }
 }
 
 const ListingsMap = ({
@@ -17,39 +63,25 @@ const ListingsMap = ({
   province,
   listingCount,
   usListings = [],
+  itListings = [],
 }: ListingsMapProps) => {
   const isUS = country === "united-states";
   const isItaly = country === "italy";
 
-  // For Italy, show "Coming Soon" message
-  if (isItaly) {
-    return (
-      <div className="relative w-full h-full min-h-[400px] bg-muted/30 rounded-lg overflow-hidden flex items-center justify-center">
-        <div className="text-center p-8 max-w-md">
-          <div className="w-20 h-20 mx-auto mb-6 rounded-full bg-primary/10 flex items-center justify-center">
-            <Clock className="w-10 h-10 text-primary" />
-          </div>
-          <h3 className="text-2xl font-bold mb-3">Coming Soon</h3>
-          <p className="text-muted-foreground mb-4">
-            Italian land listings are coming soon. We're currently focused on the US market
-            with our comprehensive solar & BESS land database.
-          </p>
-          <div className="flex items-center justify-center gap-2 text-sm text-muted-foreground">
-            <MapPin className="w-4 h-4" />
-            <span>
-              {province || region || "Italy"} - Stay tuned for updates
-            </span>
-          </div>
-        </div>
-      </div>
-    );
-  }
-
-  // For US, always use Google Maps (shows US even with no listings)
   if (isUS) {
     return (
       <ListingsGoogleMap
         listings={usListings}
+        className="w-full h-full min-h-[400px]"
+      />
+    );
+  }
+
+  if (isItaly) {
+    const mappedListings = itListingsToMapFormat(itListings);
+    return (
+      <ListingsGoogleMap
+        listings={mappedListings}
         className="w-full h-full min-h-[400px]"
       />
     );

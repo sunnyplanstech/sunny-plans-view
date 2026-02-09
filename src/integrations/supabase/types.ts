@@ -146,6 +146,81 @@ export type Database = {
         }
         Relationships: []
       }
+      mart_it_catasto_solar_prob: {
+        Row: {
+          gml_id: string
+          comune_code: string
+          comune_name: string
+          comune_slug: string
+          foglio: string | null
+          particella: string | null
+          prob_solar: number | null
+          rank_global: number | null
+          rank_in_comune: number | null
+          region_slug: string
+          geom_json: string | null
+        }
+        Insert: {
+          gml_id: string
+          comune_code: string
+          comune_name: string
+          comune_slug: string
+          foglio?: string | null
+          particella?: string | null
+          prob_solar?: number | null
+          rank_global?: number | null
+          rank_in_comune?: number | null
+          region_slug: string
+          geom_json?: string | null
+        }
+        Update: {
+          gml_id?: string
+          comune_code?: string
+          comune_name?: string
+          comune_slug?: string
+          foglio?: string | null
+          particella?: string | null
+          prob_solar?: number | null
+          rank_global?: number | null
+          rank_in_comune?: number | null
+          region_slug?: string
+          geom_json?: string | null
+        }
+        Relationships: []
+      }
+      mart_it_comuni_seo: {
+        Row: {
+          comune_code: string
+          comune_name: string
+          comune_slug: string
+          region_name: string
+          region_slug: string
+          listing_count: number
+          avg_prob_solar: number | null
+          max_prob_solar: number | null
+        }
+        Insert: {
+          comune_code: string
+          comune_name: string
+          comune_slug: string
+          region_name: string
+          region_slug: string
+          listing_count: number
+          avg_prob_solar?: number | null
+          max_prob_solar?: number | null
+        }
+        Update: {
+          comune_code?: string
+          comune_name?: string
+          comune_slug?: string
+          region_name?: string
+          region_slug?: string
+          listing_count?: number
+          avg_prob_solar?: number | null
+          max_prob_solar?: number | null
+        }
+        Relationships: []
+      }
       mart_us_counties_seo: {
         Row: {
           state_code: string

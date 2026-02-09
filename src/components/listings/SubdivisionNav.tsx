@@ -1,7 +1,7 @@
 import { Link } from "react-router-dom";
 import { ChevronRight, MapPin } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { useUSCounties } from "@/hooks/useLocationData";
+import { useUSCounties, useITComuni } from "@/hooks/useLocationData";
 import { COUNTRIES } from "@/data/locations";
 
 interface SubdivisionNavProps {
@@ -12,35 +12,54 @@ interface SubdivisionNavProps {
 
 const SubdivisionNav = ({ country, region, province }: SubdivisionNavProps) => {
   const isUSA = country === "united-states";
+  const isItaly = country === "italy";
 
-  // Fetch counties for the current state (used for both state-level and county-level views)
+  // Fetch counties for the current US state
   const { data: usCounties, isLoading: loadingCounties } = useUSCounties(isUSA ? region : undefined);
 
-  // Show states if at country level (no region selected)
-  const showStates = isUSA && !region;
+  // Fetch comuni for the current Italian region
+  const { data: itComuni, isLoading: loadingComuni } = useITComuni(isItaly ? region : undefined);
 
-  // Show counties if at state level or county level (show siblings at county level)
-  const showCounties = isUSA && region;
+  // US navigation logic
+  const showUSStates = isUSA && !region;
+  const showUSCounties = isUSA && !!region;
 
-  // Get data to display
-  const states = showStates ? COUNTRIES["united-states"].states : [];
-  const counties = showCounties ? (usCounties || []) : [];
+  // Italy navigation logic
+  const showITRegions = isItaly && !region;
+  const showITComuni = isItaly && !!region;
 
-  const isLoading = loadingCounties;
+  const isLoading = loadingCounties || loadingComuni;
 
   // Build navigation items
   const navItems: { name: string; slug: string; href: string; isCurrent?: boolean }[] = [];
 
-  if (showStates) {
-    states.forEach(state => {
+  if (showUSStates) {
+    COUNTRIES["united-states"].states.forEach(state => {
       navItems.push({
         name: state.name,
         slug: state.slug,
         href: `/${country}/${state.slug}`
       });
     });
-  } else if (showCounties) {
-    counties.forEach((c: { name: string; slug: string }) => {
+  } else if (showUSCounties) {
+    (usCounties || []).forEach((c: { name: string; slug: string }) => {
+      navItems.push({
+        name: c.name,
+        slug: c.slug,
+        href: `/${country}/${region}/${c.slug}`,
+        isCurrent: province === c.slug
+      });
+    });
+  } else if (showITRegions) {
+    COUNTRIES["italy"].regions.forEach(r => {
+      navItems.push({
+        name: r.name,
+        slug: r.slug,
+        href: `/${country}/${r.slug}`
+      });
+    });
+  } else if (showITComuni) {
+    (itComuni || []).forEach((c: { name: string; slug: string }) => {
       navItems.push({
         name: c.name,
         slug: c.slug,
@@ -52,14 +71,16 @@ const SubdivisionNav = ({ country, region, province }: SubdivisionNavProps) => {
 
   // Determine section title
   const getSectionTitle = () => {
-    if (showStates) return "Explore States";
-    if (showCounties && province) return "Other Counties in This State";
-    if (showCounties) return "Explore Counties";
+    if (showUSStates) return "Explore States";
+    if (showUSCounties && province) return "Other Counties in This State";
+    if (showUSCounties) return "Explore Counties";
+    if (showITRegions) return "Explore Regions";
+    if (showITComuni && province) return "Other Comuni in This Region";
+    if (showITComuni) return "Explore Comuni";
     return "Explore Areas";
   };
 
-  // Don't render if no items or not USA
-  if (!isUSA) return null;
+  if (!isUSA && !isItaly) return null;
   if (!isLoading && navItems.length === 0) return null;
 
   return (
@@ -101,9 +122,9 @@ const SubdivisionNav = ({ country, region, province }: SubdivisionNavProps) => {
         </div>
       )}
 
-      {!isLoading && navItems.length === 0 && showCounties && (
+      {!isLoading && navItems.length === 0 && (showUSCounties || showITComuni) && (
         <p className="text-sm text-muted-foreground italic">
-          No counties available yet. Check back soon!
+          No {isItaly ? "comuni" : "counties"} available yet. Check back soon!
         </p>
       )}
     </section>

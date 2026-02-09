@@ -1,9 +1,10 @@
 import { useState, useMemo } from "react";
-import { useParams, useLocation } from "react-router-dom";
-import { List, MapIcon, SlidersHorizontal, Clock, Sun, DollarSign, TrendingUp, BarChart3 } from "lucide-react";
+import { useParams } from "react-router-dom";
+import { List, MapIcon, SlidersHorizontal } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import USListingCard from "@/components/listings/USListingCard";
+import ITListingCard from "@/components/listings/ITListingCard";
 import ListingsMap from "@/components/listings/ListingsMap";
 import ListingsBreadcrumb from "@/components/listings/ListingsBreadcrumb";
 import ListingsFooter from "@/components/listings/ListingsFooter";
@@ -12,14 +13,20 @@ import SampleReportModal from "@/components/listings/SampleReportModal";
 import SEOHead from "@/components/listings/SEOHead";
 import ListingsSEOContent from "@/components/listings/ListingsSEOContent";
 import { generateListingSEODescription, generateListingKeywords } from "@/data/mockListings";
-import { COUNTRIES, slugToCounty } from "@/data/locations";
+import { COUNTRIES } from "@/data/locations";
 import {
   useUSListingsNational,
   useUSListingsByState,
   useUSListingsByCounty,
   USListing,
 } from "@/hooks/useUSListings";
-import { useUSCounty } from "@/hooks/useLocationData";
+import {
+  useITListingsNational,
+  useITListingsByRegion,
+  useITListingsByComune,
+  ITListing,
+} from "@/hooks/useITListings";
+import { useUSCounty, useITComune } from "@/hooks/useLocationData";
 
 // Helper to format slug to display name
 const formatName = (slug: string) => {
@@ -57,8 +64,7 @@ const getLocationName = (
 };
 
 // Determine which rank to show based on URL depth
-function getRankType(
-  country?: string,
+function getUSRankType(
   region?: string,
   province?: string
 ): "global" | "state" | "county" {
@@ -67,116 +73,75 @@ function getRankType(
   return "global";
 }
 
-// Italy Coming Soon component
-const ItalyComingSoon = ({
-  locationName,
-  country,
-  region,
-  province,
-}: {
-  locationName: string;
-  country?: string;
-  region?: string;
-  province?: string;
-}) => {
-  const seoTitle = `Solar Land in ${locationName} - Coming Soon | Sunnyplans`;
-  const seoDescription = `Solar and BESS land opportunities in ${locationName}, Italy are coming soon. We're currently focused on the US market.`;
-
-  return (
-    <>
-      <SEOHead
-        title={seoTitle}
-        description={seoDescription}
-        keywords="Italy solar land, BESS Italy, solar farm Italy"
-      />
-
-      <div className="min-h-screen bg-background">
-        <header className="border-b border-border bg-card">
-          <div className="container mx-auto px-4 py-4">
-            <ListingsBreadcrumb
-              country={country}
-              region={region}
-              province={province}
-            />
-          </div>
-        </header>
-
-        <main className="container mx-auto px-4 py-12">
-          <div className="max-w-2xl mx-auto text-center">
-            <div className="w-24 h-24 mx-auto mb-8 rounded-full bg-primary/10 flex items-center justify-center">
-              <Clock className="w-12 h-12 text-primary" />
-            </div>
-            <h1 className="text-3xl md:text-4xl font-bold mb-4">
-              Coming Soon to {locationName}
-            </h1>
-            <p className="text-lg text-muted-foreground mb-8">
-              We're expanding our solar and BESS land database to Italy. Stay
-              tuned for updates on available parcels in {locationName}.
-            </p>
-            <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <Button asChild size="lg">
-                <a href="/united-states">Browse US Listings</a>
-              </Button>
-              <SampleReportModal>
-                <Button variant="outline" size="lg">
-                  See a Sample Report
-                </Button>
-              </SampleReportModal>
-            </div>
-          </div>
-
-          <ListingsFooter
-            currentCountry={country}
-            currentRegion={region}
-            currentProvince={province}
-          />
-        </main>
-      </div>
-    </>
-  );
-};
+function getITRankType(
+  region?: string,
+  province?: string
+): "global" | "region" | "comune" {
+  if (province) return "comune";
+  if (region) return "region";
+  return "global";
+}
 
 const ListingsSearch = () => {
   const { country, region, province } = useParams();
-  const location = useLocation();
   const [viewMode, setViewMode] = useState<"list" | "map">("list");
 
   const isUS = country === "united-states";
   const isItaly = country === "italy";
 
-  // Determine the level and use appropriate hook
-  const isNational = isUS && !region;
-  const isState = isUS && region && !province;
-  const isCounty = isUS && region && province;
+  // US levels
+  const isUSNational = isUS && !region;
+  const isUSState = isUS && !!region && !province;
+  const isUSCounty = isUS && !!region && !!province;
+
+  // Italy levels
+  const isITNational = isItaly && !region;
+  const isITRegion = isItaly && !!region && !province;
+  const isITComune = isItaly && !!region && !!province;
 
   // Fetch US listings based on URL depth
   const nationalQuery = useUSListingsNational(10);
-  const stateQuery = useUSListingsByState(isState || isCounty ? region : undefined, 10);
+  const stateQuery = useUSListingsByState(isUSState || isUSCounty ? region : undefined, 10);
   const countyQuery = useUSListingsByCounty(
-    isCounty ? region : undefined,
-    isCounty ? province : undefined,
+    isUSCounty ? region : undefined,
+    isUSCounty ? province : undefined,
     10
   );
 
-  // Fetch county-level SEO stats (only at county level)
-  const countyStatsQuery = useUSCounty(isCounty ? region : undefined, isCounty ? province : undefined);
+  // Fetch Italian listings based on URL depth
+  const itNationalQuery = useITListingsNational(10);
+  const itRegionQuery = useITListingsByRegion(isITRegion || isITComune ? region : undefined, 10);
+  const itComuneQuery = useITListingsByComune(isITComune ? province : undefined, 10);
+
+  // Fetch county/comune-level SEO stats
+  const countyStatsQuery = useUSCounty(isUSCounty ? region : undefined, isUSCounty ? province : undefined);
   const countyStats = countyStatsQuery.data;
+  const comuneStatsQuery = useITComune(isITComune ? province : undefined);
+  const comuneStats = comuneStatsQuery.data;
 
-  // Get the appropriate listings based on URL depth
+  // Get the appropriate US listings
   const usListings: USListing[] = useMemo(() => {
-    if (isCounty && countyQuery.data) return countyQuery.data;
-    if (isState && stateQuery.data) return stateQuery.data;
-    if (isNational && nationalQuery.data) return nationalQuery.data;
+    if (isUSCounty && countyQuery.data) return countyQuery.data;
+    if (isUSState && stateQuery.data) return stateQuery.data;
+    if (isUSNational && nationalQuery.data) return nationalQuery.data;
     return [];
-  }, [isNational, isState, isCounty, nationalQuery.data, stateQuery.data, countyQuery.data]);
+  }, [isUSNational, isUSState, isUSCounty, nationalQuery.data, stateQuery.data, countyQuery.data]);
 
-  const isLoading = isNational
-    ? nationalQuery.isLoading
-    : isState
-    ? stateQuery.isLoading
-    : isCounty
-    ? countyQuery.isLoading
+  // Get the appropriate IT listings
+  const itListings: ITListing[] = useMemo(() => {
+    if (isITComune && itComuneQuery.data) return itComuneQuery.data;
+    if (isITRegion && itRegionQuery.data) return itRegionQuery.data;
+    if (isITNational && itNationalQuery.data) return itNationalQuery.data;
+    return [];
+  }, [isITNational, isITRegion, isITComune, itNationalQuery.data, itRegionQuery.data, itComuneQuery.data]);
+
+  const isLoading = isUS
+    ? (isUSNational ? nationalQuery.isLoading : isUSState ? stateQuery.isLoading : isUSCounty ? countyQuery.isLoading : false)
+    : isItaly
+    ? (isITNational ? itNationalQuery.isLoading : isITRegion ? itRegionQuery.isLoading : isITComune ? itComuneQuery.isLoading : false)
     : false;
+
+  const totalListings = isUS ? usListings : itListings;
 
   // Format location name for display
   const locationName = getLocationName(country, region, province);
@@ -186,18 +151,31 @@ const ListingsSearch = () => {
     ? "Italy"
     : "United States";
 
-  // Check if we have zero results
-  const hasNoResults = usListings.length === 0 && !isLoading;
+  const hasNoResults = totalListings.length === 0 && !isLoading;
 
-  // SEO data - enhanced with county stats when available
-  const seoTitle = `Substation-Ready Land for BESS & Solar in ${locationName} | Sunnyplans`;
-  const seoDescription = countyStats
-    ? `Discover ${countyStats.listing_count} solar land opportunities in ${locationName}, ${parentName}. Avg solar probability: ${Math.round((countyStats.avg_prob_solar || 0) * 100)}%. Land from $${countyStats.min_price_per_acre?.toLocaleString()}/acre. Pre-vetted for BESS & solar.`
-    : generateListingSEODescription(locationName, usListings.length, parentName);
-  const seoKeywordsStr = generateListingKeywords(
-    locationName,
-    region ? getLocationName(country, region) : undefined
-  );
+  // SEO data
+  const listingCountForSEO = isItaly
+    ? (comuneStats?.listing_count || itListings.length)
+    : (countyStats?.listing_count || usListings.length);
+
+  const seoTitle = isItaly
+    ? `Terreni per Fotovoltaico e BESS in ${locationName} | Sunnyplans`
+    : `Substation-Ready Land for BESS & Solar in ${locationName} | Sunnyplans`;
+
+  const seoDescription = isItaly
+    ? (comuneStats
+      ? `Scopri ${comuneStats.listing_count} particelle catastali per fotovoltaico in ${locationName}, ${parentName}. Probabilità solare media: ${Math.round((comuneStats.avg_prob_solar || 0) * 100)}%. Pre-analizzate per BESS e solare.`
+      : `Particelle catastali per fotovoltaico e BESS in ${locationName}, ${parentName}. Analisi solare e vicinanza alle sottostazioni elettriche.`)
+    : (countyStats
+      ? `Discover ${countyStats.listing_count} solar land opportunities in ${locationName}, ${parentName}. Avg solar probability: ${Math.round((countyStats.avg_prob_solar || 0) * 100)}%. Land from $${countyStats.min_price_per_acre?.toLocaleString()}/acre. Pre-vetted for BESS & solar.`
+      : generateListingSEODescription(locationName, usListings.length, parentName));
+
+  const seoKeywordsStr = isItaly
+    ? `terreni fotovoltaico ${locationName}, BESS Italia, solare ${locationName}, particelle catastali fotovoltaico`
+    : generateListingKeywords(
+        locationName,
+        region ? getLocationName(country, region) : undefined
+      );
 
   // Build canonical URL
   const buildCanonicalUrl = () => {
@@ -208,46 +186,58 @@ const ListingsSearch = () => {
   };
   const canonicalUrl = buildCanonicalUrl();
 
-  const structuredData = {
-    "@context": "https://schema.org",
-    "@type": "ItemList",
-    name: `Substation-Ready Solar Land in ${locationName}`,
-    description: seoDescription,
-    numberOfItems: countyStats?.listing_count || usListings.length,
-    ...(countyStats && {
-      aggregateRating: {
-        "@type": "AggregateRating",
-        ratingValue: Math.round((countyStats.avg_prob_solar || 0) * 100),
-        bestRating: 100,
-        worstRating: 0,
-        ratingCount: countyStats.listing_count,
-      },
-    }),
-    itemListElement: usListings.slice(0, 10).map((listing, index) => ({
-      "@type": "ListItem",
-      position: index + 1,
-      item: {
-        "@type": "RealEstateListing",
-        name: `Solar Land in ${listing.county}, ${listing.state_code}`,
-        description: `${listing.lot_acres} acre land with ${Math.round((listing.prob_solar || 0) * 100)}% solar probability. Pre-vetted for grid connection.`,
-      },
-    })),
-  };
+  const structuredData = isItaly
+    ? {
+        "@context": "https://schema.org",
+        "@type": "ItemList",
+        name: `Particelle Catastali per Fotovoltaico in ${locationName}`,
+        description: seoDescription,
+        numberOfItems: listingCountForSEO,
+        itemListElement: itListings.slice(0, 10).map((listing, index) => ({
+          "@type": "ListItem",
+          position: index + 1,
+          item: {
+            "@type": "Product",
+            name: `Particella ${listing.foglio}/${listing.particella} - ${listing.comune_name}`,
+            description: `Particella catastale con ${Math.round((listing.prob_solar || 0) * 100)}% probabilità solare. Pre-analizzata per connessione alla rete.`,
+          },
+        })),
+      }
+    : {
+        "@context": "https://schema.org",
+        "@type": "ItemList",
+        name: `Substation-Ready Solar Land in ${locationName}`,
+        description: seoDescription,
+        numberOfItems: listingCountForSEO,
+        ...(countyStats && {
+          aggregateRating: {
+            "@type": "AggregateRating",
+            ratingValue: Math.round((countyStats.avg_prob_solar || 0) * 100),
+            bestRating: 100,
+            worstRating: 0,
+            ratingCount: countyStats.listing_count,
+          },
+        }),
+        itemListElement: usListings.slice(0, 10).map((listing, index) => ({
+          "@type": "ListItem",
+          position: index + 1,
+          item: {
+            "@type": "RealEstateListing",
+            name: `Solar Land in ${listing.county}, ${listing.state_code}`,
+            description: `${listing.lot_acres} acre land with ${Math.round((listing.prob_solar || 0) * 100)}% solar probability. Pre-vetted for grid connection.`,
+          },
+        })),
+      };
 
-  // Rank type for cards
-  const rankType = getRankType(country, region, province);
+  // Rank types
+  const usRankType = getUSRankType(region, province);
+  const itRankType = getITRankType(region, province);
 
-  // If Italy, show coming soon
-  if (isItaly) {
-    return (
-      <ItalyComingSoon
-        locationName={locationName}
-        country={country}
-        region={region}
-        province={province}
-      />
-    );
-  }
+  // Terminology
+  const listingTerm = isItaly ? "particelle" : "parcels";
+  const sortLabel = isItaly
+    ? (isITComune ? "comune" : isITRegion ? "region" : "national")
+    : (usRankType === "global" ? "national" : usRankType);
 
   return (
     <>
@@ -274,12 +264,12 @@ const ListingsSearch = () => {
                 <h1 className="text-2xl md:text-3xl font-bold text-foreground">
                   {hasNoResults ? (
                     <>
-                      Solar Land Opportunities near{" "}
+                      {isItaly ? "Particelle Catastali near" : "Solar Land Opportunities near"}{" "}
                       <span className="text-primary">{locationName}</span>
                     </>
                   ) : (
                     <>
-                      Top Rated Solar Land in{" "}
+                      {isItaly ? "Top Rated Particelle in" : "Top Rated Solar Land in"}{" "}
                       <span className="text-primary">{locationName}</span>
                     </>
                   )}
@@ -291,8 +281,8 @@ const ListingsSearch = () => {
                     `We found 0 exact matches in ${locationName}, but here are opportunities in the surrounding area.`
                   ) : (
                     <>
-                      Showing <strong>{usListings.length}</strong> top-ranked
-                      parcels sorted by solar probability
+                      Showing <strong>{totalListings.length}</strong> top-ranked
+                      {" "}{listingTerm} sorted by solar probability
                     </>
                   )}
                 </p>
@@ -343,8 +333,8 @@ const ListingsSearch = () => {
             >
               <div className="flex items-center justify-between mb-4">
                 <p className="text-sm text-muted-foreground">
-                  Showing <strong>{usListings.length}</strong> results, sorted
-                  by {rankType === "global" ? "national" : rankType} rank
+                  Showing <strong>{totalListings.length}</strong> results, sorted
+                  by {sortLabel} rank
                 </p>
               </div>
 
@@ -359,17 +349,24 @@ const ListingsSearch = () => {
                 </div>
               ) : (
                 <div className="grid gap-4">
-                  {usListings.map((listing) => (
+                  {isUS && usListings.map((listing) => (
                     <USListingCard
                       key={listing.land_id}
                       listing={listing}
-                      showRank={rankType}
+                      showRank={usRankType}
+                    />
+                  ))}
+                  {isItaly && itListings.map((listing) => (
+                    <ITListingCard
+                      key={listing.gml_id}
+                      listing={listing}
+                      showRank={itRankType}
                     />
                   ))}
                 </div>
               )}
 
-              {!isLoading && usListings.length === 0 && (
+              {!isLoading && totalListings.length === 0 && (
                 <div className="text-center py-12 bg-muted/30 rounded-lg">
                   <p className="text-muted-foreground">
                     No listings found in this area yet.
@@ -390,8 +387,9 @@ const ListingsSearch = () => {
                   country={country}
                   region={region}
                   province={province}
-                  listingCount={usListings.length}
+                  listingCount={totalListings.length}
                   usListings={usListings}
+                  itListings={itListings}
                 />
               </div>
             </div>
@@ -403,7 +401,7 @@ const ListingsSearch = () => {
           {/* SEO Content Section */}
           <ListingsSEOContent
             locationName={locationName}
-            listingsCount={usListings.length}
+            listingsCount={totalListings.length}
           />
 
           {/* Footer with regional links */}
