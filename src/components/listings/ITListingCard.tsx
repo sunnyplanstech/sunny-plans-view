@@ -122,6 +122,11 @@ const ITListingCard = ({ listing, showRank = "global", listPosition }: ITListing
               </div>
               <div className="flex flex-wrap gap-1.5 flex-shrink-0">
                 {getRankBadge(listing, showRank, listPosition)}
+                {showRank !== "global" && listing.rank_global && (
+                  <Badge variant="outline" className="bg-slate-50 border-slate-300 text-slate-600 text-xs">
+                    #{listing.rank_global} in IT
+                  </Badge>
+                )}
               </div>
             </div>
 
