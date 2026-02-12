@@ -43,6 +43,9 @@ function getParcelCenter(geomJson: string | object | null): { lat: number; lng: 
   if (!geomJson) return null;
   try {
     const geom = typeof geomJson === "string" ? JSON.parse(geomJson) : geomJson;
+    if (geom.type === "Point" && geom.coordinates) {
+      return { lat: geom.coordinates[1], lng: geom.coordinates[0] };
+    }
     const coords =
       geom.type === "MultiPolygon"
         ? geom.coordinates[0][0]
