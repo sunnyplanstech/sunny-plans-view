@@ -10,6 +10,8 @@ import { cn } from "@/lib/utils";
 interface ITListingCardProps {
   listing: ITListing;
   showRank?: "global" | "region" | "comune";
+  /** 1-based position in the list, used as rank for region level (no rank_in_region in DB) */
+  listPosition?: number;
 }
 
 function getSolarScoreColor(prob: number | null) {
@@ -20,7 +22,14 @@ function getSolarScoreColor(prob: number | null) {
   return "bg-secondary text-secondary-foreground";
 }
 
-function getRankBadge(listing: ITListing, showRank: "global" | "region" | "comune") {
+function formatRegionSlug(slug: string): string {
+  return slug
+    .split("-")
+    .map((word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+    .join(" ");
+}
+
+function getRankBadge(listing: ITListing, showRank: "global" | "region" | "comune", listPosition?: number) {
   let rank: number | null = null;
   let label = "";
 
@@ -30,8 +39,8 @@ function getRankBadge(listing: ITListing, showRank: "global" | "region" | "comun
       label = "IT";
       break;
     case "region":
-      rank = listing.rank_global;
-      label = listing.region_slug;
+      rank = listPosition ?? null;
+      label = formatRegionSlug(listing.region_slug);
       break;
     case "comune":
       rank = listing.rank_in_comune;
@@ -67,7 +76,7 @@ function getParcelCenter(geomJson: string | object | null): { lat: number; lng: 
   }
 }
 
-const ITListingCard = ({ listing, showRank = "global" }: ITListingCardProps) => {
+const ITListingCard = ({ listing, showRank = "global", listPosition }: ITListingCardProps) => {
   const listingUrl = `/italy/${listing.region_slug}/${listing.comune_slug}/listing/${listing.gml_id}`;
   const solarPercentage = listing.prob_solar ? Math.round(listing.prob_solar * 100) : null;
   const center = getParcelCenter(listing.geom_json);
@@ -112,7 +121,7 @@ const ITListingCard = ({ listing, showRank = "global" }: ITListingCardProps) => 
                 </div>
               </div>
               <div className="flex flex-wrap gap-1.5 flex-shrink-0">
-                {getRankBadge(listing, showRank)}
+                {getRankBadge(listing, showRank, listPosition)}
               </div>
             </div>
 

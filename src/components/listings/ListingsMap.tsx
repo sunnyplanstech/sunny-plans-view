@@ -73,6 +73,7 @@ const ListingsMap = ({
       <ListingsGoogleMap
         listings={usListings}
         className="w-full h-full min-h-[400px]"
+        country="united-states"
       />
     );
   }
@@ -83,6 +84,7 @@ const ListingsMap = ({
       <ListingsGoogleMap
         listings={mappedListings}
         className="w-full h-full min-h-[400px]"
+        country="italy"
       />
     );
   }

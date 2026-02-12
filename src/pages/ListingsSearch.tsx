@@ -356,11 +356,12 @@ const ListingsSearch = () => {
                       showRank={usRankType}
                     />
                   ))}
-                  {isItaly && itListings.map((listing) => (
+                  {isItaly && itListings.map((listing, index) => (
                     <ITListingCard
                       key={listing.gml_id}
                       listing={listing}
                       showRank={itRankType}
+                      listPosition={index + 1}
                     />
                   ))}
                 </div>

@@ -8,6 +8,7 @@ import { useGoogleMaps } from "./GoogleMapsProvider";
 interface ListingsGoogleMapProps {
   listings: USListing[];
   className?: string;
+  country?: string;
 }
 
 const mapContainerStyle = {
@@ -15,7 +16,11 @@ const mapContainerStyle = {
   height: "100%",
 };
 
-const defaultCenter = { lat: 39.8283, lng: -98.5795 }; // Center of US
+const defaultCenters: Record<string, { lat: number; lng: number }> = {
+  "united-states": { lat: 39.8283, lng: -98.5795 },
+  "italy": { lat: 42.5, lng: 12.5 },
+};
+const defaultCenterUS = defaultCenters["united-states"];
 
 // Get coordinates from listing (uses latitude/longitude fields)
 function getListingCoords(listing: USListing): { lat: number; lng: number } | null {
@@ -34,10 +39,12 @@ function formatPrice(price: number | null): string {
   }).format(price);
 }
 
-export function ListingsGoogleMap({ listings, className }: ListingsGoogleMapProps) {
+export function ListingsGoogleMap({ listings, className, country }: ListingsGoogleMapProps) {
   const { isLoaded, hasApiKey } = useGoogleMaps();
   const [selectedListing, setSelectedListing] = useState<USListing | null>(null);
   const [map, setMap] = useState<google.maps.Map | null>(null);
+  const defaultCenter = defaultCenters[country || "united-states"] || defaultCenterUS;
+  const defaultZoom = country === "italy" ? 6 : 4;
 
   // Filter listings to only those with valid coordinates
   const listingsWithCoords = useMemo(() => {
@@ -120,7 +127,7 @@ export function ListingsGoogleMap({ listings, className }: ListingsGoogleMapProp
       <GoogleMap
         mapContainerStyle={mapContainerStyle}
         center={defaultCenter}
-        zoom={4}
+        zoom={defaultZoom}
         options={mapOptions}
         onLoad={onLoad}
       >
