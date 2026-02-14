@@ -86,6 +86,7 @@ function getITRankType(
 const ListingsSearch = () => {
   const { country, region, province } = useParams();
   const [viewMode, setViewMode] = useState<"list" | "map">("list");
+  const [showHeatmap, setShowHeatmap] = useState(false);
 
   const isUS = country === "united-states";
   const isItaly = country === "italy";
@@ -114,10 +115,11 @@ const ListingsSearch = () => {
   const itRegionQuery = useITListingsByRegion(isITRegion || isITComune ? region : undefined, 10);
   const itComuneQuery = useITListingsByComune(isITComune ? province : undefined, 10);
 
-  // Fetch hex heatmap data
-  const usHexQuery = useUSHexHeatmap();
-  const itHexQuery = useITHexHeatmap();
+  // Fetch hex heatmap data (lazy — only when toggled on)
+  const usHexQuery = useUSHexHeatmap(showHeatmap && isUS);
+  const itHexQuery = useITHexHeatmap(showHeatmap && isItaly);
   const hexCells = isUS ? usHexQuery.data : isItaly ? itHexQuery.data : undefined;
+  const hexLoading = showHeatmap && (isUS ? usHexQuery.isLoading : isItaly ? itHexQuery.isLoading : false);
 
   // Fetch county/comune-level SEO stats
   const countyStatsQuery = useUSCounty(isUSCounty ? region : undefined, isUSCounty ? province : undefined);
@@ -398,6 +400,9 @@ const ListingsSearch = () => {
                   usListings={usListings}
                   itListings={itListings}
                   hexCells={hexCells}
+                  showHeatmap={showHeatmap}
+                  hexLoading={hexLoading}
+                  onToggleHeatmap={() => setShowHeatmap((v) => !v)}
                 />
               </div>
             </div>

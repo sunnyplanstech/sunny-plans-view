@@ -13,6 +13,9 @@ interface ListingsMapProps {
   usListings?: USListing[];
   itListings?: ITListing[];
   hexCells?: HexCell[];
+  showHeatmap?: boolean;
+  hexLoading?: boolean;
+  onToggleHeatmap?: () => void;
 }
 
 function itListingsToMapFormat(listings: ITListing[]) {
@@ -40,6 +43,9 @@ const ListingsMap = ({
   usListings = [],
   itListings = [],
   hexCells,
+  showHeatmap,
+  hexLoading,
+  onToggleHeatmap,
 }: ListingsMapProps) => {
   const isUS = country === "united-states";
   const isItaly = country === "italy";
@@ -51,6 +57,9 @@ const ListingsMap = ({
         className="w-full h-full min-h-[400px]"
         country="united-states"
         hexCells={hexCells}
+        showHeatmap={showHeatmap}
+        hexLoading={hexLoading}
+        onToggleHeatmap={onToggleHeatmap}
       />
     );
   }
@@ -63,6 +72,9 @@ const ListingsMap = ({
         className="w-full h-full min-h-[400px]"
         country="italy"
         hexCells={hexCells}
+        showHeatmap={showHeatmap}
+        hexLoading={hexLoading}
+        onToggleHeatmap={onToggleHeatmap}
       />
     );
   }

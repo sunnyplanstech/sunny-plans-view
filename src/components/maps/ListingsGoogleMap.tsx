@@ -1,6 +1,6 @@
 import { GoogleMap } from "@react-google-maps/api";
 import { useMemo, useState, useCallback, useEffect, useRef } from "react";
-import { MapPin, Layers } from "lucide-react";
+import { MapPin, Layers, Loader2 } from "lucide-react";
 import { USListing } from "@/hooks/useUSListings";
 import { HexCell } from "@/hooks/useHexHeatmap";
 import { useGoogleMaps } from "./GoogleMapsProvider";
@@ -12,6 +12,9 @@ interface ListingsGoogleMapProps {
   className?: string;
   country?: string;
   hexCells?: HexCell[];
+  showHeatmap?: boolean;
+  hexLoading?: boolean;
+  onToggleHeatmap?: () => void;
 }
 
 const mapContainerStyle = {
@@ -29,11 +32,9 @@ function probSolarToColor(prob: number): string {
   // yellow (low) → orange (mid) → red (high)
   const clamped = Math.max(0, Math.min(1, prob));
   if (clamped <= 0.5) {
-    // yellow to orange: hue 60 → 30
     const hue = 60 - clamped * 60;
     return `hsl(${hue}, 100%, 50%)`;
   }
-  // orange to red: hue 30 → 0
   const hue = 30 - (clamped - 0.5) * 60;
   return `hsl(${hue}, 100%, 50%)`;
 }
@@ -43,10 +44,17 @@ function probSolarToOpacity(pointCount: number, maxCount: number): number {
   return 0.25 + 0.5 * (pointCount / maxCount);
 }
 
-export function ListingsGoogleMap({ listings, className, country, hexCells }: ListingsGoogleMapProps) {
+export function ListingsGoogleMap({
+  listings,
+  className,
+  country,
+  hexCells,
+  showHeatmap = false,
+  hexLoading = false,
+  onToggleHeatmap,
+}: ListingsGoogleMapProps) {
   const { isLoaded, hasApiKey } = useGoogleMaps();
   const [map, setMap] = useState<google.maps.Map | null>(null);
-  const [showHeatmap, setShowHeatmap] = useState(true);
   const dataLayerRef = useRef<google.maps.Data | null>(null);
   const infoWindowRef = useRef<google.maps.InfoWindow | null>(null);
   const defaultCenter = defaultCenters[country || "united-states"] || defaultCenterUS;
@@ -206,8 +214,6 @@ export function ListingsGoogleMap({ listings, className, country, hexCells }: Li
     fullscreenControl: true,
   };
 
-  const hasHexData = hexCells && hexCells.length > 0;
-
   return (
     <div className={`relative ${className}`}>
       <GoogleMap
@@ -217,15 +223,20 @@ export function ListingsGoogleMap({ listings, className, country, hexCells }: Li
         options={mapOptions}
         onLoad={onLoad}
       />
-      {hasHexData && (
+      {onToggleHeatmap && (
         <Button
           variant={showHeatmap ? "default" : "outline"}
           size="sm"
-          className="absolute top-3 left-3 z-10 shadow-md bg-background/90 hover:bg-background"
-          onClick={() => setShowHeatmap(!showHeatmap)}
+          className="absolute top-3 left-3 z-10 shadow-lg border-0 text-white bg-gray-800/80 hover:bg-gray-800/95 backdrop-blur-sm"
+          onClick={onToggleHeatmap}
+          disabled={hexLoading}
         >
-          <Layers className="w-4 h-4 mr-1" />
-          {showHeatmap ? "Hide Heatmap" : "Show Heatmap"}
+          {hexLoading ? (
+            <Loader2 className="w-4 h-4 mr-1 animate-spin" />
+          ) : (
+            <Layers className="w-4 h-4 mr-1" />
+          )}
+          {hexLoading ? "Loading..." : showHeatmap ? "Hide Heatmap" : "Show Heatmap"}
         </Button>
       )}
     </div>

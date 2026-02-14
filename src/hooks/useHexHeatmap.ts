@@ -29,18 +29,20 @@ async function fetchAllRows(table: string): Promise<HexCell[]> {
   return rows;
 }
 
-export function useUSHexHeatmap() {
+export function useUSHexHeatmap(enabled: boolean) {
   return useQuery({
     queryKey: ["us-hex-heatmap"],
     queryFn: () => fetchAllRows("mart_us_hex_heatmap"),
-    staleTime: 1000 * 60 * 30, // 30 min
+    staleTime: 1000 * 60 * 30,
+    enabled,
   });
 }
 
-export function useITHexHeatmap() {
+export function useITHexHeatmap(enabled: boolean) {
   return useQuery({
     queryKey: ["it-hex-heatmap"],
     queryFn: () => fetchAllRows("mart_it_hex_heatmap"),
     staleTime: 1000 * 60 * 30,
+    enabled,
   });
 }
