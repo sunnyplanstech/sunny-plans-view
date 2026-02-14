@@ -2,10 +2,11 @@ import { Link } from "react-router-dom";
 import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { MapPin, Sun, ArrowRight, Trophy, FileText } from "lucide-react";
+import { MapPin, Sun, ArrowRight, Trophy } from "lucide-react";
 import { ITListing } from "@/hooks/useITListings";
 import MiniParcelMap from "@/components/maps/MiniParcelMap";
 import { cn } from "@/lib/utils";
+import { getParcelCenter } from "@/lib/geo";
 
 interface ITListingCardProps {
   listing: ITListing;
@@ -58,29 +59,8 @@ function getRankBadge(listing: ITListing, showRank: "global" | "region" | "comun
   );
 }
 
-function getParcelCenter(geomJson: string | object | null): { lat: number; lng: number } | null {
-  if (!geomJson) return null;
-  try {
-    const geom = typeof geomJson === "string" ? JSON.parse(geomJson) : geomJson;
-    if (geom.type === "Point" && geom.coordinates) {
-      return { lat: geom.coordinates[1], lng: geom.coordinates[0] };
-    }
-    const coords = geom.type === "MultiPolygon"
-      ? geom.coordinates[0][0]
-      : geom.type === "Polygon"
-      ? geom.coordinates[0]
-      : null;
-    if (!coords || coords.length === 0) return null;
-    const sumLat = coords.reduce((s: number, c: number[]) => s + c[1], 0);
-    const sumLng = coords.reduce((s: number, c: number[]) => s + c[0], 0);
-    return { lat: sumLat / coords.length, lng: sumLng / coords.length };
-  } catch {
-    return null;
-  }
-}
-
 const ITListingCard = ({ listing, showRank = "global", listPosition }: ITListingCardProps) => {
-  const listingUrl = `/italy/${listing.region_slug}/${listing.comune_slug}/listing/${listing.gml_id}`;
+  const listingUrl = `/italy/${listing.region_slug}/${listing.comune_slug}/listing/${listing.id}`;
   const solarPercentage = listing.prob_solar ? Math.round(listing.prob_solar * 100) : null;
   const center = getParcelCenter(listing.geom_json);
 
@@ -119,7 +99,7 @@ const ITListingCard = ({ listing, showRank = "global", listPosition }: ITListing
                     {listing.comune_name}
                   </h3>
                   <p className="text-sm text-muted-foreground">
-                    Foglio {listing.foglio || "N/A"}, Particella {listing.particella || "N/A"}
+                    {formatRegionSlug(listing.region_slug)}
                   </p>
                 </div>
               </div>
@@ -145,11 +125,8 @@ const ITListingCard = ({ listing, showRank = "global", listPosition }: ITListing
             {/* Specs */}
             <div className="flex flex-wrap items-center gap-x-4 gap-y-2 text-sm text-muted-foreground">
               <div className="flex items-center gap-1.5">
-                <FileText className="w-3.5 h-3.5" />
-                <span>Foglio {listing.foglio || "N/A"}</span>
-              </div>
-              <div className="flex items-center gap-1.5">
-                <span className="text-xs">Particella {listing.particella || "N/A"}</span>
+                <MapPin className="w-3.5 h-3.5" />
+                <span>{listing.comune_name}, {formatRegionSlug(listing.region_slug)}</span>
               </div>
             </div>
           </CardContent>

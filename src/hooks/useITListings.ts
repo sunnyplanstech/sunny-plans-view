@@ -2,12 +2,10 @@ import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 
 export interface ITListing {
-  gml_id: string;
+  id: string;
   comune_code: string;
   comune_name: string;
   comune_slug: string;
-  foglio: string | null;
-  particella: string | null;
   prob_solar: number | null;
   rank_global: number | null;
   rank_in_comune: number | null;
@@ -74,21 +72,21 @@ export function useITListingsByComune(comuneSlug: string | undefined, limit = 10
   });
 }
 
-export function useITListingById(gmlId: string | undefined) {
+export function useITListingById(listingId: string | undefined) {
   return useQuery({
-    queryKey: ["it-listing", gmlId],
+    queryKey: ["it-listing", listingId],
     queryFn: async () => {
-      if (!gmlId) return null;
+      if (!listingId) return null;
 
       const { data, error } = await supabase
         .from("mart_it_catasto_solar_prob")
         .select("*")
-        .eq("gml_id", gmlId)
+        .eq("id", listingId)
         .single();
 
       if (error) throw error;
       return data as ITListing;
     },
-    enabled: !!gmlId,
+    enabled: !!listingId,
   });
 }

@@ -198,7 +198,7 @@ const ListingsSearch = () => {
           position: index + 1,
           item: {
             "@type": "Product",
-            name: `Particella ${listing.foglio}/${listing.particella} - ${listing.comune_name}`,
+            name: `Solar Parcel - ${listing.comune_name}`,
             description: `Particella catastale con ${Math.round((listing.prob_solar || 0) * 100)}% probabilità solare. Pre-analizzata per connessione alla rete.`,
           },
         })),
@@ -351,14 +351,14 @@ const ListingsSearch = () => {
                 <div className="grid gap-4">
                   {isUS && usListings.map((listing) => (
                     <USListingCard
-                      key={listing.land_id}
+                      key={listing.id}
                       listing={listing}
                       showRank={usRankType}
                     />
                   ))}
                   {isItaly && itListings.map((listing, index) => (
                     <ITListingCard
-                      key={listing.gml_id}
+                      key={listing.id}
                       listing={listing}
                       showRank={itRankType}
                       listPosition={index + 1}

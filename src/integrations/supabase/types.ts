@@ -16,7 +16,7 @@ export type Database = {
     Tables: {
       mart_us_land_solar_prob: {
         Row: {
-          land_id: string
+          id: string
           state_code: string
           county: string
           lot_acres: number | null
@@ -24,15 +24,13 @@ export type Database = {
           price_per_acre: number | null
           prob_solar: number | null
           power_substation: number | null
-          latitude: number | null
-          longitude: number | null
           geom_json: string | null
           rank_global: number | null
           rank_in_state: number | null
           rank_in_county: number | null
         }
         Insert: {
-          land_id: string
+          id: string
           state_code: string
           county: string
           lot_acres?: number | null
@@ -40,15 +38,13 @@ export type Database = {
           price_per_acre?: number | null
           prob_solar?: number | null
           power_substation?: number | null
-          latitude?: number | null
-          longitude?: number | null
           geom_json?: string | null
           rank_global?: number | null
           rank_in_state?: number | null
           rank_in_county?: number | null
         }
         Update: {
-          land_id?: string
+          id?: string
           state_code?: string
           county?: string
           lot_acres?: number | null
@@ -56,8 +52,6 @@ export type Database = {
           price_per_acre?: number | null
           prob_solar?: number | null
           power_substation?: number | null
-          latitude?: number | null
-          longitude?: number | null
           geom_json?: string | null
           rank_global?: number | null
           rank_in_state?: number | null
@@ -148,12 +142,10 @@ export type Database = {
       }
       mart_it_catasto_solar_prob: {
         Row: {
-          gml_id: string
+          id: string
           comune_code: string
           comune_name: string
           comune_slug: string
-          foglio: string | null
-          particella: string | null
           prob_solar: number | null
           rank_global: number | null
           rank_in_comune: number | null
@@ -161,12 +153,10 @@ export type Database = {
           geom_json: string | null
         }
         Insert: {
-          gml_id: string
+          id: string
           comune_code: string
           comune_name: string
           comune_slug: string
-          foglio?: string | null
-          particella?: string | null
           prob_solar?: number | null
           rank_global?: number | null
           rank_in_comune?: number | null
@@ -174,12 +164,10 @@ export type Database = {
           geom_json?: string | null
         }
         Update: {
-          gml_id?: string
+          id?: string
           comune_code?: string
           comune_name?: string
           comune_slug?: string
-          foglio?: string | null
-          particella?: string | null
           prob_solar?: number | null
           rank_global?: number | null
           rank_in_comune?: number | null

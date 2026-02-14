@@ -7,6 +7,7 @@ import { USListing } from "@/hooks/useUSListings";
 import { stateCodeToSlug, countyToSlug } from "@/data/locations";
 import MiniParcelMap from "@/components/maps/MiniParcelMap";
 import { cn } from "@/lib/utils";
+import { getParcelCenter } from "@/lib/geo";
 
 interface USListingCardProps {
   listing: USListing;
@@ -77,9 +78,10 @@ function getRankBadge(listing: USListing, showRank: "global" | "state" | "county
 const USListingCard = ({ listing, showRank = "global" }: USListingCardProps) => {
   const stateSlug = stateCodeToSlug(listing.state_code) || listing.state_code.toLowerCase();
   const countySlugStr = countyToSlug(listing.county);
-  const listingUrl = `/united-states/${stateSlug}/${countySlugStr}/listing/${listing.land_id}`;
+  const listingUrl = `/united-states/${stateSlug}/${countySlugStr}/listing/${listing.id}`;
 
   const solarPercentage = listing.prob_solar ? Math.round(listing.prob_solar * 100) : null;
+  const center = getParcelCenter(listing.geom_json);
 
   return (
     <Card className="group overflow-hidden hover:shadow-lg transition-all duration-300 border-border/60 bg-card">
@@ -87,8 +89,8 @@ const USListingCard = ({ listing, showRank = "global" }: USListingCardProps) => 
         {/* Map section */}
         <div className="relative w-full sm:w-40 h-32 sm:h-auto sm:min-h-[180px] flex-shrink-0 overflow-hidden">
           <MiniParcelMap
-            latitude={listing.latitude}
-            longitude={listing.longitude}
+            latitude={center?.lat ?? null}
+            longitude={center?.lng ?? null}
             className="w-full h-full"
           />
 

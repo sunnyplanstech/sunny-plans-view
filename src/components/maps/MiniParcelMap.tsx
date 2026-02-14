@@ -1,4 +1,4 @@
-import { GoogleMap, Marker } from "@react-google-maps/api";
+import { GoogleMap } from "@react-google-maps/api";
 import { useMemo, useRef, useState, useEffect } from "react";
 import { MapPin } from "lucide-react";
 import { useGoogleMaps } from "./GoogleMapsProvider";
@@ -77,11 +77,9 @@ export function MiniParcelMap({ latitude, longitude, className }: MiniParcelMapP
       <GoogleMap
         mapContainerStyle={mapContainerStyle}
         center={center}
-        zoom={15}
+        zoom={10}
         options={mapOptions}
-      >
-        <Marker position={center} />
-      </GoogleMap>
+      />
     </div>
   );
 }

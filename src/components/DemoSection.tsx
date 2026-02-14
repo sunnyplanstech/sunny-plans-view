@@ -55,7 +55,7 @@ const DemoSection = () => {
           >
             <CarouselContent className="-ml-2 md:-ml-4">
               {listings?.map((listing) => (
-                <CarouselItem key={listing.land_id} className="pl-2 md:pl-4 md:basis-1/2">
+                <CarouselItem key={listing.id} className="pl-2 md:pl-4 md:basis-1/2">
                   <USListingCard
                     listing={listing}
                     showRank="global"

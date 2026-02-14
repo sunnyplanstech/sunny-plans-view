@@ -3,7 +3,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { slugToStateCode, slugToCounty } from "@/data/locations";
 
 export interface USListing {
-  land_id: string;
+  id: string;
   state_code: string;
   county: string;
   lot_acres: number | null;
@@ -11,8 +11,6 @@ export interface USListing {
   price_per_acre: number | null;
   prob_solar: number | null;
   power_substation: number | null;
-  latitude: number | null;
-  longitude: number | null;
   geom_json: string | null;
   rank_global: number | null;
   rank_in_state: number | null;
@@ -91,22 +89,22 @@ export function useUSListingsByCounty(
   });
 }
 
-// Fetch a single listing by land_id
-export function useUSListingById(landId: string | undefined) {
+// Fetch a single listing by id
+export function useUSListingById(listingId: string | undefined) {
   return useQuery({
-    queryKey: ["us-listing", landId],
+    queryKey: ["us-listing", listingId],
     queryFn: async () => {
-      if (!landId) return null;
+      if (!listingId) return null;
 
       const { data, error } = await supabase
         .from("mart_us_land_solar_prob")
         .select("*")
-        .eq("land_id", landId)
+        .eq("id", listingId)
         .single();
 
       if (error) throw error;
       return data as USListing;
     },
-    enabled: !!landId,
+    enabled: !!listingId,
   });
 }

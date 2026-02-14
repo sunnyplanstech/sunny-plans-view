@@ -1,9 +1,9 @@
-import { GoogleMap, InfoWindow, Marker } from "@react-google-maps/api";
+import { GoogleMap } from "@react-google-maps/api";
 import { useMemo, useState, useCallback } from "react";
 import { MapPin } from "lucide-react";
 import { USListing } from "@/hooks/useUSListings";
-import { stateCodeToSlug, countyToSlug } from "@/data/locations";
 import { useGoogleMaps } from "./GoogleMapsProvider";
+import { getParcelCenter } from "@/lib/geo";
 
 interface ListingsGoogleMapProps {
   listings: USListing[];
@@ -22,36 +22,18 @@ const defaultCenters: Record<string, { lat: number; lng: number }> = {
 };
 const defaultCenterUS = defaultCenters["united-states"];
 
-// Get coordinates from listing (uses latitude/longitude fields)
-function getListingCoords(listing: USListing): { lat: number; lng: number } | null {
-  if (listing.latitude != null && listing.longitude != null) {
-    return { lat: listing.latitude, lng: listing.longitude };
-  }
-  return null;
-}
-
-function formatPrice(price: number | null): string {
-  if (!price) return "N/A";
-  return new Intl.NumberFormat("en-US", {
-    style: "currency",
-    currency: "USD",
-    maximumFractionDigits: 0,
-  }).format(price);
-}
-
 export function ListingsGoogleMap({ listings, className, country }: ListingsGoogleMapProps) {
   const { isLoaded, hasApiKey } = useGoogleMaps();
-  const [selectedListing, setSelectedListing] = useState<USListing | null>(null);
   const [map, setMap] = useState<google.maps.Map | null>(null);
   const defaultCenter = defaultCenters[country || "united-states"] || defaultCenterUS;
   const defaultZoom = country === "italy" ? 6 : 4;
 
-  // Filter listings to only those with valid coordinates
+  // Filter listings to only those with valid coordinates from geom_json
   const listingsWithCoords = useMemo(() => {
     return listings
       .map((listing) => ({
         listing,
-        coords: getListingCoords(listing),
+        coords: getParcelCenter(listing.geom_json),
       }))
       .filter((item): item is { listing: USListing; coords: { lat: number; lng: number } } =>
         item.coords !== null
@@ -74,16 +56,6 @@ export function ListingsGoogleMap({ listings, className, country }: ListingsGoog
       map.fitBounds(bounds, { top: 50, right: 50, bottom: 50, left: 50 });
     }
   }, [map, listingsWithCoords, isLoaded]);
-
-  const handleMarkerClick = useCallback((listing: USListing) => {
-    setSelectedListing(listing);
-  }, []);
-
-  const buildListingUrl = useCallback((listing: USListing) => {
-    const stateSlug = stateCodeToSlug(listing.state_code) || listing.state_code.toLowerCase();
-    const countySlugStr = countyToSlug(listing.county);
-    return `/united-states/${stateSlug}/${countySlugStr}/listing/${listing.land_id}`;
-  }, []);
 
   // Show fallback if Google Maps is not available
   if (!isLoaded) {
@@ -130,54 +102,7 @@ export function ListingsGoogleMap({ listings, className, country }: ListingsGoog
         zoom={defaultZoom}
         options={mapOptions}
         onLoad={onLoad}
-      >
-        {listingsWithCoords.map(({ listing, coords }) => (
-          <Marker
-            key={listing.land_id}
-            position={coords}
-            onClick={() => handleMarkerClick(listing)}
-          />
-        ))}
-
-        {selectedListing && getListingCoords(selectedListing) && (
-          <InfoWindow
-            position={getListingCoords(selectedListing)!}
-            onCloseClick={() => setSelectedListing(null)}
-          >
-            <div className="p-2 min-w-[200px]">
-              <h3 className="font-semibold text-sm mb-2">
-                {selectedListing.county}, {selectedListing.state_code}
-              </h3>
-              <div className="space-y-1 text-xs">
-                <p>
-                  <span className="text-gray-600">Solar Score:</span>{" "}
-                  <span className="font-medium text-green-600">
-                    {selectedListing.prob_solar ? `${Math.round(selectedListing.prob_solar * 100)}%` : "N/A"}
-                  </span>
-                </p>
-                <p>
-                  <span className="text-gray-600">Size:</span>{" "}
-                  {selectedListing.lot_acres?.toFixed(1)} acres
-                </p>
-                <p>
-                  <span className="text-gray-600">Price:</span>{" "}
-                  {formatPrice(selectedListing.list_price)}
-                </p>
-                <p>
-                  <span className="text-gray-600">Substation:</span>{" "}
-                  {selectedListing.power_substation?.toFixed(1)} mi
-                </p>
-              </div>
-              <a
-                href={buildListingUrl(selectedListing)}
-                className="mt-3 block text-center text-xs bg-green-600 text-white py-1.5 px-3 rounded hover:bg-green-700 transition-colors"
-              >
-                View Details
-              </a>
-            </div>
-          </InfoWindow>
-        )}
-      </GoogleMap>
+      />
     </div>
   );
 }

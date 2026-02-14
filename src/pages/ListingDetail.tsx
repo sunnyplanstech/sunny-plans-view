@@ -1,5 +1,5 @@
 import { useParams, Link } from "react-router-dom";
-import { ArrowLeft, MapPin, Zap, Ruler, Sun, Calendar, CreditCard, Trophy, ExternalLink, FileText } from "lucide-react";
+import { ArrowLeft, MapPin, Zap, Ruler, Sun, Calendar, CreditCard, Trophy, ExternalLink } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -11,6 +11,7 @@ import { useUSListingById } from "@/hooks/useUSListings";
 import { useITListingById } from "@/hooks/useITListings";
 import { stateCodeToSlug, slugToCounty } from "@/data/locations";
 import { seoKeywords } from "@/data/mockListings";
+import { getParcelCenter } from "@/lib/geo";
 
 const STRIPE_LINK = "https://buy.stripe.com/4gM14pb5r7Wx4g1aOGaR200";
 const CALENDLY_LINK = "https://calendly.com/eracle/new-meeting";
@@ -37,28 +38,6 @@ function formatSubstationDistance(meters: number | null): string {
   if (!meters) return "N/A";
   const miles = meters * 0.000621371;
   return `${Math.round(meters)} m (${miles.toFixed(1)} mi)`;
-}
-
-function getParcelCenter(geomJson: string | object | null): { lat: number; lng: number } | null {
-  if (!geomJson) return null;
-  try {
-    const geom = typeof geomJson === "string" ? JSON.parse(geomJson) : geomJson;
-    if (geom.type === "Point" && geom.coordinates) {
-      return { lat: geom.coordinates[1], lng: geom.coordinates[0] };
-    }
-    const coords =
-      geom.type === "MultiPolygon"
-        ? geom.coordinates[0][0]
-        : geom.type === "Polygon"
-        ? geom.coordinates[0]
-        : null;
-    if (!coords || coords.length === 0) return null;
-    const sumLat = coords.reduce((s: number, c: number[]) => s + c[1], 0);
-    const sumLng = coords.reduce((s: number, c: number[]) => s + c[0], 0);
-    return { lat: sumLat / coords.length, lng: sumLng / coords.length };
-  } catch {
-    return null;
-  }
 }
 
 function formatRegionSlug(slug: string): string {
@@ -122,19 +101,17 @@ const ListingDetail = () => {
     const center = getParcelCenter(itListing.geom_json);
     const regionName = formatRegionSlug(itListing.region_slug);
 
-    const seoTitle = `Particella ${itListing.foglio || ""}/${itListing.particella || ""} - ${itListing.comune_name}, ${regionName} | Sunnyplans`;
+    const seoTitle = `Solar Parcel - ${itListing.comune_name}, ${regionName} | Sunnyplans`;
     const seoDescription = `Particella catastale in ${itListing.comune_name}, ${regionName}. Probabilita solare: ${solarPercentage}%. Pre-analizzata per fotovoltaico e BESS.`;
     const combinedKeywords = `terreni fotovoltaico ${itListing.comune_name}, BESS Italia, solare ${regionName}, particelle catastali`;
 
     const structuredData = {
       "@context": "https://schema.org",
       "@type": "Product",
-      "name": `Particella ${itListing.foglio}/${itListing.particella} - ${itListing.comune_name}`,
+      "name": `Solar Parcel - ${itListing.comune_name}`,
       "description": seoDescription,
       "additionalProperty": [
         { "@type": "PropertyValue", "name": "Solar Probability", "value": `${solarPercentage}%` },
-        { "@type": "PropertyValue", "name": "Foglio", "value": itListing.foglio },
-        { "@type": "PropertyValue", "name": "Particella", "value": itListing.particella },
       ],
     };
 
@@ -196,7 +173,7 @@ const ListingDetail = () => {
               {/* Title and location */}
               <section className="mb-6">
                 <h1 className="text-2xl md:text-3xl font-bold text-foreground mb-2">
-                  Particella {itListing.foglio || "N/A"}/{itListing.particella || "N/A"} - {itListing.comune_name}
+                  Solar Parcel - {itListing.comune_name}
                 </h1>
                 <div className="flex items-center gap-2 text-muted-foreground">
                   <MapPin className="w-4 h-4" />
@@ -231,26 +208,6 @@ const ListingDetail = () => {
 
                     {/* Specs grid */}
                     <div className="grid grid-cols-2 gap-4">
-                      <div className="flex items-center gap-3 p-3 bg-muted/30 rounded-lg">
-                        <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center">
-                          <FileText className="w-5 h-5 text-primary" />
-                        </div>
-                        <div>
-                          <p className="text-sm text-muted-foreground">Foglio</p>
-                          <p className="font-semibold">{itListing.foglio || "N/A"}</p>
-                        </div>
-                      </div>
-
-                      <div className="flex items-center gap-3 p-3 bg-muted/30 rounded-lg">
-                        <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center">
-                          <FileText className="w-5 h-5 text-primary" />
-                        </div>
-                        <div>
-                          <p className="text-sm text-muted-foreground">Particella</p>
-                          <p className="font-semibold">{itListing.particella || "N/A"}</p>
-                        </div>
-                      </div>
-
                       <div className="flex items-center gap-3 p-3 bg-muted/30 rounded-lg">
                         <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center">
                           <MapPin className="w-5 h-5 text-primary" />
@@ -333,6 +290,7 @@ const ListingDetail = () => {
   if (isUS && usListing) {
     const solarPercentage = usListing.prob_solar ? Math.round(usListing.prob_solar * 100) : null;
     const stateSlug = stateCodeToSlug(usListing.state_code) || usListing.state_code.toLowerCase();
+    const usCenter = getParcelCenter(usListing.geom_json);
 
     const seoTitle = `${usListing.lot_acres?.toFixed(1) || ""} Acres Solar Land for Sale - ${usListing.county}, ${usListing.state_code} | Sunnyplans`;
     const seoDescription = `${usListing.lot_acres?.toFixed(1)} acres of land in ${usListing.county}, ${usListing.state_code}. ${solarPercentage}% solar probability. ${formatSubstationDistance(usListing.power_substation)} from substation. Pre-vetted for BESS & solar projects.`;
@@ -400,7 +358,7 @@ const ListingDetail = () => {
             <article className="max-w-4xl mx-auto">
               {/* Parcel Map - Main Hero */}
               <section className="relative rounded-xl overflow-hidden mb-6 h-64 md:h-96">
-                <MiniParcelMap latitude={usListing.latitude} longitude={usListing.longitude} className="w-full h-full" />
+                <MiniParcelMap latitude={usCenter?.lat ?? null} longitude={usCenter?.lng ?? null} className="w-full h-full" />
 
                 {/* Badges overlay */}
                 <div className="absolute top-4 left-4 flex flex-wrap gap-2">
