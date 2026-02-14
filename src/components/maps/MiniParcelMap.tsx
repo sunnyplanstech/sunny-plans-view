@@ -77,7 +77,7 @@ export function MiniParcelMap({ latitude, longitude, className }: MiniParcelMapP
       <GoogleMap
         mapContainerStyle={mapContainerStyle}
         center={center}
-        zoom={10}
+        zoom={15}
         options={mapOptions}
       />
     </div>
