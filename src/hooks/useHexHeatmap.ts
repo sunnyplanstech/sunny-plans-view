@@ -9,30 +9,38 @@ export interface HexCell {
   geom_json: object | null;
 }
 
+const PAGE_SIZE = 1000;
+
+async function fetchAllRows(table: string): Promise<HexCell[]> {
+  const rows: HexCell[] = [];
+  let from = 0;
+  while (true) {
+    const { data, error } = await supabase
+      .from(table)
+      .select("*")
+      .range(from, from + PAGE_SIZE - 1);
+
+    if (error) throw error;
+    if (!data || data.length === 0) break;
+    rows.push(...(data as HexCell[]));
+    if (data.length < PAGE_SIZE) break;
+    from += PAGE_SIZE;
+  }
+  return rows;
+}
+
 export function useUSHexHeatmap() {
   return useQuery({
     queryKey: ["us-hex-heatmap"],
-    queryFn: async () => {
-      const { data, error } = await supabase
-        .from("mart_us_hex_heatmap")
-        .select("*");
-
-      if (error) throw error;
-      return data as HexCell[];
-    },
+    queryFn: () => fetchAllRows("mart_us_hex_heatmap"),
+    staleTime: 1000 * 60 * 30, // 30 min
   });
 }
 
 export function useITHexHeatmap() {
   return useQuery({
     queryKey: ["it-hex-heatmap"],
-    queryFn: async () => {
-      const { data, error } = await supabase
-        .from("mart_it_hex_heatmap")
-        .select("*");
-
-      if (error) throw error;
-      return data as HexCell[];
-    },
+    queryFn: () => fetchAllRows("mart_it_hex_heatmap"),
+    staleTime: 1000 * 60 * 30,
   });
 }
