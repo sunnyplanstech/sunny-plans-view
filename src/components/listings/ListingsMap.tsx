@@ -1,6 +1,7 @@
 import { MapPin } from "lucide-react";
 import { USListing } from "@/hooks/useUSListings";
 import { ITListing } from "@/hooks/useITListings";
+import { HexCell } from "@/hooks/useHexHeatmap";
 import ListingsGoogleMap from "@/components/maps/ListingsGoogleMap";
 
 interface ListingsMapProps {
@@ -11,6 +12,7 @@ interface ListingsMapProps {
   isUnlocked?: boolean;
   usListings?: USListing[];
   itListings?: ITListing[];
+  hexCells?: HexCell[];
 }
 
 function itListingsToMapFormat(listings: ITListing[]) {
@@ -37,6 +39,7 @@ const ListingsMap = ({
   listingCount,
   usListings = [],
   itListings = [],
+  hexCells,
 }: ListingsMapProps) => {
   const isUS = country === "united-states";
   const isItaly = country === "italy";
@@ -47,6 +50,7 @@ const ListingsMap = ({
         listings={usListings}
         className="w-full h-full min-h-[400px]"
         country="united-states"
+        hexCells={hexCells}
       />
     );
   }
@@ -58,6 +62,7 @@ const ListingsMap = ({
         listings={mappedListings}
         className="w-full h-full min-h-[400px]"
         country="italy"
+        hexCells={hexCells}
       />
     );
   }

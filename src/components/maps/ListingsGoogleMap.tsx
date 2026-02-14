@@ -1,14 +1,17 @@
 import { GoogleMap } from "@react-google-maps/api";
-import { useMemo, useState, useCallback } from "react";
-import { MapPin } from "lucide-react";
+import { useMemo, useState, useCallback, useEffect, useRef } from "react";
+import { MapPin, Layers } from "lucide-react";
 import { USListing } from "@/hooks/useUSListings";
+import { HexCell } from "@/hooks/useHexHeatmap";
 import { useGoogleMaps } from "./GoogleMapsProvider";
 import { getParcelCenter } from "@/lib/geo";
+import { Button } from "@/components/ui/button";
 
 interface ListingsGoogleMapProps {
   listings: USListing[];
   className?: string;
   country?: string;
+  hexCells?: HexCell[];
 }
 
 const mapContainerStyle = {
@@ -22,11 +25,33 @@ const defaultCenters: Record<string, { lat: number; lng: number }> = {
 };
 const defaultCenterUS = defaultCenters["united-states"];
 
-export function ListingsGoogleMap({ listings, className, country }: ListingsGoogleMapProps) {
+function probSolarToColor(prob: number): string {
+  // yellow (low) → orange (mid) → red (high)
+  const clamped = Math.max(0, Math.min(1, prob));
+  if (clamped <= 0.5) {
+    // yellow to orange: hue 60 → 30
+    const hue = 60 - clamped * 60;
+    return `hsl(${hue}, 100%, 50%)`;
+  }
+  // orange to red: hue 30 → 0
+  const hue = 30 - (clamped - 0.5) * 60;
+  return `hsl(${hue}, 100%, 50%)`;
+}
+
+function probSolarToOpacity(pointCount: number, maxCount: number): number {
+  if (maxCount === 0) return 0.3;
+  return 0.25 + 0.5 * (pointCount / maxCount);
+}
+
+export function ListingsGoogleMap({ listings, className, country, hexCells }: ListingsGoogleMapProps) {
   const { isLoaded, hasApiKey } = useGoogleMaps();
   const [map, setMap] = useState<google.maps.Map | null>(null);
+  const [showHeatmap, setShowHeatmap] = useState(true);
+  const dataLayerRef = useRef<google.maps.Data | null>(null);
+  const infoWindowRef = useRef<google.maps.InfoWindow | null>(null);
   const defaultCenter = defaultCenters[country || "united-states"] || defaultCenterUS;
   const defaultZoom = country === "italy" ? 6 : 4;
+  const isUS = country === "united-states";
 
   // Filter listings to only those with valid coordinates from geom_json
   const listingsWithCoords = useMemo(() => {
@@ -39,6 +64,11 @@ export function ListingsGoogleMap({ listings, className, country }: ListingsGoog
         item.coords !== null
       );
   }, [listings]);
+
+  const maxPointCount = useMemo(() => {
+    if (!hexCells || hexCells.length === 0) return 0;
+    return Math.max(...hexCells.map((c) => c.point_count));
+  }, [hexCells]);
 
   const onLoad = useCallback((mapInstance: google.maps.Map) => {
     setMap(mapInstance);
@@ -56,6 +86,88 @@ export function ListingsGoogleMap({ listings, className, country }: ListingsGoog
       map.fitBounds(bounds, { top: 50, right: 50, bottom: 50, left: 50 });
     }
   }, [map, listingsWithCoords, isLoaded]);
+
+  // Manage heatmap data layer
+  useEffect(() => {
+    if (!map || !isLoaded || typeof google === "undefined") return;
+
+    // Clean up previous layer
+    if (dataLayerRef.current) {
+      dataLayerRef.current.setMap(null);
+      dataLayerRef.current = null;
+    }
+    if (infoWindowRef.current) {
+      infoWindowRef.current.close();
+      infoWindowRef.current = null;
+    }
+
+    if (!showHeatmap || !hexCells || hexCells.length === 0) return;
+
+    const dataLayer = new google.maps.Data({ map });
+    dataLayerRef.current = dataLayer;
+
+    const infoWindow = new google.maps.InfoWindow();
+    infoWindowRef.current = infoWindow;
+
+    // Add hex features
+    hexCells.forEach((cell) => {
+      if (!cell.geom_json) return;
+      const geom = typeof cell.geom_json === "string" ? JSON.parse(cell.geom_json) : cell.geom_json;
+      try {
+        const feature = {
+          type: "Feature" as const,
+          geometry: geom,
+          properties: {
+            id: cell.id,
+            point_count: cell.point_count,
+            avg_prob_solar: cell.avg_prob_solar,
+            avg_price_per_acre: (cell as HexCell).avg_price_per_acre ?? null,
+          },
+        };
+        dataLayer.addGeoJson(feature);
+      } catch {
+        // skip invalid geometry
+      }
+    });
+
+    // Style each feature
+    dataLayer.setStyle((feature) => {
+      const prob = feature.getProperty("avg_prob_solar") as number | null;
+      const count = feature.getProperty("point_count") as number;
+      return {
+        fillColor: probSolarToColor(prob ?? 0),
+        fillOpacity: probSolarToOpacity(count, maxPointCount),
+        strokeColor: probSolarToColor(prob ?? 0),
+        strokeWeight: 1,
+        strokeOpacity: 0.6,
+      };
+    });
+
+    // Click → info window
+    dataLayer.addListener("click", (event: google.maps.Data.MouseEvent) => {
+      const feat = event.feature;
+      const prob = feat.getProperty("avg_prob_solar") as number | null;
+      const count = feat.getProperty("point_count") as number;
+      const price = feat.getProperty("avg_price_per_acre") as number | null;
+
+      let html = `<div style="font-family:system-ui;font-size:13px;line-height:1.5;">`;
+      html += `<strong>Solar Probability:</strong> ${prob !== null ? `${Math.round(prob * 100)}%` : "N/A"}<br/>`;
+      html += `<strong>Parcels:</strong> ${count}`;
+      if (isUS && price !== null && price !== undefined) {
+        html += `<br/><strong>Avg Price/Acre:</strong> $${Math.round(price).toLocaleString()}`;
+      }
+      html += `</div>`;
+
+      infoWindow.setContent(html);
+      infoWindow.setPosition(event.latLng!);
+      infoWindow.open(map);
+    });
+
+    return () => {
+      dataLayer.setMap(null);
+      infoWindow.close();
+    };
+  }, [map, isLoaded, showHeatmap, hexCells, maxPointCount, isUS]);
 
   // Show fallback if Google Maps is not available
   if (!isLoaded) {
@@ -94,8 +206,10 @@ export function ListingsGoogleMap({ listings, className, country }: ListingsGoog
     fullscreenControl: true,
   };
 
+  const hasHexData = hexCells && hexCells.length > 0;
+
   return (
-    <div className={className}>
+    <div className={`relative ${className}`}>
       <GoogleMap
         mapContainerStyle={mapContainerStyle}
         center={defaultCenter}
@@ -103,6 +217,17 @@ export function ListingsGoogleMap({ listings, className, country }: ListingsGoog
         options={mapOptions}
         onLoad={onLoad}
       />
+      {hasHexData && (
+        <Button
+          variant={showHeatmap ? "default" : "outline"}
+          size="sm"
+          className="absolute top-3 left-3 z-10 shadow-md bg-background/90 hover:bg-background"
+          onClick={() => setShowHeatmap(!showHeatmap)}
+        >
+          <Layers className="w-4 h-4 mr-1" />
+          {showHeatmap ? "Hide Heatmap" : "Show Heatmap"}
+        </Button>
+      )}
     </div>
   );
 }

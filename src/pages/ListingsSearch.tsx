@@ -27,6 +27,7 @@ import {
   ITListing,
 } from "@/hooks/useITListings";
 import { useUSCounty, useITComune } from "@/hooks/useLocationData";
+import { useUSHexHeatmap, useITHexHeatmap } from "@/hooks/useHexHeatmap";
 
 // Helper to format slug to display name
 const formatName = (slug: string) => {
@@ -112,6 +113,11 @@ const ListingsSearch = () => {
   const itNationalQuery = useITListingsNational(10);
   const itRegionQuery = useITListingsByRegion(isITRegion || isITComune ? region : undefined, 10);
   const itComuneQuery = useITListingsByComune(isITComune ? province : undefined, 10);
+
+  // Fetch hex heatmap data
+  const usHexQuery = useUSHexHeatmap();
+  const itHexQuery = useITHexHeatmap();
+  const hexCells = isUS ? usHexQuery.data : isItaly ? itHexQuery.data : undefined;
 
   // Fetch county/comune-level SEO stats
   const countyStatsQuery = useUSCounty(isUSCounty ? region : undefined, isUSCounty ? province : undefined);
@@ -391,6 +397,7 @@ const ListingsSearch = () => {
                   listingCount={totalListings.length}
                   usListings={usListings}
                   itListings={itListings}
+                  hexCells={hexCells}
                 />
               </div>
             </div>

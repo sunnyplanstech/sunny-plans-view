@@ -23,7 +23,7 @@ export function useUSListingsNational(limit = 10) {
     queryKey: ["us-listings", "national", limit],
     queryFn: async () => {
       const { data, error } = await supabase
-        .from("mart_us_land_solar_prob")
+        .from("mart_us_land_solar_prob_top")
         .select("*")
         .not("rank_global", "is", null)
         .order("rank_global", { ascending: true })
@@ -45,7 +45,7 @@ export function useUSListingsByState(stateSlug: string | undefined, limit = 10) 
       if (!stateCode) return [];
 
       const { data, error } = await supabase
-        .from("mart_us_land_solar_prob")
+        .from("mart_us_land_solar_prob_top")
         .select("*")
         .eq("state_code", stateCode)
         .not("rank_in_state", "is", null)
@@ -74,7 +74,7 @@ export function useUSListingsByCounty(
       if (!stateCode || !countyName) return [];
 
       const { data, error } = await supabase
-        .from("mart_us_land_solar_prob")
+        .from("mart_us_land_solar_prob_top")
         .select("*")
         .eq("state_code", stateCode)
         .ilike("county", countyName)
@@ -97,7 +97,7 @@ export function useUSListingById(listingId: string | undefined) {
       if (!listingId) return null;
 
       const { data, error } = await supabase
-        .from("mart_us_land_solar_prob")
+        .from("mart_us_land_solar_prob_top")
         .select("*")
         .eq("id", listingId)
         .single();

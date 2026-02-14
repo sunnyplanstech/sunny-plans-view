@@ -14,7 +14,7 @@ export type Database = {
   }
   public: {
     Tables: {
-      mart_us_land_solar_prob: {
+      mart_us_land_solar_prob_top: {
         Row: {
           id: string
           state_code: string
@@ -140,7 +140,7 @@ export type Database = {
         }
         Relationships: []
       }
-      mart_it_catasto_solar_prob: {
+      mart_it_catasto_solar_prob_top: {
         Row: {
           id: string
           comune_code: string
@@ -173,6 +173,51 @@ export type Database = {
           rank_in_comune?: number | null
           region_slug?: string
           geom_json?: string | null
+        }
+        Relationships: []
+      }
+      mart_us_hex_heatmap: {
+        Row: {
+          id: number
+          point_count: number
+          avg_prob_solar: number | null
+          avg_price_per_acre: number | null
+          geom_json: Json | null
+        }
+        Insert: {
+          id?: number
+          point_count: number
+          avg_prob_solar?: number | null
+          avg_price_per_acre?: number | null
+          geom_json?: Json | null
+        }
+        Update: {
+          id?: number
+          point_count?: number
+          avg_prob_solar?: number | null
+          avg_price_per_acre?: number | null
+          geom_json?: Json | null
+        }
+        Relationships: []
+      }
+      mart_it_hex_heatmap: {
+        Row: {
+          id: number
+          point_count: number
+          avg_prob_solar: number | null
+          geom_json: Json | null
+        }
+        Insert: {
+          id?: number
+          point_count: number
+          avg_prob_solar?: number | null
+          geom_json?: Json | null
+        }
+        Update: {
+          id?: number
+          point_count?: number
+          avg_prob_solar?: number | null
+          geom_json?: Json | null
         }
         Relationships: []
       }
