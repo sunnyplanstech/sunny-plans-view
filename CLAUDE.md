@@ -76,6 +76,11 @@ import { Button } from "@/components/ui/button";
 
 Currently uses mock data in `src/data/mockListings.ts`. The `getListingsByLocation()` function filters listings by geographic hierarchy. Ready to swap with Supabase queries when Cloud mode is enabled.
 
+## Git Conventions
+
+- Commit messages must be one-liners (no multi-line body)
+- Do not include Co-Authored-By lines
+
 ## Styling
 
 Custom Tailwind theme in `tailwind.config.ts`:
