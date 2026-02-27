@@ -10,6 +10,7 @@ import ListingsBreadcrumb from "@/components/listings/ListingsBreadcrumb";
 import ListingsFooter from "@/components/listings/ListingsFooter";
 import SubdivisionNav from "@/components/listings/SubdivisionNav";
 import SampleReportModal from "@/components/listings/SampleReportModal";
+import ScheduleCallPopup from "@/components/listings/ScheduleCallPopup";
 import SEOHead from "@/components/listings/SEOHead";
 import ListingsSEOContent from "@/components/listings/ListingsSEOContent";
 import { generateListingSEODescription, generateListingKeywords } from "@/data/mockListings";
@@ -28,6 +29,7 @@ import {
 } from "@/hooks/useITListings";
 import { useUSCounty, useITComune } from "@/hooks/useLocationData";
 import { useUSHexHeatmap, useITHexHeatmap } from "@/hooks/useHexHeatmap";
+import { useListingViewCounter } from "@/hooks/useListingViewCounter";
 
 // Helper to format slug to display name
 const formatName = (slug: string) => {
@@ -87,6 +89,7 @@ const ListingsSearch = () => {
   const { country, region, province } = useParams();
   const [viewMode, setViewMode] = useState<"list" | "map">("list");
   const [showHeatmap, setShowHeatmap] = useState(false);
+  const { shouldShowPopup, closePopup } = useListingViewCounter();
 
   const isUS = country === "united-states";
   const isItaly = country === "italy";
@@ -444,6 +447,8 @@ const ListingsSearch = () => {
           </Button>
         </div>
       </div>
+
+      <ScheduleCallPopup open={shouldShowPopup} onClose={closePopup} />
     </>
   );
 };
