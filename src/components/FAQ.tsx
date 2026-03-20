@@ -24,7 +24,7 @@ const FAQ = () => {
                 What is Sunnyplans?
               </AccordionTrigger>
               <AccordionContent className="text-muted-foreground">
-                Sunnyplans is a geo-analytics platform that helps renewable energy developers find suitable land for small to medium-sized Battery Energy Storage Systems (BESS) and solar projects. We index real estate data and use advanced filtering to identify high-potential, substation-proximate land parcels.
+                Sunnyplans is a geo-analytics platform that helps renewable energy developers find suitable land for small to medium-sized Battery Energy Storage Systems (BESS) and solar projects. We index real estate data and use a proprietary machine learning model—SunnyScore™—to rank every parcel based on grid proximity, constraint risk, and solar potential.
               </AccordionContent>
             </AccordionItem>
 
@@ -33,7 +33,7 @@ const FAQ = () => {
                 Who is Sunnyplans for?
               </AccordionTrigger>
               <AccordionContent className="text-muted-foreground">
-                Our primary audience is small to medium-sized renewable energy developers in the U.S. and the EU (specifically Italy, Spain, and Portugal). We cater to operators focused on modest BESS or solar projects, not large utility-scale entities.
+                Our primary audience is small to medium-sized renewable energy developers in the U.S. and Italy. We cater to operators focused on modest BESS or solar projects, not large utility-scale entities. Expansion to Spain and Portugal is on the roadmap.
               </AccordionContent>
             </AccordionItem>
 
@@ -42,7 +42,7 @@ const FAQ = () => {
                 What makes Sunnyplans unique?
               </AccordionTrigger>
               <AccordionContent className="text-muted-foreground">
-                Unlike traditional methods of scouting for land, Sunnyplans automates the process by indexing land data first and then filtering based on substation viability and other constraints. This provides our users with pre-vetted, sale-ready parcels, saving them time and money on interconnection fees and development timelines.
+                Unlike traditional methods of scouting for land, Sunnyplans automates the process by indexing land data first and then filtering based on substation viability and other constraints. Every parcel is then scored by SunnyScore™, our proprietary machine learning model, so you can instantly compare opportunities. This provides pre-vetted, sale-ready parcels ranked by real development potential.
               </AccordionContent>
             </AccordionItem>
 
@@ -82,7 +82,7 @@ const FAQ = () => {
                 In which countries does Sunnyplans operate?
               </AccordionTrigger>
               <AccordionContent className="text-muted-foreground">
-                We are currently focused on the United States, with plans to re-enter the EU market, starting with Italy, Spain, and Portugal.
+                We currently cover the United States and Italy. Expansion to Spain and Portugal is on the roadmap.
               </AccordionContent>
             </AccordionItem>
 
@@ -94,9 +94,10 @@ const FAQ = () => {
               <AccordionContent className="text-muted-foreground">
                 <p className="mb-2">We use a proprietary process that involves:</p>
                 <ol className="list-decimal pl-5 space-y-2">
-                  <li><strong>Indexing real estate data:</strong> We aggregate land listings from various sources.</li>
-                  <li><strong>Geo-analytics and filtering:</strong> We apply a series of filters to identify parcels that meet our criteria, such as proximity to substations, land size, and absence of constraints.</li>
-                  <li><strong>Constraint analysis:</strong> We screen for flood risks, natural and historical constraints, grid capacity, and geotechnical issues.</li>
+                  <li><strong>Indexing real estate data:</strong> We aggregate land listings from various sources across the U.S. and Italy.</li>
+                  <li><strong>Geo-analytics and filtering:</strong> We screen against authoritative datasets—FEMA flood zones, PAD-US, Natura 2000, USPVDB solar plant locations—to filter by substation proximity, land size, and absence of constraints.</li>
+                  <li><strong>ML scoring:</strong> Our proprietary SunnyScore™ machine learning model ranks each parcel from 0 to 100 based on grid proximity, constraint risk, and solar potential.</li>
+                  <li><strong>Delivery:</strong> Top-ranked parcels are delivered via email or explorable on our interactive heatmap.</li>
                 </ol>
               </AccordionContent>
             </AccordionItem>
@@ -109,7 +110,7 @@ const FAQ = () => {
                 <p className="mb-2">We filter for a variety of constraints to de-risk projects, including:</p>
                 <ul className="list-disc pl-5 space-y-2">
                   <li><strong>Flood Risks:</strong> Using data from sources like the FEMA National Flood Hazard Layer.</li>
-                  <li><strong>Natural/Naturalistic Constraints:</strong> Identifying protected areas, wetlands, and wildlife habitats using data from the Protected Areas Database of the United States (PAD-US), National Wetlands Inventory (NWI), and the Natura 2000 network in the EU.</li>
+                  <li><strong>Natural/Naturalistic Constraints:</strong> Identifying protected areas, wetlands, and wildlife habitats using data from the Protected Areas Database of the United States (PAD-US), National Wetlands Inventory (NWI), and the Natura 2000 network in Italy and the EU.</li>
                   <li><strong>Historical Constraints:</strong> Avoiding sites with cultural or archaeological significance.</li>
                   <li><strong>Grid Constraints:</strong> Assessing grid capacity and interconnection viability using data from grid operators and models from NREL.</li>
                   <li><strong>Geotechnical Constraints:</strong> Evaluating soil stability and topography.</li>

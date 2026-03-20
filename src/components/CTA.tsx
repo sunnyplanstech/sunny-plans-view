@@ -103,7 +103,7 @@ const CTA = () => {
                 </div>
                 <div className="flex items-center gap-2 justify-center">
                   <Check className="w-4 h-4 text-primary flex-shrink-0" />
-                  <span>Constraint filtering</span>
+                  <span>SunnyScore™ ranking</span>
                 </div>
               </div>
               {/* Email Signup Form */}
@@ -157,7 +157,7 @@ const CTA = () => {
                 </div>
                 <div className="flex items-center gap-2">
                   <div className="w-2 h-2 rounded-full bg-secondary"></div>
-                  <span>EU Expansion Coming</span>
+                  <span>Italy Now Live</span>
                 </div>
                 <div className="flex items-center gap-2">
                   <div className="w-2 h-2 rounded-full bg-primary"></div>

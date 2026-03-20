@@ -1,5 +1,5 @@
 import { Card, CardContent } from "@/components/ui/card";
-import { Database, Filter, DollarSign, Clock, Shield, Globe } from "lucide-react";
+import { Database, Filter, DollarSign, Clock, Shield, Globe, Brain, Map } from "lucide-react";
 
 const features = [
   {
@@ -8,14 +8,24 @@ const features = [
     description: "We index real estate data first, then select based on substation viability—reversing traditional workflows for faster site acquisition.",
   },
   {
+    icon: Brain,
+    title: "SunnyScore™ ML Rating",
+    description: "Every parcel is ranked by our proprietary machine learning model that evaluates proximity to grid infrastructure, constraint risk, and solar potential into a single 0–100 score.",
+  },
+  {
     icon: Filter,
     title: "Multi-Layer Constraint Filtering",
-    description: "Navigate naturalistic, historical, grid, geotechnical, and flood risks with precision mapping for BESS and small solar projects.",
+    description: "Screen against FEMA flood zones, PAD-US protected areas, Natura 2000 reserves, historical sites, and geotechnical risks—powered by authoritative public datasets.",
   },
   {
     icon: DollarSign,
     title: "Reduce Infrastructure Costs",
     description: "Target substation-proximate parcels to minimize electrical infrastructure expenses and interconnection fees.",
+  },
+  {
+    icon: Map,
+    title: "Interactive Heatmap",
+    description: "Explore solar potential across regions with our live heatmap. Instantly spot high-opportunity zones and drill down to individual parcels.",
   },
   {
     icon: Clock,
@@ -29,8 +39,8 @@ const features = [
   },
   {
     icon: Globe,
-    title: "U.S. & EU Ready",
-    description: "Currently serving U.S. developers, with planned expansion to Italy, Spain, and Portugal for cross-border opportunities.",
+    title: "U.S. & Italy Coverage",
+    description: "Live coverage across U.S. states and Italy, with expansion to Spain and Portugal on the roadmap.",
   },
 ];
 
@@ -51,7 +61,7 @@ const Features = () => {
           </p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-7xl mx-auto">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 max-w-7xl mx-auto">
           {features.map((feature, index) => {
             const Icon = feature.icon;
             return (

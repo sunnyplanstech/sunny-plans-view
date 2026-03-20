@@ -4,22 +4,27 @@ const steps = [
   {
     number: "01",
     title: "Automated Data Indexing",
-    description: "We continuously scan real estate listings for small to medium-sized land parcels available for sale across U.S. markets.",
+    description: "We continuously index real estate listings for small to medium-sized land parcels available for sale across U.S. and Italian markets.",
   },
   {
     number: "02",
     title: "Substation Proximity Analysis",
-    description: "Filter parcels based on distance to high-potential substations, ensuring optimal grid tie-in opportunities for BESS and solar.",
+    description: "Filter parcels based on distance to substations and grid infrastructure, ensuring optimal tie-in opportunities for BESS and solar.",
   },
   {
     number: "03",
     title: "Constraint Layer Mapping",
-    description: "Apply geo-analytics to screen for flood zones, historical sites, naturalistic reserves, and geotechnical risks.",
+    description: "Screen against authoritative datasets—FEMA flood zones, PAD-US protected areas, Natura 2000 reserves, USPVDB solar plant locations—to de-risk every parcel.",
   },
   {
     number: "04",
+    title: "SunnyScore™ Ranking",
+    description: "Our proprietary machine learning model scores each parcel from 0 to 100, combining grid proximity, constraint analysis, and solar potential into one actionable rating.",
+  },
+  {
+    number: "05",
     title: "Curated Opportunities",
-    description: "Receive pre-vetted links to sale-ready parcels that meet your project specifications and permitting requirements.",
+    description: "Receive top-ranked, pre-vetted parcels with full scoring breakdowns—delivered to your inbox or explored on our interactive heatmap.",
   },
 ];
 
