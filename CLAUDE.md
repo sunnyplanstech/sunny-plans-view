@@ -1,13 +1,10 @@
 # CLAUDE.md
 
-This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
-
 ## Project Overview
 
-Sunny Plans View is a real estate listing platform for solar & BESS (Battery Energy Storage Systems) land opportunities. It helps users find substation-ready land parcels with proprietary SunnyScore™ ratings.
+Frontend for Sunnyplans — a real estate listing platform for solar & BESS (Battery Energy Storage Systems) land opportunities with proprietary SunnyScore™ ratings. Part of a monorepo; backend pipelines live in the parent repo.
 
-**Live site:** https://sunnyplans.com
-**Lovable project:** https://lovable.dev/projects/cd4cb17f-800f-45c8-958d-068841465624
+**Live:** https://sunnyplans.com
 
 ## Commands
 
@@ -72,18 +69,14 @@ import { Button } from "@/components/ui/button";
 - **Substation-ready** - Land near electrical substations for grid connection
 - **BESS** - Battery Energy Storage Systems
 
-## Mock Data Pattern
+## Mock Data
 
-Currently uses mock data in `src/data/mockListings.ts`. The `getListingsByLocation()` function filters listings by geographic hierarchy. Ready to swap with Supabase queries when Cloud mode is enabled.
-
-## Git Conventions
-
-- Commit messages must be one-liners (no multi-line body)
-- Do not include Co-Authored-By lines
+Uses mock data in `src/data/mockListings.ts`. `getListingsByLocation()` filters by geographic hierarchy. Ready to swap with Supabase.
 
 ## Styling
 
-Custom Tailwind theme in `tailwind.config.ts`:
-- CSS variables for colors (HSL format) in `src/index.css`
-- Custom gradients: `gradient-hero`, `gradient-subtle`, `gradient-card`
-- Custom shadows: `shadow-glow` for accent elements
+Custom Tailwind theme in `tailwind.config.ts` with CSS variables (HSL) in `src/index.css`. Custom utilities: `gradient-hero`, `gradient-subtle`, `gradient-card`, `shadow-glow`.
+
+## Commit Style
+
+One-liner commit messages, no co-authored-by lines.
