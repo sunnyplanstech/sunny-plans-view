@@ -54,8 +54,8 @@ const FAQ = () => {
               <AccordionContent className="text-muted-foreground">
                 <p className="mb-2">We offer a tiered subscription service:</p>
                 <ul className="list-disc pl-5 space-y-2">
-                  <li><strong>Free Tier:</strong> Provides monthly insights into land opportunities in a single US state, with a limited number of listings.</li>
-                  <li><strong>Premium Tier:</strong> Offers curated data for active developers, including detailed parcel listings, full substation proximity analysis, and advanced risk mapping for a single US state.</li>
+                  <li><strong>Free Tier:</strong> Browse land opportunities across all US states with obfuscated data—no card required.</li>
+                  <li><strong>Premium Tier:</strong> Full access for one US state, including detailed parcel listings with full contact info, solar suitability scores, and substation/infrastructure distance data.</li>
                   <li><strong>Enterprise Tier:</strong> A custom solution for portfolio growth, featuring an interactive map-based discovery tool, multi-state or custom coverage, and dedicated support.</li>
                 </ul>
               </AccordionContent>
@@ -97,7 +97,7 @@ const FAQ = () => {
                   <li><strong>Indexing real estate data:</strong> We aggregate land listings from various sources across the U.S. and Italy.</li>
                   <li><strong>Geo-analytics and filtering:</strong> We screen against authoritative datasets—FEMA flood zones, PAD-US, Natura 2000, USPVDB solar plant locations—to filter by substation proximity, land size, and absence of constraints.</li>
                   <li><strong>ML scoring:</strong> Our proprietary SunnyScore™ machine learning model ranks each parcel from 0 to 100 based on grid proximity, constraint risk, and solar potential.</li>
-                  <li><strong>Delivery:</strong> Top-ranked parcels are delivered via email or explorable on our interactive heatmap.</li>
+                  <li><strong>Delivery:</strong> Top-ranked parcels are browsable directly on the platform.</li>
                 </ol>
               </AccordionContent>
             </AccordionItem>
