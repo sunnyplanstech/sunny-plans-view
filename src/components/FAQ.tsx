@@ -110,9 +110,9 @@ const FAQ = () => {
                 <p className="mb-2">We filter for a variety of constraints to de-risk projects, including:</p>
                 <ul className="list-disc pl-5 space-y-2">
                   <li><strong>Flood Risks:</strong> Using data from sources like the FEMA National Flood Hazard Layer.</li>
-                  <li><strong>Natural/Naturalistic Constraints:</strong> Identifying protected areas, wetlands, and wildlife habitats using data from the Protected Areas Database of the United States (PAD-US), National Wetlands Inventory (NWI), and the Natura 2000 network in Italy and the EU.</li>
+                  <li><strong>Natural/Naturalistic Constraints:</strong> Identifying protected areas and wildlife habitats using data from the Protected Areas Database of the United States (PAD-US) and the Natura 2000 network in Italy and the EU. Wetland data from the National Wetlands Inventory (NWI) is on our roadmap.</li>
                   <li><strong>Historical Constraints:</strong> Avoiding sites with cultural or archaeological significance.</li>
-                  <li><strong>Grid Constraints:</strong> Assessing grid capacity and interconnection viability using data from grid operators and models from NREL.</li>
+                  <li><strong>Grid Constraints:</strong> Assessing grid capacity and interconnection viability using substation proximity analysis. Enhanced grid modeling with NREL data is on our roadmap.</li>
                   <li><strong>Geotechnical Constraints:</strong> Evaluating soil stability and topography.</li>
                 </ul>
               </AccordionContent>
