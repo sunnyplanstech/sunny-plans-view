@@ -95,7 +95,7 @@ const FAQ = () => {
                 <p className="mb-2">We use a proprietary process that involves:</p>
                 <ol className="list-decimal pl-5 space-y-2">
                   <li><strong>Indexing real estate data:</strong> We aggregate land listings from various sources across the U.S. and Italy.</li>
-                  <li><strong>Geo-analytics and filtering:</strong> We screen against authoritative datasets—FEMA flood zones, PAD-US, Natura 2000, USPVDB solar plant locations—to filter by substation proximity, land size, and absence of constraints.</li>
+                  <li><strong>Geo-analytics and filtering:</strong> We screen against authoritative datasets—PAD-US, Natura 2000, USPVDB solar plant locations—to filter by substation proximity, land size, and absence of constraints.</li>
                   <li><strong>ML scoring:</strong> Our proprietary SunnyScore™ machine learning model ranks each parcel from 0 to 100 based on grid proximity, constraint risk, and solar potential.</li>
                   <li><strong>Delivery:</strong> Top-ranked parcels are browsable directly on the platform.</li>
                 </ol>
@@ -109,7 +109,7 @@ const FAQ = () => {
               <AccordionContent className="text-muted-foreground">
                 <p className="mb-2">We filter for a variety of constraints to de-risk projects, including:</p>
                 <ul className="list-disc pl-5 space-y-2">
-                  <li><strong>Flood Risks:</strong> Using data from sources like the FEMA National Flood Hazard Layer.</li>
+                  <li><strong>Flood Risks:</strong> Screening parcels for flood zone exposure. Integration of the FEMA National Flood Hazard Layer is on our roadmap.</li>
                   <li><strong>Natural/Naturalistic Constraints:</strong> Identifying protected areas and wildlife habitats using data from the Protected Areas Database of the United States (PAD-US) and the Natura 2000 network in Italy and the EU. Wetland data from the National Wetlands Inventory (NWI) is on our roadmap.</li>
                   <li><strong>Historical Constraints:</strong> Avoiding sites with cultural or archaeological significance.</li>
                   <li><strong>Grid Constraints:</strong> Assessing grid capacity and interconnection viability using substation proximity analysis. Enhanced grid modeling with NREL data is on our roadmap.</li>
