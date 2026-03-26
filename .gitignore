@@ -30,3 +30,6 @@ supabase/config.toml
 *.njsproj
 *.sln
 *.sw?
+
+# Netlify
+.netlify/
