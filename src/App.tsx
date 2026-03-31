@@ -11,6 +11,8 @@ import { GoogleMapsProvider } from "@/components/maps/GoogleMapsProvider";
 // Lazy load heavy route components
 const ListingsSearch = lazy(() => import("./pages/ListingsSearch"));
 const ListingDetail = lazy(() => import("./pages/ListingDetail"));
+const Blog = lazy(() => import("./pages/Blog"));
+const BlogPost = lazy(() => import("./pages/BlogPost"));
 
 // Loading fallback for lazy routes
 const PageLoader = () => (
@@ -52,6 +54,10 @@ const App = () => (
           {/* Individual listing detail */}
           <Route path="/:country/:region/:province/listing/:id" element={<Suspense fallback={<PageLoader />}><ListingDetail /></Suspense>} />
           <Route path="/:country/:region/:province/:municipality/listing/:id" element={<Suspense fallback={<PageLoader />}><ListingDetail /></Suspense>} />
+
+          {/* Blog */}
+          <Route path="/blog" element={<Suspense fallback={<PageLoader />}><Blog /></Suspense>} />
+          <Route path="/blog/:slug" element={<Suspense fallback={<PageLoader />}><BlogPost /></Suspense>} />
 
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />

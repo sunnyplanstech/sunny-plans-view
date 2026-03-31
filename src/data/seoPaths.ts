@@ -4,6 +4,8 @@
 import { COUNTRIES, STATE_CODE_TO_SLUG } from './locations';
 import countiesByState from './counties.json';
 import comuniByRegion from './comuni.json';
+import fs from 'fs';
+import path from 'path';
 
 export function generateDynamicSeoPaths(): string[] {
   const paths: string[] = [];
@@ -38,6 +40,17 @@ export function generateDynamicSeoPaths(): string[] {
   for (const [regionSlug, comuni] of Object.entries(comuniByRegion)) {
     for (const comuneSlug of comuni) {
       paths.push(`/${it.slug}/${regionSlug}/${comuneSlug}`);
+    }
+  }
+
+  // Blog paths
+  paths.push('/blog');
+  const articlesDir = path.resolve(__dirname, '../../articles');
+  if (fs.existsSync(articlesDir)) {
+    for (const file of fs.readdirSync(articlesDir)) {
+      if (file.endsWith('.md')) {
+        paths.push(`/blog/${file.replace('.md', '')}`);
+      }
     }
   }
 
