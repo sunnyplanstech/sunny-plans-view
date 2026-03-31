@@ -13,6 +13,8 @@ const ListingsSearch = lazy(() => import("./pages/ListingsSearch"));
 const ListingDetail = lazy(() => import("./pages/ListingDetail"));
 const Blog = lazy(() => import("./pages/Blog"));
 const BlogPost = lazy(() => import("./pages/BlogPost"));
+const Contact = lazy(() => import("./pages/Contact"));
+const Terms = lazy(() => import("./pages/Terms"));
 
 // Loading fallback for lazy routes
 const PageLoader = () => (
@@ -58,6 +60,10 @@ const App = () => (
           {/* Blog */}
           <Route path="/blog" element={<Suspense fallback={<PageLoader />}><Blog /></Suspense>} />
           <Route path="/blog/:slug" element={<Suspense fallback={<PageLoader />}><BlogPost /></Suspense>} />
+
+          {/* Static pages */}
+          <Route path="/contact" element={<Suspense fallback={<PageLoader />}><Contact /></Suspense>} />
+          <Route path="/terms" element={<Suspense fallback={<PageLoader />}><Terms /></Suspense>} />
 
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />

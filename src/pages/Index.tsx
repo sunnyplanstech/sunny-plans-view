@@ -10,8 +10,8 @@ const Testimonial = lazy(() => import("@/components/Testimonial"));
 const Pricing = lazy(() => import("@/components/Pricing"));
 const FAQ = lazy(() => import("@/components/FAQ"));
 const CTA = lazy(() => import("@/components/CTA"));
-const Footer = lazy(() => import("@/components/Footer"));
 const CalendlyEmbed = lazy(() => import("@/components/CalendlyEmbed"));
+const Footer = lazy(() => import("@/components/Footer"));
 
 const SectionFallback = () => (
   <div className="py-20 flex items-center justify-center">
@@ -45,10 +45,10 @@ const Index = () => {
         <Pricing />
       </Suspense>
       <Suspense fallback={<SectionFallback />}>
-        <CalendlyEmbed />
+        <FAQ />
       </Suspense>
       <Suspense fallback={<SectionFallback />}>
-        <FAQ />
+        <CalendlyEmbed />
       </Suspense>
       <Suspense fallback={<SectionFallback />}>
         <CTA />

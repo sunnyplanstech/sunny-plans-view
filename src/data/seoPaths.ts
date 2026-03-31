@@ -43,6 +43,10 @@ export function generateDynamicSeoPaths(): string[] {
     }
   }
 
+  // Static pages
+  paths.push('/contact');
+  paths.push('/terms');
+
   // Blog paths
   paths.push('/blog');
   const articlesDir = path.resolve(__dirname, '../../articles');

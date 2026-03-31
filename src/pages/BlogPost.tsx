@@ -36,9 +36,8 @@ const BlogPost = () => {
       />
       <div className="container max-w-3xl py-16 px-4">
         <Link to="/blog" className="text-primary hover:underline text-sm">&larr; Back to blog</Link>
-        <h1 className="text-4xl font-bold mt-4 mb-2">{article.title}</h1>
         {article.date && (
-          <p className="text-sm text-muted-foreground mb-8">
+          <p className="text-sm text-muted-foreground mt-4 mb-8">
             {new Date(article.date).toLocaleDateString("en-US", {
               year: "numeric",
               month: "long",
