@@ -7,6 +7,7 @@ import SEOHead from "@/components/listings/SEOHead";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import NotFound from "./NotFound";
+import { Button } from "@/components/ui/button";
 
 const BlogPost = () => {
   const { slug } = useParams<{ slug: string }>();
@@ -100,6 +101,13 @@ const BlogPost = () => {
             {article.content}
           </ReactMarkdown>
         </article>
+
+        {/* CTA button */}
+        <div className="mt-8 flex justify-center">
+          <Button asChild size="lg" className="rounded-full px-8">
+            <Link to="/us/listings">Explore land on Sunnyplans →</Link>
+          </Button>
+        </div>
       </div>
 
       <Footer />

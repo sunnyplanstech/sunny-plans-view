@@ -7,6 +7,8 @@ export interface ArticleMeta {
   image?: string;
   tags?: string[];
   readingTime: number; // minutes
+  ctaLabel?: string;
+  ctaUrl?: string;
 }
 
 function calcReadingTime(content: string): number {
@@ -51,6 +53,8 @@ export async function getArticles(): Promise<ArticleMeta[]> {
       image: meta.image,
       tags: meta.tags ? meta.tags.split(",").map((t: string) => t.trim()) : undefined,
       readingTime: calcReadingTime(content),
+      ctaLabel: meta.cta_label,
+      ctaUrl: meta.cta_url,
     });
   }
 
