@@ -1,5 +1,7 @@
-import { lazy, Suspense } from "react";
+import { lazy, Suspense, useEffect } from "react";
+import { useLocation } from "react-router-dom";
 import Hero from "@/components/Hero";
+import Navbar from "@/components/Navbar";
 import SEOHead from "@/components/listings/SEOHead";
 
 // Lazy load below-fold components
@@ -20,6 +22,24 @@ const SectionFallback = () => (
 );
 
 const Index = () => {
+  const { hash } = useLocation();
+
+  useEffect(() => {
+    if (!hash) return;
+    const id = hash.slice(1);
+    let attempts = 0;
+    const interval = setInterval(() => {
+      const el = document.getElementById(id);
+      if (el) {
+        el.scrollIntoView({ behavior: "smooth" });
+        clearInterval(interval);
+      } else if (++attempts > 20) {
+        clearInterval(interval);
+      }
+    }, 100);
+    return () => clearInterval(interval);
+  }, [hash]);
+
   return (
     <div className="min-h-screen">
       <SEOHead
@@ -28,6 +48,7 @@ const Index = () => {
         canonicalUrl="https://sunnyplans.com/"
         keywords="solar land, BESS land, substation-ready land, renewable energy land, solar farm sites"
       />
+      <Navbar />
       <Hero />
       <Suspense fallback={<SectionFallback />}>
         <DemoSection />

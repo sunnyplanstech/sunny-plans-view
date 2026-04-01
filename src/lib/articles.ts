@@ -6,6 +6,12 @@ export interface ArticleMeta {
   author: string;
   image?: string;
   tags?: string[];
+  readingTime: number; // minutes
+}
+
+function calcReadingTime(content: string): number {
+  const words = content.trim().split(/\s+/).length;
+  return Math.max(1, Math.ceil(words / 200));
 }
 
 export interface Article extends ArticleMeta {
@@ -34,7 +40,7 @@ export async function getArticles(): Promise<ArticleMeta[]> {
 
   for (const [path, loader] of Object.entries(modules)) {
     const raw = (await loader()) as string;
-    const { meta } = parseFrontmatter(raw);
+    const { meta, content } = parseFrontmatter(raw);
     const slug = path.replace("/articles/", "").replace(".md", "");
     articles.push({
       slug,
@@ -44,6 +50,7 @@ export async function getArticles(): Promise<ArticleMeta[]> {
       author: meta.author || "",
       image: meta.image,
       tags: meta.tags ? meta.tags.split(",").map((t: string) => t.trim()) : undefined,
+      readingTime: calcReadingTime(content),
     });
   }
 
@@ -66,6 +73,7 @@ export async function getArticle(slug: string): Promise<Article | null> {
     author: meta.author || "",
     image: meta.image,
     tags: meta.tags ? meta.tags.split(",").map((t: string) => t.trim()) : undefined,
+    readingTime: calcReadingTime(content),
     content,
   };
 }

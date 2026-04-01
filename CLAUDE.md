@@ -77,6 +77,16 @@ Uses mock data in `src/data/mockListings.ts`. `getListingsByLocation()` filters 
 
 Custom Tailwind theme in `tailwind.config.ts` with CSS variables (HSL) in `src/index.css`. Custom utilities: `gradient-hero`, `gradient-subtle`, `gradient-card`, `shadow-glow`.
 
+## Blog Articles
+
+Articles live in `articles/*.md` with frontmatter (title, description, date, author, tags).
+
+### Writing rules
+
+**CTA (closing paragraph)**: Every article ends with an italicised Sunnyplans plug, but the wording must be specific to that article's angle — what Sunnyplans data is directly relevant to what the reader just learned. Never reuse the same sentence structure across articles.
+
+**Keyword cannibalization**: Before writing a new article, identify its primary target query and confirm it doesn't overlap with existing articles. Each article should own a distinct query. Add a `target_query` field in the frontmatter (e.g. `target_query: "solar land lease rates landowners"`) so future articles can check before drifting into the same territory. Never use an HTML comment for this — it will render as visible text.
+
 ## Commit Style
 
 One-liner commit messages, no co-authored-by lines.

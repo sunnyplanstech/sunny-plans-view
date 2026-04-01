@@ -42,7 +42,7 @@ const CalendlyEmbed = () => {
   }, [isVisible, scriptLoaded]);
 
   return (
-    <section ref={sectionRef} className="py-20 bg-muted/30">
+    <section ref={sectionRef} id="calendly" className="py-20 bg-muted/30">
       <div className="container px-4">
         <div className="max-w-3xl mx-auto text-center mb-12">
           <h2 className="text-3xl md:text-4xl font-bold mb-4">
