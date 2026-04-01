@@ -57,4 +57,4 @@ This is also why grid proximity matters so much in the initial offer. A parcel c
 
 ---
 
-*Sunnyplans shows substation proximity and estimated hosting capacity for individual parcels — the two factors that most directly predict interconnection cost and queue exposure before a developer runs formal studies.*
+*Sunnyplans shows substation and transformer proximity for individual parcels — the factor that most directly predicts interconnection cost before a developer runs formal studies.*

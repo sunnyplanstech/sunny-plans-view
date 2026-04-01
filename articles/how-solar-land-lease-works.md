@@ -71,4 +71,4 @@ The landowners who get the worst deals are those who signed the first offer with
 
 ---
 
-*Before you negotiate, know what your parcel is worth to a developer. Sunnyplans shows grid proximity, substation capacity, and constraint flags for individual parcels — the same inputs that determine where a developer's opening offer lands.*
+*Before you negotiate, know what your parcel is worth to a developer. Sunnyplans shows substation proximity and infrastructure distances for individual parcels — the same inputs that determine where a developer's opening offer lands.*

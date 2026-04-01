@@ -73,4 +73,4 @@ If you're evaluating your own land before receiving an offer — or trying to un
 
 ---
 
-*Most landowners find out their parcel's constraint profile only after a developer tells them — or doesn't call back. Sunnyplans runs the same filters developers use (grid proximity, flood zone, slope, zoning) on individual parcels, so you can see what a developer sees before the conversation starts.*
+*Most landowners find out their parcel's constraint profile only after a developer tells them — or doesn't call back. Sunnyplans screens parcels against protected areas and wetlands, then ranks them by grid proximity and solar suitability — so you can see what survives the filters before the conversation starts.*
