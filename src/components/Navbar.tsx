@@ -61,7 +61,10 @@ const Navbar = () => {
                 />
               </button>
               {listingsOpen && (
-                <div className="absolute top-full left-0 mt-1 w-44 bg-background border border-border rounded-lg shadow-lg py-1 z-10">
+                <div
+                  className="absolute top-full left-0 mt-1 w-44 bg-background border border-border rounded-lg shadow-lg py-1 z-10"
+                  onMouseDown={(e) => e.preventDefault()}
+                >
                   <Link
                     to="/united-states"
                     onClick={() => setListingsOpen(false)}
