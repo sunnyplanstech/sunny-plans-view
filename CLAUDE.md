@@ -85,6 +85,21 @@ Articles live in `articles/*.md` with frontmatter (title, description, date, aut
 
 **CTA (closing paragraph)**: Every article ends with an italicised Sunnyplans plug, but the wording must be specific to that article's angle — what Sunnyplans data is directly relevant to what the reader just learned. Never reuse the same sentence structure across articles.
 
+**Article ending structure** — articles must follow this exact order at the bottom:
+
+```
+---
+
+*CTA italic text linking to Sunnyplans.*
+
+---
+
+**Sources**
+- Source name, *Report title* — description — url
+```
+
+The CTA button is injected by `BlogPost.tsx` between the CTA paragraph and the Sources section. For this to work, the `**Sources**` heading must be present and spelled exactly as shown — the renderer splits on `\n**Sources**` to place the button correctly. Never put the Sources block before the CTA paragraph.
+
 **Keyword cannibalization**: Before writing a new article, identify its primary target query and confirm it doesn't overlap with existing articles. Each article should own a distinct query. Add a `target_query` field in the frontmatter (e.g. `target_query: "solar land lease rates landowners"`) so future articles can check before drifting into the same territory. Never use an HTML comment for this — it will render as visible text.
 
 ## Commit Style

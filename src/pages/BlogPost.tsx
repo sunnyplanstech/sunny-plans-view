@@ -82,32 +82,46 @@ const BlogPost = () => {
         <div className="border-t border-border mb-10" />
 
         {/* Article body — brand-matched prose */}
-        <article className="
-          prose max-w-none
-          prose-headings:text-foreground prose-headings:font-bold
-          prose-h2:text-xl md:prose-h2:text-2xl prose-h2:mt-8 prose-h2:mb-3
-          prose-h3:text-lg md:prose-h3:text-xl prose-h3:mt-6 prose-h3:mb-2
-          prose-p:text-foreground/80 prose-p:leading-relaxed prose-p:mb-5
-          prose-a:text-primary prose-a:no-underline hover:prose-a:underline
-          prose-strong:text-foreground
-          prose-li:text-foreground/80
-          prose-ul:my-4 prose-ol:my-4
-          prose-code:text-primary prose-code:bg-primary/8 prose-code:px-1.5 prose-code:py-0.5 prose-code:rounded prose-code:text-sm prose-code:font-mono
-          prose-pre:bg-muted prose-pre:border prose-pre:border-border
-          prose-blockquote:border-l-primary prose-blockquote:text-muted-foreground
-          prose-hr:border-border
-        ">
-          <ReactMarkdown remarkPlugins={[remarkGfm]}>
-            {article.content}
-          </ReactMarkdown>
-        </article>
+        {(() => {
+          const proseClasses = `
+            prose max-w-none
+            prose-headings:text-foreground prose-headings:font-bold
+            prose-h2:text-xl md:prose-h2:text-2xl prose-h2:mt-8 prose-h2:mb-3
+            prose-h3:text-lg md:prose-h3:text-xl prose-h3:mt-6 prose-h3:mb-2
+            prose-p:text-foreground/80 prose-p:leading-relaxed prose-p:mb-5
+            prose-a:text-primary prose-a:no-underline hover:prose-a:underline
+            prose-strong:text-foreground
+            prose-li:text-foreground/80
+            prose-ul:my-4 prose-ol:my-4
+            prose-code:text-primary prose-code:bg-primary/8 prose-code:px-1.5 prose-code:py-0.5 prose-code:rounded prose-code:text-sm prose-code:font-mono
+            prose-pre:bg-muted prose-pre:border prose-pre:border-border
+            prose-blockquote:border-l-primary prose-blockquote:text-muted-foreground
+            prose-hr:border-border
+          `;
+          const sourcesIdx = article.content.indexOf('\n**Sources**');
+          const bodyContent = sourcesIdx !== -1 ? article.content.slice(0, sourcesIdx) : article.content;
+          const sourcesContent = sourcesIdx !== -1 ? article.content.slice(sourcesIdx) : null;
+          return (
+            <>
+              <article className={proseClasses}>
+                <ReactMarkdown remarkPlugins={[remarkGfm]}>{bodyContent}</ReactMarkdown>
+              </article>
 
-        {/* CTA button */}
-        <div className="mt-8 flex justify-center">
-          <Button asChild size="lg" className="rounded-full px-8">
-            <Link to="/us/listings">Explore land on Sunnyplans →</Link>
-          </Button>
-        </div>
+              {/* CTA button */}
+              <div className="mt-8 flex justify-center">
+                <Button asChild size="lg" className="rounded-full px-8">
+                  <Link to="/us/listings">Explore land on Sunnyplans →</Link>
+                </Button>
+              </div>
+
+              {sourcesContent && (
+                <article className={proseClasses + " mt-10"}>
+                  <ReactMarkdown remarkPlugins={[remarkGfm]}>{sourcesContent}</ReactMarkdown>
+                </article>
+              )}
+            </>
+          );
+        })()}
       </div>
 
       <Footer />
