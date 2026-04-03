@@ -1,5 +1,5 @@
 ---
-title: "Solar Farm Land Requirements in Texas — What Developers Actually Screen For"
+title: "Solar Farm Land Requirements in Texas — The Checklist Developers Run Before Making Contact"
 description: "How many acres does a solar farm need in Texas? ERCOT grid access, zoning, flood zones, substation proximity, and solar land lease rates by region — what developers actually screen for in 2026."
 date: "2026-04-03"
 author: "Sunnyplans Team"

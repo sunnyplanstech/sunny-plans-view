@@ -1,5 +1,5 @@
 ---
-title: "How a Solar Land Lease Actually Works — What Landowners Sign and What Developers Pay"
+title: "How a Solar Land Lease Works — Rates, Options, and the Terms Landowners Should Negotiate"
 description: "The first offer is almost always negotiable. What a solar land lease actually covers — option period, lease rates, and the clauses that matter most."
 date: "2026-03-28"
 author: "Sunnyplans Team"

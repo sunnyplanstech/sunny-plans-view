@@ -1,5 +1,5 @@
 ---
-title: "FEMA Flood Zones and Solar Land: What Zone AE Actually Means for a Parcel"
+title: "FEMA Flood Zones and Solar Land: How Zone AE Classification Affects a Parcel"
 description: "Zone AE doesn't automatically kill a solar deal, but it changes who will finance it, what permitting looks like, and what a developer's offer reflects. What landowners need to know before the conversation starts."
 date: "2026-04-03"
 author: "Sunnyplans Team"

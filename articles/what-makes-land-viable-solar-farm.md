@@ -1,5 +1,5 @@
 ---
-title: "What Makes Land Viable for a Solar Farm — The Filters Developers Actually Use"
+title: "What Makes Land Viable for a Solar Farm — The Constraint Filters Developers Run on Every Site"
 description: "Not every parcel gets an offer. Developers screen for grid proximity, terrain, zoning, and a handful of constraint layers before they knock on your door."
 date: "2026-04-01"
 author: "Sunnyplans Team"
