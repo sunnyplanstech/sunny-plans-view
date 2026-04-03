@@ -13,7 +13,7 @@ Most people who look into solar land leasing assume the deal works like a standa
 
 Before a developer signs a lease, they spend two to five years figuring out whether the land can actually host a project. That means running interconnection studies, navigating local zoning, completing environmental surveys, and working through a permitting process that varies significantly by county. Developers won't start that process on land they don't control — so they pay for the right to control it while they work.
 
-That right is called an option. The developer pays you a fee — typically $30 to $150 per acre per year, depending on the state and the land's apparent viability — in exchange for the exclusive right to proceed with development on your parcel. You can't sell the land to anyone else or lease it for another purpose. In return, you get a check while nothing is happening on the ground.
+That right is called an option. The developer pays you a fee — typically $10 to $75 per acre per year, depending on the state and the land's apparent viability, with competitive markets occasionally reaching higher — in exchange for the exclusive right to proceed with development on your parcel. You can't sell the land to anyone else or lease it for another purpose. In return, you get a check while nothing is happening on the ground.
 
 If the developer abandons the project — because the interconnection queue is too backed up, the zoning board denied the permit, or financing fell through — the option expires. You keep every option payment you received. No solar farm gets built, and you owe nothing back.
 
@@ -63,7 +63,7 @@ Beyond rate, a few clauses have more long-term impact than most landowners reali
 
 ## What a Real Solar Lease Deal Looks Like
 
-A parcel of 80 acres in western Georgia — flat agricultural land, clean title, agricultural zoning, two miles from a substation — might attract an option offer of $80 to $100 per acre per year. That's $6,400 to $8,000 annually during an option period that could run three to four years.
+A parcel of 80 acres in western Georgia — flat agricultural land, clean title, agricultural zoning, two miles from a substation — might attract an option offer of $30 to $60 per acre per year. That's $2,400 to $4,800 annually during an option period that could run three to four years.
 
 If the project clears permitting and moves to construction, the same parcel might command $900 to $1,200 per acre per year under the full lease — $72,000 to $96,000 annually, escalating over a 30-year term. Not every parcel makes it through permitting. But for land generating modest agricultural income, the comparison is usually straightforward.
 
@@ -72,3 +72,9 @@ The landowners who get the worst deals are those who signed the first offer with
 ---
 
 *Before you negotiate, know what your parcel is worth to a developer. Sunnyplans shows substation proximity and infrastructure distances for individual parcels — the same inputs that determine where a developer's opening offer lands.*
+
+---
+
+**Sources**
+- NREL, *Solar Farm Land Lease Rates* — lease rate ranges by region — nrel.gov
+- Lawrence Berkeley National Laboratory, *Queued Up* — development timeline data — emp.lbl.gov/queues

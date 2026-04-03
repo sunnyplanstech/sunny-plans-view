@@ -19,7 +19,7 @@ The studies themselves are layered. Most jurisdictions run an initial feasibilit
 
 ## Why the Queue Is So Backed Up
 
-The US interconnection queue has grown from roughly 100 gigawatts of pending capacity in 2016 to over 2,000 gigawatts today. The grid was not designed for this volume of applications, and the study processes were built for a much slower pace of development.
+The US interconnection queue held roughly 1,400 gigawatts of pending capacity by end of 2021, according to Lawrence Berkeley National Laboratory's annual Queued Up report — and grew to over 2,600 gigawatts by end of 2023. The grid was not designed for this volume of applications, and the study processes were built for a much slower pace of development.
 
 Several factors compound the backlog:
 
@@ -58,3 +58,9 @@ This is also why grid proximity matters so much in the initial offer. A parcel c
 ---
 
 *Sunnyplans shows substation and transformer proximity for individual parcels — the factor that most directly predicts interconnection cost before a developer runs formal studies.*
+
+---
+
+**Sources**
+- Lawrence Berkeley National Laboratory, *Queued Up* annual report series — interconnection queue capacity data — emp.lbl.gov/queues
+- FERC Order No. 2023 (July 2023) — interconnection reform rule — ferc.gov

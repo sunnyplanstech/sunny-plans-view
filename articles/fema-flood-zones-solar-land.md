@@ -49,7 +49,7 @@ Most solar developers run automated GIS-based constraint screening before contac
 
 A parcel with any Zone AE coverage gets flagged immediately. Whether it's disqualified outright depends on how much of the parcel is affected. A 200-acre parcel with a 15-acre Zone AE strip along a drainage ditch in one corner might still work if the buildable Zone X acreage is sufficient and the site plan can route around the constrained area. A parcel where Zone AE covers the majority of the acreage is effectively disqualifying for conventional project financing, regardless of grid access.
 
-The LOMA path — a Letter of Map Amendment, where a licensed engineer demonstrates that the actual ground elevation is above the base flood elevation and applies to FEMA for reclassification — exists and is sometimes successful. It costs $5,000 to $25,000 in engineering fees and takes six to twelve months of FEMA review. But most developers won't initiate that process when there's a competing Zone X parcel available, and there almost always is. The LOMA route is more relevant for landowners who pursue it independently, before a developer is involved, to make the parcel more marketable.
+The LOMA path — a Letter of Map Amendment, where a licensed engineer demonstrates that the actual ground elevation is above the base flood elevation and applies to FEMA for reclassification — exists and is sometimes successful. It requires engineering and survey work — an Elevation Certificate from a licensed surveyor, plus supporting documentation — which typically costs several thousand dollars depending on parcel size and complexity. FEMA charges no fee for LOMA review itself and states a 60-day determination timeline once the application is complete. But most developers won't initiate that process when there's a competing Zone X parcel available, and there almost always is. The LOMA route is more relevant for landowners who pursue it independently, before a developer is involved, to make the parcel more marketable.
 
 ## How to Look Up Your Parcel's Flood Zone
 
@@ -80,3 +80,11 @@ Understanding [what makes land viable for a solar farm](/blog/what-makes-land-vi
 ---
 
 *Sunnyplans screens parcels against the National Wetlands Inventory and protected area designations before surfacing them — so the wetland and conservation constraints that often accompany flood-prone land are already filtered out.*
+
+---
+
+**Sources**
+- FEMA Flood Map Service Center — parcel-level flood zone lookup — msc.fema.gov
+- FEMA, *Letter of Map Amendment process and timeline* — fema.gov/flood-maps/change-your-flood-zone/loma-lomr-f
+- First Street Foundation, *Flood Factor* — updated climate-based flood risk modeling — floodfactor.com
+- US Fish & Wildlife Service, *National Wetlands Inventory* — fws.gov/program/national-wetlands-inventory

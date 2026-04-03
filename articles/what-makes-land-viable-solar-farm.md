@@ -74,3 +74,11 @@ If you're evaluating your own land before receiving an offer — or trying to un
 ---
 
 *Most landowners find out their parcel's constraint profile only after a developer tells them — or doesn't call back. Sunnyplans screens parcels against protected areas and wetlands, then ranks them by grid proximity and solar suitability — so you can see what survives the filters before the conversation starts.*
+
+---
+
+**Sources**
+- NREL, *National Solar Radiation Database (NSRDB)* — GHI irradiance data by region — nsrdb.nrel.gov
+- NREL, *Land-Use Requirements for Solar Power Plants in the United States* — acreage-per-MW analysis — docs.nrel.gov/docs/fy13osti/56290.pdf
+- USGS, *Protected Areas Database of the United States (PAD-US)* — conservation constraint data — usgs.gov/programs/gap-analysis-project
+- US Fish & Wildlife Service, *National Wetlands Inventory* — fws.gov/program/national-wetlands-inventory
