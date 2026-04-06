@@ -110,7 +110,7 @@ const BlogPost = () => {
               {/* CTA button */}
               <div className="mt-8 flex justify-center">
                 <Button asChild size="lg" className="rounded-full px-8">
-                  <Link to="/us/listings">Explore land on Sunnyplans →</Link>
+                  <Link to={article.ctaUrl || "/united-states"}>Explore land on Sunnyplans →</Link>
                 </Button>
               </div>
 
