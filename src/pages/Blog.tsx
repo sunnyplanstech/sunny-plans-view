@@ -8,10 +8,14 @@ import { ArrowRight, Clock } from "lucide-react";
 
 const Blog = () => {
   const [articles, setArticles] = useState<ArticleMeta[]>([]);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     window.scrollTo(0, 0);
-    getArticles().then(setArticles);
+    getArticles().then((data) => {
+      setArticles(data);
+      setLoading(false);
+    });
   }, []);
 
   return (
@@ -88,7 +92,7 @@ const Blog = () => {
               </article>
             </Link>
           ))}
-          {articles.length === 0 && (
+          {!loading && articles.length === 0 && (
             <div className="py-24 text-center text-muted-foreground">
               <p className="text-lg">No articles yet — check back soon.</p>
             </div>
