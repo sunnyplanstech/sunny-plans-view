@@ -10,7 +10,7 @@ secondary_query: "solar farm special use permit agricultural zone"
 
 Agricultural zoning doesn't mean what most land buyers assume it means. It isn't a blanket approval for solar development, and it isn't a blanket prohibition either. Whether a parcel zoned AG, A-1, or A-2 can host a solar farm depends almost entirely on what the specific county has written into its zoning ordinance — which varies more than any state-level summary will tell you.
 
-There is no federal standard for what "agricultural" zoning allows. A parcel zoned AG in central Ohio operates under Licking County's rules. The same designation in western Texas means something different in Pecos County. Developers run this lookup before they call a landowner, which is why some parcels get offers and others don't, even when the land looks similar on paper.
+There is no federal standard for what "agricultural" zoning allows. A parcel zoned AG in central Ohio operates under Licking County's rules. The same designation in western Texas means something different in Pecos County. Developers run [this lookup](/blog/what-makes-land-viable-solar-farm) before they call a landowner, which is why some parcels get offers and others don't, even when the land looks similar on paper.
 
 ## What Agricultural Zoning Actually Governs
 
@@ -44,7 +44,7 @@ In Wagoner County, Oklahoma in 2025, a solar project was rejected after commissi
 
 Most denials share the same underlying combination: the county has a stated policy goal of preserving agricultural character, the specific site borders wetlands or conservation land, and adjacent property owners show up to the hearing. These aren't arbitrary decisions — counties that build their zoning around farmland preservation are telling developers something real about what the board will approve. Checking the county's comprehensive plan (the long-range land use document that guides zoning decisions) before pursuing a parcel is worth doing. A comprehensive plan that lists the area as long-term agricultural will translate into a difficult hearing.
 
-Agrivoltaics — co-locating solar panels with grazing or crops — has been proposed in some counties as a way to keep the land in agricultural use while adding solar income. In practice, it helps with community optics, and some ordinances explicitly favor dual-use designs. But it doesn't transform the legal classification. Pennsylvania's Commonwealth Court ruled in January 2026 that agrivoltaics does not render a solar farm an "agricultural use" under zoning law — meaning a solar installation that happens to have sheep under the panels still requires the same SUP as any other solar project. Dual-use planning helps, but it doesn't change the underlying zoning question.
+Agrivoltaics — co-locating solar panels with grazing or crops — has been proposed in some counties as a way to keep the land in agricultural use while adding [solar lease income](/blog/how-solar-land-lease-works). In practice, it helps with community optics, and some ordinances explicitly favor dual-use designs. But it doesn't transform the legal classification. Pennsylvania's Commonwealth Court ruled in January 2026 that agrivoltaics does not render a solar farm an "agricultural use" under zoning law — meaning a solar installation that happens to have sheep under the panels still requires the same SUP as any other solar project. Dual-use planning helps, but it doesn't change the underlying zoning question.
 
 ## The Prime Farmland Restriction Wave
 
@@ -68,7 +68,7 @@ Four things are worth checking before making an offer on agricultural land:
 
 2. **County comprehensive plan** — find the long-range land use map and check what designation the parcel carries. "Long-term agricultural" or "farmland preservation area" is a signal the SUP process will be adversarial.
 
-3. **NRCS soil survey** — websoilsurvey.nrcs.usda.gov provides parcel-level soil classification. Class I and II soils carry increasing regulatory risk, and federal financing restrictions already apply to projects on this land.
+3. **NRCS soil survey** — [websoilsurvey.nrcs.usda.gov](https://websoilsurvey.nrcs.usda.gov) provides parcel-level soil classification. Class I and II soils carry increasing regulatory risk, and federal financing restrictions already apply to projects on this land.
 
 4. **[FEMA flood zone classification](/blog/fema-flood-zones-solar-land)** — Zone AE coverage can compound zoning issues, particularly in counties that give extra weight to environmental constraints in the SUP hearing.
 
