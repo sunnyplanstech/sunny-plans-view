@@ -1,7 +1,9 @@
 import { useState, useEffect } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { Sun, ChevronDown, Menu, X } from "lucide-react";
+import { Sun, ChevronDown, Menu, X, LogIn } from "lucide-react";
+import { useAuth } from "@/hooks/useAuth";
+import UserMenu from "@/components/auth/UserMenu";
 
 const Navbar = () => {
   const [scrolled, setScrolled] = useState(false);
@@ -9,6 +11,7 @@ const Navbar = () => {
   const [mobileOpen, setMobileOpen] = useState(false);
   const location = useLocation();
   const navigate = useNavigate();
+  const { isAuthenticated, openAuthModal } = useAuth();
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 10);
@@ -99,13 +102,20 @@ const Navbar = () => {
               Blog
             </a>
 
-            <Button
-              size="lg"
-              className="ml-3 text-base px-6"
-              onClick={() => scrollToSection("calendly")}
-            >
-              Book a Demo
-            </Button>
+            {isAuthenticated ? (
+              <div className="ml-3">
+                <UserMenu />
+              </div>
+            ) : (
+              <Button
+                size="lg"
+                className="ml-3 text-base px-6"
+                onClick={() => openAuthModal("login")}
+              >
+                <LogIn className="mr-2 h-4 w-4" />
+                Sign In
+              </Button>
+            )}
           </nav>
 
           {/* Mobile hamburger */}
@@ -155,12 +165,19 @@ const Navbar = () => {
             >
               Blog
             </a>
-            <Button
-              className="mt-2 w-full"
-              onClick={() => scrollToSection("calendly")}
-            >
-              Book a Demo
-            </Button>
+            {isAuthenticated ? (
+              <div className="mt-2 flex items-center gap-2 px-3 py-2">
+                <UserMenu />
+              </div>
+            ) : (
+              <Button
+                className="mt-2 w-full"
+                onClick={() => { setMobileOpen(false); openAuthModal("login"); }}
+              >
+                <LogIn className="mr-2 h-4 w-4" />
+                Sign In
+              </Button>
+            )}
           </nav>
         </div>
       )}

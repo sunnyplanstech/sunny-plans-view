@@ -12,8 +12,8 @@ import { useITListingById } from "@/hooks/useITListings";
 import { stateCodeToSlug, slugToCounty } from "@/data/locations";
 import { seoKeywords } from "@/data/mockListings";
 import { getParcelCenter } from "@/lib/geo";
+import { useAuth } from "@/hooks/useAuth";
 
-const STRIPE_LINK = "https://buy.stripe.com/4gM14pb5r7Wx4g1aOGaR200";
 const CALENDLY_LINK = "https://calendly.com/eracle/new-meeting";
 
 function formatPrice(price: number | null): string {
@@ -48,6 +48,7 @@ function formatRegionSlug(slug: string): string {
 }
 
 const ListingDetail = () => {
+  const { isAuthenticated, openAuthModal } = useAuth();
   const { id, country, region, province } = useParams<{
     id: string;
     country: string;
@@ -234,41 +235,49 @@ const ListingDetail = () => {
                 {/* Right column - CTA */}
                 <Card className="bg-primary/5 border-primary/20">
                   <CardContent className="pt-6 space-y-4">
-                    <div className="text-center mb-4">
-                      <h3 className="text-lg font-semibold mb-2">Interessato a questa particella?</h3>
-                      <p className="text-sm text-muted-foreground">
-                        Accedi al database completo e contatta il nostro team.
-                      </p>
-                    </div>
-
-                    <Button asChild className="w-full" size="lg">
-                      <a href={STRIPE_LINK} target="_blank" rel="noopener noreferrer">
-                        <CreditCard className="w-4 h-4 mr-2" />
-                        Abbonati Ora
-                        <ExternalLink className="w-3 h-3 ml-2" />
-                      </a>
-                    </Button>
-
-                    <div className="relative">
-                      <div className="absolute inset-0 flex items-center">
-                        <span className="w-full border-t" />
+                    {isAuthenticated ? (
+                      <div className="text-center">
+                        <h3 className="text-lg font-semibold mb-2">Accesso completo attivo</h3>
+                        <p className="text-sm text-muted-foreground">
+                          Hai accesso a tutti i dati di questa particella.
+                        </p>
                       </div>
-                      <div className="relative flex justify-center text-xs uppercase">
-                        <span className="bg-card px-2 text-muted-foreground">oppure</span>
-                      </div>
-                    </div>
+                    ) : (
+                      <>
+                        <div className="text-center mb-4">
+                          <h3 className="text-lg font-semibold mb-2">Interessato a questa particella?</h3>
+                          <p className="text-sm text-muted-foreground">
+                            Abbonati per vedere coordinate esatte e dati completi.
+                          </p>
+                        </div>
 
-                    <Button asChild variant="outline" className="w-full" size="lg">
-                      <a href={CALENDLY_LINK} target="_blank" rel="noopener noreferrer">
-                        <Calendar className="w-4 h-4 mr-2" />
-                        Prenota una Chiamata
-                        <ExternalLink className="w-3 h-3 ml-2" />
-                      </a>
-                    </Button>
+                        <Button className="w-full" size="lg" onClick={() => openAuthModal("signup")}>
+                          <CreditCard className="w-4 h-4 mr-2" />
+                          Abbonati Ora
+                        </Button>
 
-                    <p className="text-xs text-center text-muted-foreground pt-2">
-                      Ricevi consulenza personalizzata sulle opportunita fotovoltaiche.
-                    </p>
+                        <div className="relative">
+                          <div className="absolute inset-0 flex items-center">
+                            <span className="w-full border-t" />
+                          </div>
+                          <div className="relative flex justify-center text-xs uppercase">
+                            <span className="bg-card px-2 text-muted-foreground">oppure</span>
+                          </div>
+                        </div>
+
+                        <Button asChild variant="outline" className="w-full" size="lg">
+                          <a href={CALENDLY_LINK} target="_blank" rel="noopener noreferrer">
+                            <Calendar className="w-4 h-4 mr-2" />
+                            Prenota una Chiamata
+                            <ExternalLink className="w-3 h-3 ml-2" />
+                          </a>
+                        </Button>
+
+                        <p className="text-xs text-center text-muted-foreground pt-2">
+                          Ricevi consulenza personalizzata sulle opportunita fotovoltaiche.
+                        </p>
+                      </>
+                    )}
                   </CardContent>
                 </Card>
               </div>
@@ -459,41 +468,49 @@ const ListingDetail = () => {
                 {/* Right column - CTA */}
                 <Card className="bg-primary/5 border-primary/20">
                   <CardContent className="pt-6 space-y-4">
-                    <div className="text-center mb-4">
-                      <h3 className="text-lg font-semibold mb-2">Interested in this property?</h3>
-                      <p className="text-sm text-muted-foreground">
-                        Get full access to our database and connect with our team.
-                      </p>
-                    </div>
-
-                    <Button asChild className="w-full" size="lg">
-                      <a href={STRIPE_LINK} target="_blank" rel="noopener noreferrer">
-                        <CreditCard className="w-4 h-4 mr-2" />
-                        Subscribe Now
-                        <ExternalLink className="w-3 h-3 ml-2" />
-                      </a>
-                    </Button>
-
-                    <div className="relative">
-                      <div className="absolute inset-0 flex items-center">
-                        <span className="w-full border-t" />
+                    {isAuthenticated ? (
+                      <div className="text-center">
+                        <h3 className="text-lg font-semibold mb-2">Full access active</h3>
+                        <p className="text-sm text-muted-foreground">
+                          You have access to all data for this property.
+                        </p>
                       </div>
-                      <div className="relative flex justify-center text-xs uppercase">
-                        <span className="bg-card px-2 text-muted-foreground">or</span>
-                      </div>
-                    </div>
+                    ) : (
+                      <>
+                        <div className="text-center mb-4">
+                          <h3 className="text-lg font-semibold mb-2">Interested in this property?</h3>
+                          <p className="text-sm text-muted-foreground">
+                            Subscribe to unlock exact coordinates, source URL, and full property data.
+                          </p>
+                        </div>
 
-                    <Button asChild variant="outline" className="w-full" size="lg">
-                      <a href={CALENDLY_LINK} target="_blank" rel="noopener noreferrer">
-                        <Calendar className="w-4 h-4 mr-2" />
-                        Schedule a Call
-                        <ExternalLink className="w-3 h-3 ml-2" />
-                      </a>
-                    </Button>
+                        <Button className="w-full" size="lg" onClick={() => openAuthModal("signup")}>
+                          <CreditCard className="w-4 h-4 mr-2" />
+                          Subscribe Now
+                        </Button>
 
-                    <p className="text-xs text-center text-muted-foreground pt-2">
-                      Get personalized guidance on solar land opportunities.
-                    </p>
+                        <div className="relative">
+                          <div className="absolute inset-0 flex items-center">
+                            <span className="w-full border-t" />
+                          </div>
+                          <div className="relative flex justify-center text-xs uppercase">
+                            <span className="bg-card px-2 text-muted-foreground">or</span>
+                          </div>
+                        </div>
+
+                        <Button asChild variant="outline" className="w-full" size="lg">
+                          <a href={CALENDLY_LINK} target="_blank" rel="noopener noreferrer">
+                            <Calendar className="w-4 h-4 mr-2" />
+                            Schedule a Call
+                            <ExternalLink className="w-3 h-3 ml-2" />
+                          </a>
+                        </Button>
+
+                        <p className="text-xs text-center text-muted-foreground pt-2">
+                          Get personalized guidance on solar land opportunities.
+                        </p>
+                      </>
+                    )}
                   </CardContent>
                 </Card>
               </div>

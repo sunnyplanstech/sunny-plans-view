@@ -7,6 +7,8 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Index from "./pages/Index";
 import NotFound from "./pages/NotFound";
 import { GoogleMapsProvider } from "@/components/maps/GoogleMapsProvider";
+import { AuthProvider } from "@/contexts/AuthContext";
+import AuthModal from "@/components/auth/AuthModal";
 
 // Lazy load heavy route components
 const ListingsSearch = lazy(() => import("./pages/ListingsSearch"));
@@ -27,10 +29,12 @@ const queryClient = new QueryClient();
 
 const App = () => (
   <QueryClientProvider client={queryClient}>
+    <AuthProvider>
     <GoogleMapsProvider>
       <TooltipProvider>
         <Toaster />
         <Sonner />
+        <AuthModal />
         <BrowserRouter>
         <Routes>
           <Route path="/" element={<Index />} />
@@ -71,6 +75,7 @@ const App = () => (
       </BrowserRouter>
       </TooltipProvider>
     </GoogleMapsProvider>
+    </AuthProvider>
   </QueryClientProvider>
 );
 
