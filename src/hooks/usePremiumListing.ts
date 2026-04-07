@@ -8,8 +8,6 @@ export interface USPremiumListing {
   county: string | null;
   city: string | null;
   zip_code: string;
-  formatted_address: string | null;
-  full_street_line: string | null;
   google_maps_url: string;
   latitude: number;
   longitude: number;
