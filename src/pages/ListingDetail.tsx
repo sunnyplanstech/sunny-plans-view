@@ -9,7 +9,8 @@ import SEOHead from "@/components/listings/SEOHead";
 import MiniParcelMap from "@/components/maps/MiniParcelMap";
 import { useUSListingById } from "@/hooks/useUSListings";
 import { useITListingById } from "@/hooks/useITListings";
-import { stateCodeToSlug, slugToCounty } from "@/data/locations";
+import { useUSPremiumListing, useITPremiumListing } from "@/hooks/usePremiumListing";
+import { stateCodeToSlug } from "@/data/locations";
 import { seoKeywords } from "@/data/mockListings";
 import { getParcelCenter } from "@/lib/geo";
 import { useAuth } from "@/hooks/useAuth";
@@ -47,6 +48,72 @@ function formatRegionSlug(slug: string): string {
     .join(" ");
 }
 
+const CTA_STRINGS = {
+  en: {
+    heading: "Interested in this property?",
+    description: "Subscribe to unlock exact coordinates, source URL, and full property data.",
+    subscribe: "Subscribe Now",
+    or: "or",
+    schedule: "Schedule a Call",
+    footer: "Get personalized guidance on solar land opportunities.",
+  },
+  it: {
+    heading: "Interessato a questa particella?",
+    description: "Abbonati per vedere coordinate esatte e dati completi.",
+    subscribe: "Abbonati Ora",
+    or: "oppure",
+    schedule: "Prenota una Chiamata",
+    footer: "Ricevi consulenza personalizzata sulle opportunita fotovoltaiche.",
+  },
+} as const;
+
+function SubscribeCTA({ openAuthModal, lang = "en" }: { openAuthModal: (mode: "signup") => void; lang?: "en" | "it" }) {
+  const t = CTA_STRINGS[lang];
+  return (
+    <>
+      <div className="text-center mb-4">
+        <h3 className="text-lg font-semibold mb-2">{t.heading}</h3>
+        <p className="text-sm text-muted-foreground">{t.description}</p>
+      </div>
+
+      <Button className="w-full" size="lg" onClick={() => openAuthModal("signup")}>
+        <CreditCard className="w-4 h-4 mr-2" />
+        {t.subscribe}
+      </Button>
+
+      <div className="relative">
+        <div className="absolute inset-0 flex items-center">
+          <span className="w-full border-t" />
+        </div>
+        <div className="relative flex justify-center text-xs uppercase">
+          <span className="bg-card px-2 text-muted-foreground">{t.or}</span>
+        </div>
+      </div>
+
+      <Button asChild variant="outline" className="w-full" size="lg">
+        <a href={CALENDLY_LINK} target="_blank" rel="noopener noreferrer">
+          <Calendar className="w-4 h-4 mr-2" />
+          {t.schedule}
+          <ExternalLink className="w-3 h-3 ml-2" />
+        </a>
+      </Button>
+
+      <p className="text-xs text-center text-muted-foreground pt-2">{t.footer}</p>
+    </>
+  );
+}
+
+function FullAccessBadge() {
+  return (
+    <div className="text-center">
+      <h3 className="text-lg font-semibold mb-2">Full access active</h3>
+      <p className="text-sm text-muted-foreground">
+        You have access to all data for this property.
+      </p>
+    </div>
+  );
+}
+
 const ListingDetail = () => {
   const { isAuthenticated, openAuthModal } = useAuth();
   const { id, country, region, province } = useParams<{
@@ -59,17 +126,20 @@ const ListingDetail = () => {
   const isUS = country === "united-states";
   const isItaly = country === "italy";
 
-  const { data: usListing, isLoading: usLoading, error: usError } = useUSListingById(isUS ? id : undefined);
-  const { data: itListing, isLoading: itLoading, error: itError } = useITListingById(isItaly ? id : undefined);
+  // Public (obfuscated) data from Supabase — always loaded
+  const { data: usPublic, isLoading: usLoading, error: usError } = useUSListingById(isUS ? id : undefined);
+  const { data: itPublic, isLoading: itLoading, error: itError } = useITListingById(isItaly ? id : undefined);
+
+  // Premium (exact) data from Django API — only when authenticated
+  const { data: usPremium } = useUSPremiumListing(isUS ? id : undefined);
+  const { data: itPremium } = useITPremiumListing(isItaly ? id : undefined);
 
   const isLoading = isUS ? usLoading : itLoading;
   const error = isUS ? usError : itError;
-  const listing = isUS ? usListing : itListing;
+  const listing = isUS ? usPublic : itPublic;
 
-  // Build back URL based on current location
   const backUrl = province && region ? `/${country}/${region}/${province}` : `/${country}/${region}`;
 
-  // Loading state
   if (isLoading) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
@@ -81,7 +151,6 @@ const ListingDetail = () => {
     );
   }
 
-  // Error or not found state
   if (error || !listing) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
@@ -96,20 +165,22 @@ const ListingDetail = () => {
     );
   }
 
-  // Render Italian listing detail
-  if (isItaly && itListing) {
-    const solarPercentage = itListing.prob_solar ? Math.round(itListing.prob_solar * 100) : null;
-    const center = getParcelCenter(itListing.geom_json);
-    const regionName = formatRegionSlug(itListing.region_slug);
+  // --- Italian listing ---
+  if (isItaly && itPublic) {
+    const solarPercentage = itPublic.prob_solar ? Math.round(itPublic.prob_solar * 100) : null;
+    const center = itPremium
+      ? { lat: itPremium.latitude, lng: itPremium.longitude }
+      : getParcelCenter(itPublic.geom_json);
+    const regionName = formatRegionSlug(itPublic.region_slug);
 
-    const seoTitle = `Solar Parcel - ${itListing.comune_name}, ${regionName} | Sunnyplans`;
-    const seoDescription = `Particella catastale in ${itListing.comune_name}, ${regionName}. Probabilita solare: ${solarPercentage}%. Pre-analizzata per fotovoltaico e BESS.`;
-    const combinedKeywords = `terreni fotovoltaico ${itListing.comune_name}, BESS Italia, solare ${regionName}, particelle catastali`;
+    const seoTitle = `Solar Parcel - ${itPublic.comune_name}, ${regionName} | Sunnyplans`;
+    const seoDescription = `Particella catastale in ${itPublic.comune_name}, ${regionName}. Probabilita solare: ${solarPercentage}%. Pre-analizzata per fotovoltaico e BESS.`;
+    const combinedKeywords = `terreni fotovoltaico ${itPublic.comune_name}, BESS Italia, solare ${regionName}, particelle catastali`;
 
     const structuredData = {
       "@context": "https://schema.org",
       "@type": "Product",
-      "name": `Solar Parcel - ${itListing.comune_name}`,
+      "name": `Solar Parcel - ${itPublic.comune_name}`,
       "description": seoDescription,
       "additionalProperty": [
         { "@type": "PropertyValue", "name": "Solar Probability", "value": `${solarPercentage}%` },
@@ -126,7 +197,6 @@ const ListingDetail = () => {
         />
 
         <div className="min-h-screen bg-background">
-          {/* Header */}
           <header className="border-b border-border bg-card">
             <div className="container mx-auto px-4 py-4">
               <div className="flex items-center gap-4 mb-4">
@@ -136,25 +206,18 @@ const ListingDetail = () => {
                   </Link>
                 </Button>
               </div>
-              <ListingsBreadcrumb
-                country={country}
-                region={region}
-                province={province}
-              />
+              <ListingsBreadcrumb country={country} region={region} province={province} />
             </div>
           </header>
 
           <main className="container mx-auto px-4 py-6">
             <article className="max-w-4xl mx-auto">
-              {/* Parcel Map - Main Hero */}
               <section className="relative rounded-xl overflow-hidden mb-6 h-64 md:h-96">
                 <MiniParcelMap
                   latitude={center?.lat ?? null}
                   longitude={center?.lng ?? null}
                   className="w-full h-full"
                 />
-
-                {/* Badges overlay */}
                 <div className="absolute top-4 left-4 flex flex-wrap gap-2">
                   {solarPercentage !== null && (
                     <Badge className="text-lg py-1 px-3 bg-primary">
@@ -162,35 +225,31 @@ const ListingDetail = () => {
                       {solarPercentage}%
                     </Badge>
                   )}
-                  {itListing.rank_global && (
+                  {itPublic.rank_global && (
                     <Badge variant="outline" className="bg-amber-50/90 border-amber-300 text-amber-700 py-1">
                       <Trophy className="w-3 h-3 mr-1" />
-                      #{itListing.rank_global} in IT
+                      #{itPublic.rank_global} in IT
                     </Badge>
                   )}
                 </div>
               </section>
 
-              {/* Title and location */}
               <section className="mb-6">
                 <h1 className="text-2xl md:text-3xl font-bold text-foreground mb-2">
-                  Solar Parcel - {itListing.comune_name}
+                  Solar Parcel - {itPublic.comune_name}
                 </h1>
                 <div className="flex items-center gap-2 text-muted-foreground">
                   <MapPin className="w-4 h-4" />
-                  <span>{itListing.comune_name}, {regionName}</span>
+                  <span>{itPublic.comune_name}, {regionName}</span>
                 </div>
               </section>
 
-              {/* Main content grid */}
               <div className="grid md:grid-cols-3 gap-6 mb-8">
-                {/* Left column - Specs */}
                 <Card className="md:col-span-2">
                   <CardHeader>
                     <CardTitle>Dettagli Particella</CardTitle>
                   </CardHeader>
                   <CardContent className="space-y-6">
-                    {/* Solar Score Bar */}
                     <div className="space-y-2">
                       <div className="flex justify-between">
                         <span className="text-sm font-medium">Probabilita Solare</span>
@@ -207,7 +266,6 @@ const ListingDetail = () => {
                       </p>
                     </div>
 
-                    {/* Specs grid */}
                     <div className="grid grid-cols-2 gap-4">
                       <div className="flex items-center gap-3 p-3 bg-muted/30 rounded-lg">
                         <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center">
@@ -215,7 +273,7 @@ const ListingDetail = () => {
                         </div>
                         <div>
                           <p className="text-sm text-muted-foreground">Comune</p>
-                          <p className="font-semibold">{itListing.comune_name}</p>
+                          <p className="font-semibold">{itPublic.comune_name}</p>
                         </div>
                       </div>
 
@@ -228,66 +286,33 @@ const ListingDetail = () => {
                           <p className="font-semibold">{regionName}</p>
                         </div>
                       </div>
+
+                      {/* Premium fields — only visible to authenticated users */}
+                      {itPremium && (
+                        <div className="flex items-center gap-3 p-3 bg-muted/30 rounded-lg">
+                          <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center">
+                            <Zap className="w-5 h-5 text-primary" />
+                          </div>
+                          <div>
+                            <p className="text-sm text-muted-foreground">Substation Distance</p>
+                            <p className="font-semibold">{formatSubstationDistance(itPremium.power_substation)}</p>
+                          </div>
+                        </div>
+                      )}
                     </div>
                   </CardContent>
                 </Card>
 
-                {/* Right column - CTA */}
                 <Card className="bg-primary/5 border-primary/20">
                   <CardContent className="pt-6 space-y-4">
-                    {isAuthenticated ? (
-                      <div className="text-center">
-                        <h3 className="text-lg font-semibold mb-2">Accesso completo attivo</h3>
-                        <p className="text-sm text-muted-foreground">
-                          Hai accesso a tutti i dati di questa particella.
-                        </p>
-                      </div>
-                    ) : (
-                      <>
-                        <div className="text-center mb-4">
-                          <h3 className="text-lg font-semibold mb-2">Interessato a questa particella?</h3>
-                          <p className="text-sm text-muted-foreground">
-                            Abbonati per vedere coordinate esatte e dati completi.
-                          </p>
-                        </div>
-
-                        <Button className="w-full" size="lg" onClick={() => openAuthModal("signup")}>
-                          <CreditCard className="w-4 h-4 mr-2" />
-                          Abbonati Ora
-                        </Button>
-
-                        <div className="relative">
-                          <div className="absolute inset-0 flex items-center">
-                            <span className="w-full border-t" />
-                          </div>
-                          <div className="relative flex justify-center text-xs uppercase">
-                            <span className="bg-card px-2 text-muted-foreground">oppure</span>
-                          </div>
-                        </div>
-
-                        <Button asChild variant="outline" className="w-full" size="lg">
-                          <a href={CALENDLY_LINK} target="_blank" rel="noopener noreferrer">
-                            <Calendar className="w-4 h-4 mr-2" />
-                            Prenota una Chiamata
-                            <ExternalLink className="w-3 h-3 ml-2" />
-                          </a>
-                        </Button>
-
-                        <p className="text-xs text-center text-muted-foreground pt-2">
-                          Ricevi consulenza personalizzata sulle opportunita fotovoltaiche.
-                        </p>
-                      </>
+                    {isAuthenticated ? <FullAccessBadge /> : (
+                      <SubscribeCTA openAuthModal={openAuthModal} lang="it" />
                     )}
                   </CardContent>
                 </Card>
               </div>
 
-              {/* Footer with regional links */}
-              <ListingsFooter
-                currentCountry={country}
-                currentRegion={region}
-                currentProvince={province}
-              />
+              <ListingsFooter currentCountry={country} currentRegion={region} currentProvince={province} />
             </article>
           </main>
         </div>
@@ -295,45 +320,56 @@ const ListingDetail = () => {
     );
   }
 
-  // Render US listing detail (existing behavior)
-  if (isUS && usListing) {
-    const solarPercentage = usListing.prob_solar ? Math.round(usListing.prob_solar * 100) : null;
-    const stateSlug = stateCodeToSlug(usListing.state_code) || usListing.state_code.toLowerCase();
-    const usCenter = getParcelCenter(usListing.geom_json);
+  // --- US listing ---
+  if (isUS && usPublic) {
+    const solarPercentage = usPublic.prob_solar ? Math.round(usPublic.prob_solar * 100) : null;
+    const stateSlug = stateCodeToSlug(usPublic.state_code) || usPublic.state_code.toLowerCase();
 
-    const seoTitle = `${usListing.lot_acres?.toFixed(1) || ""} Acres Solar Land for Sale - ${usListing.county}, ${usListing.state_code} | Sunnyplans`;
-    const seoDescription = `${usListing.lot_acres?.toFixed(1)} acres of land in ${usListing.county}, ${usListing.state_code}. ${solarPercentage}% solar probability. ${formatSubstationDistance(usListing.power_substation)} from substation. Pre-vetted for BESS & solar projects.`;
+    // Use exact coords from premium data when available, otherwise grid-snapped from public
+    const center = usPremium
+      ? { lat: usPremium.latitude, lng: usPremium.longitude }
+      : getParcelCenter(usPublic.geom_json);
+
+    // SEO — use premium data if available for richer metadata
+    const acresLabel = usPremium
+      ? `${usPremium.lot_acres?.toFixed(1)} Acres`
+      : `~${usPublic.acres_approx ?? "?"} Acres`;
+
+    const seoTitle = `${acresLabel} Solar Land for Sale - ${usPublic.county}, ${usPublic.state_code} | Sunnyplans`;
+    const seoDescription = `${acresLabel} of land in ${usPublic.county}, ${usPublic.state_code}. ${solarPercentage}% solar probability. Pre-vetted for BESS & solar projects.`;
 
     const combinedKeywords = [
       ...seoKeywords.primary.slice(0, 3),
-      usListing.state_code,
-      usListing.county,
+      usPublic.state_code,
+      usPublic.county,
       "solar land for sale",
       "USA solar land",
     ].join(", ");
 
-    const structuredData = {
+    const structuredData: Record<string, unknown> = {
       "@context": "https://schema.org",
       "@type": "RealEstateListing",
-      "name": `Solar Land for Sale in ${usListing.county}, ${usListing.state_code}`,
+      "name": `Solar Land for Sale in ${usPublic.county}, ${usPublic.state_code}`,
       "description": seoDescription,
-      "offers": {
-        "@type": "Offer",
-        "priceCurrency": "USD",
-        "price": usListing.list_price,
-        "availability": "https://schema.org/InStock",
-      },
       "geo": {
         "@type": "GeoCoordinates",
         "addressCountry": "US",
-        "addressRegion": usListing.state_code,
+        "addressRegion": usPublic.state_code,
       },
       "additionalProperty": [
-        { "@type": "PropertyValue", "name": "Size", "value": `${usListing.lot_acres} Acres` },
         { "@type": "PropertyValue", "name": "Solar Probability", "value": `${solarPercentage}%` },
-        { "@type": "PropertyValue", "name": "Substation Distance", "value": formatSubstationDistance(usListing.power_substation) },
       ],
     };
+
+    // Add exact price to structured data only for premium users
+    if (usPremium?.list_price) {
+      structuredData["offers"] = {
+        "@type": "Offer",
+        "priceCurrency": "USD",
+        "price": usPremium.list_price,
+        "availability": "https://schema.org/InStock",
+      };
+    }
 
     return (
       <>
@@ -345,7 +381,6 @@ const ListingDetail = () => {
         />
 
         <div className="min-h-screen bg-background">
-          {/* Header */}
           <header className="border-b border-border bg-card">
             <div className="container mx-auto px-4 py-4">
               <div className="flex items-center gap-4 mb-4">
@@ -355,49 +390,39 @@ const ListingDetail = () => {
                   </Link>
                 </Button>
               </div>
-              <ListingsBreadcrumb
-                country={country}
-                region={region}
-                province={province}
-              />
+              <ListingsBreadcrumb country={country} region={region} province={province} />
             </div>
           </header>
 
           <main className="container mx-auto px-4 py-6">
             <article className="max-w-4xl mx-auto">
-              {/* Parcel Map - Main Hero */}
               <section className="relative rounded-xl overflow-hidden mb-6 h-64 md:h-96">
-                <MiniParcelMap latitude={usCenter?.lat ?? null} longitude={usCenter?.lng ?? null} className="w-full h-full" />
-
-                {/* Badges overlay */}
+                <MiniParcelMap latitude={center?.lat ?? null} longitude={center?.lng ?? null} className="w-full h-full" />
                 <div className="absolute top-4 left-4 flex flex-wrap gap-2">
                   <Badge className="text-lg py-1 px-3 bg-primary">
                     <Sun className="w-4 h-4 mr-1" />
                     {solarPercentage}%
                   </Badge>
-                  {usListing.rank_global && (
+                  {usPublic.rank_global && (
                     <Badge variant="outline" className="bg-amber-50/90 border-amber-300 text-amber-700 py-1">
                       <Trophy className="w-3 h-3 mr-1" />
-                      #{usListing.rank_global} in US
+                      #{usPublic.rank_global} in US
                     </Badge>
                   )}
                 </div>
               </section>
 
-              {/* Title and location */}
               <section className="mb-6">
                 <h1 className="text-2xl md:text-3xl font-bold text-foreground mb-2">
-                  {usListing.lot_acres?.toFixed(1)} Acres in {usListing.county}, {usListing.state_code}
+                  {acresLabel} in {usPublic.county}, {usPublic.state_code}
                 </h1>
                 <div className="flex items-center gap-2 text-muted-foreground">
                   <MapPin className="w-4 h-4" />
-                  <span>{usListing.county} County, {usListing.state_code}</span>
+                  <span>{usPublic.county} County, {usPublic.state_code}</span>
                 </div>
               </section>
 
-              {/* Main content grid */}
               <div className="grid md:grid-cols-3 gap-6 mb-8">
-                {/* Left column - Specs */}
                 <Card className="md:col-span-2">
                   <CardHeader>
                     <CardTitle>Property Details</CardTitle>
@@ -420,7 +445,7 @@ const ListingDetail = () => {
                       </p>
                     </div>
 
-                    {/* Specs grid */}
+                    {/* Specs grid — show exact or obfuscated depending on auth */}
                     <div className="grid grid-cols-2 gap-4">
                       <div className="flex items-center gap-3 p-3 bg-muted/30 rounded-lg">
                         <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center">
@@ -428,7 +453,9 @@ const ListingDetail = () => {
                         </div>
                         <div>
                           <p className="text-sm text-muted-foreground">Size</p>
-                          <p className="font-semibold">{usListing.lot_acres?.toFixed(1)} Acres</p>
+                          <p className="font-semibold">
+                            {usPremium ? `${usPremium.lot_acres?.toFixed(1)} Acres` : `~${usPublic.acres_approx ?? "N/A"} Acres`}
+                          </p>
                         </div>
                       </div>
 
@@ -438,7 +465,9 @@ const ListingDetail = () => {
                         </div>
                         <div>
                           <p className="text-sm text-muted-foreground">Substation Distance</p>
-                          <p className="font-semibold">{formatSubstationDistance(usListing.power_substation)}</p>
+                          <p className="font-semibold">
+                            {usPremium ? formatSubstationDistance(usPremium.power_substation) : (usPublic.substation_bucket ?? "N/A")}
+                          </p>
                         </div>
                       </div>
 
@@ -448,79 +477,49 @@ const ListingDetail = () => {
                         </div>
                         <div>
                           <p className="text-sm text-muted-foreground">List Price</p>
-                          <p className="font-semibold">{formatPrice(usListing.list_price)}</p>
-                        </div>
-                      </div>
-
-                      <div className="flex items-center gap-3 p-3 bg-muted/30 rounded-lg">
-                        <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center">
-                          <CreditCard className="w-5 h-5 text-primary" />
-                        </div>
-                        <div>
-                          <p className="text-sm text-muted-foreground">Price per Acre</p>
-                          <p className="font-semibold">{formatPricePerAcre(usListing.price_per_acre)}</p>
-                        </div>
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-
-                {/* Right column - CTA */}
-                <Card className="bg-primary/5 border-primary/20">
-                  <CardContent className="pt-6 space-y-4">
-                    {isAuthenticated ? (
-                      <div className="text-center">
-                        <h3 className="text-lg font-semibold mb-2">Full access active</h3>
-                        <p className="text-sm text-muted-foreground">
-                          You have access to all data for this property.
-                        </p>
-                      </div>
-                    ) : (
-                      <>
-                        <div className="text-center mb-4">
-                          <h3 className="text-lg font-semibold mb-2">Interested in this property?</h3>
-                          <p className="text-sm text-muted-foreground">
-                            Subscribe to unlock exact coordinates, source URL, and full property data.
+                          <p className="font-semibold">
+                            {usPremium ? formatPrice(usPremium.list_price) : (usPublic.price_bucket ?? "N/A")}
                           </p>
                         </div>
+                      </div>
 
-                        <Button className="w-full" size="lg" onClick={() => openAuthModal("signup")}>
-                          <CreditCard className="w-4 h-4 mr-2" />
-                          Subscribe Now
-                        </Button>
-
-                        <div className="relative">
-                          <div className="absolute inset-0 flex items-center">
-                            <span className="w-full border-t" />
+                      {usPremium && (
+                        <div className="flex items-center gap-3 p-3 bg-muted/30 rounded-lg">
+                          <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center">
+                            <CreditCard className="w-5 h-5 text-primary" />
                           </div>
-                          <div className="relative flex justify-center text-xs uppercase">
-                            <span className="bg-card px-2 text-muted-foreground">or</span>
+                          <div>
+                            <p className="text-sm text-muted-foreground">Price per Acre</p>
+                            <p className="font-semibold">{formatPricePerAcre(usPremium.price_per_acre)}</p>
                           </div>
                         </div>
+                      )}
+                    </div>
 
-                        <Button asChild variant="outline" className="w-full" size="lg">
-                          <a href={CALENDLY_LINK} target="_blank" rel="noopener noreferrer">
-                            <Calendar className="w-4 h-4 mr-2" />
-                            Schedule a Call
+                    {/* Source URL — premium only */}
+                    {usPremium && (
+                      <div className="pt-2">
+                        <Button asChild variant="outline" size="sm">
+                          <a href={usPremium.property_url} target="_blank" rel="noopener noreferrer">
+                            View on Realtor.com
                             <ExternalLink className="w-3 h-3 ml-2" />
                           </a>
                         </Button>
+                      </div>
+                    )}
+                  </CardContent>
+                </Card>
 
-                        <p className="text-xs text-center text-muted-foreground pt-2">
-                          Get personalized guidance on solar land opportunities.
-                        </p>
-                      </>
+                <Card className="bg-primary/5 border-primary/20">
+                  <CardContent className="pt-6 space-y-4">
+                    {isAuthenticated ? <FullAccessBadge /> : (
+                      <SubscribeCTA openAuthModal={openAuthModal} />
                     )}
                   </CardContent>
                 </Card>
               </div>
 
-              {/* Footer with regional links */}
-              <ListingsFooter
-                currentCountry={country}
-                currentRegion={region}
-                currentProvince={province}
-              />
+              <ListingsFooter currentCountry={country} currentRegion={region} currentProvince={province} />
             </article>
           </main>
         </div>
@@ -528,7 +527,6 @@ const ListingDetail = () => {
     );
   }
 
-  // Fallback (should not reach here)
   return null;
 };
 

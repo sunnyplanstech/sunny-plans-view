@@ -6,10 +6,10 @@ export interface ITListing {
   comune_code: string;
   comune_name: string;
   comune_slug: string;
+  region_slug: string;
   prob_solar: number | null;
   rank_global: number | null;
   rank_in_comune: number | null;
-  region_slug: string;
   geom_json: string | null;
 }
 
@@ -18,7 +18,7 @@ export function useITListingsNational(limit = 10) {
     queryKey: ["it-listings", "national", limit],
     queryFn: async () => {
       const { data, error } = await supabase
-        .from("mart_it_catasto_solar_prob_top")
+        .from("mart_it_catasto_public")
         .select("*")
         .not("rank_global", "is", null)
         .order("rank_global", { ascending: true })
@@ -37,7 +37,7 @@ export function useITListingsByRegion(regionSlug: string | undefined, limit = 10
       if (!regionSlug) return [];
 
       const { data, error } = await supabase
-        .from("mart_it_catasto_solar_prob_top")
+        .from("mart_it_catasto_public")
         .select("*")
         .eq("region_slug", regionSlug)
         .not("rank_global", "is", null)
@@ -58,7 +58,7 @@ export function useITListingsByComune(comuneSlug: string | undefined, limit = 10
       if (!comuneSlug) return [];
 
       const { data, error } = await supabase
-        .from("mart_it_catasto_solar_prob_top")
+        .from("mart_it_catasto_public")
         .select("*")
         .eq("comune_slug", comuneSlug)
         .not("rank_in_comune", "is", null)
@@ -79,7 +79,7 @@ export function useITListingById(listingId: string | undefined) {
       if (!listingId) return null;
 
       const { data, error } = await supabase
-        .from("mart_it_catasto_solar_prob_top")
+        .from("mart_it_catasto_public")
         .select("*")
         .eq("id", listingId)
         .single();

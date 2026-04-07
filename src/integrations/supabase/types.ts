@@ -14,48 +14,45 @@ export type Database = {
   }
   public: {
     Tables: {
-      mart_us_land_solar_prob_top: {
+      mart_us_land_public: {
         Row: {
           id: string
           state_code: string
           county: string
-          lot_acres: number | null
-          list_price: number | null
-          price_per_acre: number | null
+          price_bucket: string | null
+          acres_approx: number | null
           prob_solar: number | null
-          power_substation: number | null
-          geom_json: string | null
+          substation_bucket: string | null
           rank_global: number | null
           rank_in_state: number | null
           rank_in_county: number | null
+          geom_json: string | null
         }
         Insert: {
           id: string
           state_code: string
           county: string
-          lot_acres?: number | null
-          list_price?: number | null
-          price_per_acre?: number | null
+          price_bucket?: string | null
+          acres_approx?: number | null
           prob_solar?: number | null
-          power_substation?: number | null
-          geom_json?: string | null
+          substation_bucket?: string | null
           rank_global?: number | null
           rank_in_state?: number | null
           rank_in_county?: number | null
+          geom_json?: string | null
         }
         Update: {
           id?: string
           state_code?: string
           county?: string
-          lot_acres?: number | null
-          list_price?: number | null
-          price_per_acre?: number | null
+          price_bucket?: string | null
+          acres_approx?: number | null
           prob_solar?: number | null
-          power_substation?: number | null
-          geom_json?: string | null
+          substation_bucket?: string | null
           rank_global?: number | null
           rank_in_state?: number | null
           rank_in_county?: number | null
+          geom_json?: string | null
         }
         Relationships: []
       }
@@ -140,16 +137,16 @@ export type Database = {
         }
         Relationships: []
       }
-      mart_it_catasto_solar_prob_top: {
+      mart_it_catasto_public: {
         Row: {
           id: string
           comune_code: string
           comune_name: string
           comune_slug: string
+          region_slug: string
           prob_solar: number | null
           rank_global: number | null
           rank_in_comune: number | null
-          region_slug: string
           geom_json: string | null
         }
         Insert: {
@@ -157,10 +154,10 @@ export type Database = {
           comune_code: string
           comune_name: string
           comune_slug: string
+          region_slug: string
           prob_solar?: number | null
           rank_global?: number | null
           rank_in_comune?: number | null
-          region_slug: string
           geom_json?: string | null
         }
         Update: {
@@ -168,10 +165,10 @@ export type Database = {
           comune_code?: string
           comune_name?: string
           comune_slug?: string
+          region_slug?: string
           prob_solar?: number | null
           rank_global?: number | null
           rank_in_comune?: number | null
-          region_slug?: string
           geom_json?: string | null
         }
         Relationships: []
@@ -221,69 +218,81 @@ export type Database = {
         }
         Relationships: []
       }
-      mart_it_comuni_seo: {
+      mart_us_seo_pages: {
         Row: {
-          comune_code: string
-          comune_name: string
-          comune_slug: string
-          region_name: string
-          region_slug: string
+          path: string
+          area_name: string
+          page_title: string
+          meta_description: string
           listing_count: number
           avg_prob_solar: number | null
-          max_prob_solar: number | null
+          min_price_bucket: string | null
+          state_code: string | null
+          county_slug: string | null
+          county_name: string | null
         }
         Insert: {
-          comune_code: string
-          comune_name: string
-          comune_slug: string
-          region_name: string
-          region_slug: string
+          path: string
+          area_name: string
+          page_title: string
+          meta_description: string
           listing_count: number
           avg_prob_solar?: number | null
-          max_prob_solar?: number | null
+          min_price_bucket?: string | null
+          state_code?: string | null
+          county_slug?: string | null
+          county_name?: string | null
         }
         Update: {
-          comune_code?: string
-          comune_name?: string
-          comune_slug?: string
-          region_name?: string
-          region_slug?: string
+          path?: string
+          area_name?: string
+          page_title?: string
+          meta_description?: string
           listing_count?: number
           avg_prob_solar?: number | null
-          max_prob_solar?: number | null
+          min_price_bucket?: string | null
+          state_code?: string | null
+          county_slug?: string | null
+          county_name?: string | null
         }
         Relationships: []
       }
-      mart_us_counties_seo: {
+      mart_it_seo_pages: {
         Row: {
-          state_code: string
-          county_name: string
-          county_slug: string
+          path: string
+          area_name: string
+          page_title: string
+          meta_description: string
           listing_count: number
           avg_prob_solar: number | null
-          max_prob_solar: number | null
-          min_price_per_acre: number | null
-          avg_price_per_acre: number | null
+          region_slug: string | null
+          region_name: string | null
+          comune_slug: string | null
+          comune_name: string | null
         }
         Insert: {
-          state_code: string
-          county_name: string
-          county_slug: string
+          path: string
+          area_name: string
+          page_title: string
+          meta_description: string
           listing_count: number
           avg_prob_solar?: number | null
-          max_prob_solar?: number | null
-          min_price_per_acre?: number | null
-          avg_price_per_acre?: number | null
+          region_slug?: string | null
+          region_name?: string | null
+          comune_slug?: string | null
+          comune_name?: string | null
         }
         Update: {
-          state_code?: string
-          county_name?: string
-          county_slug?: string
+          path?: string
+          area_name?: string
+          page_title?: string
+          meta_description?: string
           listing_count?: number
           avg_prob_solar?: number | null
-          max_prob_solar?: number | null
-          min_price_per_acre?: number | null
-          avg_price_per_acre?: number | null
+          region_slug?: string | null
+          region_name?: string | null
+          comune_slug?: string | null
+          comune_name?: string | null
         }
         Relationships: []
       }

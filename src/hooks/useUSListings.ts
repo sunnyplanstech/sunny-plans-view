@@ -6,11 +6,10 @@ export interface USListing {
   id: string;
   state_code: string;
   county: string;
-  lot_acres: number | null;
-  list_price: number | null;
-  price_per_acre: number | null;
+  price_bucket: string | null;
+  acres_approx: number | null;
   prob_solar: number | null;
-  power_substation: number | null;
+  substation_bucket: string | null;
   geom_json: string | null;
   rank_global: number | null;
   rank_in_state: number | null;
@@ -23,7 +22,7 @@ export function useUSListingsNational(limit = 10) {
     queryKey: ["us-listings", "national", limit],
     queryFn: async () => {
       const { data, error } = await supabase
-        .from("mart_us_land_solar_prob_top")
+        .from("mart_us_land_public")
         .select("*")
         .not("rank_global", "is", null)
         .order("rank_global", { ascending: true })
@@ -45,7 +44,7 @@ export function useUSListingsByState(stateSlug: string | undefined, limit = 10) 
       if (!stateCode) return [];
 
       const { data, error } = await supabase
-        .from("mart_us_land_solar_prob_top")
+        .from("mart_us_land_public")
         .select("*")
         .eq("state_code", stateCode)
         .not("rank_in_state", "is", null)
@@ -74,7 +73,7 @@ export function useUSListingsByCounty(
       if (!stateCode || !countyName) return [];
 
       const { data, error } = await supabase
-        .from("mart_us_land_solar_prob_top")
+        .from("mart_us_land_public")
         .select("*")
         .eq("state_code", stateCode)
         .ilike("county", countyName)
@@ -89,7 +88,7 @@ export function useUSListingsByCounty(
   });
 }
 
-// Fetch a single listing by id
+// Fetch a single listing by id (public obfuscated data)
 export function useUSListingById(listingId: string | undefined) {
   return useQuery({
     queryKey: ["us-listing", listingId],
@@ -97,7 +96,7 @@ export function useUSListingById(listingId: string | undefined) {
       if (!listingId) return null;
 
       const { data, error } = await supabase
-        .from("mart_us_land_solar_prob_top")
+        .from("mart_us_land_public")
         .select("*")
         .eq("id", listingId)
         .single();

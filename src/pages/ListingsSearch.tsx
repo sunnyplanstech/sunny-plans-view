@@ -178,7 +178,7 @@ const ListingsSearch = () => {
       ? `Scopri ${comuneStats.listing_count} particelle catastali per fotovoltaico in ${locationName}, ${parentName}. Probabilità solare media: ${Math.round((comuneStats.avg_prob_solar || 0) * 100)}%. Pre-analizzate per BESS e solare.`
       : `Particelle catastali per fotovoltaico e BESS in ${locationName}, ${parentName}. Analisi solare e vicinanza alle sottostazioni elettriche.`)
     : (countyStats
-      ? `Discover ${countyStats.listing_count} solar land opportunities in ${locationName}, ${parentName}. Avg solar probability: ${Math.round((countyStats.avg_prob_solar || 0) * 100)}%. Land from $${countyStats.min_price_per_acre?.toLocaleString()}/acre. Pre-vetted for BESS & solar.`
+      ? `Discover ${countyStats.listing_count} solar land opportunities in ${locationName}, ${parentName}. Avg solar probability: ${Math.round((countyStats.avg_prob_solar || 0) * 100)}%. Land from ${countyStats.min_price_bucket ?? "N/A"}. Pre-vetted for BESS & solar.`
       : generateListingSEODescription(locationName, usListings.length, parentName));
 
   const seoKeywordsStr = isItaly

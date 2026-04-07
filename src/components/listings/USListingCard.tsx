@@ -14,30 +14,6 @@ interface USListingCardProps {
   showRank?: "global" | "state" | "county";
 }
 
-function formatPrice(price: number | null): string {
-  if (!price) return "N/A";
-  return new Intl.NumberFormat("en-US", {
-    style: "currency",
-    currency: "USD",
-    maximumFractionDigits: 0,
-  }).format(price);
-}
-
-function formatPricePerAcre(price: number | null): string {
-  if (!price) return "N/A";
-  return new Intl.NumberFormat("en-US", {
-    style: "currency",
-    currency: "USD",
-    maximumFractionDigits: 0,
-  }).format(price) + "/ac";
-}
-
-function formatSubstationDistance(meters: number | null): string {
-  if (!meters) return "N/A";
-  const miles = meters * 0.000621371;
-  return `${Math.round(meters)} m (${miles.toFixed(1)} mi)`;
-}
-
 function getSolarScoreColor(prob: number | null) {
   if (!prob) return "bg-secondary text-secondary-foreground";
   const percentage = prob * 100;
@@ -118,7 +94,7 @@ const USListingCard = ({ listing, showRank = "global" }: USListingCardProps) => 
                     {listing.county}, {listing.state_code}
                   </h3>
                   <p className="text-sm text-muted-foreground">
-                    {formatPrice(listing.list_price)}
+                    {listing.price_bucket ?? "N/A"}
                   </p>
                 </div>
               </div>
@@ -146,16 +122,13 @@ const USListingCard = ({ listing, showRank = "global" }: USListingCardProps) => 
               <div className="flex items-center gap-1.5">
                 <Ruler className="w-3.5 h-3.5" />
                 <span className="font-medium text-foreground">
-                  {listing.lot_acres?.toFixed(1) || "N/A"}
+                  ~{listing.acres_approx ?? "N/A"}
                 </span>
                 <span>acres</span>
               </div>
               <div className="flex items-center gap-1.5">
-                <span className="text-xs">{formatPricePerAcre(listing.price_per_acre)}</span>
-              </div>
-              <div className="flex items-center gap-1.5">
                 <Zap className="w-3.5 h-3.5" />
-                <span>{formatSubstationDistance(listing.power_substation)} to substation</span>
+                <span>{listing.substation_bucket ?? "N/A"} to substation</span>
               </div>
             </div>
           </CardContent>
