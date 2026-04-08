@@ -6,6 +6,7 @@ import countiesByState from './counties.json';
 import comuniByRegion from './comuni.json';
 import fs from 'fs';
 import path from 'path';
+import { fileURLToPath } from 'url';
 
 export function generateDynamicSeoPaths(): string[] {
   const paths: string[] = [];
@@ -49,6 +50,8 @@ export function generateDynamicSeoPaths(): string[] {
 
   // Blog paths
   paths.push('/blog');
+  const __filename = fileURLToPath(import.meta.url);
+  const __dirname = path.dirname(__filename);
   const articlesDir = path.resolve(__dirname, '../../articles');
   if (fs.existsSync(articlesDir)) {
     for (const file of fs.readdirSync(articlesDir)) {
