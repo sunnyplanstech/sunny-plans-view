@@ -9,8 +9,6 @@ target_query: "what makes land suitable for solar farm development"
 
 Most landowners who receive a solar lease offer assume the developer found them through a broker or a mailing list. In reality, the developer ran your parcel through a filtering process before they ever called — and the same filters that got you on their list will determine the terms they offer.
 
-Understanding what developers are screening for explains why two neighboring parcels can generate wildly different offers, and why some land never gets approached at all.
-
 ## Grid Proximity Is the Dominant Variable
 
 Every kilowatt-hour a solar farm produces has to travel through transmission infrastructure to reach customers. The cost of getting it there — the interconnection cost — falls on the developer, not the grid operator. That cost scales with distance.

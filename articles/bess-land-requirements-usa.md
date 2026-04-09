@@ -14,13 +14,11 @@ Battery energy storage systems look deceptively similar to solar from the road: 
 
 ## Two Very Different Projects
 
-Before getting into site criteria, it's worth separating the two types of battery storage projects, because they look for fundamentally different things in a parcel.
-
 Most large battery projects currently going up in the US are **co-located with solar** — the battery sits on the same site as the panels, charges from the array during daylight hours, and dispatches power to the grid during peaks or overnight. This model needs the same large footprint as a solar farm, 400 acres or more, and the land has to qualify for both technologies simultaneously.
 
 **Standalone projects** are a different situation entirely. They aren't connected to any generation source — they charge directly from the grid during low-price periods and discharge during peaks, capturing the price spread. ERCOT in Texas and CAISO in California have the electricity price volatility that makes this model work. A standalone battery developer isn't looking for acres of open land with good sun exposure. They want a small site — often 5 to 20 acres — within a short distance of a high-capacity substation, and the solar resource is irrelevant.
 
-These two models have different site requirements, different economics, and different lease structures. If a developer contacts you about a battery storage project, the first useful question is which one they're building.
+A co-located project and a standalone project share almost nothing beyond the battery containers themselves. If a developer contacts you about a battery storage project, the first useful question is which one they're building.
 
 ## What Carries Over from Solar
 

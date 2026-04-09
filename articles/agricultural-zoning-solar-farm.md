@@ -8,7 +8,7 @@ target_query: "agricultural zoning solar farm"
 secondary_query: "solar farm special use permit agricultural zone"
 ---
 
-Agricultural zoning doesn't mean what most land buyers assume it means. It isn't a blanket approval for solar development, and it isn't a blanket prohibition either. Whether a parcel zoned AG, A-1, or A-2 can host a solar farm depends almost entirely on what the specific county has written into its zoning ordinance — which varies more than any state-level summary will tell you.
+Agricultural zoning doesn't mean what most land buyers assume it means. Whether a parcel zoned AG, A-1, or A-2 can host a solar farm depends almost entirely on what the specific county has written into its zoning ordinance — which varies more than any state-level summary will tell you.
 
 There is no federal standard for what "agricultural" zoning allows. A parcel zoned AG in central Ohio operates under Licking County's rules. The same designation in western Texas means something different in Pecos County. Developers run [this lookup](/blog/what-makes-land-viable-solar-farm) before they call a landowner, which is why some parcels get offers and others don't, even when the land looks similar on paper.
 
