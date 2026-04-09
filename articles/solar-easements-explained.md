@@ -11,11 +11,11 @@ The term "solar easement" is used to describe two meaningfully different legal i
 
 ## What a Solar Easement Actually Is
 
-In its original legal meaning, a solar easement is a recorded right that protects a solar energy system's access to unobstructed sunlight. The owner of the solar installation holds the easement against an adjacent or nearby property, which means the burdened property owner cannot build structures, plant trees, or allow vegetation growth that would shade the panels.
+In its original legal meaning, a solar easement is a recorded right that protects a solar energy system's access to unobstructed sunlight. The owner of the solar installation holds the easement against an adjacent or nearby property, which means the neighboring property owner — the one subject to the easement — cannot build structures, plant trees, or allow vegetation growth that would shade the panels.
 
-The legal definition is codified in statutes across most US states — the language typically specifies the easement's dimensions using horizontal and vertical angles or maximum height restrictions, and requires it to be recorded in the deed. Once recorded, the restriction runs with the land. If the burdened property sells, the new owner inherits the obligation. It doesn't disappear on transfer and it doesn't require the original parties to renegotiate.
+The legal definition is codified in statutes across most US states — the language typically specifies the easement's dimensions using horizontal and vertical angles or maximum height restrictions, and requires it to be recorded in the deed. Once recorded, the restriction is tied to the property, not to the person who agreed to it. If the neighboring property sells, the new owner inherits the obligation — no renegotiation required.
 
-California was among the first states to establish solar easement statutes in the 1970s. Today, the majority of states have enacted their own frameworks, though the specific provisions — what must be in the instrument, how it's recorded, whether compensation is required — vary considerably. A handful of states have no solar easement statute at all, which doesn't make the agreements unenforceable, but removes the statutory scaffolding that simplifies the process.
+California was among the first states to establish solar easement statutes in the 1970s. Today, the majority of states have enacted their own frameworks, though the specific provisions — what must be in the instrument, how it's recorded, whether compensation is required — vary considerably. A handful of states have no solar easement statute at all, which doesn't make the agreements unenforceable, but means the parties have to rely on general contract law rather than a dedicated framework designed for this purpose.
 
 ## How This Shows Up When You're Buying Land
 
@@ -44,7 +44,7 @@ For any parcel you're evaluating for solar land investment, the title review pro
 | Recorded easements against the parcel | Transmission and access easements restrict portions of the land and survive sale |
 | Sunlight access easements burdening the parcel | Less common in rural areas; more likely near established residential solar |
 | Easements held by the parcel against neighboring land | Potentially valuable — existing rights-of-way can signal prior developer interest |
-| Conservation easements | Permanently restrict use for solar development; a title-level disqualifier |
+| Conservation easements | Permanently restrict use for solar development; shows up in any title search and makes the parcel unusable for solar leasing |
 | Utility easements | Overhead lines often carry blanket restrictions that affect buildable area |
 
 A permanent conservation easement — granted to a land trust or government entity — runs with the land indefinitely and typically prohibits any development that would alter the property's natural character. Solar development almost always fails that test. No developer will proceed past due diligence on a conserved parcel, which makes it effectively worthless for leasing purposes. These easements show up in a title search, but the mechanism is different from solar easements — they're held by third-party conservation organizations, not neighboring landowners.
