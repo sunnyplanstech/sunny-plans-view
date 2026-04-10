@@ -1,7 +1,7 @@
 ---
 title: "How to Buy Land for a Solar Farm in Texas in 2026"
 description: "Texas leads the US in solar capacity, but ERCOT's grid geography determines whether any specific parcel has a realistic development path. Where the queue is moving and what that means for site selection."
-date: "2026-04-22"
+date: "2026-04-11"
 author: "Sunnyplans Team"
 tags: "solar, Texas, land buying, ERCOT, grid"
 target_query: "buy land for solar farm in Texas"

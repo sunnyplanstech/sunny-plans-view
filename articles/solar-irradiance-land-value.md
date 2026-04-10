@@ -1,7 +1,7 @@
 ---
 title: "How Solar Irradiance Affects Land Value and Lease Rates"
 description: "Solar irradiance determines how much electricity a project produces — but its effect on land value is more qualified than the simple sun-equals-value equation suggests."
-date: "2026-04-14"
+date: "2026-04-12"
 author: "Sunnyplans Team"
 tags: "solar, irradiance, land value, lease rates"
 target_query: "what is solar irradiance land value"
