@@ -19,7 +19,6 @@ export interface USCountySEO {
   county_slug: string;
   listing_count: number;
   avg_prob_solar: number | null;
-  min_price_bucket: string | null;
 }
 
 export interface ITComuneSEO {
@@ -76,7 +75,6 @@ export function useUSCounties(stateSlug: string | undefined) {
         county_slug: row.county_slug!,
         listing_count: row.listing_count,
         avg_prob_solar: row.avg_prob_solar,
-        min_price_bucket: row.min_price_bucket ?? null,
         // SubdivisionNav compatibility
         name: row.county_name!,
         slug: row.county_slug!,
@@ -111,7 +109,6 @@ export function useUSCounty(stateSlug: string | undefined, countySlug: string | 
         county_slug: data.county_slug!,
         listing_count: data.listing_count,
         avg_prob_solar: data.avg_prob_solar,
-        min_price_bucket: data.min_price_bucket ?? null,
       } as USCountySEO;
     },
     enabled: !!stateCode && !!countySlug,

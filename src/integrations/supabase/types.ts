@@ -14,45 +14,84 @@ export type Database = {
   }
   public: {
     Tables: {
-      mart_us_land_public: {
+      mart_us_listings_public: {
         Row: {
           id: string
           state_code: string
           county: string
-          price_bucket: string | null
-          acres_approx: number | null
+          city: string | null
+          zip_code: string | null
           prob_solar: number | null
-          substation_bucket: string | null
           rank_global: number | null
           rank_in_state: number | null
           rank_in_county: number | null
-          geom_json: string | null
+          power_substation: number | null
+          power_transformer: number | null
+          highway_motorway: number | null
+          landuse_industrial: number | null
+          natural_water: number | null
+          list_price: number | null
+          lot_acres: number | null
+          lot_sqft: number | null
+          price_per_acre: number | null
+          price_per_sqft: number | null
+          sqft: number | null
+          year_built: number | null
+          lat: number | null
+          lon: number | null
+          geom_json: Json | null
         }
         Insert: {
           id: string
           state_code: string
           county: string
-          price_bucket?: string | null
-          acres_approx?: number | null
+          city?: string | null
+          zip_code?: string | null
           prob_solar?: number | null
-          substation_bucket?: string | null
           rank_global?: number | null
           rank_in_state?: number | null
           rank_in_county?: number | null
-          geom_json?: string | null
+          power_substation?: number | null
+          power_transformer?: number | null
+          highway_motorway?: number | null
+          landuse_industrial?: number | null
+          natural_water?: number | null
+          list_price?: number | null
+          lot_acres?: number | null
+          lot_sqft?: number | null
+          price_per_acre?: number | null
+          price_per_sqft?: number | null
+          sqft?: number | null
+          year_built?: number | null
+          lat?: number | null
+          lon?: number | null
+          geom_json?: Json | null
         }
         Update: {
           id?: string
           state_code?: string
           county?: string
-          price_bucket?: string | null
-          acres_approx?: number | null
+          city?: string | null
+          zip_code?: string | null
           prob_solar?: number | null
-          substation_bucket?: string | null
           rank_global?: number | null
           rank_in_state?: number | null
           rank_in_county?: number | null
-          geom_json?: string | null
+          power_substation?: number | null
+          power_transformer?: number | null
+          highway_motorway?: number | null
+          landuse_industrial?: number | null
+          natural_water?: number | null
+          list_price?: number | null
+          lot_acres?: number | null
+          lot_sqft?: number | null
+          price_per_acre?: number | null
+          price_per_sqft?: number | null
+          sqft?: number | null
+          year_built?: number | null
+          lat?: number | null
+          lon?: number | null
+          geom_json?: Json | null
         }
         Relationships: []
       }
@@ -137,7 +176,7 @@ export type Database = {
         }
         Relationships: []
       }
-      mart_it_catasto_public: {
+      mart_it_parcels_public: {
         Row: {
           id: string
           comune_code: string
@@ -147,7 +186,16 @@ export type Database = {
           prob_solar: number | null
           rank_global: number | null
           rank_in_comune: number | null
-          geom_json: string | null
+          power_substation: number | null
+          power_transformer: number | null
+          highway_motorway: number | null
+          landuse_industrial: number | null
+          natural_water: number | null
+          area_ha: number | null
+          area_m2: number | null
+          lat: number | null
+          lon: number | null
+          geom_json: Json | null
         }
         Insert: {
           id: string
@@ -158,7 +206,16 @@ export type Database = {
           prob_solar?: number | null
           rank_global?: number | null
           rank_in_comune?: number | null
-          geom_json?: string | null
+          power_substation?: number | null
+          power_transformer?: number | null
+          highway_motorway?: number | null
+          landuse_industrial?: number | null
+          natural_water?: number | null
+          area_ha?: number | null
+          area_m2?: number | null
+          lat?: number | null
+          lon?: number | null
+          geom_json?: Json | null
         }
         Update: {
           id?: string
@@ -169,7 +226,16 @@ export type Database = {
           prob_solar?: number | null
           rank_global?: number | null
           rank_in_comune?: number | null
-          geom_json?: string | null
+          power_substation?: number | null
+          power_transformer?: number | null
+          highway_motorway?: number | null
+          landuse_industrial?: number | null
+          natural_water?: number | null
+          area_ha?: number | null
+          area_m2?: number | null
+          lat?: number | null
+          lon?: number | null
+          geom_json?: Json | null
         }
         Relationships: []
       }
@@ -226,7 +292,6 @@ export type Database = {
           meta_description: string
           listing_count: number
           avg_prob_solar: number | null
-          min_price_bucket: string | null
           state_code: string | null
           county_slug: string | null
           county_name: string | null
@@ -238,7 +303,6 @@ export type Database = {
           meta_description: string
           listing_count: number
           avg_prob_solar?: number | null
-          min_price_bucket?: string | null
           state_code?: string | null
           county_slug?: string | null
           county_name?: string | null
@@ -250,7 +314,6 @@ export type Database = {
           meta_description?: string
           listing_count?: number
           avg_prob_solar?: number | null
-          min_price_bucket?: string | null
           state_code?: string | null
           county_slug?: string | null
           county_name?: string | null

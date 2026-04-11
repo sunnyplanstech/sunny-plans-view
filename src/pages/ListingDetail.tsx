@@ -330,10 +330,11 @@ const ListingDetail = () => {
       ? { lat: usPremium.lat, lng: usPremium.lon }
       : getParcelCenter(usPublic.geom_json);
 
-    // SEO — use premium data if available for richer metadata
+    // SEO — premium gives exact, public gives bucket midpoint
+    const displayAcres = usPremium?.lot_acres ?? usPublic.lot_acres;
     const acresLabel = usPremium
-      ? `${usPremium.lot_acres?.toFixed(1)} Acres`
-      : `~${usPublic.acres_approx ?? "?"} Acres`;
+      ? `${displayAcres?.toFixed(1) ?? "?"} Acres`
+      : `~${displayAcres?.toFixed(1) ?? "?"} Acres`;
 
     const seoTitle = `${acresLabel} Solar Land for Sale - ${usPublic.county}, ${usPublic.state_code} | Sunnyplans`;
     const seoDescription = `${acresLabel} of land in ${usPublic.county}, ${usPublic.state_code}. ${solarPercentage}% solar probability. Pre-vetted for BESS & solar projects.`;
@@ -456,7 +457,9 @@ const ListingDetail = () => {
                         <div>
                           <p className="text-sm text-muted-foreground">Size</p>
                           <p className="font-semibold">
-                            {usPremium ? `${usPremium.lot_acres?.toFixed(1)} Acres` : `~${usPublic.acres_approx ?? "N/A"} Acres`}
+                            {usPremium
+                              ? `${usPremium.lot_acres?.toFixed(1) ?? "N/A"} Acres`
+                              : `~${usPublic.lot_acres?.toFixed(1) ?? "N/A"} Acres`}
                           </p>
                         </div>
                       </div>
@@ -468,7 +471,7 @@ const ListingDetail = () => {
                         <div>
                           <p className="text-sm text-muted-foreground">Substation Distance</p>
                           <p className="font-semibold">
-                            {usPremium ? formatSubstationDistance(usPremium.power_substation) : (usPublic.substation_bucket ?? "N/A")}
+                            {formatSubstationDistance(usPremium?.power_substation ?? usPublic.power_substation)}
                           </p>
                         </div>
                       </div>
@@ -480,7 +483,7 @@ const ListingDetail = () => {
                         <div>
                           <p className="text-sm text-muted-foreground">List Price</p>
                           <p className="font-semibold">
-                            {usPremium ? formatPrice(usPremium.list_price) : (usPublic.price_bucket ?? "N/A")}
+                            {formatPrice(usPremium?.list_price ?? usPublic.list_price)}
                           </p>
                         </div>
                       </div>

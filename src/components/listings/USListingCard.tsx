@@ -8,6 +8,7 @@ import { stateCodeToSlug, countyToSlug } from "@/data/locations";
 import MiniParcelMap from "@/components/maps/MiniParcelMap";
 import { cn } from "@/lib/utils";
 import { getParcelCenter } from "@/lib/geo";
+import { formatPrice, formatAcres, formatSubstationDistance } from "@/lib/format";
 
 interface USListingCardProps {
   listing: USListing;
@@ -94,7 +95,7 @@ const USListingCard = ({ listing, showRank = "global" }: USListingCardProps) => 
                     {listing.county}, {listing.state_code}
                   </h3>
                   <p className="text-sm text-muted-foreground">
-                    {listing.price_bucket ?? "N/A"}
+                    {formatPrice(listing.list_price)}
                   </p>
                 </div>
               </div>
@@ -122,13 +123,13 @@ const USListingCard = ({ listing, showRank = "global" }: USListingCardProps) => 
               <div className="flex items-center gap-1.5">
                 <Ruler className="w-3.5 h-3.5" />
                 <span className="font-medium text-foreground">
-                  ~{listing.acres_approx ?? "N/A"}
+                  ~{formatAcres(listing.lot_acres)}
                 </span>
                 <span>acres</span>
               </div>
               <div className="flex items-center gap-1.5">
                 <Zap className="w-3.5 h-3.5" />
-                <span>{listing.substation_bucket ?? "N/A"} to substation</span>
+                <span>{formatSubstationDistance(listing.power_substation)} to substation</span>
               </div>
             </div>
           </CardContent>

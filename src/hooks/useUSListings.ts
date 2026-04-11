@@ -6,23 +6,37 @@ export interface USListing {
   id: string;
   state_code: string;
   county: string;
-  price_bucket: string | null;
-  acres_approx: number | null;
+  city: string | null;
+  zip_code: string | null;
   prob_solar: number | null;
-  substation_bucket: string | null;
-  geom_json: string | null;
   rank_global: number | null;
   rank_in_state: number | null;
   rank_in_county: number | null;
+  power_substation: number | null;
+  power_transformer: number | null;
+  highway_motorway: number | null;
+  landuse_industrial: number | null;
+  natural_water: number | null;
+  list_price: number | null;
+  lot_acres: number | null;
+  lot_sqft: number | null;
+  price_per_acre: number | null;
+  price_per_sqft: number | null;
+  sqft: number | null;
+  year_built: number | null;
+  lat: number | null;
+  lon: number | null;
+  geom_json: unknown | null;
 }
 
-// Fetch top 10 US listings nationally by rank_global
+const TABLE = "mart_us_listings_public";
+
 export function useUSListingsNational(limit = 10) {
   return useQuery({
     queryKey: ["us-listings", "national", limit],
     queryFn: async () => {
       const { data, error } = await supabase
-        .from("mart_us_land_public")
+        .from(TABLE)
         .select("*")
         .not("rank_global", "is", null)
         .order("rank_global", { ascending: true })
@@ -34,7 +48,6 @@ export function useUSListingsNational(limit = 10) {
   });
 }
 
-// Fetch top 10 listings by state using rank_in_state
 export function useUSListingsByState(stateSlug: string | undefined, limit = 10) {
   const stateCode = stateSlug ? slugToStateCode(stateSlug) : undefined;
 
@@ -44,7 +57,7 @@ export function useUSListingsByState(stateSlug: string | undefined, limit = 10) 
       if (!stateCode) return [];
 
       const { data, error } = await supabase
-        .from("mart_us_land_public")
+        .from(TABLE)
         .select("*")
         .eq("state_code", stateCode)
         .not("rank_in_state", "is", null)
@@ -58,7 +71,6 @@ export function useUSListingsByState(stateSlug: string | undefined, limit = 10) 
   });
 }
 
-// Fetch top 10 listings by county using rank_in_county
 export function useUSListingsByCounty(
   stateSlug: string | undefined,
   countySlug: string | undefined,
@@ -73,7 +85,7 @@ export function useUSListingsByCounty(
       if (!stateCode || !countyName) return [];
 
       const { data, error } = await supabase
-        .from("mart_us_land_public")
+        .from(TABLE)
         .select("*")
         .eq("state_code", stateCode)
         .ilike("county", countyName)
@@ -88,7 +100,6 @@ export function useUSListingsByCounty(
   });
 }
 
-// Fetch a single listing by id (public obfuscated data)
 export function useUSListingById(listingId: string | undefined) {
   return useQuery({
     queryKey: ["us-listing", listingId],
@@ -96,7 +107,7 @@ export function useUSListingById(listingId: string | undefined) {
       if (!listingId) return null;
 
       const { data, error } = await supabase
-        .from("mart_us_land_public")
+        .from(TABLE)
         .select("*")
         .eq("id", listingId)
         .single();
