@@ -70,8 +70,8 @@ const ITListingCard = ({ listing, showRank = "global", listPosition }: ITListing
         {/* Map section */}
         <div className="relative w-full sm:w-40 h-32 sm:h-auto sm:min-h-[180px] flex-shrink-0 overflow-hidden">
           <MiniParcelMap
-            latitude={center?.lat ?? null}
-            longitude={center?.lng ?? null}
+            lat={center?.lat ?? null}
+            lon={center?.lng ?? null}
             className="w-full h-full"
           />
 

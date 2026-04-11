@@ -4,8 +4,8 @@ import { MapPin } from "lucide-react";
 import { useGoogleMaps } from "./GoogleMapsProvider";
 
 interface MiniParcelMapProps {
-  latitude: number | null;
-  longitude: number | null;
+  lat: number | null;
+  lon: number | null;
   className?: string;
 }
 
@@ -16,17 +16,17 @@ const mapContainerStyle = {
 
 const defaultCenter = { lat: 39.8283, lng: -98.5795 }; // Center of US
 
-export function MiniParcelMap({ latitude, longitude, className }: MiniParcelMapProps) {
+export function MiniParcelMap({ lat, lon, className }: MiniParcelMapProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const [isVisible, setIsVisible] = useState(false);
 
-  const hasCoords = latitude != null && longitude != null;
+  const hasCoords = lat != null && lon != null;
   const center = useMemo(() => {
     if (hasCoords) {
-      return { lat: latitude, lng: longitude };
+      return { lat, lng: lon };
     }
     return defaultCenter;
-  }, [latitude, longitude, hasCoords]);
+  }, [lat, lon, hasCoords]);
 
   const { isLoaded, requestLoad } = useGoogleMaps();
 

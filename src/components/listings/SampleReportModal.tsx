@@ -62,8 +62,8 @@ const SampleReportModal = ({ children }: SampleReportModalProps) => {
           {/* Satellite map view */}
           <div className="relative rounded-lg overflow-hidden h-64">
             <MiniParcelMap
-              latitude={sampleListing.coordinates.lat}
-              longitude={sampleListing.coordinates.lng}
+              lat={sampleListing.coordinates.lat}
+              lon={sampleListing.coordinates.lng}
               className="h-full"
             />
             <div className="absolute top-3 left-3 flex gap-2">

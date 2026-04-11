@@ -169,7 +169,7 @@ const ListingDetail = () => {
   if (isItaly && itPublic) {
     const solarPercentage = itPublic.prob_solar ? Math.round(itPublic.prob_solar * 100) : null;
     const center = itPremium
-      ? { lat: itPremium.latitude, lng: itPremium.longitude }
+      ? { lat: itPremium.lat, lng: itPremium.lon }
       : getParcelCenter(itPublic.geom_json);
     const regionName = formatRegionSlug(itPublic.region_slug);
 
@@ -214,8 +214,8 @@ const ListingDetail = () => {
             <article className="max-w-4xl mx-auto">
               <section className="relative rounded-xl overflow-hidden mb-6 h-64 md:h-96">
                 <MiniParcelMap
-                  latitude={center?.lat ?? null}
-                  longitude={center?.lng ?? null}
+                  lat={center?.lat ?? null}
+                  lon={center?.lng ?? null}
                   className="w-full h-full"
                 />
                 <div className="absolute top-4 left-4 flex flex-wrap gap-2">
@@ -327,7 +327,7 @@ const ListingDetail = () => {
 
     // Use exact coords from premium data when available, otherwise grid-snapped from public
     const center = usPremium
-      ? { lat: usPremium.latitude, lng: usPremium.longitude }
+      ? { lat: usPremium.lat, lng: usPremium.lon }
       : getParcelCenter(usPublic.geom_json);
 
     // SEO — use premium data if available for richer metadata
@@ -397,7 +397,9 @@ const ListingDetail = () => {
           <main className="container mx-auto px-4 py-6">
             <article className="max-w-4xl mx-auto">
               <section className="relative rounded-xl overflow-hidden mb-6 h-64 md:h-96">
-                <MiniParcelMap latitude={center?.lat ?? null} longitude={center?.lng ?? null} className="w-full h-full" />
+                <MiniParcelMap lat={center?.lat ?? null} lon={center?.lng ?? null} className="w-full h-full" />
+
+                {/* Badges overlay */}
                 <div className="absolute top-4 left-4 flex flex-wrap gap-2">
                   <Badge className="text-lg py-1 px-3 bg-primary">
                     <Sun className="w-4 h-4 mr-1" />
