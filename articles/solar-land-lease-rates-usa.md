@@ -67,4 +67,4 @@ A parcel that clears the grid proximity filter reliably commands the top of the 
 - NREL, *Land-Use Requirements for Solar Power Plants in the United States* — substation proximity as a primary siting variable — [docs.nrel.gov/docs/fy13osti/56290.pdf](https://docs.nrel.gov/docs/fy13osti/56290.pdf)
 - SEIA, *State Solar Policy* — renewable portfolio standard summaries by state — [seia.org/initiatives/state-solar-policy](https://seia.org/initiatives/state-solar-policy)
 - FERC, *Order 2023 — Improving Reliability and Long-Term Planning through Improved Generator Interconnection Procedures and Agreements* — interconnection queue reform — [ferc.gov/media/order-no-2023](https://www.ferc.gov/media/order-no-2023)
-- ERCOT, *Generation Interconnection Queue* — zone-level queue composition — [ercot.com/gridinfo/resource](https://www.ercot.com/gridinfo/resource)
+- ERCOT, *Generation Interconnection Queue* — zone-level queue composition — ercot.com/gridinfo/resource
