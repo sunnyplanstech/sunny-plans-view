@@ -1,7 +1,7 @@
 ---
 title: "Why Substation Proximity Is the Most Underrated Factor in Solar Land Selection"
 description: "The distance between a parcel and the nearest substation determines whether project economics work — and quietly shapes the lease offer a landowner receives. Most landowners never check it."
-date: "2026-04-14"
+date: "2026-04-13"
 author: "Sunnyplans Team"
 tags: "solar, substation, grid access, interconnection, land selection"
 target_query: "substation proximity solar farm"
