@@ -53,7 +53,7 @@ The LOMA path — a Letter of Map Amendment, where a licensed engineer demonstra
 
 ## How to Look Up Your Parcel's Flood Zone
 
-FEMA's Flood Map Service Center (msc.fema.gov) allows parcel-level lookup by address or coordinates. The map shows current FIRM panel data with zone boundaries overlaid on aerial imagery.
+FEMA's Flood Map Service Center ([msc.fema.gov/portal/search](https://msc.fema.gov/portal/search)) allows parcel-level lookup by address or coordinates. The map shows current FIRM panel data with zone boundaries overlaid on aerial imagery.
 
 A few things worth knowing when reading these maps:
 
@@ -84,7 +84,7 @@ Understanding [what makes land viable for a solar farm](/blog/what-makes-land-vi
 ---
 
 **Sources**
-- FEMA Flood Map Service Center — parcel-level flood zone lookup — [msc.fema.gov](https://msc.fema.gov/)
+- FEMA Flood Map Service Center — parcel-level flood zone lookup — [msc.fema.gov/portal/search](https://msc.fema.gov/portal/search)
 - FEMA, *Letter of Map Amendment process and timeline* — [fema.gov/flood-maps/change-your-flood-zone/loma-lomr-f](https://www.fema.gov/flood-maps/change-your-flood-zone/loma-lomr-f)
 - First Street Foundation, *Flood Factor* — updated climate-based flood risk modeling — [floodfactor.com](https://floodfactor.com/)
 - US Fish & Wildlife Service, *National Wetlands Inventory* — [fws.gov/program/national-wetlands-inventory](https://www.fws.gov/program/national-wetlands-inventory)
