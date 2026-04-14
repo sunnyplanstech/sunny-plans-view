@@ -76,5 +76,5 @@ The landowners who get the worst deals are those who signed the first offer with
 ---
 
 **Sources**
-- NREL, *Solar Farm Land Lease Rates* — lease rate ranges by region — nrel.gov
-- Lawrence Berkeley National Laboratory, *Queued Up* — development timeline data — emp.lbl.gov/queues
+- NREL, *Annual Technology Baseline: Utility-Scale PV* — land lease as a cost component of utility-scale solar O&M — [atb.nrel.gov/electricity/2024/utility-scale_pv](https://atb.nrel.gov/electricity/2024/utility-scale_pv)
+- Lawrence Berkeley National Laboratory, *Queued Up* — development timeline data — [emp.lbl.gov/queues](https://emp.lbl.gov/queues)

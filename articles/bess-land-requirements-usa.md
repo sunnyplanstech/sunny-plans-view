@@ -89,8 +89,8 @@ A developer offering $1,800/acre on 8 acres is a structurally different deal fro
 ---
 
 **Sources**
-- EIA, *New U.S. electric generating capacity expected to reach a record high in 2026* — 24 GW battery storage additions planned for 2026; 15 GW added in 2025; Texas at 12.9 GW — eia.gov/todayinenergy/detail.php?id=67205
-- Kimley-Horn, *Battery Energy Storage System (BESS) Site Requirements* — terrain, drainage, and fencing standards — kimley-horn.com
-- Glint Solar, *Everything You Need to Know About Developing Battery Energy Storage Systems* — substation proximity thresholds, slope requirements, industrial zoning classification — glintsolar.com
-- NFPA, *NFPA 855: Standard for the Installation of Stationary Energy Storage Systems* — clearance and suppression requirements governing setbacks — nfpa.org
-- American Planning Association, *Battery Energy Storage Systems* (Zoning Practice, March 2024) — planning.org/zoningpractice/2024/march/battery-energy-storage-systems/
+- EIA, *New U.S. electric generating capacity expected to reach a record high in 2026* — 24 GW battery storage additions planned for 2026; 15 GW added in 2025; Texas at 12.9 GW — [eia.gov/todayinenergy/detail.php?id=67205](https://www.eia.gov/todayinenergy/detail.php?id=67205)
+- Kimley-Horn, *Battery Energy Storage System (BESS) Site Requirements* — terrain, drainage, and fencing standards — [kimley-horn.com/news-insights/perspectives/battery-energy-storage-system-requirements](https://www.kimley-horn.com/news-insights/perspectives/battery-energy-storage-system-requirements/)
+- Glint Solar, *Everything You Need to Know About Developing Battery Energy Storage Systems* — substation proximity thresholds, slope requirements, industrial zoning classification — [glintsolar.com/resources/everything-you-need-to-know-about-developing-battery-energy-storage-systems-bess](https://www.glintsolar.com/resources/everything-you-need-to-know-about-developing-battery-energy-storage-systems-bess)
+- NFPA, *NFPA 855: Standard for the Installation of Stationary Energy Storage Systems* — clearance and suppression requirements governing setbacks — [nfpa.org/codes-and-standards/nfpa-855-standard-development/855](https://www.nfpa.org/codes-and-standards/nfpa-855-standard-development/855)
+- American Planning Association, *Battery Energy Storage Systems* (Zoning Practice, March 2024) — [planning.org/zoningpractice/2024/march/battery-energy-storage-systems](https://planning.org/zoningpractice/2024/march/battery-energy-storage-systems/)

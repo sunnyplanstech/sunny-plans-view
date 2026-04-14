@@ -73,9 +73,9 @@ The spread within each range reflects grid proximity more than irradiance or ter
 ---
 
 **Sources**
-- ERCOT, *Generation Interconnection Queue* — queue capacity and composition data — ercot.com/gridinfo/resource
-- ERCOT, *2025 Report on Existing and Potential Electric System Constraints and Needs* — curtailment projections — ercot.com/files/docs/2025/12/23/2025-Report-on-Existing-and-Potential-Electric-System-Constraints-and-Needs.pdf
-- Industrial Sun, *CREZ: 20-Year Anniversary* — CREZ program history and transmission miles — industrialsun.com/news/crez-20-year-anniversary
-- Life:Powered / Texas Public Policy Foundation, *The Explosion of Transmission Costs in ERCOT* (January 2026) — 765-kV backbone filing and timeline — texaspolicy.com
-- ERCOT, *Monthly Operational Overview October 2025* — installed capacity and generation mix — ercot.com/files/docs/2025/11/17/ERCOT-Monthly-Operational-Overview-October-2025.pdf
-- SEIA, *Texas Solar and Storage* — state solar policy and capacity data — seia.org/state-solar-policy/texas-solar
+- ERCOT, *Generation Interconnection Queue* — queue capacity and composition data — [ercot.com/gridinfo/resource](https://www.ercot.com/gridinfo/resource)
+- ERCOT, *2025 Report on Existing and Potential Electric System Constraints and Needs* — curtailment projections — [ercot.com/files/docs/2025/12/23/2025-Report-on-Existing-and-Potential-Electric-System-Constraints-and-Needs.pdf](https://www.ercot.com/files/docs/2025/12/23/2025-Report-on-Existing-and-Potential-Electric-System-Constraints-and-Needs.pdf)
+- Industrial Sun, *CREZ: 20-Year Anniversary* — CREZ program history and transmission miles — [industrialsun.com/news/crez-20-year-anniversary](https://industrialsun.com/news/crez-20-year-anniversary)
+- Life:Powered / Texas Public Policy Foundation, *The Explosion of Transmission Costs in ERCOT* (January 2026) — 765-kV backbone filing and timeline — [lifepowered.org/the-explosion-of-transmission-costs-in-ercot](https://lifepowered.org/the-explosion-of-transmission-costs-in-ercot/)
+- ERCOT, *Monthly Operational Overview October 2025* — installed capacity and generation mix — [ercot.com/files/docs/2025/11/17/ERCOT-Monthly-Operational-Overview-October-2025.pdf](https://www.ercot.com/files/docs/2025/11/17/ERCOT-Monthly-Operational-Overview-October-2025.pdf)
+- SEIA, *Texas Solar and Storage* — state solar policy and capacity data — [seia.org/state-solar-policy/texas-solar](https://seia.org/state-solar-policy/texas-solar/)

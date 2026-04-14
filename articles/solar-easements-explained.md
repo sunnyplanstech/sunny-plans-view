@@ -64,7 +64,7 @@ A lease that looks clean on the base acreage can quietly carry significant adjac
 ---
 
 **Sources**
-- University of Central Florida Energy Research Center, *Solar Easements* — state-by-state solar easement statute overview — energyresearch.ucf.edu/consumer/energy-policy/solar-easements
-- Stoel Rives LLP, *The Law of Solar: Solar Project Property Rights* — property rights framework for utility-scale solar development — stoel.com/insights/reports/the-law-of-solar
-- NC State Extension, *Solar Leases: Clearing Matters of Title During Solar Developer Due Diligence* — title review process for solar land transactions — farmlaw.ces.ncsu.edu
-- New Era Land Services, *Solar Right of Way Easement* — how gen-tie ROW agreements are structured and compensated — neweralands.com/blog/solar-right-of-way
+- University of Central Florida Energy Research Center, *Solar Easements* — state-by-state solar easement statute overview — [energyresearch.ucf.edu/consumer/energy-policy/solar-easements](https://energyresearch.ucf.edu/consumer/energy-policy/solar-easements/)
+- Stoel Rives LLP, *The Law of Solar: Solar Project Property Rights* — property rights framework for utility-scale solar development — [stoel.com/insights/reports/the-law-of-solar/solar-project-property-rights-securing-your-place](https://www.stoel.com/insights/reports/the-law-of-solar/solar-project-property-rights-securing-your-place)
+- NC State Extension, *Solar Leases: Clearing Matters of Title During Solar Developer Due Diligence* — title review process for solar land transactions — [farmlaw.ces.ncsu.edu/solar-leases-clearing-matters-of-title-during-solar-developer-due-diligence](https://farmlaw.ces.ncsu.edu/solar-leases-clearing-matters-of-title-during-solar-developer-due-diligence/)
+- New Era Land Services, *Solar Right of Way Easement* — how gen-tie ROW agreements are structured and compensated — [neweralands.com/blog/solar-right-of-way](https://www.neweralands.com/blog/solar-right-of-way)

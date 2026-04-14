@@ -65,7 +65,7 @@ The interconnection study is also why developers use option periods rather than 
 
 ## How to Look Up the Distance
 
-HIFLD's national electric substation dataset is publicly accessible at hifld.dhs.gov, with location coordinates, voltage class, and ownership for substations across the US. Google Maps satellite view works for a rough estimate — follow the large lattice transmission towers from the parcel and see where they terminate. Most utility service territory maps, available on utility websites, show substation locations for their coverage area.
+HIFLD's national electric substation dataset is publicly accessible at [hifld-geoplatform.opendata.arcgis.com](https://hifld-geoplatform.opendata.arcgis.com/datasets/electric-substations), with location coordinates, voltage class, and ownership for substations across the US. Google Maps satellite view works for a rough estimate — follow the large lattice transmission towers from the parcel and see where they terminate. Most utility service territory maps, available on utility websites, show substation locations for their coverage area.
 
 None of these sources give capacity data. You can find where a substation is; you can't easily find how much room it has left. That's what the interconnection study surfaces. But knowing the distance is where any serious parcel evaluation starts, and most landowners — and many land buyers — skip it entirely.
 
@@ -76,7 +76,7 @@ None of these sources give capacity data. You can find where a substation is; yo
 ---
 
 **Sources**
-- EIA, *Electricity Transmission and Distribution* — transmission line construction cost estimates by terrain type — eia.gov
-- Lawrence Berkeley National Laboratory, *Generator Interconnection Costs to the Transmission System* — interconnection cost trends by ISO and technology type — emp.lbl.gov/interconnection_costs
-- CISA / HIFLD, *Electric Substations dataset* — national substation locations, voltage classes, and ownership — hifld.dhs.gov
-- FERC, *Order 2023* — interconnection queue reform and cost allocation rules effective 2024 — ferc.gov/media/order-2023
+- EIA, *Capital Cost and Performance Characteristics for Utility-Scale Power Plants* — transmission line construction cost estimates including 115 kV interconnection — [eia.gov/analysis/studies/powerplants/capitalcost](https://www.eia.gov/analysis/studies/powerplants/capitalcost/)
+- Lawrence Berkeley National Laboratory, *Generator Interconnection Costs to the Transmission System* — interconnection cost trends by ISO and technology type — [emp.lbl.gov/interconnection_costs](https://emp.lbl.gov/interconnection_costs)
+- CISA / HIFLD, *Electric Substations dataset* — national substation locations, voltage classes, and ownership — [hifld-geoplatform.opendata.arcgis.com/datasets/electric-substations](https://hifld-geoplatform.opendata.arcgis.com/datasets/electric-substations)
+- FERC, *Order 2023* — interconnection queue reform and cost allocation rules effective 2024 — [ferc.gov/media/order-no-2023](https://www.ferc.gov/media/order-no-2023)

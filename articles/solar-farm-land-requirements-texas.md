@@ -82,9 +82,9 @@ These are ranges, not guarantees. Rates at the high end reflect parcels with exc
 ---
 
 **Sources**
-- SEIA, *2024 Solar Market Insight Year in Review* — Texas installed capacity ranking — seia.org/research-resources/solar-market-insight-report-2024-year-in-review
-- ERCOT, *Generation Interconnection Queue* — queue capacity and composition data — ercot.com/gridinfo/resource
-- NREL, *Land-Use Requirements for Solar Power Plants in the United States* (2013) — historical acreage baseline — docs.nrel.gov/docs/fy13osti/56290.pdf
-- Lawrence Berkeley National Laboratory, *Utility-Scale Solar* report series — updated land-use density for post-2018 projects — emp.lbl.gov/utility-scale-solar
-- Repsol, *Pecan Prairie Solar Project press release* — 595 MW, Leon County — repsol.us
-- Doral Renewables / Bechtel, *Cold Creek Solar project announcement* — 430 MW, Tom Green and Schleicher counties — bechtel.com
+- SEIA, *2024 Solar Market Insight Year in Review* — Texas installed capacity ranking — [seia.org/research-resources/solar-market-insight-report-2024-year-in-review](https://seia.org/research-resources/solar-market-insight-report-2024-year-in-review/)
+- ERCOT, *Generation Interconnection Queue* — queue capacity and composition data — [ercot.com/gridinfo/resource](https://www.ercot.com/gridinfo/resource)
+- NREL, *Land-Use Requirements for Solar Power Plants in the United States* (2013) — historical acreage baseline — [docs.nrel.gov/docs/fy13osti/56290.pdf](https://docs.nrel.gov/docs/fy13osti/56290.pdf)
+- Lawrence Berkeley National Laboratory, *Utility-Scale Solar* report series — updated land-use density for post-2018 projects — [emp.lbl.gov/utility-scale-solar](https://emp.lbl.gov/utility-scale-solar)
+- Repsol, *Pecan Prairie Solar Project press release* — 595 MW, Leon County — [repsol.us](https://www.repsol.us/content/dam/repsol-paises/us/en/home/press-releases/Repsol_Pecan%20Prairie%20Start%20of%20Construction%20okv2.pdf)
+- Doral Renewables / Bechtel, *Cold Creek Solar project announcement* — 430 MW, Tom Green and Schleicher counties — [bechtel.com/press-releases](https://www.bechtel.com/press-releases/bechtel-to-build-major-solar-and-storage-project-in-texas/)

@@ -84,7 +84,7 @@ Understanding [what makes land viable for a solar farm](/blog/what-makes-land-vi
 ---
 
 **Sources**
-- FEMA Flood Map Service Center — parcel-level flood zone lookup — msc.fema.gov
-- FEMA, *Letter of Map Amendment process and timeline* — fema.gov/flood-maps/change-your-flood-zone/loma-lomr-f
-- First Street Foundation, *Flood Factor* — updated climate-based flood risk modeling — floodfactor.com
-- US Fish & Wildlife Service, *National Wetlands Inventory* — fws.gov/program/national-wetlands-inventory
+- FEMA Flood Map Service Center — parcel-level flood zone lookup — [msc.fema.gov](https://msc.fema.gov/)
+- FEMA, *Letter of Map Amendment process and timeline* — [fema.gov/flood-maps/change-your-flood-zone/loma-lomr-f](https://www.fema.gov/flood-maps/change-your-flood-zone/loma-lomr-f)
+- First Street Foundation, *Flood Factor* — updated climate-based flood risk modeling — [floodfactor.com](https://floodfactor.com/)
+- US Fish & Wildlife Service, *National Wetlands Inventory* — [fws.gov/program/national-wetlands-inventory](https://www.fws.gov/program/national-wetlands-inventory)

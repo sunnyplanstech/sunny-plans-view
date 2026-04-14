@@ -62,5 +62,5 @@ This is also why grid proximity matters so much in the initial offer. A parcel c
 ---
 
 **Sources**
-- Lawrence Berkeley National Laboratory, *Queued Up* annual report series — interconnection queue capacity data — emp.lbl.gov/queues
-- FERC Order No. 2023 (July 2023) — interconnection reform rule — ferc.gov
+- Lawrence Berkeley National Laboratory, *Queued Up* annual report series — interconnection queue capacity data — [emp.lbl.gov/queues](https://emp.lbl.gov/queues)
+- FERC Order No. 2023 (July 2023) — interconnection reform rule — [ferc.gov/media/order-no-2023](https://www.ferc.gov/media/order-no-2023)

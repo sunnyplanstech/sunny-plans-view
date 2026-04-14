@@ -76,7 +76,7 @@ What [makes land viable for a solar farm](/blog/what-makes-land-viable-solar-far
 ---
 
 **Sources**
-- NREL, *National Solar Radiation Database (NSRDB)* — multi-year GHI data at 4km resolution across the contiguous US — nsrdb.nrel.gov
-- NREL, *PVWatts Calculator* — capacity factor and annual output estimates from irradiance inputs — pvwatts.nrel.gov
-- Lawrence Berkeley National Laboratory, *Utility-Scale Solar* — annual benchmarking of installed projects, capacity factors, and PPA pricing trends — emp.lbl.gov/utility-scale-solar
-- SEIA, *State Solar Spotlight* — state-level installed capacity, procurement activity, and market context — seia.org/research-resources/state-solar-spotlight
+- NREL, *National Solar Radiation Database (NSRDB)* — multi-year GHI data at 4km resolution across the contiguous US — [nsrdb.nrel.gov](https://nsrdb.nrel.gov/)
+- NREL, *PVWatts Calculator* — capacity factor and annual output estimates from irradiance inputs — [pvwatts.nrel.gov](https://pvwatts.nrel.gov/)
+- Lawrence Berkeley National Laboratory, *Utility-Scale Solar* — annual benchmarking of installed projects, capacity factors, and PPA pricing trends — [emp.lbl.gov/utility-scale-solar](https://emp.lbl.gov/utility-scale-solar)
+- SEIA, *State Solar Policy* — state-level installed capacity, procurement activity, and market context — [seia.org/initiatives/state-solar-policy](https://seia.org/initiatives/state-solar-policy/)

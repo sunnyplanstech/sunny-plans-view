@@ -81,11 +81,11 @@ A parcel that clears all four of these checks — solar allowed as a conditional
 ---
 
 **Sources**
-- National League of Cities, *Zoning for Solar: Large-Scale Solar* — nlc.org/article/2026/02/02/zoning-for-solar-large-scale-solar/
-- Farm & Energy Initiative, *Land Use & Energy Permitting Processes for Solar Development* — farmandenergyinitiative.org
-- Kleinman Energy Center (Penn), *Regulating Utility-Scale Solar Projects on Agricultural Land* — kleinmanenergy.upenn.edu
-- USDA, *Secretary Rollins Blocks Taxpayer Dollars for Solar Panels on Prime Farmland* — usda.gov, August 2025
-- NRCS, *Web Soil Survey* — parcel-level soil classification — websoilsurvey.nrcs.usda.gov
-- National Law Review, *Commonwealth Court: Agrivoltaics Does Not Render Solar Farm an Agricultural Use* — January 2026 — natlawreview.com
-- KGOU, *Future of Wagoner County solar farm uncertain after public opposition, zoning rejection* — June 2025
-- Oregon Land Conservation and Development Commission, *Solar Facilities on High-Value Farmland* — rules finalized 2019 — oregon.gov/lcd
+- National League of Cities, *Zoning for Solar: Large-Scale Solar* — [nlc.org/article/2026/02/02/zoning-for-solar-large-scale-solar](https://www.nlc.org/article/2026/02/02/zoning-for-solar-large-scale-solar/)
+- Farm & Energy Initiative, *Land Use & Energy Permitting Processes for Solar Development* — [farmandenergyinitiative.org/projects/farmland-solar-policy/policy-design-toolkit/land-use-permitting-processes](https://farmandenergyinitiative.org/projects/farmland-solar-policy/policy-design-toolkit/land-use-permitting-processes/)
+- Kleinman Energy Center (Penn), *Regulating Utility-Scale Solar Projects on Agricultural Land* — [kleinmanenergy.upenn.edu/research/publications/regulating-utility-scale-solar-projects-on-agricultural-land](https://kleinmanenergy.upenn.edu/research/publications/regulating-utility-scale-solar-projects-on-agricultural-land/)
+- USDA, *Secretary Rollins Blocks Taxpayer Dollars for Solar Panels on Prime Farmland* — August 2025 — [usda.gov/about-usda/news/press-releases/2025/08/19/secretary-rollins-blocks-taxpayer-dollars-solar-panels-prime-farmland](https://www.usda.gov/about-usda/news/press-releases/2025/08/19/secretary-rollins-blocks-taxpayer-dollars-solar-panels-prime-farmland)
+- NRCS, *Web Soil Survey* — parcel-level soil classification — [websoilsurvey.nrcs.usda.gov](https://websoilsurvey.nrcs.usda.gov)
+- National Law Review, *Commonwealth Court: Agrivoltaics Does Not Render Solar Farm an Agricultural Use* — January 2026 — [natlawreview.com/article/commonwealth-court-agrivoltaics-does-not-render-solar-farm-agricultural-use](https://natlawreview.com/article/commonwealth-court-agrivoltaics-does-not-render-solar-farm-agricultural-use)
+- KGOU, *Future of Wagoner County solar farm uncertain after public opposition, zoning rejection* — June 2025 — [kgou.org/energy/2025-06-17/future-of-wagoner-county-solar-farm-uncertain-after-public-opposition-zoning-rejection](https://www.kgou.org/energy/2025-06-17/future-of-wagoner-county-solar-farm-uncertain-after-public-opposition-zoning-rejection)
+- Oregon Land Conservation and Development Commission, *Solar Facilities on High-Value Farmland* — rules finalized 2019 — [oregon.gov/lcd/nrre/pages/energy-siting](https://www.oregon.gov/lcd/nrre/pages/energy-siting.aspx)
