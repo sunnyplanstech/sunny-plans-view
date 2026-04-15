@@ -78,8 +78,8 @@ A landowner who signed an option agreement in 2022 and has not seen construction
 ---
 
 **Sources**
-- SEIA, *Land Use & Solar Development* — overview of federal, state, and local permitting authority for utility-scale solar on private and public land — seia.org/initiatives/land-use-solar-development
-- NLR (National Laboratory of the Rockies), *Solar Permitting, Inspection, and Interconnection Timelines* — permitting phase data and timeline benchmarks — nlr.gov/solar/market-research-analysis/permitting-inspection-interconnection-timelines
-- Stoel Rives LLP, *Permitting and Land Use — The Law of Solar Guide* — state-level siting authority, preemption thresholds, NEPA applicability — stoel.com/insights/reports/the-law-of-solar/permitting-and-land-use
-- Resources for the Future, *Adding Solar: The Role of NEPA in Solar Development* — EIS duration data and court challenge rates — rff.org/publications/working-papers/adding-solar-the-role-of-the-national-environmental-policy-act-in-solar-development
-- Brookings Institution, *How Does Permitting for Clean Energy Infrastructure Work?* — brookings.edu/articles/how-does-permitting-for-clean-energy-infrastructure-work
+- SEIA, *Land Use & Solar Development* — overview of federal, state, and local permitting authority for utility-scale solar on private and public land — [seia.org/initiatives/land-use-solar-development](https://www.seia.org/initiatives/land-use-solar-development)
+- NLR (National Laboratory of the Rockies), *Solar Permitting, Inspection, and Interconnection Timelines* — permitting phase data and timeline benchmarks — [nlr.gov/solar/market-research-analysis/permitting-inspection-interconnection-timelines](https://nlr.gov/solar/market-research-analysis/permitting-inspection-interconnection-timelines)
+- Stoel Rives LLP, *Permitting and Land Use — The Law of Solar Guide* — state-level siting authority, preemption thresholds, NEPA applicability — [stoel.com/insights/reports/the-law-of-solar/permitting-and-land-use](https://www.stoel.com/insights/reports/the-law-of-solar/permitting-and-land-use)
+- Resources for the Future, *Adding Solar: The Role of NEPA in Solar Development* — EIS duration data and court challenge rates — [rff.org/publications/working-papers/adding-solar-the-role-of-the-national-environmental-policy-act-in-solar-development](https://www.rff.org/publications/working-papers/adding-solar-the-role-of-the-national-environmental-policy-act-in-solar-development)
+- Brookings Institution, *How Does Permitting for Clean Energy Infrastructure Work?* — [brookings.edu/articles/how-does-permitting-for-clean-energy-infrastructure-work](https://www.brookings.edu/articles/how-does-permitting-for-clean-energy-infrastructure-work)
