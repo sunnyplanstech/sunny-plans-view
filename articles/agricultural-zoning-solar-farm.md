@@ -10,7 +10,7 @@ secondary_query: "solar farm special use permit agricultural zone"
 
 Agricultural zoning doesn't mean what most land buyers assume it means. Whether a parcel zoned AG, A-1, or A-2 can host a solar farm depends almost entirely on what the specific county has written into its zoning ordinance — which varies more than any state-level summary will tell you.
 
-There is no federal standard for what "agricultural" zoning allows. A parcel zoned AG in central Ohio operates under Licking County's rules. The same designation in western Texas means something different in Pecos County. Developers run [this lookup](/blog/what-makes-land-viable-solar-farm) before they call a landowner, which is why some parcels get offers and others don't, even when the land looks similar on paper.
+There is no federal standard for what "agricultural" zoning allows. A parcel zoned AG in central Ohio operates under Licking County's rules. The same designation in western Texas means something different in Pecos County. Developers run this check before they call a landowner, which is why some parcels get offers and others don't, even when the land looks similar on paper.
 
 ## What Agricultural Zoning Actually Governs
 
@@ -60,7 +60,7 @@ The parcel-level question is whether the land is classified as prime farmland un
 
 ## What to Check Before You Buy
 
-Understanding [how solar interconnection queues work](/blog/solar-interconnection-queue-explained) tells you whether a developer can move a project forward after they get zoning approval. But the zoning check comes first, because a project that can't clear a county SUP won't survive long enough to need an interconnection application.
+The zoning check comes first. A project that can't clear a county SUP won't survive long enough to need an interconnection application.
 
 Four things are worth checking before making an offer on agricultural land:
 
@@ -76,7 +76,7 @@ A parcel that clears all four of these checks — solar allowed as a conditional
 
 ---
 
-*Sunnyplans screens parcels by zoning classification, substation proximity, flood zone, and soil constraints — so you can see which parcels in a county are actually worth bringing to a developer, before spending time on a site that won't clear the first review.*
+*Sunnyplans covers two of the four checks in that list automatically: parcels are screened against protected areas and the National Wetlands Inventory before they appear, and substation proximity is shown for every listing. The zoning ordinance and NRCS soil lookups are still county-by-county manual work — but at least the infrastructure and conservation filters are done.*
 
 ---
 
