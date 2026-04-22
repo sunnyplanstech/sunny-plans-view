@@ -17,13 +17,13 @@ Whether a specific parcel has a realistic path to development depends on a check
 
 ## How Many Acres Does a Solar Farm Need in Texas?
 
-There is no hard federal minimum, but 100 acres is a reasonable floor for what utility-scale developers in Texas will evaluate. Projects smaller than that do get built — community solar and battery storage installations can qualify on less — but most large independent developers won't open a site file for a parcel below that threshold. The projects that have actually cleared ERCOT's interconnection process run much larger: Repsol's Pecan Prairie project in Leon County is 595 MW across roughly 1,300 acres; Cold Creek Solar in Schleicher and Tom Green counties is 430 MW. These are not typical — they're the projects that survive a years-long development process — but they set the scale context.
+There is no hard federal minimum, but 100 acres is a reasonable floor for what utility-scale developers in Texas will evaluate. Projects smaller than that do get built — community solar and battery storage installations can qualify on less — but most large independent developers won't open a site file for a parcel below that threshold. The projects that have cleared ERCOT's interconnection process run much larger: Repsol's Pecan Prairie project in Leon County is 595 MW across roughly 1,300 acres; Cold Creek Solar in Schleicher and Tom Green counties is 430 MW. These are not typical — they're the projects that survive a years-long development process — but they set the scale context.
 
 Land use per megawatt has shifted as panel and tracking technology has improved. Older NREL analysis put the utility-scale average at around 7–8 acres per megawatt AC; more recent LBNL data on projects built since 2018 shows modern single-axis tracking installations achieving closer to 3–5 acres per megawatt DC, reflecting higher panel density and more efficient row spacing. For planning purposes, 5 to 8 acres per megawatt is a reasonable working range for a Texas project today — lower end for flat land with modern trackers, higher end for fixed-tilt installations or sites with more constrained geometry. A 50 MW project — small by Texas standards — realistically needs 250 to 400 acres of buildable land. Smaller parcels aren't worthless: a 30-acre site adjacent to a larger block can end up in a lease if a developer is assembling contiguous land, but that's downstream of aggregation work most buyers can't anticipate at purchase.
 
 ## Grid Access and the ERCOT Reality
 
-Texas operates its own isolated grid under ERCOT, which historically meant faster timelines to get a new project connected than other regional grids like PJM (which covers the Mid-Atlantic and Midwest) or MISO (which covers much of the central US). That advantage still holds in some parts of Texas and has largely evaporated in others.
+Texas operates its own isolated grid under ERCOT, which historically meant faster timelines to get a new project connected than other regional grids like PJM (which covers the Mid-Atlantic and Midwest) or MISO (which covers much of the central US). That advantage still holds in some parts of Texas and has evaporated in others.
 
 West Texas built the state's solar foundation, and enormous projects still operate there. But congestion in ERCOT's West zone has intensified as installed capacity outpaced transmission investment. Developers who anchored their pipelines in the Permian Basin and Panhandle through the early 2020s have shifted attention east. Falls County, Kaufman County, and the Gulf Coast corridor around Brazoria and Wharton counties now concentrate much of the active [interconnection queue](/blog/solar-interconnection-queue-explained).
 
@@ -60,7 +60,7 @@ The shift in development activity is visible in the project pipeline:
 | Brazoria | Cradle Solar | 200 MW | Gulf Coast |
 | Schleicher / Tom Green | Cold Creek Solar | 430 MW | West Texas |
 
-The Northeast Texas cluster in Franklin, Lamar, and Red River counties reflects ERCOT's North zone having relatively more available transmission capacity compared to the West. Central Texas benefits from strong solar irradiance and moderate land prices. Gulf Coast counties carry higher flood exposure but benefit from proximity to Houston's electricity demand.
+The Northeast Texas cluster in Franklin, Lamar, and Red River counties reflects ERCOT's North zone carrying more available transmission capacity than the West. Central Texas benefits from strong solar irradiance and moderate land prices. Gulf Coast counties carry higher flood exposure but benefit from proximity to Houston's electricity demand.
 
 ## Solar Land Lease Rates in Texas
 

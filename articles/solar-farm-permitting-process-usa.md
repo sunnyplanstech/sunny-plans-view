@@ -17,7 +17,7 @@ There is no single permitting authority for a utility-scale solar project on pri
 
 In most of the country, local government is the primary authority. The county planning board or zoning commission reviews whether the project is an allowed or conditionally allowed use on land of that classification — and if it's conditional, the developer applies for a [Special Use Permit](/blog/solar-special-use-permit), a discretionary approval that requires a public hearing. That process typically takes six months to a year even when a county has reviewed solar applications before.
 
-Some states have moved this authority to the state level for projects above a certain generating capacity. Fourteen states trigger state-level siting review based on megawatt thresholds — ranging from an extreme low of 15 kW in Vermont (which effectively covers everything) to 300 MW in New Mexico. When a project reaches the state threshold, the county's zoning ordinance is preempted, meaning the county's opinion on the matter doesn't govern the outcome. The developer deals with a state energy commission or public utilities board instead of county planning staff.
+Some states have moved this authority to the state level for projects above a certain generating capacity. Fourteen states trigger state-level siting review based on megawatt thresholds — ranging from an extreme low of 15 kW in Vermont (which effectively covers everything) to 300 MW in New Mexico. When a project crosses that threshold, the state siting board preempts the county's zoning ordinance — the county's opinion on the matter stops governing the outcome. The developer deals with a state energy commission or public utilities board instead of county planning staff.
 
 Whether this helps or hurts the timeline depends on the state. A state siting board with defined review deadlines and experienced staff can move faster than a county processing its first solar application. But some state-level processes are slower and more politically exposed — particularly in states where the board is new or where renewable energy is contested at the legislature.
 
@@ -25,7 +25,7 @@ Whether this helps or hurts the timeline depends on the state. A state siting bo
 
 Before a developer submits any permit application, they spend a year or more completing the surveys and studies that every application requires. This work can't be compressed much — the fieldwork has seasonal windows.
 
-**Wetlands delineation**: A licensed professional physically walks the site and identifies any jurisdictional wetlands under Army Corps of Engineers criteria — meaning wetlands that fall under federal protection, regardless of how they look on the surface. Wetlands that appear dry most of the year still count. The survey has to be done in spring or early summer, so a missed window adds months.
+**Wetlands delineation**: A licensed professional physically walks the site and identifies any jurisdictional wetlands under Army Corps of Engineers criteria — meaning wetlands that fall under federal protection, regardless of how they look on the surface. Wetlands that appear dry most of the year still count. The survey must happen in spring or early summer, so a missed window adds months.
 
 **Wildlife surveys**: For a project that might affect species listed as threatened or endangered under the Endangered Species Act (a federal law that prohibits harming covered species without a permit from the US Fish & Wildlife Service), the developer has to demonstrate that construction won't harm them — or negotiate a mitigation plan. Surveys for raptors, bats, and pollinators also have seasonal constraints and can't be rushed.
 
@@ -47,7 +47,7 @@ NEPA — the National Environmental Policy Act — requires federal agencies to 
 
 Where NEPA does apply, it requires either an Environmental Assessment (EA) or a full Environmental Impact Statement (EIS). An EA is a shorter analysis — four to six months — that either concludes the project has no significant environmental impact (formally called a Finding of No Significant Impact, or FONSI) or determines that a full EIS is required. A full EIS involves detailed study of impacts on air, water, wildlife, and land use; public comment periods; and agency responses. Research by Resources for the Future found that for projects requiring an EIS, the review process alone averaged one to two years — and one-third of those projects faced legal challenges from environmental groups or tribal representatives after the review concluded.
 
-For most private-land solar projects, NEPA never enters the picture. But when it does — for projects on Bureau of Land Management land, for projects seeking a Department of Energy loan guarantee, or for projects requiring Army Corps permits for wetland impacts — it adds a meaningful layer of time and legal exposure.
+For most private-land solar projects, NEPA never enters the picture. But when it does — for projects on Bureau of Land Management land, for projects seeking a Department of Energy loan guarantee, or for projects requiring Army Corps permits for wetland impacts — it adds one to two years and real legal exposure.
 
 ## The Interconnection Track Runs Parallel
 

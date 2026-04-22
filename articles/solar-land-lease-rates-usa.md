@@ -12,17 +12,17 @@ The national range that gets cited most often — somewhere between $500 and $2,
 
 ## The Primary Driver: Grid Access
 
-The rate a developer can offer is largely determined by how much it costs to get power from a parcel to the grid. A solar project needs a point of interconnection — typically a substation with available capacity — and every additional mile of transmission line a developer has to build adds cost that comes out of the lease rate. A parcel two miles from a high-capacity substation can support a meaningfully higher annual payment than one twelve miles away, even if both parcels have identical solar irradiance and zoning.
+The rate a developer can offer tracks how much it costs to get power from a parcel to the grid. A solar project needs a point of interconnection — typically a substation with available capacity — and every additional mile of transmission line a developer has to build adds cost that comes out of the lease rate. A parcel two miles from a high-capacity substation supports a higher annual payment than one twelve miles away, even if both parcels have identical solar irradiance and zoning.
 
 NREL's analysis of utility-scale solar siting consistently ranks substation proximity as a top-tier constraint variable, and the [criteria developers use to evaluate land viability](/blog/what-makes-land-viable-solar-farm) reflect exactly that — grid access shapes the financial model before irradiance enters the calculation.
 
 ## ISO/RTO Territory Shapes Developer Competition
 
-The US electricity grid is divided into regional transmission organizations, and which one covers a parcel significantly affects developer activity — and therefore lease rates.
+The US electricity grid is divided into regional transmission organizations, and which one covers a parcel shapes developer activity — and therefore lease rates.
 
 **ERCOT (Texas)** operates as an independent island grid with no federal grid oversight from FERC beyond certain rules — which historically meant faster interconnection timelines and more competition among independent developers than anywhere else in the US. Central Texas currently sees ranges of roughly $700–$1,400 per acre per year, driven by strong grid fundamentals and proximity to Houston's electricity demand. West Texas sits at $400–$650; grid congestion in ERCOT's West zone has reduced developer appetite for new sites there, and the rate compression follows.
 
-**PJM** covers Virginia, Ohio, Pennsylvania, and parts of Indiana. Queue congestion is the defining issue following FERC Order 2023 reforms — cluster study backlogs in some zones have stretched interconnection timelines considerably. When developers can't predict how long a project will sit in queue, they discount the offer accordingly, and parcels without a clear interconnection path feel that most.
+**PJM** covers Virginia, Ohio, Pennsylvania, and parts of Indiana. Queue congestion is the defining issue following FERC Order 2023 reforms — cluster study backlogs in some zones have stretched interconnection timelines. When developers can't predict how long a project will sit in queue, they discount the offer accordingly, and parcels without a clear interconnection path feel that most.
 
 **MISO** territory — Indiana, Illinois, much of the central US — has been through its own queue reform under FERC Order 2023, shifting to a cluster-based study process. Land costs are lower than the coasts, which can support competitive offers on well-positioned parcels, but queue uncertainty in congested zones has added a similar discount to what developers are willing to commit upfront.
 
@@ -53,7 +53,7 @@ Ranges for Midwest and Mid-Atlantic states are directional — the variation wit
 
 The top of the rate range reflects parcels where most of the developer's risk and cost has already been filtered out: grid proximity under two miles, no significant wetland or conservation constraints, clear zoning, and an interconnection zone where studies aren't backed up for years. These parcels are a minority.
 
-The bottom of the range reflects land where the developer absorbs meaningful cost or risk — distance from infrastructure, flood zone exposure, a congested [interconnection queue](/blog/solar-interconnection-queue-explained) that could add years to the project timeline. The lower offer isn't a negotiating position; it's what the project economics can support once those costs are priced in.
+The bottom of the range reflects land where the developer absorbs real cost or risk — distance from infrastructure, flood zone exposure, a congested [interconnection queue](/blog/solar-interconnection-queue-explained) that could add years to the project timeline. The lower offer isn't a negotiating position; it's what the project economics can support once those costs are priced in.
 
 A parcel that clears the grid proximity filter reliably commands the top of the range. One that requires a developer to absorb interconnection uncertainty or extra transmission cost is going to land somewhere lower — and that gap is worth understanding before evaluating any offer.
 

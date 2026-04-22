@@ -10,7 +10,7 @@ secondary_query: "can you build a solar farm in a flood zone"
 
 Zone AE land doesn't automatically disqualify a parcel from solar development — but most project lenders treat it as a hard stop, and that shapes everything from the permitting process to what a developer's offer reflects. Whether you can build a solar farm in a flood zone depends less on what FEMA says than on what the project lender decides.
 
-Most landowners find out their parcel's flood classification only when a developer declines to proceed or comes in well below expectations. The designation affects financing before it affects permitting, which is why deals fall apart later than most landowners expect.
+Most landowners find out their parcel's flood classification only when a developer declines to proceed or makes an offer far below the regional [solar land lease rate](/blog/solar-land-lease-rates-usa). The designation affects financing before it affects permitting, which is why deals fall apart later than most landowners expect.
 
 ## How FEMA Classifies Land
 
@@ -33,7 +33,7 @@ The terminology is widely misunderstood. A 100-year flood doesn't mean a flood t
 
 Lenders financing solar construction — tax equity investors, project finance banks — model that probability into their underwriting. Most won't lend against a project on Zone AE land without expensive mitigation: elevated racking, flood-resistant inverter housings, revised site grading. Some won't lend regardless of what mitigation the developer proposes.
 
-That's where the landowner feels it. A developer who can build on your Zone AE parcel will price the mitigation costs into the lease offer, often significantly. One who can't secure financing simply won't proceed.
+That's where the landowner feels it. A developer who can build on your Zone AE parcel will price the mitigation costs into the lease offer. One who can't secure financing simply won't proceed.
 
 ## Why Solar Infrastructure Is More Vulnerable Than Farmland
 
@@ -61,7 +61,7 @@ A few things worth knowing when reading these maps:
 
 For a more current picture, First Street Foundation's Flood Factor tool (floodfactor.com) uses updated climate modeling and is free for parcel-level lookup. It doesn't replace the official FEMA designation for permitting purposes, but it gives a more accurate read on actual physical risk — which is what lenders increasingly use to supplement FIRM data.
 
-**Zone boundaries are legal, not observational.** The official classification is determined by where the parcel sits relative to the FIRM panel boundary, not by what you observe on the ground. A parcel that sits visibly above the surrounding terrain can still carry Zone AE designation if the map was drawn before nearby flood control improvements were built.
+**Zone boundaries are legal, not observational.** The official classification depends on where the parcel sits relative to the FIRM panel boundary, not on what you observe on the ground. A parcel that sits visibly above the surrounding terrain can still carry Zone AE designation if the map was drawn before nearby flood control improvements were built.
 
 **An Elevation Certificate is the first step if you want to challenge your classification.** If the FIRM shows Zone AE but you believe the ground elevation is above the BFE, a licensed surveyor can produce an Elevation Certificate documenting actual site elevations. That's the starting point for a LOMA application — and it's also the document a developer will ask for if they're evaluating a Zone AE parcel seriously.
 
@@ -69,7 +69,7 @@ For a more current picture, First Street Foundation's Flood Factor tool (floodfa
 
 FEMA flood zones and jurisdictional wetlands are distinct constraints determined by different agencies under different criteria. A parcel can be in Zone X and still contain wetlands. A Zone AE parcel may or may not have wetland issues.
 
-In practice, the two frequently overlap — and compound each other. Low-lying areas that flood regularly tend to develop hydric soils and hydrophytic vegetation over time. Those are the field indicators wetland biologists look for during delineation surveys under Army Corps of Engineers Section 404 jurisdiction. A parcel with significant Zone AE coverage is meaningfully more likely to also trigger a wetland delineation requirement, even if it doesn't show up in the National Wetlands Inventory.
+In practice, the two frequently overlap — and compound each other. Low-lying areas that flood regularly tend to develop hydric soils and hydrophytic vegetation over time. Those are the field indicators wetland biologists look for during delineation surveys under Army Corps of Engineers Section 404 jurisdiction. A parcel with significant Zone AE coverage is more likely to trigger a wetland delineation requirement, even if it doesn't show up in the National Wetlands Inventory.
 
 The NWI maps the wetlands that have already been identified. It misses hydric soils that haven't been formally surveyed. On a Zone AE parcel, the standard assumption going into a site evaluation is that a delineation survey will be required — not because the NWI flags it, but because the flood zone classification raises the probability enough that no developer will skip the step.
 
