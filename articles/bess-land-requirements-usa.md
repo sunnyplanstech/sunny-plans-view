@@ -22,11 +22,11 @@ A co-located project and a standalone project share almost nothing beyond the ba
 
 ## What Carries Over from Solar
 
-Both technologies need flat terrain, grid access, and land outside wetlands and active floodplains. FEMA Zone AE designation — active floodplain — eliminates a parcel regardless of whether the project is panels or battery containers, since elevated flood risk affects both insurability and project financing.
+Both technologies need flat terrain, grid access, and land outside wetlands and active floodplains. [FEMA Zone AE](/blog/fema-flood-zones-solar-land) designation — active floodplain — eliminates a parcel regardless of whether the project is panels or battery containers, since elevated flood risk affects both insurability and project financing.
 
 The slope threshold both share is roughly 5% grade. Above that, site prep costs escalate for different reasons: solar arrays need consistent drainage and panel orientation; battery containers need stable, compacted ground to prevent equipment stress and meet drainage requirements tied to fire suppression systems.
 
-The [constraint filters developers apply to solar sites](/blog/what-makes-land-viable-solar-farm) — wetlands overlays from the NWI, conservation easements, proximity to protected areas in PAD-US — apply to BESS as well. A parcel that fails these screens for solar fails them for storage too.
+The filters that determine [what makes land viable for a solar farm](/blog/what-makes-land-viable-solar-farm) — wetlands overlays from the NWI, conservation easements, proximity to protected areas in PAD-US — apply to BESS as well. A parcel that fails these screens for solar fails them for storage too.
 
 ## No Sun Required
 
@@ -48,7 +48,7 @@ For standalone projects, substation proximity is the filter that eliminates the 
 
 Battery storage requires substantially less land than solar, which is part of why it can work on parcels too small for a utility-scale solar project.
 
-A rough industry benchmark is approximately 1,000 square feet of footprint per MWh of storage capacity. A 100 MWh project — a mid-size standalone installation — needs roughly 2.3 acres for the battery containers themselves. Total site area, including the transformer yard, access roads, setback buffers, and perimeter fencing, typically runs between 5 and 20 acres depending on project design and local codes.
+A rough industry benchmark is about 1,000 square feet of footprint per MWh of storage capacity. A 100 MWh project — a mid-size standalone installation — needs roughly 2.3 acres for the battery containers themselves. Total site area, including the transformer yard, access roads, setback buffers, and perimeter fencing, typically runs between 5 and 20 acres depending on project design and local codes.
 
 | Project type | Typical land need | Primary siting constraint |
 |---|---|---|
@@ -78,7 +78,7 @@ Permitting a BESS project tends to take longer than solar. Counties reviewing th
 
 BESS lease rates don't have the same established benchmarks as solar. The technology has scaled fast enough that the leasing market hasn't produced enough publicly reported transactions to establish a reliable range.
 
-What's observable is that BESS developers pay meaningfully for substation-adjacent land because it's genuinely scarce. A small parcel within a kilometer of a high-capacity substation in a volatile electricity market commands a different conversation than comparable agricultural land nearby. Land brokers active in this space report per-acre rates that tend to run close to local solar rates — but the total payment is smaller because the footprint is smaller, and that's the number that matters when evaluating whether a BESS lease makes financial sense.
+BESS developers pay well for substation-adjacent land because it's scarce. A small parcel within a kilometer of a high-capacity substation in a volatile electricity market commands a different conversation than comparable agricultural land nearby. Land brokers active in this space report per-acre rates that tend to run close to local solar rates — but the total payment is smaller because the footprint is smaller, and that's the number that matters when evaluating whether a BESS lease makes financial sense.
 
 A developer offering $1,800/acre on 8 acres is a structurally different deal from a solar offer at the same rate on 300 acres, even though the per-acre number is identical. The total payment, the lease term, and what happens to the land's agricultural use during that term are the variables worth negotiating around.
 
