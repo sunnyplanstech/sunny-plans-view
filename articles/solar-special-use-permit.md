@@ -45,7 +45,7 @@ Setbacks are universal, but the distances are not. A 50-foot setback from non-pa
 | Noise limit | 65 dBA at property line | Standard in most ordinances; not usually a binding constraint for solar |
 | Panel height | 15–20 ft maximum | Rarely a problem in practice |
 
-The decommissioning requirement is worth understanding in detail. Most counties now require a financial guarantee — a surety bond, letter of credit, or escrow account — that covers the estimated cost of removing panels and restoring the land when the project ends, typically 20 to 35 years out. The formula for calculating the required amount varies significantly. On a large project, this can be a meaningful number in a developer's financial model, and a county that requires an unusually high bond can make an otherwise viable site harder to finance.
+The decommissioning requirement is worth understanding in detail. Most counties now require a financial guarantee — a surety bond, letter of credit, or escrow account — that covers the estimated cost of removing panels and restoring the land when the project ends, typically 20 to 35 years out. The formula for calculating the required amount varies by county. On a large project, this can reach several hundred thousand dollars in a developer's financial model, and a county that requires an unusually high bond can make an otherwise viable site harder to finance.
 
 ## When applications fail
 
@@ -63,7 +63,7 @@ A 2025 report from Columbia Law School's Sabin Center for Climate Change Law fou
 
 A moratorium creates a specific problem for buyers: a parcel can sit in a county where solar is theoretically allowed under the zoning ordinance — conditional use, no prohibition — but where the county has temporarily stopped accepting SUP applications. That's not a permanent ban, but it adds real time to any development path, and some counties have extended moratoriums rather than lifted them.
 
-The states where this has been most active include Illinois, Indiana, Ohio, and North Carolina. Illinois responded to the conflict between local restriction and statewide energy goals by establishing state-level siting standards in 2023 that county ordinances cannot undercut. Whiteside County settled a lawsuit in 2025 after being accused of applying SUP standards that violated state law. Ohio and Indiana have not similarly preempted county authority, leaving considerably more variation — and more uncertainty — at the local level.
+The states where this has been most active include Illinois, Indiana, Ohio, and North Carolina. Illinois responded to the conflict between local restriction and statewide energy goals by establishing state-level siting standards in 2023 that county ordinances cannot undercut. Whiteside County settled a lawsuit in 2025 after being accused of applying SUP standards that violated state law. Ohio and Indiana have not similarly preempted county authority, leaving more variation — and more uncertainty — at the local level.
 
 ## What to look up before making an offer
 
@@ -77,7 +77,7 @@ The [agricultural zoning classification](/blog/agricultural-zoning-solar-farm) o
 
 ---
 
-*Sunnyplans filters parcels by zoning classification, substation proximity, and flood zone, so you can see which sites in a county are positioned to clear the first round of developer review before spending time on land that won't get past planning.*
+*Sunnyplans maps substation proximity, protected area overlaps, and wetland constraints for individual parcels across US states — the inputs developers check before deciding whether a site is worth entering the SUP process.*
 
 ---
 

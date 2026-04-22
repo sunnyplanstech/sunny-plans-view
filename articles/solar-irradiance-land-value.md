@@ -15,8 +15,7 @@ Parcels in Ohio and Indiana — states with moderate irradiance at best — rout
 
 ## What Is Solar Irradiance?
 
-Global Horizontal Irradiance (GHI) is the total solar radiation received on a horizontal surface — the standard metric for comparing solar resource across locations. 
-NREL (the National Renewable Energy Laboratory, the US government's primary solar research body) publishes GHI data through its National Solar Radiation Database (NSRDB) at 4km resolution across the US, with multi-year averages that account for seasonal variation, cloud cover, and atmospheric conditions. The NSRDB is what developers use for initial site screening; NREL's PVWatts calculator then translates that raw irradiance into estimated annual energy output for a specific installation.
+Global Horizontal Irradiance (GHI) is the total solar radiation received on a horizontal surface — the standard metric for comparing solar resource across locations. NREL (the National Renewable Energy Laboratory, the US government's primary solar research body) publishes GHI data through its National Solar Radiation Database (NSRDB) at 4km resolution across the US, with multi-year averages that account for seasonal variation, cloud cover, and atmospheric conditions. The NSRDB is what developers use for initial site screening; NREL's PVWatts calculator then translates that raw irradiance into estimated annual energy output for a specific installation.
 
 For a 100 MW solar installation, the difference between 4.5 and 5.5 kWh/m²/day of GHI — roughly the range between central Georgia and central Arizona — amounts to roughly 30,000 MWh of additional annual production, depending on how the system is configured and how much energy is lost to heat, wiring, and inverter inefficiency. 
 
@@ -27,18 +26,15 @@ At typical long-term electricity contract rates, those extra 30,000 MWh represen
 Developers modeling a 100 MW project in Arizona will project capacity factors — the share of maximum possible output the system actually delivers averaged across a full year — around 25–28%, based on recent Lawrence Berkeley National Laboratory benchmarking data. 
 The same project in Ohio runs closer to 17–20%, depending on panel orientation and local weather patterns. That number directly determines what revenue the project generates: the electricity is either sold under a power purchase agreement (a long-term fixed-price contract with a utility), or at real-time wholesale market prices.
 
-The premium flows downstream: higher-irradiance states tend to support somewhat higher lease rates per acre because developers can make project economics work with a tighter return threshold. This effect is amplified in markets with strong utility procurement demand — California, Arizona, and New Mexico have historically supported elevated lease rates partly because state laws requiring utilities to source a set percentage of their power from renewables (renewable portfolio standards) create consistent developer demand that absorbs the irradiance premium.
+The premium flows downstream: higher-irradiance states tend to support higher lease rates per acre because developers can make project economics work with a tighter return threshold. Strong utility procurement demand amplifies this effect — California, Arizona, and New Mexico have historically supported elevated lease rates partly because state laws requiring utilities to source a set percentage of their power from renewables (renewable portfolio standards) create consistent developer demand that absorbs the irradiance premium.
 
 ## Why Irradiance Isn't the Primary Driver of Lease Rates
 
 The variation in lease rates across states doesn't approach the variation in solar resource. [Solar land lease rates across the US](/blog/solar-land-lease-rates-usa) range from roughly $500 to $2,000/acre/year in active markets — a 4x spread. The difference in annual GHI between the highest and lowest solar states is around 60%. The two ranges don't align because irradiance is one input into project economics, not the determining one.
 
-Grid access creates the starkest disconnects. 
-The interconnection queue — the waiting list developers join to get permission to connect a new project to the grid — is the binding constraint on solar development in most US regions. 
+Grid access creates the starkest disconnects. The interconnection queue — the waiting list developers join to get permission to connect a new project to the grid — is the binding constraint on solar development in most US regions.
 
-A developer with a viable parcel in a congested zone — West Texas under ERCOT (the Texas grid operator, which runs independently from the national grid), or parts of northern PJM (the grid operator covering the mid-Atlantic states and parts of the Midwest) — will struggle to monetize it even if the irradiance numbers are strong. 
-The parcel sits in the queue, the option period — the window during which a developer has paid for the right to lease a parcel but hasn't committed yet — expires, and the lease offer either doesn't materialize or comes in at a discount that reflects the grid risk. 
-A less irradiated site with reliable grid access often moves faster and commands a better final rate.
+A developer with a viable parcel in a congested zone — West Texas under ERCOT (the Texas grid operator, which runs independently from the national grid), or parts of northern PJM (the grid operator covering the mid-Atlantic states and parts of the Midwest) — will struggle to monetize it even if the irradiance numbers are strong. The parcel sits in the queue, the option period expires, and the lease offer either doesn't materialize or comes in at a discount that reflects the grid risk. A less irradiated site with reliable grid access often moves faster and commands a better final rate.
 
 Transmission costs exert similar pressure from within the project budget. If the nearest substation is at capacity and the developer needs to build 15 miles of generation-tie line — the private transmission line that connects a solar project to the grid when no existing line runs close enough — that infrastructure cost comes directly out of the project economics, leaving less room in the lease rate regardless of what the irradiance looks like.
 
@@ -56,16 +52,15 @@ State procurement policy often matters more than any of these. When a state requ
 | Midwest (OH, IN, IL, MO) | 1,450–1,600 | Lower irradiance, but active development markets |
 | Upper Midwest & Northeast | 1,250–1,500 | Least solar resource in the contiguous US |
 
-These ranges come from NREL's NSRDB and reflect multi-year averages. Within-state variation can be significant — the Texas Panhandle sits in a meaningfully different irradiance band than the Gulf Coast, and mountainous terrain in states like North Carolina creates local shadow effects that reduce effective irradiance below what regional averages suggest.
+These ranges come from NREL's NSRDB and reflect multi-year averages. Within-state variation can be significant — the Texas Panhandle sits in a different irradiance band than the Gulf Coast, and mountainous terrain in states like North Carolina creates local shadow effects that reduce effective irradiance below what regional averages suggest.
 
 ## What Irradiance Actually Adds to a Lease Offer
 
-Developers don't lease land to maximize irradiance — they lease it to hit a return target on their overall investment. If irradiance improves by 10%, the lease rate doesn't move by 10%. Some of that gain goes to investor returns, some to satisfying lender requirements, and a fraction may surface as a modestly higher offer in a competitive land market — but most of it doesn't reach the landowner.
+Developers don't lease land to maximize irradiance — they lease it to hit a return target on their overall investment. If irradiance improves by 10%, the lease rate doesn't move by 10%. Some of that gain goes to investor returns, some to satisfying lender requirements, and a fraction may surface as a higher offer in a competitive land market — but most of it doesn't reach the landowner.
 
-Irradiance functions more as a floor-setter than a value-driver. 
-At annual GHI below roughly 1,400–1,500 kWh/m²/year — a range that covers much of the upper Midwest and Northeast — the economics for utility-scale solar get thin enough that developers start requiring other offsets: lower land prices, exceptionally close grid access, or favorable permitting timelines. 
+Irradiance functions more as a floor-setter than a value-driver. At annual GHI below roughly 1,400–1,500 kWh/m²/year — a range that covers much of the upper Midwest and Northeast — the economics for utility-scale solar get thin enough that developers start requiring other offsets: lower land prices, exceptionally close grid access, or favorable permitting timelines. 
 
-Fixed-tilt panels (mounted at a fixed angle, the standard for most utility-scale projects) are most affected by this threshold; single-axis tracking systems that follow the sun through the day can squeeze more output from lower-irradiance sites, at higher installation cost. Above that range, irradiance becomes one variable among several rather than the deciding one. Parcels in the same county with identical grid access and zoning but 5% higher irradiance don't typically command meaningfully different lease offers.
+Fixed-tilt panels (mounted at a fixed angle, the standard for most utility-scale projects) are most affected by this threshold; single-axis tracking systems that follow the sun through the day can squeeze more output from lower-irradiance sites, at higher installation cost. Above that range, irradiance becomes one variable among several rather than the deciding one. Parcels in the same county with identical grid access and zoning but 5% higher irradiance don't typically command different lease offers.
 
 What [makes land viable for a solar farm](/blog/what-makes-land-viable-solar-farm) in practice is the combination of adequate irradiance, grid proximity within 5 miles, clean title, zoning that allows solar by right or with a manageable Special Use Permit process, and flood zone status that won't trigger extended FEMA permitting. Irradiance is necessary but rarely the limiting factor once a region clears the minimum threshold.
 
