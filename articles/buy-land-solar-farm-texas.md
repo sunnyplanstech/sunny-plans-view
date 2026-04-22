@@ -22,13 +22,13 @@ When a developer evaluates a Texas parcel, they check its transmission zone and 
 
 ## The West Texas Congestion Story
 
-ERCOT's Competitive Renewable Energy Zones (CREZ) program built roughly 3,600 miles of transmission lines between 2005 and 2013, designed to move wind power from the high-capacity wind regions of West Texas and the Panhandle to population centers. At the time, it was the largest transmission investment in US history, and Texas wind capacity expanded dramatically in the decade that followed.
+ERCOT's Competitive Renewable Energy Zones (CREZ) program built roughly 3,600 miles of transmission lines between 2005 and 2013, designed to move wind power from the high-capacity wind regions of West Texas and the Panhandle to population centers. At the time, it was the largest transmission investment in US history, and Texas wind capacity expanded in the decade that followed.
 
 Solar came later and landed in many of the same corridors. By the mid-2020s, installed generation in West Texas zones had outpaced what CREZ could carry. Curtailment — power that gets produced but can't flow — began rising. EIA and ERCOT estimates project that curtailment in the ERCOT West zone will more than double between 2022 and 2035.
 
 Developers adjusted accordingly. West Texas lease rates, which once commanded significant premiums near the Permian Basin's CREZ infrastructure, have compressed as developer competition fell. Ranges of $400 to $650 per acre per year for large utility-scale parcels in the Permian and Panhandle reflect that shift.
 
-A new high-voltage transmission backbone is in development for the Permian Basin — Oncor Electric Delivery filed for the Longshore Switch–Drill Hole Switch line, a roughly 180-mile, 765-kV line that would carry significantly more power than existing infrastructure in the region. It's expected to be energized by December 2028. That will change the congestion picture in West Texas, but not for several years.
+A new high-voltage transmission backbone is in development for the Permian Basin — Oncor Electric Delivery filed for the Longshore Switch–Drill Hole Switch line, a roughly 180-mile, 765-kV line that would carry more power than existing infrastructure in the region. It's expected to be energized by December 2028. That will change the congestion picture in West Texas, but not for several years.
 
 ## Where the Queue Is Moving
 
