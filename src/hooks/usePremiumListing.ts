@@ -1,8 +1,9 @@
 import { useQuery } from "@tanstack/react-query";
 import { apiClient } from "@/lib/apiClient";
 import { useAuth } from "@/hooks/useAuth";
+import type { OsmDistanceFields } from "@/data/osmDistanceFields";
 
-export interface USPremiumListing {
+export interface USPremiumListing extends OsmDistanceFields {
   id: string;
   state_code: string;
   county: string | null;
@@ -18,18 +19,13 @@ export interface USPremiumListing {
   prob_solar: number;
   sqft: number | null;
   year_built: number | null;
-  power_substation: number | null;
-  power_transformer: number | null;
-  highway_motorway: number | null;
-  landuse_industrial: number | null;
-  natural_water: number | null;
   geom_json: Record<string, unknown> | null;
   rank_global: number;
   rank_in_state: number;
   rank_in_county: number;
 }
 
-export interface ITPremiumListing {
+export interface ITPremiumListing extends OsmDistanceFields {
   id: string;
   comune_code: string;
   comune_name: string | null;
@@ -41,11 +37,6 @@ export interface ITPremiumListing {
   area_m2: number | null;
   area_ha: number | null;
   geom_json: Record<string, unknown> | null;
-  power_substation: number | null;
-  power_transformer: number | null;
-  highway_motorway: number | null;
-  landuse_industrial: number | null;
-  natural_water: number | null;
   rank_global: number;
   rank_in_comune: number;
 }

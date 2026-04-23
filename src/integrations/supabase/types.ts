@@ -25,11 +25,59 @@ export type Database = {
           rank_global: number | null
           rank_in_state: number | null
           rank_in_county: number | null
+          power_line: number | null
+          power_minor_line: number | null
+          power_pole: number | null
+          power_tower: number | null
           power_substation: number | null
           power_transformer: number | null
           highway_motorway: number | null
+          highway_trunk: number | null
+          highway_primary: number | null
+          highway_secondary: number | null
+          highway_tertiary: number | null
+          railway_rail: number | null
+          railway_station: number | null
+          landuse_residential: number | null
+          landuse_commercial: number | null
           landuse_industrial: number | null
+          landuse_retail: number | null
+          landuse_military: number | null
+          landuse_reservoir: number | null
+          landuse_brownfield: number | null
+          landuse_landfill: number | null
+          landuse_quarry: number | null
+          landuse_railway: number | null
+          natural_wood: number | null
+          natural_wetland: number | null
           natural_water: number | null
+          natural_cliff: number | null
+          natural_peak: number | null
+          natural_ridge: number | null
+          waterway_river: number | null
+          waterway_stream: number | null
+          waterway_canal: number | null
+          waterway_dam: number | null
+          building_residential: number | null
+          building_commercial: number | null
+          building_industrial: number | null
+          building_school: number | null
+          building_hospital: number | null
+          building_university: number | null
+          amenity_hospital: number | null
+          amenity_school: number | null
+          amenity_university: number | null
+          aeroway_aerodrome: number | null
+          aeroway_heliport: number | null
+          leisure_nature_reserve: number | null
+          leisure_park: number | null
+          military_base: number | null
+          military_airfield: number | null
+          military_danger_area: number | null
+          military_training_area: number | null
+          tourism_attraction: number | null
+          tourism_museum: number | null
+          tourism_zoo: number | null
           list_price: number | null
           lot_acres: number | null
           lot_sqft: number | null
@@ -51,11 +99,59 @@ export type Database = {
           rank_global?: number | null
           rank_in_state?: number | null
           rank_in_county?: number | null
+          power_line?: number | null
+          power_minor_line?: number | null
+          power_pole?: number | null
+          power_tower?: number | null
           power_substation?: number | null
           power_transformer?: number | null
           highway_motorway?: number | null
+          highway_trunk?: number | null
+          highway_primary?: number | null
+          highway_secondary?: number | null
+          highway_tertiary?: number | null
+          railway_rail?: number | null
+          railway_station?: number | null
+          landuse_residential?: number | null
+          landuse_commercial?: number | null
           landuse_industrial?: number | null
+          landuse_retail?: number | null
+          landuse_military?: number | null
+          landuse_reservoir?: number | null
+          landuse_brownfield?: number | null
+          landuse_landfill?: number | null
+          landuse_quarry?: number | null
+          landuse_railway?: number | null
+          natural_wood?: number | null
+          natural_wetland?: number | null
           natural_water?: number | null
+          natural_cliff?: number | null
+          natural_peak?: number | null
+          natural_ridge?: number | null
+          waterway_river?: number | null
+          waterway_stream?: number | null
+          waterway_canal?: number | null
+          waterway_dam?: number | null
+          building_residential?: number | null
+          building_commercial?: number | null
+          building_industrial?: number | null
+          building_school?: number | null
+          building_hospital?: number | null
+          building_university?: number | null
+          amenity_hospital?: number | null
+          amenity_school?: number | null
+          amenity_university?: number | null
+          aeroway_aerodrome?: number | null
+          aeroway_heliport?: number | null
+          leisure_nature_reserve?: number | null
+          leisure_park?: number | null
+          military_base?: number | null
+          military_airfield?: number | null
+          military_danger_area?: number | null
+          military_training_area?: number | null
+          tourism_attraction?: number | null
+          tourism_museum?: number | null
+          tourism_zoo?: number | null
           list_price?: number | null
           lot_acres?: number | null
           lot_sqft?: number | null
@@ -77,11 +173,59 @@ export type Database = {
           rank_global?: number | null
           rank_in_state?: number | null
           rank_in_county?: number | null
+          power_line?: number | null
+          power_minor_line?: number | null
+          power_pole?: number | null
+          power_tower?: number | null
           power_substation?: number | null
           power_transformer?: number | null
           highway_motorway?: number | null
+          highway_trunk?: number | null
+          highway_primary?: number | null
+          highway_secondary?: number | null
+          highway_tertiary?: number | null
+          railway_rail?: number | null
+          railway_station?: number | null
+          landuse_residential?: number | null
+          landuse_commercial?: number | null
           landuse_industrial?: number | null
+          landuse_retail?: number | null
+          landuse_military?: number | null
+          landuse_reservoir?: number | null
+          landuse_brownfield?: number | null
+          landuse_landfill?: number | null
+          landuse_quarry?: number | null
+          landuse_railway?: number | null
+          natural_wood?: number | null
+          natural_wetland?: number | null
           natural_water?: number | null
+          natural_cliff?: number | null
+          natural_peak?: number | null
+          natural_ridge?: number | null
+          waterway_river?: number | null
+          waterway_stream?: number | null
+          waterway_canal?: number | null
+          waterway_dam?: number | null
+          building_residential?: number | null
+          building_commercial?: number | null
+          building_industrial?: number | null
+          building_school?: number | null
+          building_hospital?: number | null
+          building_university?: number | null
+          amenity_hospital?: number | null
+          amenity_school?: number | null
+          amenity_university?: number | null
+          aeroway_aerodrome?: number | null
+          aeroway_heliport?: number | null
+          leisure_nature_reserve?: number | null
+          leisure_park?: number | null
+          military_base?: number | null
+          military_airfield?: number | null
+          military_danger_area?: number | null
+          military_training_area?: number | null
+          tourism_attraction?: number | null
+          tourism_museum?: number | null
+          tourism_zoo?: number | null
           list_price?: number | null
           lot_acres?: number | null
           lot_sqft?: number | null
@@ -186,11 +330,59 @@ export type Database = {
           prob_solar: number | null
           rank_global: number | null
           rank_in_comune: number | null
+          power_line: number | null
+          power_minor_line: number | null
+          power_pole: number | null
+          power_tower: number | null
           power_substation: number | null
           power_transformer: number | null
           highway_motorway: number | null
+          highway_trunk: number | null
+          highway_primary: number | null
+          highway_secondary: number | null
+          highway_tertiary: number | null
+          railway_rail: number | null
+          railway_station: number | null
+          landuse_residential: number | null
+          landuse_commercial: number | null
           landuse_industrial: number | null
+          landuse_retail: number | null
+          landuse_military: number | null
+          landuse_reservoir: number | null
+          landuse_brownfield: number | null
+          landuse_landfill: number | null
+          landuse_quarry: number | null
+          landuse_railway: number | null
+          natural_wood: number | null
+          natural_wetland: number | null
           natural_water: number | null
+          natural_cliff: number | null
+          natural_peak: number | null
+          natural_ridge: number | null
+          waterway_river: number | null
+          waterway_stream: number | null
+          waterway_canal: number | null
+          waterway_dam: number | null
+          building_residential: number | null
+          building_commercial: number | null
+          building_industrial: number | null
+          building_school: number | null
+          building_hospital: number | null
+          building_university: number | null
+          amenity_hospital: number | null
+          amenity_school: number | null
+          amenity_university: number | null
+          aeroway_aerodrome: number | null
+          aeroway_heliport: number | null
+          leisure_nature_reserve: number | null
+          leisure_park: number | null
+          military_base: number | null
+          military_airfield: number | null
+          military_danger_area: number | null
+          military_training_area: number | null
+          tourism_attraction: number | null
+          tourism_museum: number | null
+          tourism_zoo: number | null
           area_ha: number | null
           area_m2: number | null
           lat: number | null
@@ -206,11 +398,59 @@ export type Database = {
           prob_solar?: number | null
           rank_global?: number | null
           rank_in_comune?: number | null
+          power_line?: number | null
+          power_minor_line?: number | null
+          power_pole?: number | null
+          power_tower?: number | null
           power_substation?: number | null
           power_transformer?: number | null
           highway_motorway?: number | null
+          highway_trunk?: number | null
+          highway_primary?: number | null
+          highway_secondary?: number | null
+          highway_tertiary?: number | null
+          railway_rail?: number | null
+          railway_station?: number | null
+          landuse_residential?: number | null
+          landuse_commercial?: number | null
           landuse_industrial?: number | null
+          landuse_retail?: number | null
+          landuse_military?: number | null
+          landuse_reservoir?: number | null
+          landuse_brownfield?: number | null
+          landuse_landfill?: number | null
+          landuse_quarry?: number | null
+          landuse_railway?: number | null
+          natural_wood?: number | null
+          natural_wetland?: number | null
           natural_water?: number | null
+          natural_cliff?: number | null
+          natural_peak?: number | null
+          natural_ridge?: number | null
+          waterway_river?: number | null
+          waterway_stream?: number | null
+          waterway_canal?: number | null
+          waterway_dam?: number | null
+          building_residential?: number | null
+          building_commercial?: number | null
+          building_industrial?: number | null
+          building_school?: number | null
+          building_hospital?: number | null
+          building_university?: number | null
+          amenity_hospital?: number | null
+          amenity_school?: number | null
+          amenity_university?: number | null
+          aeroway_aerodrome?: number | null
+          aeroway_heliport?: number | null
+          leisure_nature_reserve?: number | null
+          leisure_park?: number | null
+          military_base?: number | null
+          military_airfield?: number | null
+          military_danger_area?: number | null
+          military_training_area?: number | null
+          tourism_attraction?: number | null
+          tourism_museum?: number | null
+          tourism_zoo?: number | null
           area_ha?: number | null
           area_m2?: number | null
           lat?: number | null
@@ -226,11 +466,59 @@ export type Database = {
           prob_solar?: number | null
           rank_global?: number | null
           rank_in_comune?: number | null
+          power_line?: number | null
+          power_minor_line?: number | null
+          power_pole?: number | null
+          power_tower?: number | null
           power_substation?: number | null
           power_transformer?: number | null
           highway_motorway?: number | null
+          highway_trunk?: number | null
+          highway_primary?: number | null
+          highway_secondary?: number | null
+          highway_tertiary?: number | null
+          railway_rail?: number | null
+          railway_station?: number | null
+          landuse_residential?: number | null
+          landuse_commercial?: number | null
           landuse_industrial?: number | null
+          landuse_retail?: number | null
+          landuse_military?: number | null
+          landuse_reservoir?: number | null
+          landuse_brownfield?: number | null
+          landuse_landfill?: number | null
+          landuse_quarry?: number | null
+          landuse_railway?: number | null
+          natural_wood?: number | null
+          natural_wetland?: number | null
           natural_water?: number | null
+          natural_cliff?: number | null
+          natural_peak?: number | null
+          natural_ridge?: number | null
+          waterway_river?: number | null
+          waterway_stream?: number | null
+          waterway_canal?: number | null
+          waterway_dam?: number | null
+          building_residential?: number | null
+          building_commercial?: number | null
+          building_industrial?: number | null
+          building_school?: number | null
+          building_hospital?: number | null
+          building_university?: number | null
+          amenity_hospital?: number | null
+          amenity_school?: number | null
+          amenity_university?: number | null
+          aeroway_aerodrome?: number | null
+          aeroway_heliport?: number | null
+          leisure_nature_reserve?: number | null
+          leisure_park?: number | null
+          military_base?: number | null
+          military_airfield?: number | null
+          military_danger_area?: number | null
+          military_training_area?: number | null
+          tourism_attraction?: number | null
+          tourism_museum?: number | null
+          tourism_zoo?: number | null
           area_ha?: number | null
           area_m2?: number | null
           lat?: number | null

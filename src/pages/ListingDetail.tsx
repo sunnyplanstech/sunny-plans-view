@@ -7,6 +7,7 @@ import ListingsBreadcrumb from "@/components/listings/ListingsBreadcrumb";
 import ListingsFooter from "@/components/listings/ListingsFooter";
 import SEOHead from "@/components/listings/SEOHead";
 import MiniParcelMap from "@/components/maps/MiniParcelMap";
+import { ProximityCard } from "@/components/listings/ProximityCard";
 import { useUSListingById } from "@/hooks/useUSListings";
 import { useITListingById } from "@/hooks/useITListings";
 import { useUSPremiumListing, useITPremiumListing } from "@/hooks/usePremiumListing";
@@ -312,6 +313,13 @@ const ListingDetail = () => {
                 </Card>
               </div>
 
+              <ProximityCard
+                premium={itPremium}
+                publicData={itPublic}
+                lang="it"
+                unit="metric"
+              />
+
               <ListingsFooter currentCountry={country} currentRegion={region} currentProvince={province} />
             </article>
           </main>
@@ -527,6 +535,13 @@ const ListingDetail = () => {
                   </CardContent>
                 </Card>
               </div>
+
+              <ProximityCard
+                premium={usPremium}
+                publicData={usPublic}
+                lang="en"
+                unit="imperial"
+              />
 
               <ListingsFooter currentCountry={country} currentRegion={region} currentProvince={province} />
             </article>

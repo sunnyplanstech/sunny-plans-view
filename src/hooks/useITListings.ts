@@ -1,7 +1,8 @@
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
+import type { OsmDistanceFields } from "@/data/osmDistanceFields";
 
-export interface ITListing {
+export interface ITListing extends OsmDistanceFields {
   id: string;
   comune_code: string;
   comune_name: string;
@@ -10,11 +11,6 @@ export interface ITListing {
   prob_solar: number | null;
   rank_global: number | null;
   rank_in_comune: number | null;
-  power_substation: number | null;
-  power_transformer: number | null;
-  highway_motorway: number | null;
-  landuse_industrial: number | null;
-  natural_water: number | null;
   area_ha: number | null;
   area_m2: number | null;
   lat: number | null;

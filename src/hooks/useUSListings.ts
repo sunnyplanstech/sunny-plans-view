@@ -1,8 +1,9 @@
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { slugToStateCode, slugToCounty } from "@/data/locations";
+import type { OsmDistanceFields } from "@/data/osmDistanceFields";
 
-export interface USListing {
+export interface USListing extends OsmDistanceFields {
   id: string;
   state_code: string;
   county: string;
@@ -12,11 +13,6 @@ export interface USListing {
   rank_global: number | null;
   rank_in_state: number | null;
   rank_in_county: number | null;
-  power_substation: number | null;
-  power_transformer: number | null;
-  highway_motorway: number | null;
-  landuse_industrial: number | null;
-  natural_water: number | null;
   list_price: number | null;
   lot_acres: number | null;
   lot_sqft: number | null;
