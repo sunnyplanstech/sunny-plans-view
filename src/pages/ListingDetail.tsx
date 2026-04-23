@@ -471,7 +471,9 @@ const ListingDetail = () => {
                         <div>
                           <p className="text-sm text-muted-foreground">Substation Distance</p>
                           <p className="font-semibold">
-                            {formatSubstationDistance(usPremium?.power_substation ?? usPublic.power_substation)}
+                            {usPremium
+                              ? formatSubstationDistance(usPremium.power_substation)
+                              : `~${formatSubstationDistance(usPublic.power_substation)}`}
                           </p>
                         </div>
                       </div>
@@ -483,7 +485,9 @@ const ListingDetail = () => {
                         <div>
                           <p className="text-sm text-muted-foreground">List Price</p>
                           <p className="font-semibold">
-                            {formatPrice(usPremium?.list_price ?? usPublic.list_price)}
+                            {usPremium
+                              ? formatPrice(usPremium.list_price)
+                              : `~${formatPrice(usPublic.list_price)}`}
                           </p>
                         </div>
                       </div>

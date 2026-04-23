@@ -95,7 +95,7 @@ const USListingCard = ({ listing, showRank = "global" }: USListingCardProps) => 
                     {listing.county}, {listing.state_code}
                   </h3>
                   <p className="text-sm text-muted-foreground">
-                    {formatPrice(listing.list_price)}
+                    ~{formatPrice(listing.list_price)}
                   </p>
                 </div>
               </div>
@@ -129,7 +129,7 @@ const USListingCard = ({ listing, showRank = "global" }: USListingCardProps) => 
               </div>
               <div className="flex items-center gap-1.5">
                 <Zap className="w-3.5 h-3.5" />
-                <span>{formatSubstationDistance(listing.power_substation)} to substation</span>
+                <span>~{formatSubstationDistance(listing.power_substation)} to substation</span>
               </div>
             </div>
           </CardContent>
