@@ -60,7 +60,7 @@ A few things worth knowing when reading these maps:
 
 **FIRM maps are often decades out of date.** Many rural flood insurance rate maps haven't been updated since the 1980s or 1990s. A parcel classified Zone AE might sit well above the actual current base flood elevation because the hydrology study predates flood control infrastructure built since then. The inverse is also true: a Zone X parcel near a river could carry real flood risk that an old map doesn't capture.
 
-For a more current picture, First Street Foundation's Flood Factor tool (floodfactor.com) uses updated climate modeling and is free for parcel-level lookup. It doesn't replace the official FEMA designation for permitting purposes, but it gives a more accurate read on actual physical risk — which is what lenders increasingly use to supplement FIRM data.
+For a more current picture, First Street Foundation's Risk Factor tool (riskfactor.com) uses updated climate modeling and is free for parcel-level lookup. It doesn't replace the official FEMA designation for permitting purposes, but it gives a more accurate read on actual physical risk — which is what lenders increasingly use to supplement FIRM data.
 
 **Zone boundaries are legal, not observational.** The official classification depends on where the parcel sits relative to the FIRM panel boundary, not on what you observe on the ground. A parcel that sits visibly above the surrounding terrain can still carry Zone AE designation if the map was drawn before nearby flood control improvements were built.
 
@@ -85,5 +85,5 @@ A parcel carrying both Zone AE coverage and suspected wetlands faces a permittin
 **Sources**
 - FEMA Flood Map Service Center — parcel-level flood zone lookup — [msc.fema.gov/portal/search](https://msc.fema.gov/portal/search)
 - FEMA, *Letter of Map Amendment process and timeline* — [fema.gov/flood-maps/change-your-flood-zone/loma-lomr-f](https://www.fema.gov/flood-maps/change-your-flood-zone/loma-lomr-f)
-- First Street Foundation, *Flood Factor* — updated climate-based flood risk modeling — [floodfactor.com](https://floodfactor.com/)
+- First Street Foundation, *Risk Factor* — updated climate-based flood risk modeling — riskfactor.com
 - US Fish & Wildlife Service, *National Wetlands Inventory* — [fws.gov/program/national-wetlands-inventory](https://www.fws.gov/program/national-wetlands-inventory)
