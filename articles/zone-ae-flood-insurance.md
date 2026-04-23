@@ -62,7 +62,7 @@ For buyers evaluating bare land — agricultural parcels, investment property, p
 
 The specifics of [how Zone AE affects solar farm permitting and project financing](/blog/fema-flood-zones-solar-land) are a separate question — those constraints fall on the developer rather than the landowner holding bare land.
 
-But as a buyer, Zone AE affects resale value, future financing terms, and what you can build without triggering federal floodplain management requirements. The FEMA Flood Map Service Center (msc.fema.gov) lets you look up any parcel's current classification before closing. First Street Foundation's Risk Factor tool (riskfactor.com) uses updated climate modeling and often gives a more current read on actual physical risk — it doesn't carry regulatory weight for permitting, but it supplements the FIRM data usefully, especially where maps are old.
+But as a buyer, Zone AE affects resale value, future financing terms, and what you can build without triggering federal floodplain management requirements. The FEMA Flood Map Service Center lets you look up any parcel's current classification before closing. First Street Foundation's [Risk Factor](https://riskfactor.com) tool uses updated climate modeling and often gives a more current read on actual physical risk — it doesn't carry regulatory weight for permitting, but it supplements the FIRM data usefully, especially where maps are old.
 
 Neither lookup takes more than a few minutes, and for any parcel near a river corridor, drainage feature, or low-lying agricultural land, it's the first search worth running.
 
@@ -73,8 +73,7 @@ Neither lookup takes more than a few minutes, and for any parcel near a river co
 ---
 
 **Sources**
-- FEMA, *National Flood Insurance Program — mandatory purchase requirement* — fema.gov/flood-insurance
-- FEMA, *Risk Rating 2.0: Equity in Action* — current NFIP pricing methodology — fema.gov/flood-insurance/risk-rating
-- FEMA, *Letter of Map Amendment (LOMA) process* — reclassification from SFHA — fema.gov/flood-maps/change-your-flood-zone/loma-lomr-f
-- FEMA Flood Map Service Center — parcel-level flood zone lookup — msc.fema.gov/portal/search
-- First Street Foundation, *Risk Factor* — climate-updated parcel-level flood risk modeling — riskfactor.com
+- FEMA, *[National Flood Insurance Program — mandatory purchase requirement](https://www.fema.gov/flood-insurance)* — mandatory purchase requirement
+- FEMA, *[Risk Rating 2.0: Equity in Action](https://www.fema.gov/flood-insurance/risk-rating)* — current NFIP pricing methodology
+- FEMA, *[Letter of Map Amendment (LOMA) process](https://www.fema.gov/flood-maps/change-your-flood-zone/loma-lomr-f)* — reclassification from SFHA
+- First Street Foundation, *[Risk Factor](https://riskfactor.com)* — climate-updated parcel-level flood risk modeling
