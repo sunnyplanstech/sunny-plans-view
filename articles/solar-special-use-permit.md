@@ -6,6 +6,7 @@ author: "Sunnyplans Team"
 tags: "solar, special use permit, zoning, land viability, permitting"
 target_query: "what is a special use permit solar"
 secondary_query: "solar farm special use permit process"
+cta_url: "/united-states"
 ---
 
 The difference between a parcel that can host a solar farm and one that can't isn't always about zoning. Sometimes a parcel is in exactly the right zone, the right distance from a substation, the right acreage — and still can't move forward because the county's planning board said no.
@@ -69,11 +70,9 @@ The states where this has been most active include Illinois, Indiana, Ohio, and 
 
 Understanding [what makes land viable for a solar farm](/blog/what-makes-land-viable-solar-farm) covers the physical filters — acreage, slope, flood zone, substation proximity. The SUP question sits on top of all that as the regulatory layer, and it's county-specific in a way that physical constraints aren't.
 
-Two things are worth checking before committing to a parcel. First, the county zoning ordinance. Find the specific zone designation for the parcel, then look for how large-scale solar is classified — permitted use, conditional use requiring an SUP, or not addressed. If solar isn't mentioned, call the county planning department directly. An unaddressed use is often treated as prohibited in practice, but the department will give you the official interpretation.
+Two things are worth checking before committing to a parcel. First, the county zoning ordinance. Find the specific zone designation for the parcel — typically A-1, A-2, or equivalent [agricultural zoning](/blog/agricultural-zoning-solar-farm) in rural areas — then look for how large-scale solar is classified: permitted use, conditional use requiring an SUP, or not addressed. If solar isn't mentioned, call the county planning department directly. An unaddressed use is often treated as prohibited in practice, but the department will give you the official interpretation.
 
-Second, whether the county has an active moratorium or a pending ordinance revision. This won't appear in the zoning code itself — it's in recent county commission meeting minutes, which most counties publish online. Searching the county name plus "solar moratorium" or "solar ordinance" filtered to the past 12 months will usually surface anything relevant. A county in the middle of revising its solar rules has a genuinely uncertain timeline for any new SUP application.
-
-The [agricultural zoning classification](/blog/agricultural-zoning-solar-farm) on a parcel is usually the first regulatory question. But it's the county's current posture on solar — whether it's still accepting applications, what conditions it's been attaching, and whether it has an established process at all — that determines whether the SUP process is worth entering.
+Second, whether the county has an active moratorium or a pending ordinance revision. This won't appear in the zoning code itself — it's in recent county commission meeting minutes, which most counties publish online. Searching the county name plus "solar moratorium" or "solar ordinance" filtered to the past 12 months will usually surface anything relevant. A county in the middle of revising its solar rules has a genuinely uncertain timeline for any new SUP application, and the county's current posture on solar — whether it's still accepting applications, what conditions it's been attaching — determines whether the SUP process is worth entering at all.
 
 ---
 

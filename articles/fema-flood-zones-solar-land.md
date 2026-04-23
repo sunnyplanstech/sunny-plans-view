@@ -6,6 +6,7 @@ author: "Sunnyplans Team"
 tags: "solar, FEMA, flood zones, land viability"
 target_query: "FEMA flood zone solar farm"
 secondary_query: "can you build a solar farm in a flood zone"
+cta_url: "/united-states"
 ---
 
 Zone AE land doesn't automatically disqualify a parcel from solar development — but most project lenders treat it as a hard stop, and that shapes everything from the permitting process to what a developer's offer reflects. Whether you can build a solar farm in a flood zone depends less on what FEMA says than on what the project lender decides.
@@ -67,15 +68,13 @@ For a more current picture, First Street Foundation's Flood Factor tool (floodfa
 
 ## Where This Intersects With Wetlands
 
-FEMA flood zones and jurisdictional wetlands are distinct constraints determined by different agencies under different criteria. A parcel can be in Zone X and still contain wetlands. A Zone AE parcel may or may not have wetland issues.
+FEMA flood zones and jurisdictional wetlands are distinct constraints determined by different agencies under different criteria. A parcel can be in Zone X and still contain wetlands. A Zone AE parcel may or may not have wetland issues — but flood zone classification is only one layer of [what makes land viable for a solar farm](/blog/what-makes-land-viable-solar-farm). Grid proximity, slope, and zoning all run in parallel, and developers evaluate them together rather than in sequence.
 
-In practice, the two frequently overlap — and compound each other. Low-lying areas that flood regularly tend to develop hydric soils and hydrophytic vegetation over time. Those are the field indicators wetland biologists look for during delineation surveys under Army Corps of Engineers Section 404 jurisdiction. A parcel with significant Zone AE coverage is more likely to trigger a wetland delineation requirement, even if it doesn't show up in the National Wetlands Inventory.
+In practice, flood zones and wetlands frequently overlap — and compound each other. Low-lying areas that flood regularly tend to develop hydric soils and hydrophytic vegetation over time. Those are the field indicators wetland biologists look for during delineation surveys under Army Corps of Engineers Section 404 jurisdiction. A parcel with significant Zone AE coverage is more likely to trigger a wetland delineation requirement, even if it doesn't show up in the National Wetlands Inventory.
 
 The NWI maps the wetlands that have already been identified. It misses hydric soils that haven't been formally surveyed. On a Zone AE parcel, the standard assumption going into a site evaluation is that a delineation survey will be required — not because the NWI flags it, but because the flood zone classification raises the probability enough that no developer will skip the step.
 
 A parcel carrying both Zone AE coverage and suspected wetlands faces a permitting burden that most developers won't take on when alternatives exist. The two constraints don't add linearly — each one makes the other harder to resolve, because the Army Corps and local floodplain administrators coordinate on SFHA parcels with potential jurisdictional wetlands.
-
-Understanding [what makes land viable for a solar farm](/blog/what-makes-land-viable-solar-farm) — grid proximity, slope, zoning, and the full constraint stack — gives context for where flood zone classification sits in the overall evaluation.
 
 ---
 

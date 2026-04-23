@@ -6,6 +6,7 @@ author: "Sunnyplans Team"
 tags: "solar, zoning, agricultural land, special use permit, land viability"
 target_query: "agricultural zoning solar farm"
 secondary_query: "solar farm special use permit agricultural zone"
+cta_url: "/united-states"
 ---
 
 Agricultural zoning doesn't mean what most land buyers assume it means. Whether a parcel zoned AG, A-1, or A-2 can host a solar farm depends almost entirely on what the specific county has written into its zoning ordinance — which varies more than any state-level summary will tell you.

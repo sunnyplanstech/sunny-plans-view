@@ -4,7 +4,7 @@ description: "Battery storage projects look similar to solar farms from the road
 date: "2026-04-09"
 author: "Sunnyplans Team"
 tags: "BESS, battery storage, land requirements, site selection, zoning, grid"
-target_query: "BESS land requirements USA"
+target_query: "BESS land requirements"
 cta_url: "/united-states"
 ---
 

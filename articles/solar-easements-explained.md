@@ -5,6 +5,7 @@ date: "2026-04-10"
 author: "Sunnyplans Team"
 tags: "solar, easements, land purchase, due diligence"
 target_query: "what is a solar easement"
+cta_url: "/united-states"
 ---
 
 The term "solar easement" is used to describe two meaningfully different legal instruments, and conflating them is one of the more common errors in early-stage land research. The sunlight access easement protects a solar installation from shading by neighboring structures. The transmission easement — sometimes called a gen-tie easement or right-of-way — gives a developer the right to run lines across neighboring land to reach a substation. They appear in land transactions for different reasons, and what to do about either one when you find it in a title search depends entirely on which type it is.
@@ -47,7 +48,7 @@ For any parcel you're evaluating for solar land investment, the title review pro
 | Conservation easements | Permanently restrict use for solar development; shows up in any title search and makes the parcel unusable for solar leasing |
 | Utility easements | Overhead lines often carry blanket restrictions that affect buildable area |
 
-A permanent conservation easement — granted to a land trust or government entity — runs with the land indefinitely and typically prohibits any development that would alter the property's natural character. Solar development almost always fails that test. No developer will proceed past due diligence on a conserved parcel, which makes it effectively worthless for leasing purposes. These easements show up in a title search, but the mechanism is different from solar easements — they're held by third-party conservation organizations, not neighboring landowners.
+A permanent conservation easement — granted to a land trust or government entity — runs with the land indefinitely and typically prohibits any development that would alter the property's natural character. Solar development almost always fails that test. No developer will proceed past due diligence on a conserved parcel, which makes it effectively worthless for leasing purposes. These easements show up in a title search, but the mechanism is different from solar easements — they're held by third-party conservation organizations, not neighboring landowners. Parcels that also carry wetland designations are at higher risk: the Army Corps of Engineers regulates wetland fill and disturbance under Section 404 of the Clean Water Act, and conservation easements on wetland parcels often overlap with that federal jurisdiction, compounding the permitting burden for any prospective developer.
 
 Utility easements are also worth reading carefully. An existing overhead transmission line crossing the parcel may seem like an asset — grid proximity matters significantly for [what makes land viable for a solar farm](/blog/what-makes-land-viable-solar-farm) — but the easement the utility holds often includes a blanket restriction on any construction within a defined corridor below the lines. Depending on how the project is sited, this can reduce the usable acreage more than the physical footprint of the lines suggests.
 

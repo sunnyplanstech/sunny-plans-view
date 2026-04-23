@@ -4,7 +4,8 @@ description: "Getting a grid connection approved is often the longest part of a 
 date: "2026-03-26"
 author: "Sunnyplans Team"
 tags: "solar, interconnection, grid"
-target_query: "solar interconnection queue how it works delays"
+target_query: "solar interconnection queue explained"
+cta_url: "/united-states"
 ---
 
 A solar project can have perfect land, a signed lease, and investor backing — and still sit idle for three to five years waiting for grid approval. The interconnection queue is the single most common reason solar projects are delayed or abandoned, and it's widely misunderstood by everyone except the developers living inside it.
@@ -17,9 +18,18 @@ Every new solar project that wants to connect to the grid submits an interconnec
 
 The studies themselves are layered. Most jurisdictions run an initial feasibility study, then a system impact study, then a facilities study. Each one takes months. Each one can surface new upgrade requirements — equipment the developer must pay for before the connection is approved. If a project ahead of you in the queue withdraws (which happens constantly), it can change your study results, triggering restudies that add more months.
 
+| Study phase | What it evaluates | Typical duration |
+|---|---|---|
+| Feasibility study | Whether the project can connect without obvious grid violations | 1–3 months |
+| System impact study | Transmission constraints, required upgrades, cost allocation | 3–6 months |
+| Facilities study | Final engineering and cost confirmation for required grid work | 3–6 months |
+| Interconnection agreement | Contract execution; grid connection formally approved | 1–3 months |
+
+In theory, a clean application runs 8 to 18 months. In practice, restudies triggered by queue withdrawals ahead of a project routinely double or triple that.
+
 ## Why the Queue Is So Backed Up
 
-The US interconnection queue held roughly 1,400 gigawatts of pending capacity by end of 2021, according to Lawrence Berkeley National Laboratory's annual Queued Up report — and grew to over 2,600 gigawatts by end of 2023. The grid was not designed for this volume of applications, and the study processes were built for a much slower pace of development.
+The US interconnection queue held roughly 1,400 gigawatts of pending capacity by end of 2021, according to Lawrence Berkeley National Laboratory's annual Queued Up report — and reached approximately 2,300 gigawatts of active capacity by end of 2024, as projects that cleared studies or withdrew were removed and new applications continued to pile in. The grid was not designed for this volume of applications, and the study processes were built for a much slower pace of development.
 
 Several factors compound the backlog:
 
@@ -47,13 +57,13 @@ The rule is being implemented on a grid-operator-by-grid-operator basis through 
 
 ## What This Means If You Own Land Being Evaluated for Solar
 
-When a developer approaches you for an option agreement, one of the first things they're doing during that option period is running interconnection studies. The option period — typically two to five years — exists largely to accommodate this process.
+When a developer approaches you for a [solar land option agreement](/blog/how-solar-land-lease-works), one of the first things they're doing during that option period is running interconnection studies. The option period — typically two to five years — exists largely to accommodate this process.
 
 A developer who goes quiet after signing an option isn't necessarily abandoning the project. They may be waiting on a system impact study result, negotiating upgrade cost allocations, or navigating a restudy triggered by another project's withdrawal.
 
 The risk for landowners is that a project can clear every local hurdle — zoning, environmental, community approval — and still fail because interconnection costs came in too high to support viable project economics. When that happens, the developer exits the option, you keep your option payments, and the land goes back to its prior use.
 
-This is also why grid proximity matters so much in the initial offer. A parcel close to a high-capacity substation with available headroom faces a shorter, cheaper interconnection path — and a lower risk that the studies come back with deal-breaking upgrade requirements. That lower risk is priced into the offer from the start.
+This is also why [substation proximity](/blog/substation-proximity-solar-farm) matters so much in the initial offer. A parcel close to a high-capacity substation with available headroom faces a shorter, cheaper interconnection path — and a lower risk that the studies come back with deal-breaking upgrade requirements. That lower risk is priced into the offer from the start.
 
 ---
 

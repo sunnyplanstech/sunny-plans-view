@@ -4,10 +4,11 @@ description: "Solar irradiance determines how much electricity a project produce
 date: "2026-04-12"
 author: "Sunnyplans Team"
 tags: "solar, irradiance, land value, lease rates"
-target_query: "what is solar irradiance land value"
+target_query: "how solar irradiance affects land value"
+cta_url: "/united-states"
 ---
 
-Solar irradiance is the measure of how much solar energy hits a surface — the number that determines how much electricity a solar farm can generate on a given piece of land, and by extension, how much a developer can afford to pay to lease it. 
+Solar irradiance is the measure of how much solar energy hits a surface — the number that determines how much electricity a solar farm can generate on a given piece of land, and by extension, how much a developer can afford to pay to lease it.
 
 That logic is right in broad strokes, but it breaks down quickly when you look at actual lease offers.
 

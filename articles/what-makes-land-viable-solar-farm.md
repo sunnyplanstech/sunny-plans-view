@@ -4,7 +4,8 @@ description: "Not every parcel gets an offer. Developers screen for grid proximi
 date: "2026-04-01"
 author: "Sunnyplans Team"
 tags: "solar, land viability, site selection"
-target_query: "what makes land suitable for solar farm development"
+target_query: "is my land suitable for a solar farm"
+cta_url: "/united-states"
 ---
 
 Most landowners who receive a solar lease offer assume the developer found them through a broker or a mailing list. In reality, the developer ran your parcel through a filtering process before they ever called — and the same filters that got you on their list will determine the terms they offer.
@@ -59,15 +60,21 @@ Beyond the positive criteria, developers run parcels through a set of constraint
 
 After all the constraint filters, solar irradiance is almost secondary — but it still matters, especially for project financing. Lenders and tax equity investors who fund solar construction rely on energy production models that require a minimum level of confidence in the long-term solar resource.
 
-The relevant metric is **GHI (Global Horizontal Irradiance)**, measured in kWh/m²/day. The Southwest US (Arizona, Nevada, New Mexico) sits at 5.5 to 6.5. The Southeast (Georgia, the Carolinas, Texas) runs 4.5 to 5.5. The Midwest and Northeast range from 3.5 to 4.5. Projects in lower-irradiance areas can still be viable, but they need stronger economics elsewhere — usually better grid access or a higher contracted power price — to compensate.
+The relevant metric is **GHI (Global Horizontal Irradiance)**, measured in kWh/m²/day — the amount of solar energy hitting a square meter of ground per day, averaged annually.
+
+| Region | GHI range (kWh/m²/day) | Representative states |
+|---|---|---|
+| Southwest | 5.5–6.5 | Arizona, Nevada, New Mexico |
+| Southeast / South-Central | 4.5–5.5 | Georgia, Carolinas, Texas |
+| Midwest / Northeast | 3.5–4.5 | Ohio, Pennsylvania, New York |
+
+Projects in lower-irradiance regions can still be viable, but they need stronger economics elsewhere — usually better grid access or a higher contracted power price — to compensate.
 
 ## What "Viable" Actually Means in Practice
 
-A parcel passes the viability test when it clears all the hard constraints and produces project economics that justify the developer's permitting and construction investment. That math depends on factors outside the landowner's control — the current state of the interconnection queue, the contracted power price available in that market, tax credit availability — but the parcel itself contributes most of the inputs.
+A parcel passes the viability test when it clears all the hard constraints and produces project economics that justify the developer's permitting and construction investment. That math depends on factors outside the landowner's control — the current state of the [interconnection queue](/blog/solar-interconnection-queue-explained), the contracted power price available in that market, tax credit availability — but the parcel itself contributes most of the inputs.
 
-The parcels that consistently get the best offers share a profile: 50-plus contiguous flat acres, clean title, agricultural or light commercial zoning, no wetlands or flood risk, and within three to five miles of a substation with available capacity.
-
-If you're evaluating your own land before receiving an offer — or trying to understand why a developer's offer came in lower than expected — [understanding how lease rates are structured](/blog/how-solar-land-lease-works) gives you the context to read what they're telling you with that number.
+The parcels that consistently attract the best [solar land lease](/blog/how-solar-land-lease-works) offers share a profile: 50-plus contiguous flat acres, clean title, agricultural or light commercial zoning, no wetlands or flood risk, and within three to five miles of a substation with available capacity.
 
 ---
 
