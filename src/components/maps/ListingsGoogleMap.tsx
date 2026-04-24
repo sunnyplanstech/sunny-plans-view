@@ -59,7 +59,6 @@ export function ListingsGoogleMap({
   const infoWindowRef = useRef<google.maps.InfoWindow | null>(null);
   const defaultCenter = defaultCenters[country || "united-states"] || defaultCenterUS;
   const defaultZoom = country === "italy" ? 6 : 4;
-  const isUS = country === "united-states";
 
   // Filter listings to only those with valid coordinates from geom_json
   const listingsWithCoords = useMemo(() => {
@@ -129,7 +128,6 @@ export function ListingsGoogleMap({
             id: cell.id,
             point_count: cell.point_count,
             avg_prob_solar: cell.avg_prob_solar,
-            avg_price_per_acre: (cell as HexCell).avg_price_per_acre ?? null,
           },
         };
         dataLayer.addGeoJson(feature);
@@ -156,14 +154,10 @@ export function ListingsGoogleMap({
       const feat = event.feature;
       const prob = feat.getProperty("avg_prob_solar") as number | null;
       const count = feat.getProperty("point_count") as number;
-      const price = feat.getProperty("avg_price_per_acre") as number | null;
 
       let html = `<div style="font-family:system-ui;font-size:13px;line-height:1.5;">`;
       html += `<strong>Solar Probability:</strong> ${prob !== null ? `${Math.round(prob * 100)}%` : "N/A"}<br/>`;
       html += `<strong>Parcels:</strong> ${count}`;
-      if (isUS && price !== null && price !== undefined) {
-        html += `<br/><strong>Avg Price/Acre:</strong> $${Math.round(price).toLocaleString()}`;
-      }
       html += `</div>`;
 
       infoWindow.setContent(html);
@@ -175,7 +169,7 @@ export function ListingsGoogleMap({
       dataLayer.setMap(null);
       infoWindow.close();
     };
-  }, [map, isLoaded, showHeatmap, hexCells, maxPointCount, isUS]);
+  }, [map, isLoaded, showHeatmap, hexCells, maxPointCount]);
 
   // Show fallback if Google Maps is not available
   if (!isLoaded) {

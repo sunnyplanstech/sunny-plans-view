@@ -23,8 +23,8 @@ export function generateDynamicSeoPaths(): string[] {
     const stateSlug = STATE_CODE_TO_SLUG[stateCode];
     if (!stateSlug) continue;
 
-    for (const countySlug of counties) {
-      paths.push(`/${us.slug}/${stateSlug}/${countySlug}`);
+    for (const county of counties) {
+      paths.push(`/${us.slug}/${stateSlug}/${county.slug}`);
     }
   }
 
@@ -38,8 +38,8 @@ export function generateDynamicSeoPaths(): string[] {
 
   // Comune-level paths from comuni.json
   for (const [regionSlug, comuni] of Object.entries(comuniByRegion)) {
-    for (const comuneSlug of comuni) {
-      paths.push(`/${it.slug}/${regionSlug}/${comuneSlug}`);
+    for (const comune of comuni) {
+      paths.push(`/${it.slug}/${regionSlug}/${comune.slug}`);
     }
   }
 

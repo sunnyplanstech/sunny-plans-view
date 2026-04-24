@@ -127,11 +127,11 @@ const ListingDetail = () => {
   const isUS = country === "united-states";
   const isItaly = country === "italy";
 
-  // Public (obfuscated) data from Supabase — always loaded
+  // Public (obfuscated) data from the Django API — always loaded
   const { data: usPublic, isLoading: usLoading, error: usError } = useUSListingById(isUS ? id : undefined);
   const { data: itPublic, isLoading: itLoading, error: itError } = useITListingById(isItaly ? id : undefined);
 
-  // Premium (exact) data from Django API — only when authenticated
+  // Premium (exact) data from the Django API — only when authenticated
   const { data: usPremium } = useUSPremiumListing(isUS ? id : undefined);
   const { data: itPremium } = useITPremiumListing(isItaly ? id : undefined);
 

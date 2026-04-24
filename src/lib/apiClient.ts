@@ -35,6 +35,13 @@ async function ensureAccessToken(): Promise<string> {
   return refreshPromise;
 }
 
+/** Unauthenticated fetch wrapper for the Django API. */
+export async function publicApi<T>(path: string): Promise<T> {
+  const res = await fetch(`${API_BASE}${path}`);
+  if (!res.ok) throw new Error(`API ${res.status}: ${path}`);
+  return res.json() as Promise<T>;
+}
+
 /**
  * Authenticated fetch wrapper for the Django API.
  * Automatically attaches the JWT Bearer token and handles refresh on 401.

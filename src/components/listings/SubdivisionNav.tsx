@@ -1,8 +1,9 @@
 import { Link } from "react-router-dom";
 import { ChevronRight, MapPin } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { useUSCounties, useITComuni } from "@/hooks/useLocationData";
-import { COUNTRIES } from "@/data/locations";
+import { COUNTRIES, slugToStateCode } from "@/data/locations";
+import countiesByState from "@/data/counties.json";
+import comuniByRegion from "@/data/comuni.json";
 
 interface SubdivisionNavProps {
   country?: string;
@@ -10,15 +11,17 @@ interface SubdivisionNavProps {
   province?: string;
 }
 
+interface SubItem {
+  slug: string;
+  name: string;
+}
+
+const counties = countiesByState as Record<string, SubItem[]>;
+const comuni = comuniByRegion as Record<string, SubItem[]>;
+
 const SubdivisionNav = ({ country, region, province }: SubdivisionNavProps) => {
   const isUSA = country === "united-states";
   const isItaly = country === "italy";
-
-  // Fetch counties for the current US state
-  const { data: usCounties, isLoading: loadingCounties } = useUSCounties(isUSA ? region : undefined);
-
-  // Fetch comuni for the current Italian region
-  const { data: itComuni, isLoading: loadingComuni } = useITComuni(isItaly ? region : undefined);
 
   // US navigation logic
   const showUSStates = isUSA && !region;
@@ -27,8 +30,6 @@ const SubdivisionNav = ({ country, region, province }: SubdivisionNavProps) => {
   // Italy navigation logic
   const showITRegions = isItaly && !region;
   const showITComuni = isItaly && !!region;
-
-  const isLoading = loadingCounties || loadingComuni;
 
   // Build navigation items
   const navItems: { name: string; slug: string; href: string; isCurrent?: boolean }[] = [];
@@ -41,13 +42,14 @@ const SubdivisionNav = ({ country, region, province }: SubdivisionNavProps) => {
         href: `/${country}/${state.slug}`
       });
     });
-  } else if (showUSCounties) {
-    (usCounties || []).forEach((c: { name: string; slug: string }) => {
+  } else if (showUSCounties && region) {
+    const stateCode = slugToStateCode(region);
+    (counties[stateCode] ?? []).forEach((c) => {
       navItems.push({
         name: c.name,
         slug: c.slug,
         href: `/${country}/${region}/${c.slug}`,
-        isCurrent: province === c.slug
+        isCurrent: province === c.slug,
       });
     });
   } else if (showITRegions) {
@@ -58,13 +60,13 @@ const SubdivisionNav = ({ country, region, province }: SubdivisionNavProps) => {
         href: `/${country}/${r.slug}`
       });
     });
-  } else if (showITComuni) {
-    (itComuni || []).forEach((c: { name: string; slug: string }) => {
+  } else if (showITComuni && region) {
+    (comuni[region] ?? []).forEach((c) => {
       navItems.push({
         name: c.name,
         slug: c.slug,
         href: `/${country}/${region}/${c.slug}`,
-        isCurrent: province === c.slug
+        isCurrent: province === c.slug,
       });
     });
   }
@@ -81,7 +83,7 @@ const SubdivisionNav = ({ country, region, province }: SubdivisionNavProps) => {
   };
 
   if (!isUSA && !isItaly) return null;
-  if (!isLoading && navItems.length === 0) return null;
+  if (navItems.length === 0) return null;
 
   return (
     <section className="mt-8 pt-6 border-t border-border">
@@ -90,43 +92,29 @@ const SubdivisionNav = ({ country, region, province }: SubdivisionNavProps) => {
         <h2 className="text-lg font-semibold text-foreground">{getSectionTitle()}</h2>
       </div>
 
-      {isLoading ? (
-        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-2">
-          {[...Array(10)].map((_, i) => (
-            <div key={i} className="h-10 bg-muted animate-pulse rounded-md" />
-          ))}
-        </div>
-      ) : (
-        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-2">
-          {navItems.map((item) => (
-            <Link
-              key={item.slug}
-              to={item.href}
-              className={cn(
-                "flex items-center justify-between px-3 py-2 rounded-md",
-                "transition-colors",
-                "text-sm",
-                "group",
-                item.isCurrent
-                  ? "bg-primary/10 text-primary font-medium"
-                  : "bg-muted/50 hover:bg-muted text-foreground hover:text-primary"
-              )}
-            >
-              <span className="truncate">{item.name}</span>
-              <ChevronRight className={cn(
-                "w-4 h-4 shrink-0",
-                item.isCurrent ? "text-primary" : "text-muted-foreground group-hover:text-primary"
-              )} />
-            </Link>
-          ))}
-        </div>
-      )}
-
-      {!isLoading && navItems.length === 0 && (showUSCounties || showITComuni) && (
-        <p className="text-sm text-muted-foreground italic">
-          No {isItaly ? "comuni" : "counties"} available yet. Check back soon!
-        </p>
-      )}
+      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-2">
+        {navItems.map((item) => (
+          <Link
+            key={item.slug}
+            to={item.href}
+            className={cn(
+              "flex items-center justify-between px-3 py-2 rounded-md",
+              "transition-colors",
+              "text-sm",
+              "group",
+              item.isCurrent
+                ? "bg-primary/10 text-primary font-medium"
+                : "bg-muted/50 hover:bg-muted text-foreground hover:text-primary"
+            )}
+          >
+            <span className="truncate">{item.name}</span>
+            <ChevronRight className={cn(
+              "w-4 h-4 shrink-0",
+              item.isCurrent ? "text-primary" : "text-muted-foreground group-hover:text-primary"
+            )} />
+          </Link>
+        ))}
+      </div>
     </section>
   );
 };

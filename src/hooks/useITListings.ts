@@ -1,5 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
-import { supabase } from "@/integrations/supabase/client";
+import { publicApi } from "@/lib/apiClient";
 import type { OsmDistanceFields } from "@/data/osmDistanceFields";
 
 export interface ITListing extends OsmDistanceFields {
@@ -18,41 +18,19 @@ export interface ITListing extends OsmDistanceFields {
   geom_json: unknown | null;
 }
 
-const TABLE = "mart_it_parcels_public";
-
 export function useITListingsNational(limit = 10) {
   return useQuery({
     queryKey: ["it-listings", "national", limit],
-    queryFn: async () => {
-      const { data, error } = await supabase
-        .from(TABLE)
-        .select("*")
-        .not("rank_global", "is", null)
-        .order("rank_global", { ascending: true })
-        .limit(limit);
-
-      if (error) throw error;
-      return data as ITListing[];
-    },
+    queryFn: () => publicApi<ITListing[]>(`/api/listings/it/public/?limit=${limit}`),
   });
 }
 
 export function useITListingsByRegion(regionSlug: string | undefined, limit = 10) {
   return useQuery({
     queryKey: ["it-listings", "region", regionSlug, limit],
-    queryFn: async () => {
-      if (!regionSlug) return [];
-
-      const { data, error } = await supabase
-        .from(TABLE)
-        .select("*")
-        .eq("region_slug", regionSlug)
-        .not("rank_global", "is", null)
-        .order("rank_global", { ascending: true })
-        .limit(limit);
-
-      if (error) throw error;
-      return data as ITListing[];
+    queryFn: () => {
+      const params = new URLSearchParams({ region_slug: regionSlug!, limit: String(limit) });
+      return publicApi<ITListing[]>(`/api/listings/it/public/?${params}`);
     },
     enabled: !!regionSlug,
   });
@@ -61,19 +39,9 @@ export function useITListingsByRegion(regionSlug: string | undefined, limit = 10
 export function useITListingsByComune(comuneSlug: string | undefined, limit = 10) {
   return useQuery({
     queryKey: ["it-listings", "comune", comuneSlug, limit],
-    queryFn: async () => {
-      if (!comuneSlug) return [];
-
-      const { data, error } = await supabase
-        .from(TABLE)
-        .select("*")
-        .eq("comune_slug", comuneSlug)
-        .not("rank_in_comune", "is", null)
-        .order("rank_in_comune", { ascending: true })
-        .limit(limit);
-
-      if (error) throw error;
-      return data as ITListing[];
+    queryFn: () => {
+      const params = new URLSearchParams({ comune_slug: comuneSlug!, limit: String(limit) });
+      return publicApi<ITListing[]>(`/api/listings/it/public/?${params}`);
     },
     enabled: !!comuneSlug,
   });
@@ -82,18 +50,7 @@ export function useITListingsByComune(comuneSlug: string | undefined, limit = 10
 export function useITListingById(listingId: string | undefined) {
   return useQuery({
     queryKey: ["it-listing", listingId],
-    queryFn: async () => {
-      if (!listingId) return null;
-
-      const { data, error } = await supabase
-        .from(TABLE)
-        .select("*")
-        .eq("id", listingId)
-        .single();
-
-      if (error) throw error;
-      return data as ITListing;
-    },
+    queryFn: () => publicApi<ITListing>(`/api/listings/it/public/${listingId}/`),
     enabled: !!listingId,
   });
 }

@@ -25,7 +25,7 @@ npm run preview      # Preview production build locally
 - React Router DOM for routing
 - React Query for data fetching
 - React Hook Form + Zod for forms
-- Supabase for backend (currently using mock data)
+- Django REST API for backend (`api/` in the parent repo)
 
 ## Architecture
 
@@ -69,9 +69,11 @@ import { Button } from "@/components/ui/button";
 - **Substation-ready** - Land near electrical substations for grid connection
 - **BESS** - Battery Energy Storage Systems
 
-## Mock Data
+## Data Sources
 
-Uses mock data in `src/data/mockListings.ts`. `getListingsByLocation()` filters by geographic hierarchy. Ready to swap with Supabase.
+- **Live data** comes from the Django API (`/api/listings/...`). See `src/hooks/useUSListings.ts`, `src/hooks/useITListings.ts`, `src/hooks/useHexHeatmap.ts`, and `src/hooks/usePremiumListing.ts`.
+- **Static structural data** (`src/data/counties.json`, `src/data/comuni.json`) lists the available counties/comuni and is baked from the marts; refresh by re-running the bake script in the parent repo.
+- **Mock data** in `src/data/mockListings.ts` is only used by demo/landing components.
 
 ## Styling
 

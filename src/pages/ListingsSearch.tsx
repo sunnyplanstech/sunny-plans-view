@@ -27,7 +27,6 @@ import {
   useITListingsByComune,
   ITListing,
 } from "@/hooks/useITListings";
-import { useUSCounty, useITComune } from "@/hooks/useLocationData";
 import { useUSHexHeatmap, useITHexHeatmap } from "@/hooks/useHexHeatmap";
 import { useListingViewCounter } from "@/hooks/useListingViewCounter";
 
@@ -124,12 +123,6 @@ const ListingsSearch = () => {
   const hexCells = isUS ? usHexQuery.data : isItaly ? itHexQuery.data : undefined;
   const hexLoading = showHeatmap && (isUS ? usHexQuery.isLoading : isItaly ? itHexQuery.isLoading : false);
 
-  // Fetch county/comune-level SEO stats
-  const countyStatsQuery = useUSCounty(isUSCounty ? region : undefined, isUSCounty ? province : undefined);
-  const countyStats = countyStatsQuery.data;
-  const comuneStatsQuery = useITComune(isITComune ? province : undefined);
-  const comuneStats = comuneStatsQuery.data;
-
   // Get the appropriate US listings
   const usListings: USListing[] = useMemo(() => {
     if (isUSCounty && countyQuery.data) return countyQuery.data;
@@ -165,21 +158,15 @@ const ListingsSearch = () => {
   const hasNoResults = totalListings.length === 0 && !isLoading;
 
   // SEO data
-  const listingCountForSEO = isItaly
-    ? (comuneStats?.listing_count || itListings.length)
-    : (countyStats?.listing_count || usListings.length);
+  const listingCountForSEO = isItaly ? itListings.length : usListings.length;
 
   const seoTitle = isItaly
     ? `Terreni per Fotovoltaico e BESS in ${locationName} | Sunnyplans`
     : `Substation-Ready Land for BESS & Solar in ${locationName} | Sunnyplans`;
 
   const seoDescription = isItaly
-    ? (comuneStats
-      ? `Scopri ${comuneStats.listing_count} particelle catastali per fotovoltaico in ${locationName}, ${parentName}. Probabilità solare media: ${Math.round((comuneStats.avg_prob_solar || 0) * 100)}%. Pre-analizzate per BESS e solare.`
-      : `Particelle catastali per fotovoltaico e BESS in ${locationName}, ${parentName}. Analisi solare e vicinanza alle sottostazioni elettriche.`)
-    : (countyStats
-      ? `Discover ${countyStats.listing_count} solar land opportunities in ${locationName}, ${parentName}. Avg solar probability: ${Math.round((countyStats.avg_prob_solar || 0) * 100)}%. Pre-vetted for BESS & solar.`
-      : generateListingSEODescription(locationName, usListings.length, parentName));
+    ? `Particelle catastali per fotovoltaico e BESS in ${locationName}, ${parentName}. Analisi solare e vicinanza alle sottostazioni elettriche.`
+    : generateListingSEODescription(locationName, usListings.length, parentName);
 
   const seoKeywordsStr = isItaly
     ? `terreni fotovoltaico ${locationName}, BESS Italia, solare ${locationName}, particelle catastali fotovoltaico`
@@ -220,15 +207,6 @@ const ListingsSearch = () => {
         name: `Substation-Ready Solar Land in ${locationName}`,
         description: seoDescription,
         numberOfItems: listingCountForSEO,
-        ...(countyStats && {
-          aggregateRating: {
-            "@type": "AggregateRating",
-            ratingValue: Math.round((countyStats.avg_prob_solar || 0) * 100),
-            bestRating: 100,
-            worstRating: 0,
-            ratingCount: countyStats.listing_count,
-          },
-        }),
         itemListElement: usListings.slice(0, 10).map((listing, index) => ({
           "@type": "ListItem",
           position: index + 1,
