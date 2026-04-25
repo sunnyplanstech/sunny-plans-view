@@ -1,15 +1,23 @@
-import { createContext, useState, useEffect, useCallback, type ReactNode } from "react";
+import {
+  createContext,
+  useCallback,
+  useEffect,
+  useRef,
+  useState,
+  type ReactNode,
+} from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import {
+  endSession,
+  hasStoredSession,
+  loadCurrentUser,
   login as apiLogin,
+  revokeSessionOnServer,
+  setSession,
   signup as apiSignup,
-  logout as apiLogout,
-  fetchUserProfile,
-  refreshTokens,
+  subscribeTokenChanges,
   type UserProfile,
-  type AuthError,
 } from "@/lib/auth";
-import { getAccessToken, getRefreshToken, setTokens, clearTokens, isTokenExpired } from "@/lib/jwt";
 
 export interface AuthContextValue {
   user: UserProfile | null;
@@ -18,6 +26,8 @@ export interface AuthContextValue {
   login: (email: string, password: string) => Promise<void>;
   signup: (email: string, password1: string, password2: string) => Promise<void>;
   logout: () => Promise<void>;
+  /** Re-fetch the profile (e.g. after Stripe checkout updates the subscription). */
+  refreshUser: () => Promise<void>;
   openAuthModal: (tab?: "login" | "signup") => void;
   closeAuthModal: () => void;
   authModalOpen: boolean;
@@ -32,56 +42,69 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [isLoading, setIsLoading] = useState(true);
   const [authModalOpen, setAuthModalOpen] = useState(false);
   const [authModalTab, setAuthModalTab] = useState<"login" | "signup">("login");
+  const mounted = useRef(true);
 
-  // Bootstrap: check stored tokens on mount
-  useEffect(() => {
-    (async () => {
-      try {
-        let access = getAccessToken();
-        const refresh = getRefreshToken();
-
-        if (!access && !refresh) return;
-
-        if (!access || isTokenExpired(access)) {
-          if (!refresh) {
-            clearTokens();
-            return;
-          }
-          const tokens = await refreshTokens(refresh);
-          setTokens(tokens.access, tokens.refresh);
-          access = tokens.access;
-        }
-
-        const profile = await fetchUserProfile(access);
-        setUser(profile);
-      } catch {
-        clearTokens();
-      } finally {
-        setIsLoading(false);
-      }
-    })();
+  const reloadUser = useCallback(async () => {
+    try {
+      const profile = await loadCurrentUser();
+      if (mounted.current) setUser(profile);
+    } catch {
+      // Transient error (network, 5xx). Keep prior state — do not log out.
+    }
   }, []);
+
+  // Bootstrap.
+  useEffect(() => {
+    mounted.current = true;
+    void (async () => {
+      await reloadUser();
+      if (mounted.current) setIsLoading(false);
+    })();
+    return () => {
+      mounted.current = false;
+    };
+  }, [reloadUser]);
+
+  // Cross-tab sync: another tab logged in or out.
+  useEffect(() => subscribeTokenChanges(() => void reloadUser()), [reloadUser]);
+
+  // Profile refetch when the user returns to the tab — covers the Stripe
+  // checkout round-trip, where `has_active_subscription` flips server-side
+  // via webhook while the user is away.
+  useEffect(() => {
+    const onVisible = () => {
+      if (document.visibilityState !== "visible") return;
+      if (!hasStoredSession()) return;
+      void reloadUser();
+    };
+    document.addEventListener("visibilitychange", onVisible);
+    return () => document.removeEventListener("visibilitychange", onVisible);
+  }, [reloadUser]);
 
   const login = useCallback(async (email: string, password: string) => {
-    const { tokens, user: profile } = await apiLogin({ email, password });
-    setTokens(tokens.access, tokens.refresh);
+    const { tokens, user: profile } = await apiLogin(email, password);
+    setSession(tokens);
     setUser(profile);
     setAuthModalOpen(false);
   }, []);
 
-  const signup = useCallback(async (email: string, password1: string, password2: string) => {
-    const { tokens, user: profile } = await apiSignup({ email, password1, password2 });
-    setTokens(tokens.access, tokens.refresh);
-    setUser(profile);
-    setAuthModalOpen(false);
-  }, []);
+  const signup = useCallback(
+    async (email: string, password1: string, password2: string) => {
+      const { tokens, user: profile } = await apiSignup(email, password1, password2);
+      setSession(tokens);
+      setUser(profile);
+      setAuthModalOpen(false);
+    },
+    [],
+  );
 
   const logout = useCallback(async () => {
-    const refresh = getRefreshToken();
-    if (refresh) await apiLogout(refresh);
-    clearTokens();
+    // Clear local state first so the UI updates immediately and a hung
+    // /logout/ call can never trap the user in a logged-in state.
+    endSession();
     setUser(null);
     queryClient.clear();
+    await revokeSessionOnServer();
   }, [queryClient]);
 
   const openAuthModal = useCallback((tab: "login" | "signup" = "login") => {
@@ -100,6 +123,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         login,
         signup,
         logout,
+        refreshUser: reloadUser,
         openAuthModal,
         closeAuthModal,
         authModalOpen,
