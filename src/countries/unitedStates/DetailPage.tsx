@@ -47,7 +47,7 @@ function useUSPublicListing(id: string) {
   });
 }
 
-function useUSPremiumListing(id: string, isAuthenticated: boolean) {
+function useUSPremiumListing(id: string, hasAccess: boolean) {
   return useQuery({
     queryKey: ["us-premium-listing", id],
     queryFn: async () => {
@@ -55,7 +55,7 @@ function useUSPremiumListing(id: string, isAuthenticated: boolean) {
       if (!res.ok) throw new Error(`API error: ${res.status}`);
       return (await res.json()) as USPremiumListing;
     },
-    enabled: isAuthenticated,
+    enabled: hasAccess,
   });
 }
 
@@ -79,9 +79,10 @@ function formatSubstationDistance(meters: number | null): string {
 }
 
 export function USDetailPage({ id, country, region, province }: DetailPageProps) {
-  const { isAuthenticated, openAuthModal } = useAuth();
+  const { user, openAuthModal } = useAuth();
+  const hasAccess = !!user?.has_active_subscription;
   const { data: publicListing, isLoading, error } = useUSPublicListing(id);
-  const { data: premium } = useUSPremiumListing(id, isAuthenticated);
+  const { data: premium } = useUSPremiumListing(id, hasAccess);
 
   if (isLoading) return <DetailLoading />;
   if (error || !publicListing) return <DetailNotFound country={country} />;
@@ -235,7 +236,7 @@ export function USDetailPage({ id, country, region, province }: DetailPageProps)
 
           <Card className="bg-primary/5 border-primary/20">
             <CardContent className="pt-6 space-y-4">
-              {isAuthenticated ? <FullAccessBadge /> : <SubscribeCTA openAuthModal={openAuthModal} />}
+              {hasAccess ? <FullAccessBadge /> : <SubscribeCTA openAuthModal={openAuthModal} />}
             </CardContent>
           </Card>
         </div>

@@ -17,6 +17,7 @@ const Blog = lazy(() => import("./pages/Blog"));
 const BlogPost = lazy(() => import("./pages/BlogPost"));
 const Contact = lazy(() => import("./pages/Contact"));
 const Terms = lazy(() => import("./pages/Terms"));
+const VerifyEmail = lazy(() => import("./pages/VerifyEmail"));
 
 // Loading fallback for lazy routes
 const PageLoader = () => (
@@ -68,6 +69,7 @@ const App = () => (
           {/* Static pages */}
           <Route path="/contact" element={<Suspense fallback={<PageLoader />}><Contact /></Suspense>} />
           <Route path="/terms" element={<Suspense fallback={<PageLoader />}><Terms /></Suspense>} />
+          <Route path="/verify-email/:key" element={<Suspense fallback={<PageLoader />}><VerifyEmail /></Suspense>} />
 
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />

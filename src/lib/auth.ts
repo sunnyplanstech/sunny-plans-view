@@ -10,6 +10,8 @@ export interface UserProfile {
   email: string;
   name: string;
   date_joined: string;
+  email_verified: boolean;
+  has_active_subscription: boolean;
 }
 
 interface LoginPayload {

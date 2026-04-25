@@ -38,7 +38,7 @@ function useITPublicListing(id: string) {
   });
 }
 
-function useITPremiumListing(id: string, isAuthenticated: boolean) {
+function useITPremiumListing(id: string, hasAccess: boolean) {
   return useQuery({
     queryKey: ["it-premium-listing", id],
     queryFn: async () => {
@@ -46,7 +46,7 @@ function useITPremiumListing(id: string, isAuthenticated: boolean) {
       if (!res.ok) throw new Error(`API error: ${res.status}`);
       return (await res.json()) as ITPremiumListing;
     },
-    enabled: isAuthenticated,
+    enabled: hasAccess,
   });
 }
 
@@ -63,9 +63,10 @@ function formatRegionSlug(slug: string): string {
 }
 
 export function ITDetailPage({ id, country, region, province }: DetailPageProps) {
-  const { isAuthenticated, openAuthModal } = useAuth();
+  const { user, openAuthModal } = useAuth();
+  const hasAccess = !!user?.has_active_subscription;
   const { data: publicListing, isLoading, error } = useITPublicListing(id);
-  const { data: premium } = useITPremiumListing(id, isAuthenticated);
+  const { data: premium } = useITPremiumListing(id, hasAccess);
 
   if (isLoading) return <DetailLoading />;
   if (error || !publicListing) return <DetailNotFound country={country} />;
@@ -181,7 +182,7 @@ export function ITDetailPage({ id, country, region, province }: DetailPageProps)
 
           <Card className="bg-primary/5 border-primary/20">
             <CardContent className="pt-6 space-y-4">
-              {isAuthenticated ? (
+              {hasAccess ? (
                 <FullAccessBadge />
               ) : (
                 <SubscribeCTA openAuthModal={openAuthModal} lang="it" />

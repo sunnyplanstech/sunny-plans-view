@@ -1,6 +1,11 @@
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Check } from "lucide-react";
+import { useAuth } from "@/hooks/useAuth";
+import { CheckoutError, createCheckoutSession } from "@/lib/subscriptions";
+import { toast } from "@/hooks/use-toast";
+
+const ENTERPRISE_URL = "https://calendly.com/eracle/new-meeting";
 
 const tiers = [
   {
@@ -10,37 +15,35 @@ const tiers = [
     features: [
       "Browse all US states and Italian regions",
       "Obfuscated listing data",
-      "Solar suitability scores (SunnyScore\u2122)",
+      "Solar suitability scores (SunnyScore™)",
     ],
-    cta: "Start Free \u2013 Pick Your Region",
+    cta: "Start Free",
     highlighted: false,
   },
   {
     name: "Premium",
     price: "$299",
-    period: "/month per state/region",
-    description: "Vetted sites for serious developers. Dive deep in one US state or Italian region (multi-region? Contact sales for discounts).",
+    period: "/month",
+    description: "Full access to every parcel across the US and Italy with exact coordinates and source links.",
     features: [
-      "Top-ranked parcels with full details and descriptions",
-      "Full agent/broker contact info (unmasked)",
-      "Solar suitability scores (SunnyScore\u2122)",
+      "Top-ranked parcels with full details",
+      "Exact coordinates for every listing",
+      "Direct links to the source listing (contact agents there)",
+      "Solar suitability scores (SunnyScore™)",
       "Substation & transformer distance data",
       "Infrastructure distance data (highway, industrial, water)",
-      "Direct links to the source website listings",
       "Priority support",
-      "One US state or Italian region",
     ],
-    cta: "Go Premium \u2013 Pick Your Region",
+    cta: "Go Premium",
     highlighted: true,
   },
   {
     name: "Enterprise",
     price: "Custom",
-    period: " (multi-region discounts)",
-    description: "Scalable geo-analytics for portfolio expansion. Interactive tools, no emails\u2014just results.",
+    period: "",
+    description: "Scalable geo-analytics for portfolio expansion. Interactive tools, no emails—just results.",
     features: [
       "Interactive heatmap for discovery",
-      "Multi-state/custom coverage",
       "API integrations",
       "Dedicated manager",
       "Unlimited exports",
@@ -52,9 +55,52 @@ const tiers = [
 ];
 
 const Pricing = () => {
-  const handleRedirect = (url) => {
-    window.location.href = url;
+  const { user, openAuthModal } = useAuth();
+
+  const handlePremium = async () => {
+    if (!user) {
+      openAuthModal("signup");
+      return;
+    }
+    if (!user.email_verified) {
+      toast({
+        title: "Verify your email",
+        description: "Check your inbox for the verification link, then try again.",
+      });
+      return;
+    }
+    try {
+      const url = await createCheckoutSession();
+      window.location.href = url;
+    } catch (err) {
+      const reason = err instanceof CheckoutError ? err.reason : "server";
+      toast({
+        title: reason === "unverified" ? "Verify your email" : "Checkout failed",
+        description:
+          err instanceof Error ? err.message : "Could not start checkout. Please try again.",
+        variant: "destructive",
+      });
+    }
   };
+
+  const handleFreeTier = () => {
+    if (user) {
+      window.location.href = "/";
+    } else {
+      openAuthModal("signup");
+    }
+  };
+
+  const handleEnterprise = () => {
+    window.location.href = ENTERPRISE_URL;
+  };
+
+  const handlerFor = (tierName: string) => {
+    if (tierName === "Premium") return handlePremium;
+    if (tierName === "Enterprise") return handleEnterprise;
+    return handleFreeTier;
+  };
+
   return (
     <section id="pricing" className="py-20 md:py-32">
       <div className="container px-4">
@@ -70,9 +116,9 @@ const Pricing = () => {
           </p>
         </div>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-7xl mx-auto">
-          {tiers.map((tier, index) => (
+          {tiers.map((tier) => (
             <Card
-              key={index}
+              key={tier.name}
               className={`relative ${
                 tier.highlighted
                   ? 'border-primary shadow-lg scale-105 bg-gradient-card'
@@ -109,15 +155,7 @@ const Pricing = () => {
                   variant={tier.highlighted ? "hero" : "outline"}
                   className="w-full"
                   size="lg"
-                  onClick={
-                    tier.name === 'Free Tier'
-                      ? () => handleRedirect('#signup')
-                      : tier.name === 'Premium'
-                      ? () => handleRedirect('https://buy.stripe.com/4gM14pb5r7Wx4g1aOGaR200')
-                      : tier.name === 'Enterprise'
-                      ? () => handleRedirect('https://calendly.com/eracle/new-meeting')
-                      : undefined
-                  }
+                  onClick={handlerFor(tier.name)}
                 >
                   {tier.cta}
                 </Button>
