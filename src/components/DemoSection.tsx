@@ -4,10 +4,11 @@ import { Button } from "@/components/ui/button";
 import { ArrowRight } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
-import { useUSListingsNational } from "@/hooks/useUSListings";
-import { useITListingsNational } from "@/hooks/useITListings";
+import { unitedStates, italy } from "@/countries";
 import USListingCard from "@/components/listings/USListingCard";
 import ITListingCard from "@/components/listings/ITListingCard";
+import type { USListing } from "@/countries/unitedStates";
+import type { ITListing } from "@/countries/italy";
 import {
   Carousel,
   CarouselContent,
@@ -39,8 +40,16 @@ const CarouselSkeleton = () => (
 
 const DemoSection = () => {
   const [activeTab, setActiveTab] = useState<CountryKey>("us");
-  const { data: usListings, isLoading: usLoading } = useUSListingsNational(5);
-  const { data: itListings, isLoading: itLoading } = useITListingsNational(5);
+  const { data: usListingsRaw, isLoading: usLoading } = unitedStates.useListings(
+    { level: "national" },
+    5
+  );
+  const { data: itListingsRaw, isLoading: itLoading } = italy.useListings(
+    { level: "national" },
+    5
+  );
+  const usListings = usListingsRaw as USListing[] | undefined;
+  const itListings = itListingsRaw as ITListing[] | undefined;
 
   const country = COUNTRIES[activeTab];
 

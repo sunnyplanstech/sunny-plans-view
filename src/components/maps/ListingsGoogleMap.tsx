@@ -1,8 +1,8 @@
 import { GoogleMap } from "@react-google-maps/api";
 import { useMemo, useState, useCallback, useEffect, useRef } from "react";
 import { MapPin, Layers, Loader2 } from "lucide-react";
-import { USListing } from "@/hooks/useUSListings";
-import { HexCell } from "@/hooks/useHexHeatmap";
+import type { USListing } from "@/countries/unitedStates";
+import type { HexCell } from "@/hooks/useHexHeatmap";
 import { useGoogleMaps } from "./GoogleMapsProvider";
 import { getParcelCenter } from "@/lib/geo";
 import { Button } from "@/components/ui/button";

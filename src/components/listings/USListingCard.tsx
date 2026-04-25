@@ -3,7 +3,7 @@ import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { MapPin, Zap, Ruler, Sun, ArrowRight, Trophy } from "lucide-react";
-import { USListing } from "@/hooks/useUSListings";
+import type { USListing } from "@/countries/unitedStates";
 import { stateCodeToSlug, countyToSlug } from "@/data/locations";
 import MiniParcelMap from "@/components/maps/MiniParcelMap";
 import { cn } from "@/lib/utils";

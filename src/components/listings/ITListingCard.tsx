@@ -3,7 +3,7 @@ import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { MapPin, Sun, ArrowRight, Trophy } from "lucide-react";
-import { ITListing } from "@/hooks/useITListings";
+import type { ITListing } from "@/countries/italy";
 import MiniParcelMap from "@/components/maps/MiniParcelMap";
 import { cn } from "@/lib/utils";
 import { getParcelCenter } from "@/lib/geo";
