@@ -5,8 +5,12 @@ export {
   signup,
   resendVerificationEmail,
   fetchProfile,
+  requestPasswordReset,
+  confirmPasswordReset,
+  loginWithGoogle,
 } from "./api";
-export type { AuthResult } from "./api";
+export type { AuthResult, PasswordResetConfirmInput } from "./api";
+export { readNextParam, buildNextQuery } from "./next";
 export {
   ensureAccessToken,
   setSession,

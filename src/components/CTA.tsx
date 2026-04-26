@@ -1,9 +1,10 @@
+import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { ArrowRight, Check } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 
 const CTA = () => {
-  const { isAuthenticated, openAuthModal } = useAuth();
+  const { isAuthenticated } = useAuth();
 
   return (
     <section id="signup" className="py-20 md:py-32 bg-gradient-subtle">
@@ -47,23 +48,20 @@ const CTA = () => {
                   </p>
                 ) : (
                   <>
-                    <Button
-                      variant="hero"
-                      size="lg"
-                      className="w-full"
-                      onClick={() => openAuthModal("signup")}
-                    >
-                      Subscribe Now
-                      <ArrowRight className="ml-2 w-4 h-4" />
+                    <Button asChild variant="hero" size="lg" className="w-full">
+                      <Link to="/register">
+                        Subscribe Now
+                        <ArrowRight className="ml-2 w-4 h-4" />
+                      </Link>
                     </Button>
                     <p className="text-xs text-muted-foreground mt-3">
                       Already have an account?{" "}
-                      <button
-                        onClick={() => openAuthModal("login")}
+                      <Link
+                        to="/login"
                         className="underline hover:text-foreground transition-colors"
                       >
                         Log in
-                      </button>
+                      </Link>
                     </p>
                   </>
                 )}

@@ -89,3 +89,24 @@ export async function resendVerificationEmail(email: string): Promise<void> {
     throw new AuthError(res.status, data);
   }
 }
+
+export async function requestPasswordReset(email: string): Promise<void> {
+  await postJson("/api/auth/password/reset/", { email });
+}
+
+export interface PasswordResetConfirmInput {
+  uid: string;
+  token: string;
+  new_password1: string;
+  new_password2: string;
+}
+
+export async function confirmPasswordReset(input: PasswordResetConfirmInput): Promise<void> {
+  await postJson("/api/auth/password/reset/confirm/", input);
+}
+
+export async function loginWithGoogle(idToken: string): Promise<AuthResult> {
+  return unwrapLogin(
+    await postJson<DjRestAuthLoginResponse>("/api/auth/google/", { id_token: idToken }),
+  );
+}

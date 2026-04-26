@@ -1,3 +1,4 @@
+import { useLocation, useNavigate } from "react-router-dom";
 import { Calendar, CreditCard, ExternalLink, Mail } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/hooks/useAuth";
@@ -36,17 +37,18 @@ const CTA_STRINGS = {
 export type CTALang = keyof typeof CTA_STRINGS;
 
 interface SubscribeCTAProps {
-  openAuthModal: (mode: "signup") => void;
   lang?: CTALang;
 }
 
-export function SubscribeCTA({ openAuthModal, lang = "en" }: SubscribeCTAProps) {
+export function SubscribeCTA({ lang = "en" }: SubscribeCTAProps) {
   const t = CTA_STRINGS[lang];
   const { user } = useAuth();
+  const location = useLocation();
+  const navigate = useNavigate();
 
   const handleSubscribe = async () => {
     if (!user) {
-      openAuthModal("signup");
+      navigate(`/register?next=${encodeURIComponent(location.pathname + location.search)}`);
       return;
     }
     try {

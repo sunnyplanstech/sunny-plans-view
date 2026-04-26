@@ -12,6 +12,7 @@ import {
   hasStoredSession,
   loadCurrentUser,
   login as apiLogin,
+  loginWithGoogle as apiLoginWithGoogle,
   revokeSessionOnServer,
   setSession,
   signup as apiSignup,
@@ -25,13 +26,10 @@ export interface AuthContextValue {
   isLoading: boolean;
   login: (email: string, password: string) => Promise<void>;
   signup: (email: string, password1: string, password2: string) => Promise<void>;
+  loginWithGoogle: (idToken: string) => Promise<void>;
   logout: () => Promise<void>;
   /** Re-fetch the profile (e.g. after Stripe checkout updates the subscription). */
   refreshUser: () => Promise<void>;
-  openAuthModal: (tab?: "login" | "signup") => void;
-  closeAuthModal: () => void;
-  authModalOpen: boolean;
-  authModalTab: "login" | "signup";
 }
 
 export const AuthContext = createContext<AuthContextValue | null>(null);
@@ -40,8 +38,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const queryClient = useQueryClient();
   const [user, setUser] = useState<UserProfile | null>(null);
   const [isLoading, setIsLoading] = useState(true);
-  const [authModalOpen, setAuthModalOpen] = useState(false);
-  const [authModalTab, setAuthModalTab] = useState<"login" | "signup">("login");
   const mounted = useRef(true);
 
   const reloadUser = useCallback(async () => {
@@ -85,7 +81,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const { tokens, user: profile } = await apiLogin(email, password);
     setSession(tokens);
     setUser(profile);
-    setAuthModalOpen(false);
   }, []);
 
   const signup = useCallback(
@@ -93,10 +88,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       const { tokens, user: profile } = await apiSignup(email, password1, password2);
       setSession(tokens);
       setUser(profile);
-      setAuthModalOpen(false);
     },
     [],
   );
+
+  const loginWithGoogle = useCallback(async (idToken: string) => {
+    const { tokens, user: profile } = await apiLoginWithGoogle(idToken);
+    setSession(tokens);
+    setUser(profile);
+  }, []);
 
   const logout = useCallback(async () => {
     // Clear local state first so the UI updates immediately and a hung
@@ -107,13 +107,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     await revokeSessionOnServer();
   }, [queryClient]);
 
-  const openAuthModal = useCallback((tab: "login" | "signup" = "login") => {
-    setAuthModalTab(tab);
-    setAuthModalOpen(true);
-  }, []);
-
-  const closeAuthModal = useCallback(() => setAuthModalOpen(false), []);
-
   return (
     <AuthContext.Provider
       value={{
@@ -122,12 +115,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         isLoading,
         login,
         signup,
+        loginWithGoogle,
         logout,
         refreshUser: reloadUser,
-        openAuthModal,
-        closeAuthModal,
-        authModalOpen,
-        authModalTab,
       }}
     >
       {children}

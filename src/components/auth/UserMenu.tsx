@@ -1,4 +1,5 @@
-import { LogOut, User } from "lucide-react";
+import { LogOut } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -12,7 +13,13 @@ import { useAuth } from "@/hooks/useAuth";
 
 export default function UserMenu() {
   const { user, logout } = useAuth();
+  const navigate = useNavigate();
   if (!user) return null;
+
+  const handleLogout = async () => {
+    await logout();
+    navigate("/", { replace: true });
+  };
 
   const initial = (user.name?.[0] ?? user.email[0]).toUpperCase();
 
@@ -31,7 +38,7 @@ export default function UserMenu() {
           <p className="text-xs text-muted-foreground truncate">{user.email}</p>
         </DropdownMenuLabel>
         <DropdownMenuSeparator />
-        <DropdownMenuItem onClick={() => logout()}>
+        <DropdownMenuItem onClick={handleLogout}>
           <LogOut className="mr-2 h-4 w-4" />
           Log Out
         </DropdownMenuItem>

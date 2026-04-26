@@ -63,7 +63,7 @@ function formatRegionSlug(slug: string): string {
 }
 
 export function ITDetailPage({ id, country, region, province }: DetailPageProps) {
-  const { user, openAuthModal } = useAuth();
+  const { user } = useAuth();
   const hasAccess = !!user?.has_active_subscription;
   const { data: publicListing, isLoading, error } = useITPublicListing(id);
   const { data: premium } = useITPremiumListing(id, hasAccess);
@@ -185,7 +185,7 @@ export function ITDetailPage({ id, country, region, province }: DetailPageProps)
               {hasAccess ? (
                 <FullAccessBadge />
               ) : (
-                <SubscribeCTA openAuthModal={openAuthModal} lang="it" />
+                <SubscribeCTA lang="it" />
               )}
             </CardContent>
           </Card>

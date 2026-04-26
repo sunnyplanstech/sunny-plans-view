@@ -11,7 +11,11 @@ const Navbar = () => {
   const [mobileOpen, setMobileOpen] = useState(false);
   const location = useLocation();
   const navigate = useNavigate();
-  const { isAuthenticated, openAuthModal } = useAuth();
+  const { isAuthenticated } = useAuth();
+  const loginHref =
+    location.pathname === "/"
+      ? "/login"
+      : `/login?next=${encodeURIComponent(location.pathname + location.search)}`;
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 10);
@@ -107,13 +111,11 @@ const Navbar = () => {
                 <UserMenu />
               </div>
             ) : (
-              <Button
-                size="lg"
-                className="ml-3 text-base px-6"
-                onClick={() => openAuthModal("login")}
-              >
-                <LogIn className="mr-2 h-4 w-4" />
-                Sign In
+              <Button asChild size="lg" className="ml-3 text-base px-6">
+                <Link to={loginHref}>
+                  <LogIn className="mr-2 h-4 w-4" />
+                  Sign In
+                </Link>
               </Button>
             )}
           </nav>
@@ -170,12 +172,11 @@ const Navbar = () => {
                 <UserMenu />
               </div>
             ) : (
-              <Button
-                className="mt-2 w-full"
-                onClick={() => { setMobileOpen(false); openAuthModal("login"); }}
-              >
-                <LogIn className="mr-2 h-4 w-4" />
-                Sign In
+              <Button asChild className="mt-2 w-full">
+                <Link to={loginHref} onClick={() => setMobileOpen(false)}>
+                  <LogIn className="mr-2 h-4 w-4" />
+                  Sign In
+                </Link>
               </Button>
             )}
           </nav>

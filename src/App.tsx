@@ -8,7 +8,6 @@ import Index from "./pages/Index";
 import NotFound from "./pages/NotFound";
 import { GoogleMapsProvider } from "@/components/maps/GoogleMapsProvider";
 import { AuthProvider } from "@/contexts/AuthContext";
-import AuthModal from "@/components/auth/AuthModal";
 
 // Lazy load heavy route components
 const ListingsSearch = lazy(() => import("./pages/ListingsSearch"));
@@ -18,6 +17,11 @@ const BlogPost = lazy(() => import("./pages/BlogPost"));
 const Contact = lazy(() => import("./pages/Contact"));
 const Terms = lazy(() => import("./pages/Terms"));
 const VerifyEmail = lazy(() => import("./pages/VerifyEmail"));
+const Login = lazy(() => import("./pages/Login"));
+const Register = lazy(() => import("./pages/Register"));
+const ForgotPassword = lazy(() => import("./pages/ForgotPassword"));
+const ResetPassword = lazy(() => import("./pages/ResetPassword"));
+const CheckYourEmail = lazy(() => import("./pages/CheckYourEmail"));
 
 // Loading fallback for lazy routes
 const PageLoader = () => (
@@ -35,7 +39,6 @@ const App = () => (
       <TooltipProvider>
         <Toaster />
         <Sonner />
-        <AuthModal />
         <BrowserRouter>
         <Routes>
           <Route path="/" element={<Index />} />
@@ -70,6 +73,13 @@ const App = () => (
           <Route path="/contact" element={<Suspense fallback={<PageLoader />}><Contact /></Suspense>} />
           <Route path="/terms" element={<Suspense fallback={<PageLoader />}><Terms /></Suspense>} />
           <Route path="/verify-email/:key" element={<Suspense fallback={<PageLoader />}><VerifyEmail /></Suspense>} />
+
+          {/* Auth */}
+          <Route path="/login" element={<Suspense fallback={<PageLoader />}><Login /></Suspense>} />
+          <Route path="/register" element={<Suspense fallback={<PageLoader />}><Register /></Suspense>} />
+          <Route path="/forgot-password" element={<Suspense fallback={<PageLoader />}><ForgotPassword /></Suspense>} />
+          <Route path="/reset-password/:uid/:token" element={<Suspense fallback={<PageLoader />}><ResetPassword /></Suspense>} />
+          <Route path="/check-your-email" element={<Suspense fallback={<PageLoader />}><CheckYourEmail /></Suspense>} />
 
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />

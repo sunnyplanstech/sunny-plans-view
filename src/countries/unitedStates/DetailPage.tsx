@@ -79,7 +79,7 @@ function formatSubstationDistance(meters: number | null): string {
 }
 
 export function USDetailPage({ id, country, region, province }: DetailPageProps) {
-  const { user, openAuthModal } = useAuth();
+  const { user } = useAuth();
   const hasAccess = !!user?.has_active_subscription;
   const { data: publicListing, isLoading, error } = useUSPublicListing(id);
   const { data: premium } = useUSPremiumListing(id, hasAccess);
@@ -236,7 +236,7 @@ export function USDetailPage({ id, country, region, province }: DetailPageProps)
 
           <Card className="bg-primary/5 border-primary/20">
             <CardContent className="pt-6 space-y-4">
-              {hasAccess ? <FullAccessBadge /> : <SubscribeCTA openAuthModal={openAuthModal} />}
+              {hasAccess ? <FullAccessBadge /> : <SubscribeCTA />}
             </CardContent>
           </Card>
         </div>

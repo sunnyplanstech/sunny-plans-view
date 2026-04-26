@@ -65,7 +65,7 @@ const VerifyEmail = () => {
           <div className="space-y-4">
             <p className="text-foreground">Your email is verified. You can now sign in.</p>
             <Button asChild>
-              <Link to="/?auth=login">Sign in</Link>
+              <Link to="/login">Sign in</Link>
             </Button>
           </div>
         )}

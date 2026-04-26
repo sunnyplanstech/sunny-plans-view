@@ -1,3 +1,4 @@
+import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Check } from "lucide-react";
@@ -55,11 +56,12 @@ const tiers = [
 ];
 
 const Pricing = () => {
-  const { user, openAuthModal } = useAuth();
+  const { user } = useAuth();
+  const navigate = useNavigate();
 
   const handlePremium = async () => {
     if (!user) {
-      openAuthModal("signup");
+      navigate("/register?next=%2F%23pricing");
       return;
     }
     if (!user.email_verified) {
@@ -87,7 +89,7 @@ const Pricing = () => {
     if (user) {
       window.location.href = "/";
     } else {
-      openAuthModal("signup");
+      navigate("/register");
     }
   };
 
