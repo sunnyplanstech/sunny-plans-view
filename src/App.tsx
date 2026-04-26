@@ -22,6 +22,7 @@ const Register = lazy(() => import("./pages/Register"));
 const ForgotPassword = lazy(() => import("./pages/ForgotPassword"));
 const ResetPassword = lazy(() => import("./pages/ResetPassword"));
 const CheckYourEmail = lazy(() => import("./pages/CheckYourEmail"));
+const Checkout = lazy(() => import("./pages/Checkout"));
 
 // Loading fallback for lazy routes
 const PageLoader = () => (
@@ -80,6 +81,9 @@ const App = () => (
           <Route path="/forgot-password" element={<Suspense fallback={<PageLoader />}><ForgotPassword /></Suspense>} />
           <Route path="/reset-password/:uid/:token" element={<Suspense fallback={<PageLoader />}><ResetPassword /></Suspense>} />
           <Route path="/check-your-email" element={<Suspense fallback={<PageLoader />}><CheckYourEmail /></Suspense>} />
+
+          {/* Stripe checkout return URLs (defined in api/config/settings/base.py STRIPE_*_URL) */}
+          <Route path="/checkout/:status" element={<Suspense fallback={<PageLoader />}><Checkout /></Suspense>} />
 
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
