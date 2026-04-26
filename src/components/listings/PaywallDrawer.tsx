@@ -1,13 +1,6 @@
 import { useEffect, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { Calendar, Check, CreditCard, ExternalLink, Lock, Mail } from "lucide-react";
-import { loadStripe, type Stripe } from "@stripe/stripe-js";
-import {
-  Elements,
-  PaymentElement,
-  useElements,
-  useStripe,
-} from "@stripe/react-stripe-js";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -19,12 +12,10 @@ import {
 } from "@/components/ui/sheet";
 import { useAuth } from "@/hooks/useAuth";
 import { toast } from "@/hooks/use-toast";
-import { STRIPE_PUBLISHABLE_KEY } from "@/lib/config";
 import {
   resendVerificationEmail,
   startParcelPurchase,
   startSubscription,
-  type ParcelPurchaseIntent,
 } from "@/lib/subscriptions";
 
 const CALENDLY_LINK = "https://calendly.com/eracle/new-meeting";
@@ -46,11 +37,9 @@ const STRINGS = {
     verifyHeading: "Verify your email",
     verifyDescription: "Open the verification link we sent to your inbox before paying.",
     resend: "Resend verification email",
-    pay: "Pay",
-    paying: "Processing payment…",
+    redirecting: "Opening secure checkout…",
     success: "Payment confirmed",
     successHint: "Refreshing your data…",
-    cancel: "Cancel",
     back: "Back",
     intentFailed: "Could not start checkout. Please try again.",
     duplicate: "You already have access to this listing.",
@@ -71,11 +60,9 @@ const STRINGS = {
     verifyHeading: "Verifica la tua email",
     verifyDescription: "Apri il link di verifica che ti abbiamo inviato prima di pagare.",
     resend: "Invia di nuovo l'email di verifica",
-    pay: "Paga",
-    paying: "Elaborazione pagamento…",
+    redirecting: "Apertura del checkout sicuro…",
     success: "Pagamento confermato",
     successHint: "Aggiornamento dati in corso…",
-    cancel: "Annulla",
     back: "Indietro",
     intentFailed: "Impossibile avviare il pagamento. Riprova.",
     duplicate: "Hai già accesso a questa particella.",
@@ -86,8 +73,7 @@ type Lang = keyof typeof STRINGS;
 
 type DrawerState =
   | { kind: "choice" }
-  | { kind: "intent_loading" }
-  | { kind: "payment_form"; intent: ParcelPurchaseIntent }
+  | { kind: "redirecting" }
   | { kind: "verify" }
   | { kind: "success" };
 
@@ -95,15 +81,10 @@ interface PaywallDrawerProps {
   listingId: string;
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  /** Called after a successful one-off payment. The page should invalidate the listing query. */
+  /** Called only on the staff-comp shortcut path; the regular flow leaves the
+   *  app to Stripe Checkout and returns via /checkout/success. */
   onPaymentSuccess: () => void;
   lang?: Lang;
-}
-
-let stripePromise: Promise<Stripe | null> | null = null;
-function getStripe(): Promise<Stripe | null> {
-  if (!stripePromise) stripePromise = loadStripe(STRIPE_PUBLISHABLE_KEY);
-  return stripePromise;
 }
 
 export function PaywallDrawer({
@@ -156,7 +137,7 @@ export function PaywallDrawer({
   };
 
   const handleUnlock = async () => {
-    setState({ kind: "intent_loading" });
+    setState({ kind: "redirecting" });
     const outcome = await startParcelPurchase(user, listingId);
     switch (outcome.kind) {
       case "needs_register":
@@ -171,13 +152,13 @@ export function PaywallDrawer({
         onOpenChange(false);
         return;
       case "ok":
-        // Empty client_secret = staff comp; backend already created the
+        // Empty checkoutUrl = staff comp; backend already created the
         // ParcelPurchase row, no Stripe interaction needed.
-        if (!outcome.intent.client_secret) {
+        if (!outcome.checkoutUrl) {
           handlePaymentSucceeded();
           return;
         }
-        setState({ kind: "payment_form", intent: outcome.intent });
+        window.location.href = outcome.checkoutUrl;
         return;
       case "error":
         toast({
@@ -200,13 +181,13 @@ export function PaywallDrawer({
   };
 
   const handlePaymentSucceeded = () => {
+    // Staff-comp path only; regular Stripe flow leaves the app and
+    // returns through /checkout/success.
     setState({ kind: "success" });
-    // Give the Stripe webhook a couple of seconds to record the
-    // ParcelPurchase row, then refetch + close.
     setTimeout(() => {
       onPaymentSuccess();
       onOpenChange(false);
-    }, 2000);
+    }, 1500);
   };
 
   return (
@@ -227,27 +208,12 @@ export function PaywallDrawer({
             />
           )}
 
-          {state.kind === "intent_loading" && (
-            <div className="text-center py-12 text-muted-foreground">{t.paying}</div>
+          {state.kind === "redirecting" && (
+            <div className="text-center py-12 text-muted-foreground">{t.redirecting}</div>
           )}
 
           {state.kind === "verify" && (
             <VerifyScreen t={t} onResend={handleResendVerification} onBack={() => setState({ kind: "choice" })} />
-          )}
-
-          {state.kind === "payment_form" && (
-            <Elements
-              stripe={getStripe()}
-              options={{ clientSecret: state.intent.client_secret }}
-            >
-              <PaymentForm
-                t={t}
-                amount={state.intent.amount}
-                currency={state.intent.currency}
-                onSuccess={handlePaymentSucceeded}
-                onBack={() => setState({ kind: "choice" })}
-              />
-            </Elements>
           )}
 
           {state.kind === "success" && (
@@ -345,64 +311,3 @@ function VerifyScreen({ t, onResend, onBack }: VerifyScreenProps) {
   );
 }
 
-interface PaymentFormProps {
-  t: (typeof STRINGS)[Lang];
-  amount: number;
-  currency: string;
-  onSuccess: () => void;
-  onBack: () => void;
-}
-
-function PaymentForm({ t, amount, currency, onSuccess, onBack }: PaymentFormProps) {
-  const stripe = useStripe();
-  const elements = useElements();
-  const [submitting, setSubmitting] = useState(false);
-
-  const handleSubmit = async (event: React.FormEvent) => {
-    event.preventDefault();
-    if (!stripe || !elements) return;
-
-    setSubmitting(true);
-    const { error, paymentIntent } = await stripe.confirmPayment({
-      elements,
-      confirmParams: { return_url: window.location.href },
-      redirect: "if_required",
-    });
-
-    if (error) {
-      toast({
-        title: "Payment failed",
-        description: error.message ?? "Please try a different card.",
-        variant: "destructive",
-      });
-      setSubmitting(false);
-      return;
-    }
-
-    if (paymentIntent?.status === "succeeded") {
-      onSuccess();
-    } else {
-      // Status is processing/requires_action — Stripe handles the redirect/3DS.
-      // When the user comes back the webhook will have fired; refetch will reflect.
-      onSuccess();
-    }
-  };
-
-  const formattedAmount = new Intl.NumberFormat("en-US", {
-    style: "currency",
-    currency: currency.toUpperCase(),
-    minimumFractionDigits: 0,
-  }).format(amount / 100);
-
-  return (
-    <form onSubmit={handleSubmit} className="space-y-4">
-      <PaymentElement />
-      <Button type="submit" className="w-full" disabled={!stripe || submitting}>
-        {submitting ? t.paying : `${t.pay} ${formattedAmount}`}
-      </Button>
-      <Button type="button" variant="ghost" className="w-full" onClick={onBack} disabled={submitting}>
-        {t.back}
-      </Button>
-    </form>
-  );
-}

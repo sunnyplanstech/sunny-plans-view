@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Link, Navigate, useParams } from "react-router-dom";
+import { Link, Navigate, useParams, useSearchParams } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { CheckCircle2, XCircle } from "lucide-react";
 import SEOHead from "@/components/listings/SEOHead";
@@ -20,6 +20,14 @@ const Checkout = () => {
 };
 
 const CheckoutSuccess = () => {
+  const [searchParams] = useSearchParams();
+  const listingId = searchParams.get("listing");
+  return listingId
+    ? <ParcelUnlockSuccess listingId={listingId} />
+    : <SubscriptionSuccess />;
+};
+
+const SubscriptionSuccess = () => {
   const { user, refreshUser } = useAuth();
   const [polls, setPolls] = useState(0);
   const subscribed = user?.has_active_subscription === true;
@@ -72,28 +80,24 @@ const CheckoutSuccess = () => {
   );
 };
 
-const CheckoutCancel = () => (
+const ParcelUnlockSuccess = ({ listingId }: { listingId: string }) => (
   <div className="min-h-screen bg-background flex flex-col">
     <SEOHead
-      title="Checkout Canceled - Sunnyplans"
-      description="Your Sunnyplans checkout was canceled."
-      canonicalUrl="https://sunnyplans.com/checkout/cancel"
+      title="Parcel Unlocked - Sunnyplans"
+      description="Your parcel is unlocked on Sunnyplans."
     />
     <div className="container max-w-md py-16 px-4 flex-1">
       <div className="flex flex-col items-center text-center">
-        <div className="w-14 h-14 rounded-full bg-muted flex items-center justify-center mb-4">
-          <XCircle className="w-7 h-7 text-muted-foreground" />
+        <div className="w-14 h-14 rounded-full bg-primary/10 flex items-center justify-center mb-4">
+          <CheckCircle2 className="w-7 h-7 text-primary" />
         </div>
-        <h1 className="text-3xl font-bold mb-3">Checkout canceled</h1>
+        <h1 className="text-3xl font-bold mb-3">Parcel unlocked</h1>
         <p className="text-muted-foreground mb-6">
-          No payment was taken. You can come back to Premium anytime.
+          Payment received. Exact coordinates and the source URL are now visible on this listing.
         </p>
         <div className="w-full space-y-3">
           <Button asChild className="w-full" size="lg">
-            <Link to="/#pricing">Back to pricing</Link>
-          </Button>
-          <Button asChild variant="outline" className="w-full">
-            <Link to="/">Return to homepage</Link>
+            <Link to={`/listing/${listingId}`}>Back to listing</Link>
           </Button>
         </div>
       </div>
@@ -101,5 +105,42 @@ const CheckoutCancel = () => (
     <Footer />
   </div>
 );
+
+const CheckoutCancel = () => {
+  const [searchParams] = useSearchParams();
+  const listingId = searchParams.get("listing");
+  const backHref = listingId ? `/listing/${listingId}` : "/#pricing";
+  const backLabel = listingId ? "Back to listing" : "Back to pricing";
+
+  return (
+    <div className="min-h-screen bg-background flex flex-col">
+      <SEOHead
+        title="Checkout Canceled - Sunnyplans"
+        description="Your Sunnyplans checkout was canceled."
+        canonicalUrl="https://sunnyplans.com/checkout/cancel"
+      />
+      <div className="container max-w-md py-16 px-4 flex-1">
+        <div className="flex flex-col items-center text-center">
+          <div className="w-14 h-14 rounded-full bg-muted flex items-center justify-center mb-4">
+            <XCircle className="w-7 h-7 text-muted-foreground" />
+          </div>
+          <h1 className="text-3xl font-bold mb-3">Checkout canceled</h1>
+          <p className="text-muted-foreground mb-6">
+            No payment was taken. You can come back anytime.
+          </p>
+          <div className="w-full space-y-3">
+            <Button asChild className="w-full" size="lg">
+              <Link to={backHref}>{backLabel}</Link>
+            </Button>
+            <Button asChild variant="outline" className="w-full">
+              <Link to="/">Return to homepage</Link>
+            </Button>
+          </div>
+        </div>
+      </div>
+      <Footer />
+    </div>
+  );
+};
 
 export default Checkout;

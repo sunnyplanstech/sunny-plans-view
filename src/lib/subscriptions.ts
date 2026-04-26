@@ -50,12 +50,13 @@ export async function startSubscription(
 }
 
 /** Same shape as StartSubscriptionOutcome, plus a "duplicate" branch for
- *  users who already own this listing. */
+ *  users who already own this listing. ``checkoutUrl`` is empty for staff
+ *  comp (the backend already created the row, no Stripe redirect needed). */
 export type StartParcelPurchaseOutcome =
   | { kind: "needs_register" }
   | { kind: "needs_verify" }
   | { kind: "duplicate" }
-  | { kind: "ok"; intent: ParcelPurchaseIntent }
+  | { kind: "ok"; checkoutUrl: string }
   | { kind: "error"; message: string };
 
 export async function startParcelPurchase(
@@ -65,8 +66,8 @@ export async function startParcelPurchase(
   if (!user) return { kind: "needs_register" };
   if (!user.email_verified) return { kind: "needs_verify" };
   try {
-    const intent = await createParcelPurchaseIntent(listingId);
-    return { kind: "ok", intent };
+    const checkoutUrl = await createParcelCheckoutSession(listingId);
+    return { kind: "ok", checkoutUrl };
   } catch (err) {
     if (err instanceof CheckoutError) {
       if (err.reason === "unverified") return { kind: "needs_verify" };
@@ -78,12 +79,6 @@ export async function startParcelPurchase(
         err instanceof Error ? err.message : "Could not start checkout. Please try again.",
     };
   }
-}
-
-export interface ParcelPurchaseIntent {
-  client_secret: string;
-  amount: number;   // in cents
-  currency: string;
 }
 
 /**
@@ -122,20 +117,21 @@ export async function createCheckoutSession(): Promise<string> {
 }
 
 /**
- * Mint a Stripe PaymentIntent for a one-off parcel purchase. The SPA
- * mounts a PaymentElement with the returned client_secret; on success
- * the webhook records the ParcelPurchase row.
+ * Create a Stripe Checkout Session for a one-off parcel purchase. The SPA
+ * redirects to the returned URL; the webhook records the ParcelPurchase
+ * row from ``checkout.session.completed``. An empty string signals a
+ * staff-comp bypass — the backend already created the row.
  *   - 401 → CheckoutError("unauthenticated")
  *   - 403 → CheckoutError("unverified")
  *   - 409 → CheckoutError("duplicate") — user already owns this listing
  *   - other → CheckoutError("server")
  */
-export async function createParcelPurchaseIntent(
+export async function createParcelCheckoutSession(
   listingId: string,
-): Promise<ParcelPurchaseIntent> {
+): Promise<string> {
   let res: Response;
   try {
-    res = await apiClient(`/api/listings/${listingId}/create-purchase-intent/`, {
+    res = await apiClient(`/api/listings/${listingId}/create-checkout-session/`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: "{}",
@@ -160,7 +156,8 @@ export async function createParcelPurchaseIntent(
     throw new CheckoutError("server", "Could not start checkout. Please try again.");
   }
 
-  return (await res.json()) as ParcelPurchaseIntent;
+  const data = (await res.json()) as { checkout_url: string };
+  return data.checkout_url;
 }
 
 export { resendVerificationEmail } from "@/lib/auth";
