@@ -1,75 +1,63 @@
-import { useQuery } from "@tanstack/react-query";
-import { MapPin, Zap, Ruler, Sun, CreditCard, Trophy, ExternalLink } from "lucide-react";
+import { useState } from "react";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { MapPin, Zap, Ruler, Sun, CreditCard, Trophy, ExternalLink, Lock } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { apiClient, publicApi } from "@/lib/apiClient";
-import { useAuth } from "@/hooks/useAuth";
+import { optionalAuthApi } from "@/lib/apiClient";
 import { seoKeywords } from "@/data/mockListings";
 import { getParcelCenter } from "@/lib/geo";
 import SEOHead from "@/components/listings/SEOHead";
 import ListingsFooter from "@/components/listings/ListingsFooter";
 import MiniParcelMap from "@/components/maps/MiniParcelMap";
 import { ProximityCard } from "@/components/listings/ProximityCard";
-import { SubscribeCTA, FullAccessBadge } from "@/components/listings/SubscribeCTA";
+import { FullAccessBadge } from "@/components/listings/SubscribeCTA";
 import { DetailShell, DetailLoading, DetailNotFound } from "@/components/listings/DetailShell";
+import { LockedField, MapLockedOverlay, isLocked } from "@/components/listings/LockedField";
+import { PaywallDrawer } from "@/components/listings/PaywallDrawer";
+import { usePaywallAutoOpen } from "@/hooks/usePaywallAutoOpen";
 import type { OsmDistanceFields } from "@/data/osmDistanceFields";
 import type { DetailPageProps } from "../types";
-import type { USListing } from "./index";
 
-export interface USPremiumListing extends OsmDistanceFields {
+/**
+ * Detail-endpoint response shape — same keys regardless of access. The
+ * backend renders premium numeric/url/date fields as the literal string
+ * "****" when locked, formatted display strings (e.g. "$397,500",
+ * "47.18", "2026-03-12") when unlocked. geom_json carries the H3-snapped
+ * point when locked and the exact polygon when unlocked.
+ */
+export interface USListingDetail extends OsmDistanceFields {
   id: string;
   state_code: string;
   county: string | null;
   city: string | null;
-  zip_code: string;
-  lat: number;
-  lon: number;
-  list_price: number | null;
-  lot_sqft: number | null;
-  lot_acres: number | null;
-  price_per_sqft: number | null;
-  price_per_acre: number | null;
+  zip_code: string | null;
+  lat: string;
+  lon: string;
+  list_price: string;
+  lot_sqft: string;
+  lot_acres: string;
+  price_per_sqft: string;
+  price_per_acre: string;
+  sqft: string;
+  property_url: string;
+  google_maps_url: string;
+  list_date: string;
+  days_on_mls: string;
+  last_verified_at: string;
   prob_solar: number;
-  sqft: number | null;
-  year_built: number | null;
-  geom_json: Record<string, unknown> | null;
   rank_global: number;
   rank_in_state: number;
   rank_in_county: number;
-  property_url?: string;
+  geom_json: Record<string, unknown> | null;
+  access_granted: boolean;
 }
 
-function useUSPublicListing(id: string) {
+function useUSListing(id: string) {
   return useQuery({
-    queryKey: ["us-listing", id],
-    queryFn: () => publicApi<USListing>(`/api/listings/public/${id}/`),
+    queryKey: ["us-listing-detail", id],
+    queryFn: () => optionalAuthApi<USListingDetail>(`/api/listings/${id}/detail/`),
   });
-}
-
-function useUSPremiumListing(id: string, hasAccess: boolean) {
-  return useQuery({
-    queryKey: ["us-premium-listing", id],
-    queryFn: async () => {
-      const res = await apiClient(`/api/listings/${id}/detail/`);
-      if (!res.ok) throw new Error(`API error: ${res.status}`);
-      return (await res.json()) as USPremiumListing;
-    },
-    enabled: hasAccess,
-  });
-}
-
-function formatPrice(price: number | null): string {
-  if (!price) return "N/A";
-  return new Intl.NumberFormat("en-US", {
-    style: "currency",
-    currency: "USD",
-    maximumFractionDigits: 0,
-  }).format(price);
-}
-
-function formatPricePerAcre(price: number | null): string {
-  return formatPrice(price) + (price ? "/acre" : "");
 }
 
 function formatSubstationDistance(meters: number | null): string {
@@ -79,31 +67,32 @@ function formatSubstationDistance(meters: number | null): string {
 }
 
 export function USDetailPage({ id, country, region, province }: DetailPageProps) {
-  const { user } = useAuth();
-  const hasAccess = !!user?.has_active_subscription;
-  const { data: publicListing, isLoading, error } = useUSPublicListing(id);
-  const { data: premium } = useUSPremiumListing(id, hasAccess);
+  const { data: listing, isLoading, error } = useUSListing(id);
+  const queryClient = useQueryClient();
+  const [paywallOpen, setPaywallOpen] = useState(false);
+  usePaywallAutoOpen(() => setPaywallOpen(true));
 
   if (isLoading) return <DetailLoading />;
-  if (error || !publicListing) return <DetailNotFound country={country} />;
+  if (error || !listing) return <DetailNotFound country={country} />;
 
-  const solarPercentage = publicListing.prob_solar ? Math.round(publicListing.prob_solar * 100) : null;
-  const center = premium
-    ? { lat: premium.lat, lng: premium.lon }
-    : getParcelCenter(publicListing.geom_json);
+  const accessGranted = listing.access_granted;
+  const solarPercentage = listing.prob_solar ? Math.round(listing.prob_solar * 100) : null;
+  const center = getParcelCenter(listing.geom_json);
+  const openPaywall = () => setPaywallOpen(true);
+  const handlePaymentSuccess = () => {
+    queryClient.invalidateQueries({ queryKey: ["us-listing-detail", id] });
+  };
 
-  const displayAcres = premium?.lot_acres ?? publicListing.lot_acres;
-  const acresLabel = premium
-    ? `${displayAcres?.toFixed(1) ?? "?"} Acres`
-    : `~${displayAcres?.toFixed(1) ?? "?"} Acres`;
-
-  const seoTitle = `${acresLabel} Solar Land for Sale - ${publicListing.county}, ${publicListing.state_code} | Sunnyplans`;
-  const seoDescription = `${acresLabel} of land in ${publicListing.county}, ${publicListing.state_code}. ${solarPercentage}% solar probability. Pre-vetted for BESS & solar projects.`;
+  const titleAcres = accessGranted && !isLocked(listing.lot_acres)
+    ? `${listing.lot_acres} Acres `
+    : "";
+  const seoTitle = `${titleAcres}Solar Land for Sale - ${listing.county}, ${listing.state_code} | Sunnyplans`;
+  const seoDescription = `${titleAcres}Land in ${listing.county}, ${listing.state_code}. ${solarPercentage}% solar probability. Pre-vetted for BESS & solar projects.`;
 
   const combinedKeywords = [
     ...seoKeywords.primary.slice(0, 3),
-    publicListing.state_code,
-    publicListing.county,
+    listing.state_code,
+    listing.county,
     "solar land for sale",
     "USA solar land",
   ].join(", ");
@@ -111,22 +100,22 @@ export function USDetailPage({ id, country, region, province }: DetailPageProps)
   const structuredData: Record<string, unknown> = {
     "@context": "https://schema.org",
     "@type": "RealEstateListing",
-    name: `Solar Land for Sale in ${publicListing.county}, ${publicListing.state_code}`,
+    name: `Solar Land for Sale in ${listing.county}, ${listing.state_code}`,
     description: seoDescription,
     geo: {
       "@type": "GeoCoordinates",
       addressCountry: "US",
-      addressRegion: publicListing.state_code,
+      addressRegion: listing.state_code,
     },
     additionalProperty: [
       { "@type": "PropertyValue", name: "Solar Probability", value: `${solarPercentage}%` },
     ],
   };
-  if (premium?.list_price) {
+  if (accessGranted && !isLocked(listing.list_price)) {
     structuredData.offers = {
       "@type": "Offer",
       priceCurrency: "USD",
-      price: premium.list_price,
+      price: listing.list_price,
       availability: "https://schema.org/InStock",
     };
   }
@@ -156,23 +145,24 @@ export function USDetailPage({ id, country, region, province }: DetailPageProps)
               <Sun className="w-4 h-4 mr-1" />
               {solarPercentage}%
             </Badge>
-            {publicListing.rank_global && (
+            {listing.rank_global && (
               <Badge variant="outline" className="bg-amber-50/90 border-amber-300 text-amber-700 py-1">
                 <Trophy className="w-3 h-3 mr-1" />
-                #{publicListing.rank_global} in US
+                #{listing.rank_global} in US
               </Badge>
             )}
           </div>
+          {!accessGranted && <MapLockedOverlay onUnlock={openPaywall} lang="en" />}
         </section>
 
         <section className="mb-6">
           <h1 className="text-2xl md:text-3xl font-bold text-foreground mb-2">
-            {acresLabel} in {publicListing.county}, {publicListing.state_code}
+            Solar Land in {listing.county}, {listing.state_code}
           </h1>
           <div className="flex items-center gap-2 text-muted-foreground">
             <MapPin className="w-4 h-4" />
             <span>
-              {publicListing.county} County, {publicListing.state_code}
+              {listing.county} County, {listing.state_code}
             </span>
           </div>
         </section>
@@ -202,29 +192,24 @@ export function USDetailPage({ id, country, region, province }: DetailPageProps)
 
               <div className="grid grid-cols-2 gap-4">
                 <SpecTile icon={Ruler} label="Size">
-                  {premium
-                    ? `${premium.lot_acres?.toFixed(1) ?? "N/A"} Acres`
-                    : `~${publicListing.lot_acres?.toFixed(1) ?? "N/A"} Acres`}
+                  <LockedField value={listing.lot_acres} onUnlock={openPaywall} /> Acres
                 </SpecTile>
                 <SpecTile icon={Zap} label="Substation Distance">
-                  {premium
-                    ? formatSubstationDistance(premium.power_substation)
-                    : `~${formatSubstationDistance(publicListing.power_substation)}`}
+                  {accessGranted ? "" : "~"}
+                  {formatSubstationDistance(listing.power_substation)}
                 </SpecTile>
                 <SpecTile icon={CreditCard} label="List Price">
-                  {premium ? formatPrice(premium.list_price) : `~${formatPrice(publicListing.list_price)}`}
+                  <LockedField value={listing.list_price} onUnlock={openPaywall} />
                 </SpecTile>
-                {premium && (
-                  <SpecTile icon={CreditCard} label="Price per Acre">
-                    {formatPricePerAcre(premium.price_per_acre)}
-                  </SpecTile>
-                )}
+                <SpecTile icon={CreditCard} label="Price per Acre">
+                  <LockedField value={listing.price_per_acre} onUnlock={openPaywall} />
+                </SpecTile>
               </div>
 
-              {premium?.property_url && (
+              {accessGranted && !isLocked(listing.property_url) && listing.property_url && (
                 <div className="pt-2">
                   <Button asChild variant="outline" size="sm">
-                    <a href={premium.property_url} target="_blank" rel="noopener noreferrer">
+                    <a href={listing.property_url} target="_blank" rel="noopener noreferrer">
                       View on Realtor.com
                       <ExternalLink className="w-3 h-3 ml-2" />
                     </a>
@@ -236,16 +221,39 @@ export function USDetailPage({ id, country, region, province }: DetailPageProps)
 
           <Card className="bg-primary/5 border-primary/20">
             <CardContent className="pt-6 space-y-4">
-              {hasAccess ? <FullAccessBadge /> : <SubscribeCTA />}
+              {accessGranted ? <FullAccessBadge /> : <UnlockCTA onClick={openPaywall} />}
             </CardContent>
           </Card>
         </div>
 
-        <ProximityCard premium={premium} publicData={publicListing} lang="en" unit="imperial" />
+        <ProximityCard listing={listing} accessGranted={accessGranted} lang="en" unit="imperial" />
 
         <ListingsFooter currentCountry={country} currentRegion={region} currentProvince={province} />
       </DetailShell>
+
+      <PaywallDrawer
+        listingId={id}
+        open={paywallOpen}
+        onOpenChange={setPaywallOpen}
+        onPaymentSuccess={handlePaymentSuccess}
+        lang="en"
+      />
     </>
+  );
+}
+
+function UnlockCTA({ onClick }: { onClick: () => void }) {
+  return (
+    <div className="text-center space-y-3">
+      <h3 className="text-lg font-semibold">Unlock this parcel</h3>
+      <p className="text-sm text-muted-foreground">
+        Subscribe for full catalog access, or pay $49 to unlock just this listing.
+      </p>
+      <Button className="w-full" size="lg" onClick={onClick}>
+        <Lock className="w-4 h-4 mr-2" />
+        See pricing options
+      </Button>
+    </div>
   );
 }
 

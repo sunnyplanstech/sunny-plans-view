@@ -1,52 +1,49 @@
-import { useQuery } from "@tanstack/react-query";
-import { MapPin, Zap, Sun, Trophy } from "lucide-react";
+import { useState } from "react";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { MapPin, Zap, Sun, Trophy, Ruler, Lock } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { apiClient, publicApi } from "@/lib/apiClient";
-import { useAuth } from "@/hooks/useAuth";
+import { optionalAuthApi } from "@/lib/apiClient";
 import { getParcelCenter } from "@/lib/geo";
 import SEOHead from "@/components/listings/SEOHead";
 import ListingsFooter from "@/components/listings/ListingsFooter";
 import MiniParcelMap from "@/components/maps/MiniParcelMap";
 import { ProximityCard } from "@/components/listings/ProximityCard";
-import { SubscribeCTA, FullAccessBadge } from "@/components/listings/SubscribeCTA";
+import { FullAccessBadge } from "@/components/listings/SubscribeCTA";
 import { DetailShell, DetailLoading, DetailNotFound } from "@/components/listings/DetailShell";
+import { LockedField, MapLockedOverlay } from "@/components/listings/LockedField";
+import { PaywallDrawer } from "@/components/listings/PaywallDrawer";
+import { usePaywallAutoOpen } from "@/hooks/usePaywallAutoOpen";
 import type { OsmDistanceFields } from "@/data/osmDistanceFields";
 import type { DetailPageProps } from "../types";
-import type { ITListing } from "./index";
 
-export interface ITPremiumListing extends OsmDistanceFields {
+/**
+ * Detail-endpoint response shape — see USListingDetail for the same
+ * pattern. lat/lon and area_m2/area_ha are the IT premium fields:
+ * "****" when locked, formatted display strings when unlocked.
+ */
+export interface ITListingDetail extends OsmDistanceFields {
   id: string;
   comune_code: string;
   comune_name: string | null;
   comune_slug: string;
   region_slug: string;
   prob_solar: number;
-  lat: number;
-  lon: number;
-  area_m2: number | null;
-  area_ha: number | null;
+  lat: string;
+  lon: string;
+  area_m2: string;
+  area_ha: string;
   geom_json: Record<string, unknown> | null;
   rank_global: number;
   rank_in_comune: number;
+  access_granted: boolean;
 }
 
-function useITPublicListing(id: string) {
+function useITListing(id: string) {
   return useQuery({
-    queryKey: ["it-listing", id],
-    queryFn: () => publicApi<ITListing>(`/api/listings/it/public/${id}/`),
-  });
-}
-
-function useITPremiumListing(id: string, hasAccess: boolean) {
-  return useQuery({
-    queryKey: ["it-premium-listing", id],
-    queryFn: async () => {
-      const res = await apiClient(`/api/listings/it/${id}/detail/`);
-      if (!res.ok) throw new Error(`API error: ${res.status}`);
-      return (await res.json()) as ITPremiumListing;
-    },
-    enabled: hasAccess,
+    queryKey: ["it-listing-detail", id],
+    queryFn: () => optionalAuthApi<ITListingDetail>(`/api/listings/it/${id}/detail/`),
   });
 }
 
@@ -63,28 +60,31 @@ function formatRegionSlug(slug: string): string {
 }
 
 export function ITDetailPage({ id, country, region, province }: DetailPageProps) {
-  const { user } = useAuth();
-  const hasAccess = !!user?.has_active_subscription;
-  const { data: publicListing, isLoading, error } = useITPublicListing(id);
-  const { data: premium } = useITPremiumListing(id, hasAccess);
+  const { data: listing, isLoading, error } = useITListing(id);
+  const queryClient = useQueryClient();
+  const [paywallOpen, setPaywallOpen] = useState(false);
+  usePaywallAutoOpen(() => setPaywallOpen(true));
 
   if (isLoading) return <DetailLoading />;
-  if (error || !publicListing) return <DetailNotFound country={country} />;
+  if (error || !listing) return <DetailNotFound country={country} />;
 
-  const solarPercentage = publicListing.prob_solar ? Math.round(publicListing.prob_solar * 100) : null;
-  const center = premium
-    ? { lat: premium.lat, lng: premium.lon }
-    : getParcelCenter(publicListing.geom_json);
-  const regionName = formatRegionSlug(publicListing.region_slug);
+  const accessGranted = listing.access_granted;
+  const solarPercentage = listing.prob_solar ? Math.round(listing.prob_solar * 100) : null;
+  const center = getParcelCenter(listing.geom_json);
+  const regionName = formatRegionSlug(listing.region_slug);
+  const openPaywall = () => setPaywallOpen(true);
+  const handlePaymentSuccess = () => {
+    queryClient.invalidateQueries({ queryKey: ["it-listing-detail", id] });
+  };
 
-  const seoTitle = `Solar Parcel - ${publicListing.comune_name}, ${regionName} | Sunnyplans`;
-  const seoDescription = `Particella catastale in ${publicListing.comune_name}, ${regionName}. Probabilita solare: ${solarPercentage}%. Pre-analizzata per fotovoltaico e BESS.`;
-  const combinedKeywords = `terreni fotovoltaico ${publicListing.comune_name}, BESS Italia, solare ${regionName}, particelle catastali`;
+  const seoTitle = `Solar Parcel - ${listing.comune_name}, ${regionName} | Sunnyplans`;
+  const seoDescription = `Particella catastale in ${listing.comune_name}, ${regionName}. Probabilita solare: ${solarPercentage}%. Pre-analizzata per fotovoltaico e BESS.`;
+  const combinedKeywords = `terreni fotovoltaico ${listing.comune_name}, BESS Italia, solare ${regionName}, particelle catastali`;
 
   const structuredData = {
     "@context": "https://schema.org",
     "@type": "Product",
-    name: `Solar Parcel - ${publicListing.comune_name}`,
+    name: `Solar Parcel - ${listing.comune_name}`,
     description: seoDescription,
     additionalProperty: [
       { "@type": "PropertyValue", name: "Solar Probability", value: `${solarPercentage}%` },
@@ -118,23 +118,24 @@ export function ITDetailPage({ id, country, region, province }: DetailPageProps)
                 {solarPercentage}%
               </Badge>
             )}
-            {publicListing.rank_global && (
+            {listing.rank_global && (
               <Badge variant="outline" className="bg-amber-50/90 border-amber-300 text-amber-700 py-1">
                 <Trophy className="w-3 h-3 mr-1" />
-                #{publicListing.rank_global} in IT
+                #{listing.rank_global} in IT
               </Badge>
             )}
           </div>
+          {!accessGranted && <MapLockedOverlay onUnlock={openPaywall} lang="it" />}
         </section>
 
         <section className="mb-6">
           <h1 className="text-2xl md:text-3xl font-bold text-foreground mb-2">
-            Solar Parcel - {publicListing.comune_name}
+            Solar Parcel - {listing.comune_name}
           </h1>
           <div className="flex items-center gap-2 text-muted-foreground">
             <MapPin className="w-4 h-4" />
             <span>
-              {publicListing.comune_name}, {regionName}
+              {listing.comune_name}, {regionName}
             </span>
           </div>
         </section>
@@ -166,36 +167,57 @@ export function ITDetailPage({ id, country, region, province }: DetailPageProps)
 
               <div className="grid grid-cols-2 gap-4">
                 <SpecTile icon={MapPin} label="Comune">
-                  {publicListing.comune_name}
+                  {listing.comune_name}
                 </SpecTile>
                 <SpecTile icon={MapPin} label="Regione">
                   {regionName}
                 </SpecTile>
-                {premium && (
-                  <SpecTile icon={Zap} label="Substation Distance">
-                    {formatSubstationDistance(premium.power_substation)}
-                  </SpecTile>
-                )}
+                <SpecTile icon={Ruler} label="Area">
+                  <LockedField value={listing.area_ha} onUnlock={openPaywall} /> ha
+                </SpecTile>
+                <SpecTile icon={Zap} label="Substation Distance">
+                  {accessGranted ? "" : "~"}
+                  {formatSubstationDistance(listing.power_substation)}
+                </SpecTile>
               </div>
             </CardContent>
           </Card>
 
           <Card className="bg-primary/5 border-primary/20">
             <CardContent className="pt-6 space-y-4">
-              {hasAccess ? (
-                <FullAccessBadge />
-              ) : (
-                <SubscribeCTA lang="it" />
-              )}
+              {accessGranted ? <FullAccessBadge /> : <UnlockCTA onClick={openPaywall} />}
             </CardContent>
           </Card>
         </div>
 
-        <ProximityCard premium={premium} publicData={publicListing} lang="it" unit="metric" />
+        <ProximityCard listing={listing} accessGranted={accessGranted} lang="it" unit="metric" />
 
         <ListingsFooter currentCountry={country} currentRegion={region} currentProvince={province} />
       </DetailShell>
+
+      <PaywallDrawer
+        listingId={id}
+        open={paywallOpen}
+        onOpenChange={setPaywallOpen}
+        onPaymentSuccess={handlePaymentSuccess}
+        lang="it"
+      />
     </>
+  );
+}
+
+function UnlockCTA({ onClick }: { onClick: () => void }) {
+  return (
+    <div className="text-center space-y-3">
+      <h3 className="text-lg font-semibold">Sblocca questa particella</h3>
+      <p className="text-sm text-muted-foreground">
+        Abbonati per accesso completo, o paga $49 per sbloccare solo questa particella.
+      </p>
+      <Button className="w-full" size="lg" onClick={onClick}>
+        <Lock className="w-4 h-4 mr-2" />
+        Vedi opzioni
+      </Button>
+    </div>
   );
 }
 
@@ -217,3 +239,4 @@ function SpecTile({ icon: Icon, label, children }: SpecTileProps) {
     </div>
   );
 }
+

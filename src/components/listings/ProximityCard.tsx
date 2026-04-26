@@ -38,31 +38,30 @@ function formatMeters(meters: number | null, unit: "imperial" | "metric"): strin
 }
 
 interface ProximityCardProps {
-  premium?: OsmDistanceFields | null;
-  publicData: OsmDistanceFields | null;
+  /** Listing detail object — distance fields are raw numbers regardless of access state. */
+  listing: OsmDistanceFields | null;
+  accessGranted: boolean;
   lang?: "en" | "it";
   /** imperial for US listings, metric for IT */
   unit?: "imperial" | "metric";
 }
 
 export function ProximityCard({
-  premium,
-  publicData,
+  listing,
+  accessGranted,
   lang = "en",
   unit = "imperial",
 }: ProximityCardProps) {
   const t = STRINGS[lang];
-  const hasPremium = !!premium;
-  const source = premium ?? publicData;
 
-  if (!source) return null;
+  if (!listing) return null;
 
   return (
     <Card className="mb-8">
       <CardHeader>
         <CardTitle>{t.title}</CardTitle>
         <p className="text-xs text-muted-foreground">
-          {hasPremium ? t.exact : t.approx}
+          {accessGranted ? t.exact : t.approx}
         </p>
       </CardHeader>
       <CardContent>
@@ -73,7 +72,7 @@ export function ProximityCard({
               <AccordionContent>
                 <dl className="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-2">
                   {group.fields.map(([key, label]) => {
-                    const raw = source[key];
+                    const raw = listing[key];
                     const formatted = formatMeters(raw, unit);
                     return (
                       <div
@@ -82,7 +81,7 @@ export function ProximityCard({
                       >
                         <dt className="text-sm text-muted-foreground">{label}</dt>
                         <dd className="text-sm font-medium tabular-nums">
-                          {raw != null && !hasPremium ? "~ " : ""}
+                          {raw != null && !accessGranted ? "~ " : ""}
                           {formatted}
                         </dd>
                       </div>
