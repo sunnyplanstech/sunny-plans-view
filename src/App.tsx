@@ -62,9 +62,8 @@ const App = () => (
           <Route path="/:country/:region/:province/:municipality/listings" element={<Suspense fallback={<PageLoader />}><ListingsSearch /></Suspense>} />
           <Route path="/:country/:region/:province/:municipality/particelle" element={<Suspense fallback={<PageLoader />}><ListingsSearch /></Suspense>} />
 
-          {/* Individual listing detail */}
-          <Route path="/:country/:region/:province/listing/:id" element={<Suspense fallback={<PageLoader />}><ListingDetail /></Suspense>} />
-          <Route path="/:country/:region/:province/:municipality/listing/:id" element={<Suspense fallback={<PageLoader />}><ListingDetail /></Suspense>} />
+          {/* Individual listing detail — id is globally unique across US/IT marts */}
+          <Route path="/listing/:id" element={<Suspense fallback={<PageLoader />}><ListingDetail /></Suspense>} />
 
           {/* Blog */}
           <Route path="/blog" element={<Suspense fallback={<PageLoader />}><Blog /></Suspense>} />

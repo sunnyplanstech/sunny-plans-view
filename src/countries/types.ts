@@ -1,4 +1,4 @@
-import type { ComponentType, ReactNode } from "react";
+import type { ReactNode } from "react";
 import type { UseQueryResult } from "@tanstack/react-query";
 import type { HexCell } from "@/hooks/useHexHeatmap";
 
@@ -41,11 +41,10 @@ export interface HeadingStrings {
   nearLocation: string;
 }
 
-export interface DetailPageProps {
+export interface DetailPageProps<TListing = unknown> {
   id: string;
-  country: string;
-  region?: string;
-  province?: string;
+  listing: TListing;
+  onPaymentSuccess: () => void;
 }
 
 export interface CountryAdapter {
@@ -66,8 +65,6 @@ export interface CountryAdapter {
   renderListingCard(listing: BaseListing, scope: Scope, listIndex: number): ReactNode;
   renderMap(props: MapRenderProps): ReactNode;
   seoCopy(scope: Scope, listings: BaseListing[]): SeoCopy;
-
-  DetailPage: ComponentType<DetailPageProps>;
 }
 
 export function parseScopeFromParams(params: { region?: string; province?: string }): Scope {

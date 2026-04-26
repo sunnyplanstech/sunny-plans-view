@@ -13,7 +13,6 @@ import type {
   SeoCopy,
 } from "../types";
 import { parseScopeFromParams } from "../types";
-import { ITDetailPage } from "./DetailPage";
 
 export interface ITListing extends BaseListing, OsmDistanceFields {
   comune_code: string;
@@ -167,6 +166,4 @@ export const italy: CountryAdapter = {
   seoCopy(scope, listings) {
     return seoCopy(scope, listings as ITListing[]);
   },
-
-  DetailPage: ITDetailPage,
 };

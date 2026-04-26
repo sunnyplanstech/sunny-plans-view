@@ -22,15 +22,7 @@ const ListingCard = ({ listing, isUnlocked = false }: ListingCardProps) => {
     return "bg-secondary text-secondary-foreground";
   };
 
-  // Build the listing detail URL based on the new structure
-  const countrySlug = listing.country === "italy" ? "italy" : "united-states";
-  const regionSlug = listing.region.toLowerCase().replace(/\s+/g, '-');
-  const provinceSlug = listing.province.toLowerCase().replace(/\s+/g, '-');
-  const municipalitySlug = listing.municipality?.toLowerCase().replace(/\s+/g, '-');
-  
-  const listingUrl = municipalitySlug
-    ? `/${countrySlug}/${regionSlug}/${provinceSlug}/${municipalitySlug}/listing/${listing.id}`
-    : `/${countrySlug}/${regionSlug}/${provinceSlug}/listing/${listing.id}`;
+  const listingUrl = `/listing/${listing.id}`;
 
   return (
     <Card className="group overflow-hidden hover:shadow-lg transition-all duration-300 border-border/60 bg-card">

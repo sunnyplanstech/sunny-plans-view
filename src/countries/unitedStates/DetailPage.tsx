@@ -1,18 +1,17 @@
 import { useState } from "react";
-import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { MapPin, Zap, Ruler, Sun, CreditCard, Trophy, ExternalLink, Lock } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { optionalAuthApi } from "@/lib/apiClient";
 import { seoKeywords } from "@/data/mockListings";
+import { STATE_CODE_TO_SLUG } from "@/data/locations";
 import { getParcelCenter } from "@/lib/geo";
 import SEOHead from "@/components/listings/SEOHead";
 import ListingsFooter from "@/components/listings/ListingsFooter";
 import MiniParcelMap from "@/components/maps/MiniParcelMap";
 import { ProximityCard } from "@/components/listings/ProximityCard";
 import { FullAccessBadge } from "@/components/listings/FullAccessBadge";
-import { DetailShell, DetailLoading, DetailNotFound } from "@/components/listings/DetailShell";
+import { DetailShell } from "@/components/listings/DetailShell";
 import { LockedField, MapLockedOverlay, isLocked } from "@/components/listings/LockedField";
 import { PaywallDrawer } from "@/components/listings/PaywallDrawer";
 import { usePaywallAutoOpen } from "@/hooks/usePaywallAutoOpen";
@@ -53,35 +52,28 @@ export interface USListingDetail extends OsmDistanceFields {
   access_granted: boolean;
 }
 
-function useUSListing(id: string) {
-  return useQuery({
-    queryKey: ["us-listing-detail", id],
-    queryFn: () => optionalAuthApi<USListingDetail>(`/api/listings/${id}/detail/`),
-  });
-}
-
 function formatSubstationDistance(meters: number | null): string {
   if (!meters) return "N/A";
   const miles = meters * 0.000621371;
   return `${Math.round(meters)} m (${miles.toFixed(1)} mi)`;
 }
 
-export function USDetailPage({ id, country, region, province }: DetailPageProps) {
-  const { data: listing, isLoading, error } = useUSListing(id);
-  const queryClient = useQueryClient();
+function slugify(value: string): string {
+  return value.toLowerCase().replace(/\s+/g, "-");
+}
+
+export function USDetailPage({ id, listing, onPaymentSuccess }: DetailPageProps<USListingDetail>) {
   const [paywallOpen, setPaywallOpen] = useState(false);
   usePaywallAutoOpen(() => setPaywallOpen(true));
-
-  if (isLoading) return <DetailLoading />;
-  if (error || !listing) return <DetailNotFound country={country} />;
 
   const accessGranted = listing.access_granted;
   const solarPercentage = listing.prob_solar ? Math.round(listing.prob_solar * 100) : null;
   const center = getParcelCenter(listing.geom_json);
   const openPaywall = () => setPaywallOpen(true);
-  const handlePaymentSuccess = () => {
-    queryClient.invalidateQueries({ queryKey: ["us-listing-detail", id] });
-  };
+
+  const country = "united-states";
+  const region = STATE_CODE_TO_SLUG[listing.state_code.toUpperCase()];
+  const province = listing.county ? slugify(listing.county) : undefined;
 
   const titleAcres = accessGranted && !isLocked(listing.lot_acres)
     ? `${listing.lot_acres} Acres `
@@ -235,7 +227,7 @@ export function USDetailPage({ id, country, region, province }: DetailPageProps)
         listingId={id}
         open={paywallOpen}
         onOpenChange={setPaywallOpen}
-        onPaymentSuccess={handlePaymentSuccess}
+        onPaymentSuccess={onPaymentSuccess}
         lang="en"
       />
     </>

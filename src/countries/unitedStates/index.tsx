@@ -17,7 +17,6 @@ import type {
   SeoCopy,
 } from "../types";
 import { parseScopeFromParams } from "../types";
-import { USDetailPage } from "./DetailPage";
 
 export interface USListing extends BaseListing, OsmDistanceFields {
   state_code: string;
@@ -163,6 +162,4 @@ export const unitedStates: CountryAdapter = {
   seoCopy(scope, listings) {
     return seoCopy(scope, listings as USListing[]);
   },
-
-  DetailPage: USDetailPage,
 };

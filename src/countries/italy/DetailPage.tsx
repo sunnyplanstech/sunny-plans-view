@@ -1,17 +1,15 @@
 import { useState } from "react";
-import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { MapPin, Zap, Sun, Trophy, Ruler, Lock } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { optionalAuthApi } from "@/lib/apiClient";
 import { getParcelCenter } from "@/lib/geo";
 import SEOHead from "@/components/listings/SEOHead";
 import ListingsFooter from "@/components/listings/ListingsFooter";
 import MiniParcelMap from "@/components/maps/MiniParcelMap";
 import { ProximityCard } from "@/components/listings/ProximityCard";
 import { FullAccessBadge } from "@/components/listings/FullAccessBadge";
-import { DetailShell, DetailLoading, DetailNotFound } from "@/components/listings/DetailShell";
+import { DetailShell } from "@/components/listings/DetailShell";
 import { LockedField, MapLockedOverlay } from "@/components/listings/LockedField";
 import { PaywallDrawer } from "@/components/listings/PaywallDrawer";
 import { usePaywallAutoOpen } from "@/hooks/usePaywallAutoOpen";
@@ -40,13 +38,6 @@ export interface ITListingDetail extends OsmDistanceFields {
   access_granted: boolean;
 }
 
-function useITListing(id: string) {
-  return useQuery({
-    queryKey: ["it-listing-detail", id],
-    queryFn: () => optionalAuthApi<ITListingDetail>(`/api/listings/it/${id}/detail/`),
-  });
-}
-
 function formatSubstationDistance(meters: number | null): string {
   if (!meters) return "N/A";
   return `${Math.round(meters)} m`;
@@ -59,23 +50,19 @@ function formatRegionSlug(slug: string): string {
     .join(" ");
 }
 
-export function ITDetailPage({ id, country, region, province }: DetailPageProps) {
-  const { data: listing, isLoading, error } = useITListing(id);
-  const queryClient = useQueryClient();
+export function ITDetailPage({ id, listing, onPaymentSuccess }: DetailPageProps<ITListingDetail>) {
   const [paywallOpen, setPaywallOpen] = useState(false);
   usePaywallAutoOpen(() => setPaywallOpen(true));
-
-  if (isLoading) return <DetailLoading />;
-  if (error || !listing) return <DetailNotFound country={country} />;
 
   const accessGranted = listing.access_granted;
   const solarPercentage = listing.prob_solar ? Math.round(listing.prob_solar * 100) : null;
   const center = getParcelCenter(listing.geom_json);
   const regionName = formatRegionSlug(listing.region_slug);
   const openPaywall = () => setPaywallOpen(true);
-  const handlePaymentSuccess = () => {
-    queryClient.invalidateQueries({ queryKey: ["it-listing-detail", id] });
-  };
+
+  const country = "italy";
+  const region = listing.region_slug;
+  const province = listing.comune_slug;
 
   const seoTitle = `Solar Parcel - ${listing.comune_name}, ${regionName} | Sunnyplans`;
   const seoDescription = `Particella catastale in ${listing.comune_name}, ${regionName}. Probabilita solare: ${solarPercentage}%. Pre-analizzata per fotovoltaico e BESS.`;
@@ -199,7 +186,7 @@ export function ITDetailPage({ id, country, region, province }: DetailPageProps)
         listingId={id}
         open={paywallOpen}
         onOpenChange={setPaywallOpen}
-        onPaymentSuccess={handlePaymentSuccess}
+        onPaymentSuccess={onPaymentSuccess}
         lang="it"
       />
     </>

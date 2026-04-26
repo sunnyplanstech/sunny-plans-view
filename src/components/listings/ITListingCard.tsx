@@ -60,7 +60,7 @@ function getRankBadge(listing: ITListing, showRank: "global" | "region" | "comun
 }
 
 const ITListingCard = ({ listing, showRank = "global", listPosition }: ITListingCardProps) => {
-  const listingUrl = `/italy/${listing.region_slug}/${listing.comune_slug}/listing/${listing.id}`;
+  const listingUrl = `/listing/${listing.id}`;
   const solarPercentage = listing.prob_solar ? Math.round(listing.prob_solar * 100) : null;
   const center = getParcelCenter(listing.geom_json);
 

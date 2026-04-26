@@ -4,7 +4,6 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { MapPin, Zap, Ruler, Sun, ArrowRight, Trophy } from "lucide-react";
 import type { USListing } from "@/countries/unitedStates";
-import { stateCodeToSlug, countyToSlug } from "@/data/locations";
 import MiniParcelMap from "@/components/maps/MiniParcelMap";
 import { cn } from "@/lib/utils";
 import { getParcelCenter } from "@/lib/geo";
@@ -53,9 +52,7 @@ function getRankBadge(listing: USListing, showRank: "global" | "state" | "county
 }
 
 const USListingCard = ({ listing, showRank = "global" }: USListingCardProps) => {
-  const stateSlug = stateCodeToSlug(listing.state_code) || listing.state_code.toLowerCase();
-  const countySlugStr = countyToSlug(listing.county);
-  const listingUrl = `/united-states/${stateSlug}/${countySlugStr}/listing/${listing.id}`;
+  const listingUrl = `/listing/${listing.id}`;
 
   const solarPercentage = listing.prob_solar ? Math.round(listing.prob_solar * 100) : null;
   const center = getParcelCenter(listing.geom_json);
