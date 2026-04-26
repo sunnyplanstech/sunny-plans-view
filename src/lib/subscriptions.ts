@@ -49,6 +49,37 @@ export async function startSubscription(
   }
 }
 
+/** Same shape as StartSubscriptionOutcome, plus a "duplicate" branch for
+ *  users who already own this listing. */
+export type StartParcelPurchaseOutcome =
+  | { kind: "needs_register" }
+  | { kind: "needs_verify" }
+  | { kind: "duplicate" }
+  | { kind: "ok"; intent: ParcelPurchaseIntent }
+  | { kind: "error"; message: string };
+
+export async function startParcelPurchase(
+  user: UserProfile | null,
+  listingId: string,
+): Promise<StartParcelPurchaseOutcome> {
+  if (!user) return { kind: "needs_register" };
+  if (!user.email_verified) return { kind: "needs_verify" };
+  try {
+    const intent = await createParcelPurchaseIntent(listingId);
+    return { kind: "ok", intent };
+  } catch (err) {
+    if (err instanceof CheckoutError) {
+      if (err.reason === "unverified") return { kind: "needs_verify" };
+      if (err.reason === "duplicate") return { kind: "duplicate" };
+    }
+    return {
+      kind: "error",
+      message:
+        err instanceof Error ? err.message : "Could not start checkout. Please try again.",
+    };
+  }
+}
+
 export interface ParcelPurchaseIntent {
   client_secret: string;
   amount: number;   // in cents

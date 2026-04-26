@@ -21,9 +21,8 @@ import { useAuth } from "@/hooks/useAuth";
 import { toast } from "@/hooks/use-toast";
 import { STRIPE_PUBLISHABLE_KEY } from "@/lib/config";
 import {
-  CheckoutError,
-  createParcelPurchaseIntent,
   resendVerificationEmail,
+  startParcelPurchase,
   startSubscription,
   type ParcelPurchaseIntent,
 } from "@/lib/subscriptions";
@@ -157,34 +156,36 @@ export function PaywallDrawer({
   };
 
   const handleUnlock = async () => {
-    if (!user) return sendToRegister("unlock");
     setState({ kind: "intent_loading" });
-    try {
-      const intent = await createParcelPurchaseIntent(listingId);
-      // Empty client_secret = staff comp; backend already created the
-      // ParcelPurchase row, no Stripe interaction needed.
-      if (!intent.client_secret) {
-        handlePaymentSucceeded();
+    const outcome = await startParcelPurchase(user, listingId);
+    switch (outcome.kind) {
+      case "needs_register":
+        sendToRegister("unlock");
         return;
-      }
-      setState({ kind: "payment_form", intent });
-    } catch (err) {
-      if (err instanceof CheckoutError && err.reason === "unverified") {
+      case "needs_verify":
         setState({ kind: "verify" });
         return;
-      }
-      if (err instanceof CheckoutError && err.reason === "duplicate") {
+      case "duplicate":
         toast({ title: t.duplicate });
         onPaymentSuccess();
         onOpenChange(false);
         return;
-      }
-      toast({
-        title: t.intentFailed,
-        description: err instanceof Error ? err.message : undefined,
-        variant: "destructive",
-      });
-      setState({ kind: "choice" });
+      case "ok":
+        // Empty client_secret = staff comp; backend already created the
+        // ParcelPurchase row, no Stripe interaction needed.
+        if (!outcome.intent.client_secret) {
+          handlePaymentSucceeded();
+          return;
+        }
+        setState({ kind: "payment_form", intent: outcome.intent });
+        return;
+      case "error":
+        toast({
+          title: t.intentFailed,
+          description: outcome.message,
+          variant: "destructive",
+        });
+        setState({ kind: "choice" });
     }
   };
 
