@@ -10,7 +10,7 @@ import SEOHead from "@/components/listings/SEOHead";
 import ListingsFooter from "@/components/listings/ListingsFooter";
 import MiniParcelMap from "@/components/maps/MiniParcelMap";
 import { ProximityCard } from "@/components/listings/ProximityCard";
-import { FullAccessBadge } from "@/components/listings/SubscribeCTA";
+import { FullAccessBadge } from "@/components/listings/FullAccessBadge";
 import { DetailShell, DetailLoading, DetailNotFound } from "@/components/listings/DetailShell";
 import { LockedField, MapLockedOverlay } from "@/components/listings/LockedField";
 import { PaywallDrawer } from "@/components/listings/PaywallDrawer";

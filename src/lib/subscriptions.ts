@@ -1,4 +1,5 @@
 import { ApiError, apiClient } from "@/lib/apiClient";
+import type { UserProfile } from "@/lib/auth";
 
 export type CheckoutFailure =
   | "unauthenticated" | "unverified" | "duplicate" | "server";
@@ -10,6 +11,41 @@ export class CheckoutError extends Error {
   ) {
     super(message);
     this.name = "CheckoutError";
+  }
+}
+
+/**
+ * Outcome of clicking any "Subscribe to Premium" entrypoint. The caller
+ * picks how to render each branch (toast vs in-place screen, with or
+ * without closing a drawer), but the decision tree itself is shared:
+ *   - no user            → "needs_register"
+ *   - email unverified   → "needs_verify"   (covers both pre-check and 403)
+ *   - checkout url ready → "ok"
+ *   - anything else      → "error"
+ */
+export type StartSubscriptionOutcome =
+  | { kind: "needs_register" }
+  | { kind: "needs_verify" }
+  | { kind: "ok"; checkoutUrl: string }
+  | { kind: "error"; message: string };
+
+export async function startSubscription(
+  user: UserProfile | null,
+): Promise<StartSubscriptionOutcome> {
+  if (!user) return { kind: "needs_register" };
+  if (!user.email_verified) return { kind: "needs_verify" };
+  try {
+    const checkoutUrl = await createCheckoutSession();
+    return { kind: "ok", checkoutUrl };
+  } catch (err) {
+    if (err instanceof CheckoutError && err.reason === "unverified") {
+      return { kind: "needs_verify" };
+    }
+    return {
+      kind: "error",
+      message:
+        err instanceof Error ? err.message : "Could not start checkout. Please try again.",
+    };
   }
 }
 

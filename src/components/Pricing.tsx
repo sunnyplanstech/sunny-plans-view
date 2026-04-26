@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Check } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
-import { CheckoutError, createCheckoutSession } from "@/lib/subscriptions";
+import { startSubscription } from "@/lib/subscriptions";
 import { toast } from "@/hooks/use-toast";
 
 const ENTERPRISE_URL = "https://calendly.com/eracle/new-meeting";
@@ -60,28 +60,26 @@ const Pricing = () => {
   const navigate = useNavigate();
 
   const handlePremium = async () => {
-    if (!user) {
-      navigate("/register?next=%2F%23pricing");
-      return;
-    }
-    if (!user.email_verified) {
-      toast({
-        title: "Verify your email",
-        description: "Check your inbox for the verification link, then try again.",
-      });
-      return;
-    }
-    try {
-      const url = await createCheckoutSession();
-      window.location.href = url;
-    } catch (err) {
-      const reason = err instanceof CheckoutError ? err.reason : "server";
-      toast({
-        title: reason === "unverified" ? "Verify your email" : "Checkout failed",
-        description:
-          err instanceof Error ? err.message : "Could not start checkout. Please try again.",
-        variant: "destructive",
-      });
+    const outcome = await startSubscription(user);
+    switch (outcome.kind) {
+      case "needs_register":
+        navigate("/register?next=%2F%23pricing");
+        return;
+      case "needs_verify":
+        toast({
+          title: "Verify your email",
+          description: "Check your inbox for the verification link, then try again.",
+        });
+        return;
+      case "ok":
+        window.location.href = outcome.checkoutUrl;
+        return;
+      case "error":
+        toast({
+          title: "Checkout failed",
+          description: outcome.message,
+          variant: "destructive",
+        });
     }
   };
 

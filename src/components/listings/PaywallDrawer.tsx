@@ -22,9 +22,9 @@ import { toast } from "@/hooks/use-toast";
 import { STRIPE_PUBLISHABLE_KEY } from "@/lib/config";
 import {
   CheckoutError,
-  createCheckoutSession,
   createParcelPurchaseIntent,
   resendVerificationEmail,
+  startSubscription,
   type ParcelPurchaseIntent,
 } from "@/lib/subscriptions";
 
@@ -36,7 +36,8 @@ const STRINGS = {
     description: "Choose how you want to access full data for this listing.",
     subscribePrice: "$299/month",
     subscribeBlurb: "Full access to every parcel across the US and Italy.",
-    subscribeCta: "Subscribe",
+    subscribeHeading: "Premium",
+    subscribeCta: "Go Premium",
     unlockPrice: "$49 one-time",
     unlockBlurb: "Just this listing — exact coordinates, source URL, full data. Permanent access.",
     unlockCta: "Unlock this parcel",
@@ -60,7 +61,8 @@ const STRINGS = {
     description: "Scegli come accedere ai dati completi di questa particella.",
     subscribePrice: "$299/mese",
     subscribeBlurb: "Accesso completo a tutte le particelle in USA e Italia.",
-    subscribeCta: "Abbonati",
+    subscribeHeading: "Premium",
+    subscribeCta: "Passa a Premium",
     unlockPrice: "$49 una tantum",
     unlockBlurb: "Solo questa particella — coordinate esatte, URL sorgente, dati completi. Accesso permanente.",
     unlockCta: "Sblocca questa particella",
@@ -134,20 +136,23 @@ export function PaywallDrawer({
   };
 
   const handleSubscribe = async () => {
-    if (!user) return sendToRegister("subscribe");
-    try {
-      const url = await createCheckoutSession();
-      window.location.href = url;
-    } catch (err) {
-      if (err instanceof CheckoutError && err.reason === "unverified") {
+    const outcome = await startSubscription(user);
+    switch (outcome.kind) {
+      case "needs_register":
+        sendToRegister("subscribe");
+        return;
+      case "needs_verify":
         setState({ kind: "verify" });
         return;
-      }
-      toast({
-        title: "Checkout failed",
-        description: err instanceof Error ? err.message : "Could not start checkout.",
-        variant: "destructive",
-      });
+      case "ok":
+        window.location.href = outcome.checkoutUrl;
+        return;
+      case "error":
+        toast({
+          title: "Checkout failed",
+          description: outcome.message,
+          variant: "destructive",
+        });
     }
   };
 
@@ -271,7 +276,7 @@ function ChoiceScreen({ t, onSubscribe, onUnlock, userKnown }: ChoiceScreenProps
     <>
       <div className="border rounded-lg p-4 space-y-3">
         <div className="flex items-baseline justify-between">
-          <h3 className="font-semibold">{t.subscribeCta}</h3>
+          <h3 className="font-semibold">{t.subscribeHeading}</h3>
           <span className="text-lg font-bold">{t.subscribePrice}</span>
         </div>
         <p className="text-sm text-muted-foreground">{t.subscribeBlurb}</p>
