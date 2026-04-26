@@ -2,8 +2,8 @@ import { API_BASE } from "@/lib/config";
 import { AuthError, type AuthTokens, type UserProfile } from "./types";
 
 interface DjRestAuthLoginResponse {
-  access_token: string;
-  refresh_token: string;
+  access: string;
+  refresh: string;
   user: UserProfile;
 }
 
@@ -28,7 +28,7 @@ async function postJson<T>(path: string, body: unknown): Promise<T> {
 
 function unwrapLogin(data: DjRestAuthLoginResponse): AuthResult {
   return {
-    tokens: { access: data.access_token, refresh: data.refresh_token },
+    tokens: { access: data.access, refresh: data.refresh },
     user: data.user,
   };
 }
