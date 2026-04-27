@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
-import { Calendar, Check, CreditCard, ExternalLink, Lock, Mail } from "lucide-react";
+import { Calendar, CreditCard, ExternalLink, Lock, Mail } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -38,8 +38,6 @@ const STRINGS = {
     verifyDescription: "Open the verification link we sent to your inbox before paying.",
     resend: "Resend verification email",
     redirecting: "Opening secure checkout…",
-    success: "Payment confirmed",
-    successHint: "Refreshing your data…",
     back: "Back",
     intentFailed: "Could not start checkout. Please try again.",
     duplicate: "You already have access to this listing.",
@@ -61,8 +59,6 @@ const STRINGS = {
     verifyDescription: "Apri il link di verifica che ti abbiamo inviato prima di pagare.",
     resend: "Invia di nuovo l'email di verifica",
     redirecting: "Apertura del checkout sicuro…",
-    success: "Pagamento confermato",
-    successHint: "Aggiornamento dati in corso…",
     back: "Indietro",
     intentFailed: "Impossibile avviare il pagamento. Riprova.",
     duplicate: "Hai già accesso a questa particella.",
@@ -74,15 +70,15 @@ type Lang = keyof typeof STRINGS;
 type DrawerState =
   | { kind: "choice" }
   | { kind: "redirecting" }
-  | { kind: "verify" }
-  | { kind: "success" };
+  | { kind: "verify" };
 
 interface PaywallDrawerProps {
   listingId: string;
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  /** Called only on the staff-comp shortcut path; the regular flow leaves the
-   *  app to Stripe Checkout and returns via /checkout/success. */
+  /** Called when the duplicate-purchase branch fires so the page can refetch.
+   *  The regular flow leaves the app to Stripe Checkout and returns via
+   *  /checkout/success — this prop is not invoked on that path. */
   onPaymentSuccess: () => void;
   lang?: Lang;
 }
@@ -152,12 +148,6 @@ export function PaywallDrawer({
         onOpenChange(false);
         return;
       case "ok":
-        // Empty checkoutUrl = staff comp; backend already created the
-        // ParcelPurchase row, no Stripe interaction needed.
-        if (!outcome.checkoutUrl) {
-          handlePaymentSucceeded();
-          return;
-        }
         window.location.href = outcome.checkoutUrl;
         return;
       case "error":
@@ -178,16 +168,6 @@ export function PaywallDrawer({
     } catch {
       toast({ title: "Could not resend email", variant: "destructive" });
     }
-  };
-
-  const handlePaymentSucceeded = () => {
-    // Staff-comp path only; regular Stripe flow leaves the app and
-    // returns through /checkout/success.
-    setState({ kind: "success" });
-    setTimeout(() => {
-      onPaymentSuccess();
-      onOpenChange(false);
-    }, 1500);
   };
 
   return (
@@ -214,16 +194,6 @@ export function PaywallDrawer({
 
           {state.kind === "verify" && (
             <VerifyScreen t={t} onResend={handleResendVerification} onBack={() => setState({ kind: "choice" })} />
-          )}
-
-          {state.kind === "success" && (
-            <div className="text-center py-12 space-y-3">
-              <div className="inline-flex w-12 h-12 rounded-full bg-primary/10 items-center justify-center">
-                <Check className="w-6 h-6 text-primary" />
-              </div>
-              <h3 className="text-lg font-semibold">{t.success}</h3>
-              <p className="text-sm text-muted-foreground">{t.successHint}</p>
-            </div>
           )}
         </div>
       </SheetContent>

@@ -50,8 +50,7 @@ export async function startSubscription(
 }
 
 /** Same shape as StartSubscriptionOutcome, plus a "duplicate" branch for
- *  users who already own this listing. ``checkoutUrl`` is empty for staff
- *  comp (the backend already created the row, no Stripe redirect needed). */
+ *  users who already own this listing. */
 export type StartParcelPurchaseOutcome =
   | { kind: "needs_register" }
   | { kind: "needs_verify" }
@@ -119,8 +118,7 @@ export async function createCheckoutSession(): Promise<string> {
 /**
  * Create a Stripe Checkout Session for a one-off parcel purchase. The SPA
  * redirects to the returned URL; the webhook records the ParcelPurchase
- * row from ``checkout.session.completed``. An empty string signals a
- * staff-comp bypass — the backend already created the row.
+ * row from ``checkout.session.completed``.
  *   - 401 → CheckoutError("unauthenticated")
  *   - 403 → CheckoutError("unverified")
  *   - 409 → CheckoutError("duplicate") — user already owns this listing
