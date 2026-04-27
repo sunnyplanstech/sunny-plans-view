@@ -22,7 +22,7 @@ import type { DetailPageProps } from "../types";
  * Detail-endpoint response shape — same keys regardless of access. The
  * backend renders premium numeric/url/date fields as the literal string
  * "****" when locked, formatted display strings (e.g. "$397,500",
- * "47.18", "2026-03-12") when unlocked. geom_json carries the H3-snapped
+ * "47.18", "2026-04-22") when unlocked. geom_json carries the H3-snapped
  * point when locked and the exact polygon when unlocked.
  */
 export interface USListingDetail extends OsmDistanceFields {
@@ -41,8 +41,6 @@ export interface USListingDetail extends OsmDistanceFields {
   sqft: string;
   property_url: string;
   google_maps_url: string;
-  list_date: string;
-  days_on_mls: string;
   last_verified_at: string;
   prob_solar: number;
   rank_global: number;
