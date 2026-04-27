@@ -1,11 +1,10 @@
-import { GoogleMap } from "@react-google-maps/api";
+import { GoogleMap, Polygon } from "@react-google-maps/api";
 import { useMemo, useRef, useState, useEffect } from "react";
 import { MapPin } from "lucide-react";
 import { useGoogleMaps } from "./GoogleMapsProvider";
 
 interface MiniParcelMapProps {
-  lat: number | null;
-  lon: number | null;
+  geomJson: unknown;
   className?: string;
 }
 
@@ -14,34 +13,69 @@ const mapContainerStyle = {
   height: "100%",
 };
 
-const defaultCenter = { lat: 39.8283, lng: -98.5795 }; // Center of US
+type GeomLike = { type?: string; coordinates?: unknown };
 
-export function MiniParcelMap({ lat, lon, className }: MiniParcelMapProps) {
+interface ResolvedGeom {
+  center: google.maps.LatLngLiteral;
+  paths: google.maps.LatLngLiteral[][];
+}
+
+function ringToPath(ring: number[][]): google.maps.LatLngLiteral[] {
+  return ring.map(([lng, lat]) => ({ lat, lng }));
+}
+
+function pathCentroid(path: google.maps.LatLngLiteral[]): google.maps.LatLngLiteral {
+  const n = path.length;
+  return {
+    lat: path.reduce((s, p) => s + p.lat, 0) / n,
+    lng: path.reduce((s, p) => s + p.lng, 0) / n,
+  };
+}
+
+function resolveGeom(geomJson: unknown): ResolvedGeom | null {
+  if (!geomJson) return null;
+  try {
+    const g = (typeof geomJson === "string" ? JSON.parse(geomJson) : geomJson) as GeomLike;
+    if (g.type === "Point" && Array.isArray(g.coordinates)) {
+      const [lng, lat] = g.coordinates as number[];
+      return { center: { lat, lng }, paths: [] };
+    }
+    if (g.type === "Polygon" && Array.isArray(g.coordinates)) {
+      const rings = g.coordinates as number[][][];
+      if (rings.length === 0) return null;
+      const paths = rings.map(ringToPath);
+      return { center: pathCentroid(paths[0]), paths };
+    }
+    if (g.type === "MultiPolygon" && Array.isArray(g.coordinates)) {
+      const polys = g.coordinates as number[][][][];
+      if (polys.length === 0) return null;
+      const paths = polys.flatMap((poly) => poly.map(ringToPath));
+      if (paths.length === 0) return null;
+      return { center: pathCentroid(paths[0]), paths };
+    }
+    return null;
+  } catch {
+    return null;
+  }
+}
+
+export function MiniParcelMap({ geomJson, className }: MiniParcelMapProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const [isVisible, setIsVisible] = useState(false);
 
-  const hasCoords = lat != null && lon != null;
-  const center = useMemo(() => {
-    if (hasCoords) {
-      return { lat, lng: lon };
-    }
-    return defaultCenter;
-  }, [lat, lon, hasCoords]);
-
+  const geom = useMemo(() => resolveGeom(geomJson), [geomJson]);
   const { isLoaded, requestLoad } = useGoogleMaps();
 
-  // Lazy load: only render map when visible in viewport
   useEffect(() => {
     const observer = new IntersectionObserver(
       ([entry]) => {
         if (entry.isIntersecting) {
           setIsVisible(true);
-          // Request Google Maps to load when map becomes visible
           requestLoad();
           observer.disconnect();
         }
       },
-      { rootMargin: "100px" } // Start loading 100px before visible
+      { rootMargin: "100px" }
     );
 
     if (containerRef.current) {
@@ -51,8 +85,7 @@ export function MiniParcelMap({ lat, lon, className }: MiniParcelMapProps) {
     return () => observer.disconnect();
   }, [requestLoad]);
 
-  // Show placeholder if not visible yet, not loaded, or no coordinates
-  if (!isVisible || !isLoaded || !hasCoords) {
+  if (!isVisible || !isLoaded || !geom) {
     return (
       <div
         ref={containerRef}
@@ -63,6 +96,8 @@ export function MiniParcelMap({ lat, lon, className }: MiniParcelMapProps) {
     );
   }
 
+  const hasPolygon = geom.paths.length > 0;
+
   const mapOptions: google.maps.MapOptions = {
     mapTypeId: "satellite",
     disableDefaultUI: true,
@@ -72,14 +107,38 @@ export function MiniParcelMap({ lat, lon, className }: MiniParcelMapProps) {
     draggable: false,
   };
 
+  const handleMapLoad = (map: google.maps.Map) => {
+    if (!hasPolygon) return;
+    const bounds = new google.maps.LatLngBounds();
+    geom.paths.forEach((path) => path.forEach((p) => bounds.extend(p)));
+    map.fitBounds(bounds, 24);
+  };
+
   return (
     <div ref={containerRef} className={className}>
       <GoogleMap
         mapContainerStyle={mapContainerStyle}
-        center={center}
+        center={geom.center}
         zoom={15}
         options={mapOptions}
-      />
+        onLoad={hasPolygon ? handleMapLoad : undefined}
+      >
+        {hasPolygon &&
+          geom.paths.map((path, i) => (
+            <Polygon
+              key={i}
+              paths={path}
+              options={{
+                fillColor: "#fbbf24",
+                fillOpacity: 0.2,
+                strokeColor: "#fbbf24",
+                strokeWeight: 2,
+                strokeOpacity: 0.95,
+                clickable: false,
+              }}
+            />
+          ))}
+      </GoogleMap>
     </div>
   );
 }

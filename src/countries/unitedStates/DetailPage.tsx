@@ -5,7 +5,6 @@ import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { seoKeywords } from "@/data/mockListings";
 import { STATE_CODE_TO_SLUG } from "@/data/locations";
-import { getParcelCenter } from "@/lib/geo";
 import SEOHead from "@/components/listings/SEOHead";
 import ListingsFooter from "@/components/listings/ListingsFooter";
 import MiniParcelMap from "@/components/maps/MiniParcelMap";
@@ -66,7 +65,6 @@ export function USDetailPage({ id, listing, onPaymentSuccess }: DetailPageProps<
 
   const accessGranted = listing.access_granted;
   const solarPercentage = listing.prob_solar ? Math.round(listing.prob_solar * 100) : null;
-  const center = getParcelCenter(listing.geom_json);
   const openPaywall = () => setPaywallOpen(true);
 
   const country = "united-states";
@@ -129,7 +127,7 @@ export function USDetailPage({ id, listing, onPaymentSuccess }: DetailPageProps<
         backLabel="Back to results"
       >
         <section className="relative rounded-xl overflow-hidden mb-6 h-64 md:h-96">
-          <MiniParcelMap lat={center?.lat ?? null} lon={center?.lng ?? null} className="w-full h-full" />
+          <MiniParcelMap geomJson={listing.geom_json} className="w-full h-full" />
           <div className="absolute top-4 left-4 flex flex-wrap gap-2">
             <Badge className="text-lg py-1 px-3 bg-primary">
               <Sun className="w-4 h-4 mr-1" />

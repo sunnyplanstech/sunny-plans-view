@@ -90,7 +90,10 @@ const USBody = () => {
   return (
     <>
       <div className="relative rounded-lg overflow-hidden h-64">
-        <MiniParcelMap lat={s.lat} lon={s.lon} className="h-full" />
+        <MiniParcelMap
+          geomJson={{ type: "Point", coordinates: [s.lon, s.lat] }}
+          className="h-full"
+        />
         <div className="absolute top-3 left-3 flex gap-2">
           <Badge className="bg-primary">
             <Sun className="w-3 h-3 mr-1" />
@@ -140,7 +143,10 @@ const ITBody = () => {
   return (
     <>
       <div className="relative rounded-lg overflow-hidden h-64">
-        <MiniParcelMap lat={s.lat} lon={s.lon} className="h-full" />
+        <MiniParcelMap
+          geomJson={{ type: "Point", coordinates: [s.lon, s.lat] }}
+          className="h-full"
+        />
         <div className="absolute top-3 left-3 flex gap-2">
           <Badge className="bg-primary">
             <Sun className="w-3 h-3 mr-1" />

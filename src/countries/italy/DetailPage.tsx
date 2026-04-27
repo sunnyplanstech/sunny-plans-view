@@ -3,7 +3,6 @@ import { MapPin, Zap, Sun, Trophy, Ruler, Lock } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { getParcelCenter } from "@/lib/geo";
 import SEOHead from "@/components/listings/SEOHead";
 import ListingsFooter from "@/components/listings/ListingsFooter";
 import MiniParcelMap from "@/components/maps/MiniParcelMap";
@@ -56,7 +55,6 @@ export function ITDetailPage({ id, listing, onPaymentSuccess }: DetailPageProps<
 
   const accessGranted = listing.access_granted;
   const solarPercentage = listing.prob_solar ? Math.round(listing.prob_solar * 100) : null;
-  const center = getParcelCenter(listing.geom_json);
   const regionName = formatRegionSlug(listing.region_slug);
   const openPaywall = () => setPaywallOpen(true);
 
@@ -97,7 +95,7 @@ export function ITDetailPage({ id, listing, onPaymentSuccess }: DetailPageProps<
         backLabel="Torna ai risultati"
       >
         <section className="relative rounded-xl overflow-hidden mb-6 h-64 md:h-96">
-          <MiniParcelMap lat={center?.lat ?? null} lon={center?.lng ?? null} className="w-full h-full" />
+          <MiniParcelMap geomJson={listing.geom_json} className="w-full h-full" />
           <div className="absolute top-4 left-4 flex flex-wrap gap-2">
             {solarPercentage !== null && (
               <Badge className="text-lg py-1 px-3 bg-primary">

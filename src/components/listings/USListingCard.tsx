@@ -6,7 +6,6 @@ import { MapPin, Zap, Ruler, Sun, ArrowRight, Trophy } from "lucide-react";
 import type { USListing } from "@/countries/unitedStates";
 import MiniParcelMap from "@/components/maps/MiniParcelMap";
 import { cn } from "@/lib/utils";
-import { getParcelCenter } from "@/lib/geo";
 import { formatPrice, formatAcres, formatSubstationDistance } from "@/lib/format";
 
 interface USListingCardProps {
@@ -55,7 +54,6 @@ const USListingCard = ({ listing, showRank = "global" }: USListingCardProps) => 
   const listingUrl = `/listing/${listing.id}`;
 
   const solarPercentage = listing.prob_solar ? Math.round(listing.prob_solar * 100) : null;
-  const center = getParcelCenter(listing.geom_json);
 
   return (
     <Card className="group overflow-hidden hover:shadow-lg transition-all duration-300 border-border/60 bg-card">
@@ -63,8 +61,7 @@ const USListingCard = ({ listing, showRank = "global" }: USListingCardProps) => 
         {/* Map section */}
         <div className="relative w-full sm:w-40 h-32 sm:h-auto sm:min-h-[180px] flex-shrink-0 overflow-hidden">
           <MiniParcelMap
-            lat={center?.lat ?? null}
-            lon={center?.lng ?? null}
+            geomJson={listing.geom_json}
             className="w-full h-full"
           />
 

@@ -6,7 +6,6 @@ import { MapPin, Sun, ArrowRight, Trophy } from "lucide-react";
 import type { ITListing } from "@/countries/italy";
 import MiniParcelMap from "@/components/maps/MiniParcelMap";
 import { cn } from "@/lib/utils";
-import { getParcelCenter } from "@/lib/geo";
 
 interface ITListingCardProps {
   listing: ITListing;
@@ -62,7 +61,6 @@ function getRankBadge(listing: ITListing, showRank: "global" | "region" | "comun
 const ITListingCard = ({ listing, showRank = "global", listPosition }: ITListingCardProps) => {
   const listingUrl = `/listing/${listing.id}`;
   const solarPercentage = listing.prob_solar ? Math.round(listing.prob_solar * 100) : null;
-  const center = getParcelCenter(listing.geom_json);
 
   return (
     <Card className="group overflow-hidden hover:shadow-lg transition-all duration-300 border-border/60 bg-card">
@@ -70,8 +68,7 @@ const ITListingCard = ({ listing, showRank = "global", listPosition }: ITListing
         {/* Map section */}
         <div className="relative w-full sm:w-40 h-32 sm:h-auto sm:min-h-[180px] flex-shrink-0 overflow-hidden">
           <MiniParcelMap
-            lat={center?.lat ?? null}
-            lon={center?.lng ?? null}
+            geomJson={listing.geom_json}
             className="w-full h-full"
           />
 
