@@ -108,9 +108,9 @@ const CountryListingsSearch = ({ adapter, country, region, province }: InnerProp
               </div>
 
               <div className="hidden md:flex items-center gap-2">
-                <SampleReportModal>
+                <SampleReportModal country={country === "italy" ? "it" : "us"}>
                   <Button variant="outline" size="sm">
-                    See a Sample Report
+                    {country === "italy" ? "Vedi Report di Esempio" : "See a Sample Report"}
                   </Button>
                 </SampleReportModal>
                 <Button variant="outline" size="sm" disabled>
