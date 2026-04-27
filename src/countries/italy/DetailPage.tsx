@@ -3,6 +3,7 @@ import { MapPin, Zap, Sun, Trophy, Ruler, Lock } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import SEOHead from "@/components/listings/SEOHead";
 import ListingsFooter from "@/components/listings/ListingsFooter";
 import MiniParcelMap from "@/components/maps/MiniParcelMap";
@@ -186,21 +187,32 @@ export function ITDetailPage({ id, listing, onPaymentSuccess }: DetailPageProps<
           <CardHeader>
             <CardTitle>Identificativo Catastale</CardTitle>
           </CardHeader>
-          <CardContent>
-            {accessGranted ? (
-              <p className="font-mono text-sm">
-                {listing.comune_code} · Foglio {listing.foglio} · Particella {listing.particella}
-              </p>
-            ) : (
-              <button
-                type="button"
-                onClick={openPaywall}
-                className="inline-flex items-center gap-2 text-muted-foreground hover:text-primary cursor-pointer transition-colors font-mono text-sm"
-              >
-                <span>**** · Foglio **** · Particella ****</span>
-                <Lock className="w-3 h-3" />
-              </button>
-            )}
+          <CardContent className="p-0">
+            <Table>
+              <TableHeader>
+                <TableRow className="hover:bg-transparent">
+                  <TableHead>Codice Comune</TableHead>
+                  <TableHead>Foglio</TableHead>
+                  <TableHead>Particella</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                <TableRow
+                  className={!accessGranted ? "cursor-pointer" : "hover:bg-transparent"}
+                  onClick={!accessGranted ? openPaywall : undefined}
+                >
+                  <TableCell className="font-mono">
+                    {accessGranted ? listing.comune_code : <LockedCell />}
+                  </TableCell>
+                  <TableCell className="font-mono">
+                    {accessGranted ? listing.foglio : <LockedCell />}
+                  </TableCell>
+                  <TableCell className="font-mono">
+                    {accessGranted ? listing.particella : <LockedCell />}
+                  </TableCell>
+                </TableRow>
+              </TableBody>
+            </Table>
           </CardContent>
         </Card>
 
@@ -217,6 +229,15 @@ export function ITDetailPage({ id, listing, onPaymentSuccess }: DetailPageProps<
         lang="it"
       />
     </>
+  );
+}
+
+function LockedCell() {
+  return (
+    <span className="inline-flex items-center gap-1.5 text-muted-foreground">
+      ****
+      <Lock className="w-3 h-3" />
+    </span>
   );
 }
 
