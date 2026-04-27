@@ -31,6 +31,8 @@ export interface ITListingDetail extends OsmDistanceFields {
   lon: string;
   area_m2: string;
   area_ha: string;
+  foglio: string;
+  particella: string;
   geom_json: Record<string, unknown> | null;
   rank_global: number;
   rank_in_comune: number;
@@ -131,6 +133,17 @@ export function ITDetailPage({ id, listing, onPaymentSuccess }: DetailPageProps<
               <CardTitle>Dettagli Particella</CardTitle>
             </CardHeader>
             <CardContent className="space-y-6">
+              <div className="rounded-lg border border-border bg-muted/30 p-4">
+                <p className="text-xs uppercase tracking-wide text-muted-foreground mb-1">
+                  Identificativo Catastale
+                </p>
+                <p className="font-mono text-sm">
+                  {listing.comune_code} · Foglio{" "}
+                  <LockedField value={listing.foglio} onUnlock={openPaywall} /> · Particella{" "}
+                  <LockedField value={listing.particella} onUnlock={openPaywall} />
+                </p>
+              </div>
+
               <div className="space-y-2">
                 <div className="flex justify-between">
                   <span className="text-sm font-medium">Probabilita Solare</span>
