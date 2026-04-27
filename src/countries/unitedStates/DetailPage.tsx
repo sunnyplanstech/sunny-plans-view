@@ -30,8 +30,6 @@ export interface USListingDetail extends OsmDistanceFields {
   county: string | null;
   city: string | null;
   zip_code: string | null;
-  lat: string;
-  lon: string;
   list_price: string;
   lot_sqft: string;
   lot_acres: string;
@@ -39,7 +37,6 @@ export interface USListingDetail extends OsmDistanceFields {
   price_per_acre: string;
   sqft: string;
   property_url: string;
-  google_maps_url: string;
   last_verified_at: string;
   prob_solar: number;
   rank_global: number;

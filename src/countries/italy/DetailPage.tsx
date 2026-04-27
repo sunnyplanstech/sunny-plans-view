@@ -17,8 +17,9 @@ import type { DetailPageProps } from "../types";
 
 /**
  * Detail-endpoint response shape — see USListingDetail for the same
- * pattern. lat/lon and area_m2/area_ha are the IT premium fields:
- * "****" when locked, formatted display strings when unlocked.
+ * pattern. area_m2/area_ha and the cadastral identifiers are the IT
+ * premium fields: "****" when locked, formatted display strings when
+ * unlocked.
  */
 export interface ITListingDetail extends OsmDistanceFields {
   id: string;
@@ -27,8 +28,6 @@ export interface ITListingDetail extends OsmDistanceFields {
   comune_slug: string;
   region_slug: string;
   prob_solar: number;
-  lat: string;
-  lon: string;
   area_m2: string;
   area_ha: string;
   foglio: string;

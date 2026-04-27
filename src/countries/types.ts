@@ -12,8 +12,6 @@ export type Scope =
 export interface BaseListing {
   id: string;
   prob_solar: number | null;
-  lat: number | null;
-  lon: number | null;
   geom_json: unknown | null;
   rank_global: number | null;
 }

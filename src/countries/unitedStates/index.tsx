@@ -8,7 +8,6 @@ import {
 import USListingCard from "@/components/listings/USListingCard";
 import ListingsGoogleMap from "@/components/maps/ListingsGoogleMap";
 import { useUSHexHeatmap } from "@/hooks/useHexHeatmap";
-import type { OsmDistanceFields } from "@/data/osmDistanceFields";
 import type {
   BaseListing,
   CountryAdapter,
@@ -18,20 +17,14 @@ import type {
 } from "../types";
 import { parseScopeFromParams } from "../types";
 
-export interface USListing extends BaseListing, OsmDistanceFields {
+export interface USListing extends BaseListing {
   state_code: string;
   county: string;
-  city: string | null;
-  zip_code: string | null;
   rank_in_state: number | null;
   rank_in_county: number | null;
   list_price: number | null;
   lot_acres: number | null;
-  lot_sqft: number | null;
-  price_per_acre: number | null;
-  price_per_sqft: number | null;
-  sqft: number | null;
-  year_built: number | null;
+  power_substation: number | null;
 }
 
 function buildListingsUrl(scope: Scope, limit: number): string | null {

@@ -4,7 +4,6 @@ import { COUNTRIES } from "@/data/locations";
 import ITListingCard from "@/components/listings/ITListingCard";
 import ListingsGoogleMap from "@/components/maps/ListingsGoogleMap";
 import { useITHexHeatmap } from "@/hooks/useHexHeatmap";
-import type { OsmDistanceFields } from "@/data/osmDistanceFields";
 import type {
   BaseListing,
   CountryAdapter,
@@ -14,14 +13,11 @@ import type {
 } from "../types";
 import { parseScopeFromParams } from "../types";
 
-export interface ITListing extends BaseListing, OsmDistanceFields {
-  comune_code: string;
+export interface ITListing extends BaseListing {
   comune_name: string;
   comune_slug: string;
   region_slug: string;
   rank_in_comune: number | null;
-  area_ha: number | null;
-  area_m2: number | null;
 }
 
 function buildListingsUrl(scope: Scope, limit: number): string {

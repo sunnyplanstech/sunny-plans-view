@@ -1,4 +1,4 @@
-import { GoogleMap, Polygon } from "@react-google-maps/api";
+import { GoogleMap, Marker, Polygon } from "@react-google-maps/api";
 import { useMemo, useRef, useState, useEffect } from "react";
 import { MapPin } from "lucide-react";
 import { useGoogleMaps } from "./GoogleMapsProvider";
@@ -132,21 +132,36 @@ export function MiniParcelMap({ geomJson, className, interactive = false }: Mini
         options={mapOptions}
         onLoad={handleMapLoad}
       >
-        {hasPolygon &&
-          geom.paths.map((path, i) => (
-            <Polygon
-              key={i}
-              paths={path}
-              options={{
+        {hasPolygon
+          ? geom.paths.map((path, i) => (
+              <Polygon
+                key={i}
+                paths={path}
+                options={{
+                  fillColor: "#fbbf24",
+                  fillOpacity: 0.2,
+                  strokeColor: "#fbbf24",
+                  strokeWeight: 2,
+                  strokeOpacity: 0.95,
+                  clickable: false,
+                }}
+              />
+            ))
+          : (
+            <Marker
+              position={geom.center}
+              clickable={false}
+              icon={{
+                path: google.maps.SymbolPath.CIRCLE,
                 fillColor: "#fbbf24",
-                fillOpacity: 0.2,
+                fillOpacity: 0.6,
                 strokeColor: "#fbbf24",
                 strokeWeight: 2,
                 strokeOpacity: 0.95,
-                clickable: false,
+                scale: 9,
               }}
             />
-          ))}
+          )}
       </GoogleMap>
     </div>
   );
