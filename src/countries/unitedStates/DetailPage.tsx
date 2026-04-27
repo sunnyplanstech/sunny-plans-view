@@ -127,7 +127,11 @@ export function USDetailPage({ id, listing, onPaymentSuccess }: DetailPageProps<
         backLabel="Back to results"
       >
         <section className="relative rounded-xl overflow-hidden mb-6 h-64 md:h-96">
-          <MiniParcelMap geomJson={listing.geom_json} className="w-full h-full" />
+          <MiniParcelMap
+            geomJson={listing.geom_json}
+            className="w-full h-full"
+            interactive={accessGranted}
+          />
           <div className="absolute top-4 left-4 flex flex-wrap gap-2">
             <Badge className="text-lg py-1 px-3 bg-primary">
               <Sun className="w-4 h-4 mr-1" />

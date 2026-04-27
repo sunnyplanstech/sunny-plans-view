@@ -6,6 +6,7 @@ import { useGoogleMaps } from "./GoogleMapsProvider";
 interface MiniParcelMapProps {
   geomJson: unknown;
   className?: string;
+  interactive?: boolean;
 }
 
 const mapContainerStyle = {
@@ -59,7 +60,7 @@ function resolveGeom(geomJson: unknown): ResolvedGeom | null {
   }
 }
 
-export function MiniParcelMap({ geomJson, className }: MiniParcelMapProps) {
+export function MiniParcelMap({ geomJson, className, interactive = false }: MiniParcelMapProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const [isVisible, setIsVisible] = useState(false);
 
@@ -101,30 +102,35 @@ export function MiniParcelMap({ geomJson, className }: MiniParcelMapProps) {
   const mapOptions: google.maps.MapOptions = {
     mapTypeId: "satellite",
     disableDefaultUI: true,
-    gestureHandling: "none",
-    zoomControl: false,
-    scrollwheel: false,
-    draggable: false,
+    zoomControl: interactive,
+    gestureHandling: interactive ? "cooperative" : "none",
+    scrollwheel: interactive,
+    draggable: interactive,
     // Satellite tiles top out around z20 — fitBounds on a small parcel can
     // otherwise zoom past tile coverage and render the parcel on blank gray.
     maxZoom: 19,
   };
 
+  // Map is fully uncontrolled: viewport is set imperatively in onLoad. Passing
+  // center/zoom as props alongside fitBounds caused the satellite tile loader
+  // to enter an inconsistent state and render a blank gray background.
   const handleMapLoad = (map: google.maps.Map) => {
-    if (!hasPolygon) return;
-    const bounds = new google.maps.LatLngBounds();
-    geom.paths.forEach((path) => path.forEach((p) => bounds.extend(p)));
-    map.fitBounds(bounds, 24);
+    if (hasPolygon) {
+      const bounds = new google.maps.LatLngBounds();
+      geom.paths.forEach((path) => path.forEach((p) => bounds.extend(p)));
+      map.fitBounds(bounds, 24);
+    } else {
+      map.setCenter(geom.center);
+      map.setZoom(15);
+    }
   };
 
   return (
     <div ref={containerRef} className={className}>
       <GoogleMap
         mapContainerStyle={mapContainerStyle}
-        center={geom.center}
-        zoom={15}
         options={mapOptions}
-        onLoad={hasPolygon ? handleMapLoad : undefined}
+        onLoad={handleMapLoad}
       >
         {hasPolygon &&
           geom.paths.map((path, i) => (

@@ -97,7 +97,11 @@ export function ITDetailPage({ id, listing, onPaymentSuccess }: DetailPageProps<
         backLabel="Torna ai risultati"
       >
         <section className="relative rounded-xl overflow-hidden mb-6 h-64 md:h-96">
-          <MiniParcelMap geomJson={listing.geom_json} className="w-full h-full" />
+          <MiniParcelMap
+            geomJson={listing.geom_json}
+            className="w-full h-full"
+            interactive={accessGranted}
+          />
           <div className="absolute top-4 left-4 flex flex-wrap gap-2">
             {solarPercentage !== null && (
               <Badge className="text-lg py-1 px-3 bg-primary">
