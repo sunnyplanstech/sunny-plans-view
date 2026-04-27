@@ -105,8 +105,8 @@ export async function confirmPasswordReset(input: PasswordResetConfirmInput): Pr
   await postJson("/api/auth/password/reset/confirm/", input);
 }
 
-export async function loginWithGoogle(idToken: string): Promise<AuthResult> {
+export async function loginWithGoogle(code: string): Promise<AuthResult> {
   return unwrapLogin(
-    await postJson<DjRestAuthLoginResponse>("/api/auth/google/", { id_token: idToken }),
+    await postJson<DjRestAuthLoginResponse>("/api/auth/google/", { code }),
   );
 }

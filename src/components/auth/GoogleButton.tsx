@@ -1,36 +1,38 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { Button } from "@/components/ui/button";
 import { useAuth } from "@/hooks/useAuth";
 import { AuthError } from "@/lib/auth";
 
 const GOOGLE_CLIENT_ID = import.meta.env.VITE_GOOGLE_CLIENT_ID ?? "";
 const GSI_SRC = "https://accounts.google.com/gsi/client";
+const GOOGLE_SCOPE = "openid email profile";
 
-interface GsiCredentialResponse {
-  credential: string;
+interface CodeResponse {
+  code?: string;
+  scope?: string;
+  authuser?: string;
+  prompt?: string;
+  error?: string;
 }
 
-interface GsiAccountsId {
-  initialize: (config: {
+interface CodeClient {
+  requestCode: () => void;
+}
+
+interface GsiOAuth2 {
+  initCodeClient: (config: {
     client_id: string;
-    callback: (response: GsiCredentialResponse) => void;
-  }) => void;
-  renderButton: (
-    parent: HTMLElement,
-    options: {
-      type?: "standard";
-      theme?: "outline" | "filled_blue" | "filled_black";
-      size?: "large" | "medium" | "small";
-      text?: "signin_with" | "signup_with" | "continue_with";
-      shape?: "rectangular" | "pill";
-      width?: number;
-    },
-  ) => void;
+    scope: string;
+    ux_mode: "popup" | "redirect";
+    callback: (response: CodeResponse) => void;
+    error_callback?: (err: { type: string; message?: string }) => void;
+  }) => CodeClient;
 }
 
 declare global {
   interface Window {
-    google?: { accounts: { id: GsiAccountsId } };
+    google?: { accounts: { oauth2: GsiOAuth2 } };
   }
 }
 
@@ -41,7 +43,7 @@ function loadGsi(): Promise<void> {
   gsiPromise = new Promise((resolve, reject) => {
     const existing = document.querySelector<HTMLScriptElement>(`script[src="${GSI_SRC}"]`);
     if (existing) {
-      if (window.google?.accounts?.id) {
+      if (window.google?.accounts?.oauth2) {
         resolve();
         return;
       }
@@ -62,8 +64,14 @@ function loadGsi(): Promise<void> {
   return gsiPromise;
 }
 
+const LABELS: Record<NonNullable<GoogleButtonProps["text"]>, string> = {
+  signin_with: "Sign in with Google",
+  signup_with: "Sign up with Google",
+  continue_with: "Continue with Google",
+};
+
 interface GoogleButtonProps {
-  /** Suggested label for the rendered Google button. */
+  /** Label variant. */
   text?: "signin_with" | "signup_with" | "continue_with";
   /** Path to navigate to after successful auth (read from `?next=` upstream). */
   next?: string;
@@ -76,51 +84,93 @@ export default function GoogleButton({
   next = "/",
   onError,
 }: GoogleButtonProps) {
-  const containerRef = useRef<HTMLDivElement>(null);
   const navigate = useNavigate();
   const { loginWithGoogle } = useAuth();
-  const [ready, setReady] = useState(false);
+  const [client, setClient] = useState<CodeClient | null>(null);
+  const [busy, setBusy] = useState(false);
 
   useEffect(() => {
     if (!GOOGLE_CLIENT_ID) return;
     let cancelled = false;
     void loadGsi()
       .then(() => {
-        if (cancelled || !window.google?.accounts?.id || !containerRef.current) return;
-        window.google.accounts.id.initialize({
+        if (cancelled || !window.google?.accounts?.oauth2) return;
+        const c = window.google.accounts.oauth2.initCodeClient({
           client_id: GOOGLE_CLIENT_ID,
+          scope: GOOGLE_SCOPE,
+          ux_mode: "popup",
           callback: async (response) => {
+            if (!response.code) {
+              setBusy(false);
+              return;
+            }
             try {
-              await loginWithGoogle(response.credential);
+              await loginWithGoogle(response.code);
               navigate(next, { replace: true });
             } catch (err) {
               const message =
                 err instanceof AuthError ? err.message : "Google sign-in failed.";
               onError?.(message);
+            } finally {
+              setBusy(false);
             }
           },
+          error_callback: () => {
+            setBusy(false);
+          },
         });
-        window.google.accounts.id.renderButton(containerRef.current, {
-          type: "standard",
-          theme: "outline",
-          size: "large",
-          text,
-          shape: "rectangular",
-          width: 320,
-        });
-        setReady(true);
+        setClient(c);
       })
       .catch(() => onError?.("Could not load Google sign-in."));
     return () => {
       cancelled = true;
     };
-  }, [loginWithGoogle, navigate, next, text, onError]);
+  }, [loginWithGoogle, navigate, next, onError]);
 
   if (!GOOGLE_CLIENT_ID) return null;
 
   return (
-    <div className="flex justify-center">
-      <div ref={containerRef} className={ready ? "" : "h-10"} />
-    </div>
+    <Button
+      type="button"
+      variant="outline"
+      className="w-full"
+      disabled={!client || busy}
+      onClick={() => {
+        if (!client) return;
+        setBusy(true);
+        client.requestCode();
+      }}
+    >
+      <GoogleLogo className="mr-2 h-4 w-4" />
+      {busy ? "Connecting…" : LABELS[text]}
+    </Button>
+  );
+}
+
+function GoogleLogo({ className }: { className?: string }) {
+  return (
+    <svg
+      className={className}
+      viewBox="0 0 18 18"
+      xmlns="http://www.w3.org/2000/svg"
+      aria-hidden="true"
+    >
+      <path
+        fill="#4285F4"
+        d="M17.64 9.205c0-.639-.057-1.252-.164-1.841H9v3.481h4.844a4.14 4.14 0 0 1-1.796 2.717v2.259h2.908c1.702-1.567 2.684-3.875 2.684-6.616z"
+      />
+      <path
+        fill="#34A853"
+        d="M9 18c2.43 0 4.467-.806 5.956-2.18l-2.908-2.259c-.806.54-1.837.86-3.048.86-2.344 0-4.328-1.584-5.036-3.711H.957v2.332A8.997 8.997 0 0 0 9 18z"
+      />
+      <path
+        fill="#FBBC05"
+        d="M3.964 10.71A5.41 5.41 0 0 1 3.682 9c0-.593.102-1.17.282-1.71V4.958H.957A8.996 8.996 0 0 0 0 9c0 1.452.348 2.827.957 4.042l3.007-2.332z"
+      />
+      <path
+        fill="#EA4335"
+        d="M9 3.58c1.321 0 2.508.454 3.44 1.345l2.582-2.58C13.463.891 11.426 0 9 0A8.997 8.997 0 0 0 .957 4.958L3.964 7.29C4.672 5.163 6.656 3.58 9 3.58z"
+      />
+    </svg>
   );
 }

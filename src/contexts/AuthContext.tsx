@@ -26,7 +26,7 @@ export interface AuthContextValue {
   isLoading: boolean;
   login: (email: string, password: string) => Promise<void>;
   signup: (email: string, password1: string, password2: string) => Promise<void>;
-  loginWithGoogle: (idToken: string) => Promise<void>;
+  loginWithGoogle: (code: string) => Promise<void>;
   logout: () => Promise<void>;
   /** Re-fetch the profile (e.g. after Stripe checkout updates the subscription). */
   refreshUser: () => Promise<void>;
@@ -92,8 +92,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     [],
   );
 
-  const loginWithGoogle = useCallback(async (idToken: string) => {
-    const { tokens, user: profile } = await apiLoginWithGoogle(idToken);
+  const loginWithGoogle = useCallback(async (code: string) => {
+    const { tokens, user: profile } = await apiLoginWithGoogle(code);
     setSession(tokens);
     setUser(profile);
   }, []);
