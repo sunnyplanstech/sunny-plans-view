@@ -6,7 +6,6 @@ import { cn } from "@/lib/utils";
 import ListingsBreadcrumb from "@/components/listings/ListingsBreadcrumb";
 import ListingsFooter from "@/components/listings/ListingsFooter";
 import SubdivisionNav from "@/components/listings/SubdivisionNav";
-import SampleReportModal from "@/components/listings/SampleReportModal";
 import ScheduleCallPopup from "@/components/listings/ScheduleCallPopup";
 import SEOHead from "@/components/listings/SEOHead";
 import ListingsSEOContent from "@/components/listings/ListingsSEOContent";
@@ -108,11 +107,6 @@ const CountryListingsSearch = ({ adapter, country, region, province }: InnerProp
               </div>
 
               <div className="hidden md:flex items-center gap-2">
-                <SampleReportModal country={country === "italy" ? "it" : "us"}>
-                  <Button variant="outline" size="sm">
-                    {country === "italy" ? "Vedi Report di Esempio" : "See a Sample Report"}
-                  </Button>
-                </SampleReportModal>
                 <Button variant="outline" size="sm" disabled>
                   <SlidersHorizontal className="w-4 h-4 mr-1" /> Filters (Pro)
                 </Button>
