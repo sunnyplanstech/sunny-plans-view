@@ -105,6 +105,9 @@ export function MiniParcelMap({ geomJson, className }: MiniParcelMapProps) {
     zoomControl: false,
     scrollwheel: false,
     draggable: false,
+    // Satellite tiles top out around z20 — fitBounds on a small parcel can
+    // otherwise zoom past tile coverage and render the parcel on blank gray.
+    maxZoom: 19,
   };
 
   const handleMapLoad = (map: google.maps.Map) => {
