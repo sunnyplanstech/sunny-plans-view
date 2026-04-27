@@ -137,17 +137,6 @@ export function ITDetailPage({ id, listing, onPaymentSuccess }: DetailPageProps<
               <CardTitle>Dettagli Particella</CardTitle>
             </CardHeader>
             <CardContent className="space-y-6">
-              <div className="rounded-lg border border-border bg-muted/30 p-4">
-                <p className="text-xs uppercase tracking-wide text-muted-foreground mb-1">
-                  Identificativo Catastale
-                </p>
-                <p className="font-mono text-sm">
-                  {listing.comune_code} · Foglio{" "}
-                  <LockedField value={listing.foglio} onUnlock={openPaywall} /> · Particella{" "}
-                  <LockedField value={listing.particella} onUnlock={openPaywall} />
-                </p>
-              </div>
-
               <div className="space-y-2">
                 <div className="flex justify-between">
                   <span className="text-sm font-medium">Probabilita Solare</span>
@@ -191,6 +180,28 @@ export function ITDetailPage({ id, listing, onPaymentSuccess }: DetailPageProps<
             </CardContent>
           </Card>
         </div>
+
+        <Card className="mb-8">
+          <CardHeader>
+            <CardTitle>Identificativo Catastale</CardTitle>
+          </CardHeader>
+          <CardContent>
+            {accessGranted ? (
+              <p className="font-mono text-sm">
+                {listing.comune_code} · Foglio {listing.foglio} · Particella {listing.particella}
+              </p>
+            ) : (
+              <button
+                type="button"
+                onClick={openPaywall}
+                className="inline-flex items-center gap-2 text-muted-foreground hover:text-primary cursor-pointer transition-colors font-mono text-sm"
+              >
+                <span>**** · Foglio **** · Particella ****</span>
+                <Lock className="w-3 h-3" />
+              </button>
+            )}
+          </CardContent>
+        </Card>
 
         <ProximityCard listing={listing} accessGranted={accessGranted} lang="it" unit="metric" />
 
