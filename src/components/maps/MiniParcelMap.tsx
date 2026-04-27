@@ -7,6 +7,14 @@ interface MiniParcelMapProps {
   geomJson: unknown;
   className?: string;
   interactive?: boolean;
+  /**
+   * Disc-jitter radius (meters) around `geomJson` for obfuscated public
+   * data. Required: pass `null` for unlocked rows (exact Point or
+   * Polygon, no obfuscation). When non-null on a Point geometry, the map
+   * drops the marker and caps zoom so the implied disc (diameter 2*R)
+   * cannot fill the viewport. Polygon geometries ignore this value.
+   */
+  locationAccuracyM: number | null;
 }
 
 const mapContainerStyle = {
@@ -60,7 +68,36 @@ function resolveGeom(geomJson: unknown): ResolvedGeom | null {
   }
 }
 
-export function MiniParcelMap({ geomJson, className, interactive = false }: MiniParcelMapProps) {
+// Cap zoom so the disc (diameter 2*accuracyM) cannot fill the viewport.
+// Tuned for a ~1024-px viewport; disc lands at ~1/3 width at the cap.
+function computeAccuracyMaxZoom(accuracyM: number, lat: number): number {
+  const cos = Math.max(Math.cos((lat * Math.PI) / 180), 0.05);
+  const z = Math.log2(((1024 / 3) * 156543 * cos) / (2 * accuracyM));
+  return Math.max(8, Math.min(18, Math.floor(z)));
+}
+
+function buildAccuracyBounds(
+  center: google.maps.LatLngLiteral,
+  accuracyM: number,
+): google.maps.LatLngBoundsLiteral {
+  const halfSideM = accuracyM * 4;
+  const cos = Math.max(Math.cos((center.lat * Math.PI) / 180), 0.05);
+  const dLat = halfSideM / 111320;
+  const dLng = halfSideM / (111320 * cos);
+  return {
+    north: center.lat + dLat,
+    south: center.lat - dLat,
+    east: center.lng + dLng,
+    west: center.lng - dLng,
+  };
+}
+
+export function MiniParcelMap({
+  geomJson,
+  className,
+  interactive = false,
+  locationAccuracyM,
+}: MiniParcelMapProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const [isVisible, setIsVisible] = useState(false);
 
@@ -98,6 +135,7 @@ export function MiniParcelMap({ geomJson, className, interactive = false }: Mini
   }
 
   const hasPolygon = geom.paths.length > 0;
+  const isObfuscatedPoint = !hasPolygon && locationAccuracyM != null && locationAccuracyM > 0;
 
   const mapOptions: google.maps.MapOptions = {
     mapTypeId: "satellite",
@@ -106,9 +144,12 @@ export function MiniParcelMap({ geomJson, className, interactive = false }: Mini
     gestureHandling: interactive ? "cooperative" : "none",
     scrollwheel: interactive,
     draggable: interactive,
-    // Satellite tiles top out around z20 — fitBounds on a small parcel can
-    // otherwise zoom past tile coverage and render the parcel on blank gray.
-    maxZoom: 19,
+    // Polygon: tile coverage tops out at z20; satellite goes blank past that.
+    // Obfuscated point: cap derived from disc radius so no street-level
+    // detail emerges through the obfuscation.
+    maxZoom: isObfuscatedPoint
+      ? computeAccuracyMaxZoom(locationAccuracyM!, geom.center.lat)
+      : 19,
   };
 
   // Map is fully uncontrolled: viewport is set imperatively in onLoad. Passing
@@ -119,6 +160,8 @@ export function MiniParcelMap({ geomJson, className, interactive = false }: Mini
       const bounds = new google.maps.LatLngBounds();
       geom.paths.forEach((path) => path.forEach((p) => bounds.extend(p)));
       map.fitBounds(bounds, 24);
+    } else if (isObfuscatedPoint) {
+      map.fitBounds(buildAccuracyBounds(geom.center, locationAccuracyM!));
     } else {
       map.setCenter(geom.center);
       map.setZoom(15);
@@ -147,21 +190,23 @@ export function MiniParcelMap({ geomJson, className, interactive = false }: Mini
                 }}
               />
             ))
-          : (
-            <Marker
-              position={geom.center}
-              clickable={false}
-              icon={{
-                path: google.maps.SymbolPath.CIRCLE,
-                fillColor: "#fbbf24",
-                fillOpacity: 0.6,
-                strokeColor: "#fbbf24",
-                strokeWeight: 2,
-                strokeOpacity: 0.95,
-                scale: 9,
-              }}
-            />
-          )}
+          : isObfuscatedPoint
+            ? null
+            : (
+              <Marker
+                position={geom.center}
+                clickable={false}
+                icon={{
+                  path: google.maps.SymbolPath.CIRCLE,
+                  fillColor: "#fbbf24",
+                  fillOpacity: 0.6,
+                  strokeColor: "#fbbf24",
+                  strokeWeight: 2,
+                  strokeOpacity: 0.95,
+                  scale: 9,
+                }}
+              />
+            )}
       </GoogleMap>
     </div>
   );

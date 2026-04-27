@@ -13,6 +13,9 @@ export interface BaseListing {
   id: string;
   prob_solar: number | null;
   geom_json: unknown | null;
+  // Disc-jitter radius in meters around geom_json. Public mart only — null
+  // on full-mart (unlocked) rows, where geom_json is the exact polygon.
+  location_accuracy_m: number | null;
   rank_global: number | null;
 }
 

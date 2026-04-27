@@ -79,6 +79,7 @@ function toMapShape(listings: ITListing[]) {
     prob_solar: listing.prob_solar,
     power_substation: null as number | null,
     geom_json: listing.geom_json,
+    location_accuracy_m: listing.location_accuracy_m,
     rank_global: listing.rank_global,
     rank_in_state: null as number | null,
     rank_in_county: listing.rank_in_comune,

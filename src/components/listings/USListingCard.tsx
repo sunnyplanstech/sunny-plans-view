@@ -62,6 +62,7 @@ const USListingCard = ({ listing, showRank = "global" }: USListingCardProps) => 
         <div className="relative w-full sm:w-40 h-32 sm:h-auto sm:min-h-[180px] flex-shrink-0 overflow-hidden">
           <MiniParcelMap
             geomJson={listing.geom_json}
+            locationAccuracyM={listing.location_accuracy_m}
             className="w-full h-full"
           />
 

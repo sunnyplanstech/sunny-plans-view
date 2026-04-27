@@ -51,23 +51,28 @@ interface MapLockedOverlayProps {
 }
 
 const MAP_OVERLAY_STRINGS = {
-  en: "View exact location",
-  it: "Vedi posizione esatta",
+  en: { lead: "Approximate location", action: "See exact with Premium" },
+  it: { lead: "Posizione approssimativa", action: "Esatta con Premium" },
 } as const;
 
 /**
  * Pill rendered over the parcel map when the user can't see the exact
- * polygon. Clicking it opens the Paywall drawer (phase 5).
+ * polygon. Clicking it opens the Paywall drawer (phase 5). The lead line
+ * doubles as the disc-jitter "this is approximate" signal so we don't
+ * need a separate caption.
  */
 export function MapLockedOverlay({ onUnlock, lang = "en" }: MapLockedOverlayProps) {
+  const strings = MAP_OVERLAY_STRINGS[lang];
   return (
     <button
       type="button"
       onClick={onUnlock}
-      className="absolute bottom-4 right-4 inline-flex items-center gap-2 rounded-full bg-background/95 backdrop-blur px-4 py-2 shadow-lg border border-border hover:bg-background transition-colors text-sm font-medium"
+      className="absolute bottom-4 right-4 inline-flex items-center gap-2 rounded-full bg-background/95 backdrop-blur px-4 py-2 shadow-lg border border-border hover:bg-background transition-colors text-sm"
     >
       <Lock className="w-4 h-4" />
-      <span>{MAP_OVERLAY_STRINGS[lang]}</span>
+      <span className="font-medium">{strings.lead}</span>
+      <span className="text-muted-foreground">·</span>
+      <span className="text-muted-foreground">{strings.action}</span>
     </button>
   );
 }

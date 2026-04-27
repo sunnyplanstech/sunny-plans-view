@@ -21,8 +21,9 @@ import type { DetailPageProps } from "../types";
  * Detail-endpoint response shape — same keys regardless of access. The
  * backend renders premium numeric/url/date fields as the literal string
  * "****" when locked, formatted display strings (e.g. "$397,500",
- * "47.18", "2026-04-22") when unlocked. geom_json carries the H3-snapped
- * point when locked and the exact polygon when unlocked.
+ * "47.18", "2026-04-22") when unlocked. geom_json carries a disc-jittered
+ * Point (with location_accuracy_m as the disc radius) when locked and the
+ * exact polygon when unlocked.
  */
 export interface USListingDetail extends OsmDistanceFields {
   id: string;
@@ -43,6 +44,7 @@ export interface USListingDetail extends OsmDistanceFields {
   rank_in_state: number;
   rank_in_county: number;
   geom_json: Record<string, unknown> | null;
+  location_accuracy_m: number | null;
   access_granted: boolean;
 }
 
@@ -126,6 +128,7 @@ export function USDetailPage({ id, listing, onPaymentSuccess }: DetailPageProps<
         <section className="relative rounded-xl overflow-hidden mb-6 h-64 md:h-96">
           <MiniParcelMap
             geomJson={listing.geom_json}
+            locationAccuracyM={listing.location_accuracy_m}
             className="w-full h-full"
             interactive={accessGranted}
           />

@@ -33,6 +33,7 @@ export interface ITListingDetail extends OsmDistanceFields {
   foglio: string;
   particella: string;
   geom_json: Record<string, unknown> | null;
+  location_accuracy_m: number | null;
   rank_global: number;
   rank_in_comune: number;
   access_granted: boolean;
@@ -98,6 +99,7 @@ export function ITDetailPage({ id, listing, onPaymentSuccess }: DetailPageProps<
         <section className="relative rounded-xl overflow-hidden mb-6 h-64 md:h-96">
           <MiniParcelMap
             geomJson={listing.geom_json}
+            locationAccuracyM={listing.location_accuracy_m}
             className="w-full h-full"
             interactive={accessGranted}
           />
