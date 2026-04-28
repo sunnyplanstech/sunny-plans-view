@@ -18,7 +18,18 @@ export function formatSubstationDistance(meters: number | null | undefined): str
   return `${Math.round(meters)} m (${miles.toFixed(1)} mi)`;
 }
 
+export function formatSubstationDistanceMetric(meters: number | null | undefined): string {
+  if (!meters) return "N/A";
+  if (meters < 1000) return `${Math.round(meters)} m`;
+  return `${(meters / 1000).toFixed(1)} km`;
+}
+
 export function formatAcres(acres: number | null | undefined, fractionDigits = 1): string {
   if (acres == null) return "N/A";
   return acres.toFixed(fractionDigits);
+}
+
+export function formatHectares(hectares: number | null | undefined, fractionDigits = 1): string {
+  if (hectares == null) return "N/A";
+  return hectares.toFixed(fractionDigits);
 }

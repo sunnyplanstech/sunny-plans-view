@@ -17,6 +17,8 @@ export interface ITListing extends BaseListing {
   comune_name: string;
   comune_slug: string;
   region_slug: string;
+  area_ha: number | null;
+  power_substation: number | null;
   rank_in_comune: number | null;
 }
 

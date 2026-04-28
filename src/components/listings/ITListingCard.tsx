@@ -2,10 +2,11 @@ import { Link } from "react-router-dom";
 import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { MapPin, Sun, ArrowRight, Trophy } from "lucide-react";
+import { MapPin, Zap, Ruler, Sun, ArrowRight, Trophy } from "lucide-react";
 import type { ITListing } from "@/countries/italy";
 import MiniParcelMap from "@/components/maps/MiniParcelMap";
 import { cn } from "@/lib/utils";
+import { formatHectares, formatSubstationDistanceMetric } from "@/lib/format";
 
 interface ITListingCardProps {
   listing: ITListing;
@@ -120,11 +121,18 @@ const ITListingCard = ({ listing, showRank = "global", listPosition }: ITListing
               </div>
             </div>
 
-            {/* Specs */}
+            {/* Specs - horizontal layout */}
             <div className="flex flex-wrap items-center gap-x-4 gap-y-2 text-sm text-muted-foreground">
               <div className="flex items-center gap-1.5">
-                <MapPin className="w-3.5 h-3.5" />
-                <span>{listing.comune_name}, {formatRegionSlug(listing.region_slug)}</span>
+                <Ruler className="w-3.5 h-3.5" />
+                <span className="font-medium text-foreground">
+                  ~{formatHectares(listing.area_ha)}
+                </span>
+                <span>ha</span>
+              </div>
+              <div className="flex items-center gap-1.5">
+                <Zap className="w-3.5 h-3.5" />
+                <span>~{formatSubstationDistanceMetric(listing.power_substation)} to substation</span>
               </div>
             </div>
           </CardContent>
