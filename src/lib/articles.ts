@@ -78,6 +78,8 @@ export async function getArticle(slug: string): Promise<Article | null> {
     image: meta.image,
     tags: meta.tags ? meta.tags.split(",").map((t: string) => t.trim()) : undefined,
     readingTime: calcReadingTime(content),
+    ctaLabel: meta.cta_label,
+    ctaUrl: meta.cta_url,
     content,
   };
 }
