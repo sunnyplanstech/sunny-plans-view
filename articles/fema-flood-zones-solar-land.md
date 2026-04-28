@@ -83,7 +83,7 @@ A parcel carrying both Zone AE coverage and suspected wetlands faces a permittin
 ---
 
 **Sources**
-- FEMA Flood Map Service Center — parcel-level flood zone lookup — [msc.fema.gov/portal/search](https://msc.fema.gov/portal/search)
+- FEMA Flood Map Service Center — parcel-level flood zone lookup — [msc.fema.gov](https://msc.fema.gov)
 - FEMA, *Letter of Map Amendment process and timeline* — [fema.gov/flood-maps/change-your-flood-zone/loma-lomr-f](https://www.fema.gov/flood-maps/change-your-flood-zone/loma-lomr-f)
 - First Street, *Risk Factor* — updated climate-based flood risk modeling — firststreet.org
 - US Fish & Wildlife Service, *National Wetlands Inventory* — [fws.gov/program/national-wetlands-inventory](https://www.fws.gov/program/national-wetlands-inventory)
