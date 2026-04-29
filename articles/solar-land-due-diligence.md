@@ -57,7 +57,7 @@ Satellite imagery shows transmission lines and substations. County utility maps 
 ---
 
 **Sources**
-- FEMA Flood Map Service Center — msc.fema.gov — parcel-level flood zone lookup by address
-- USFWS National Wetlands Inventory — fws.gov/program/national-wetlands-inventory — wetland type and location mapping
+- [FEMA Flood Map Service Center](https://msc.fema.gov) — parcel-level flood zone lookup by address
+- [USFWS National Wetlands Inventory](https://www.fws.gov/program/national-wetlands-inventory) — wetland type and location mapping
 - [PAD-US Data Explorer via ProtectedLands.net](https://www.protectedlands.net) — interactive map of US protected areas and conservation designations
 - [NREL PVWatts Calculator](https://pvwatts.nrel.gov) — solar irradiance and energy production estimates by location
