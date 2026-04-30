@@ -7,6 +7,9 @@ import { useGoogleMaps } from "./GoogleMapsProvider";
 import { getParcelCenter } from "@/lib/geo";
 import { Button } from "@/components/ui/button";
 
+const DEBUG_PMTILES_URL =
+  "https://r2-public.protomaps.com/protomaps-sample-datasets/nz-buildings-v3.pmtiles";
+
 interface ListingsGoogleMapProps {
   listings: USListing[];
   className?: string;
@@ -57,8 +60,13 @@ export function ListingsGoogleMap({
   const [map, setMap] = useState<google.maps.Map | null>(null);
   const dataLayerRef = useRef<google.maps.Data | null>(null);
   const infoWindowRef = useRef<google.maps.InfoWindow | null>(null);
-  const defaultCenter = defaultCenters[country || "united-states"] || defaultCenterUS;
-  const defaultZoom = country === "italy" ? 6 : 4;
+  const debugPmtiles =
+    typeof window !== "undefined" &&
+    new URLSearchParams(window.location.search).get("debug") === "pmtiles";
+  const defaultCenter = debugPmtiles
+    ? { lat: -41.0, lng: 174.0 }
+    : defaultCenters[country || "united-states"] || defaultCenterUS;
+  const defaultZoom = debugPmtiles ? 5 : country === "italy" ? 6 : 4;
 
   // Filter listings to only those with valid coordinates from geom_json
   const listingsWithCoords = useMemo(() => {
@@ -83,6 +91,7 @@ export function ListingsGoogleMap({
 
   // Update bounds when map or listings change
   useMemo(() => {
+    if (debugPmtiles) return;
     if (map && isLoaded && listingsWithCoords.length > 0 && typeof google !== "undefined") {
       const bounds = new google.maps.LatLngBounds();
 
@@ -92,7 +101,7 @@ export function ListingsGoogleMap({
 
       map.fitBounds(bounds, { top: 50, right: 50, bottom: 50, left: 50 });
     }
-  }, [map, listingsWithCoords, isLoaded]);
+  }, [map, listingsWithCoords, isLoaded, debugPmtiles]);
 
   // Manage heatmap data layer
   useEffect(() => {
@@ -170,6 +179,77 @@ export function ListingsGoogleMap({
       infoWindow.close();
     };
   }, [map, isLoaded, showHeatmap, hexCells, maxPointCount]);
+
+  // Debug-only: render a public PMTiles file as a deck.gl overlay to validate
+  // the GoogleMapsOverlay + PMTiles integration. Toggle with ?debug=pmtiles.
+  useEffect(() => {
+    if (!map || !isLoaded || !debugPmtiles) return;
+
+    let cancelled = false;
+    let cleanup = () => {};
+
+    (async () => {
+      const [
+        { GoogleMapsOverlay },
+        { TileLayer },
+        { GeoJsonLayer },
+        { PMTiles },
+        { MVTLoader },
+        { parse },
+      ] = await Promise.all([
+        import("@deck.gl/google-maps"),
+        import("@deck.gl/geo-layers"),
+        import("@deck.gl/layers"),
+        import("pmtiles"),
+        import("@loaders.gl/mvt"),
+        import("@loaders.gl/core"),
+      ]);
+
+      if (cancelled) return;
+
+      const pmt = new PMTiles(DEBUG_PMTILES_URL);
+
+      const overlay = new GoogleMapsOverlay({
+        layers: [
+          new TileLayer({
+            id: "debug-pmtiles",
+            minZoom: 0,
+            maxZoom: 14,
+            getTileData: async ({ index }) => {
+              const tile = await pmt.getZxy(index.z, index.x, index.y);
+              if (!tile) return null;
+              return parse(tile.data, MVTLoader, {
+                mvt: {
+                  coordinates: "wgs84",
+                  tileIndex: { x: index.x, y: index.y, z: index.z },
+                },
+              });
+            },
+            renderSubLayers: (props) => {
+              if (!props.data) return null;
+              return new GeoJsonLayer({
+                id: `${props.id}-geojson`,
+                data: props.data as GeoJSON.Feature[],
+                stroked: true,
+                filled: true,
+                getFillColor: [0, 200, 80, 70],
+                getLineColor: [0, 120, 40, 220],
+                lineWidthUnits: "pixels",
+                getLineWidth: 1,
+              });
+            },
+          }),
+        ],
+      });
+      overlay.setMap(map);
+      cleanup = () => overlay.setMap(null);
+    })();
+
+    return () => {
+      cancelled = true;
+      cleanup();
+    };
+  }, [map, isLoaded, debugPmtiles]);
 
   // Show fallback if Google Maps is not available
   if (!isLoaded) {
