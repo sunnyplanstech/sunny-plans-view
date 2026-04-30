@@ -24,7 +24,7 @@ The practical question for any site evaluation isn't just "how far is the substa
 
 ## The procurement pause
 
-On April 23, the NCUC ordered Duke Energy to defer its 2026 solar procurement cycle. Duke had planned to contract for approximately 770 megawatts of new solar generation this year as part of its Carolinas Resource Plan — approved by the Commission in November 2024 — targeting roughly 3,460 MW of new solar by 2031. The Commission directed Duke to wait until it completes a broader review of the state's Carbon Plan before signing any new solar contracts.
+On April 23, the NCUC ordered Duke Energy to defer its 2026 Solar RFP — a 770-megawatt procurement round that was part of Duke's Carolinas Resource Plan, approved by the Commission in November 2024 and targeting 3,460 MW of new solar by 2031. The Commission directed Duke to hold the RFP until it completes a broader review of the state's Carbon Plan before signing any new contracts under that solicitation.
 
 The review was triggered by the NC General Assembly eliminating the state's 2030 carbon reduction deadline in 2025, which required Duke to revise its resource plan assumptions. NCUC hearings on the updated Carbon Plan are scheduled to begin in June 2026; a final Commission order is not expected before late 2026.
 
@@ -34,7 +34,7 @@ The distinction matters for land buyers: this pause applies to Duke's *procureme
 
 Parallel to the utility-level slowdown, a pattern of county-level permitting restrictions developed across NC starting in late 2024.
 
-Davidson County passed a 24-month moratorium on new solar permits in December 2024 while it works through new zoning overlay rules. Halifax County enacted a moratorium on solar Special Use Permits in October 2024. Northampton County imposed restrictions. Edgecombe County followed with its own moratorium. And Robeson County — which holds more operating solar farms than any other county in NC, approximately 40 installations — has debated capping new permits as community opposition to the pace of development intensified.
+Davidson County passed a 24-month moratorium on new solar permits in December 2024 while it works through new zoning overlay rules. Halifax County enacted a 120-day temporary moratorium on solar Special Use Permits in October 2024 — that restriction expired in February 2025, but it signaled a shift in commission sentiment that has continued in other forms. Northampton County imposed restrictions. Edgecombe County followed with its own moratorium. And Robeson County — which holds more operating solar farms than any other county in NC, approximately 40 installations — has debated capping new permits as community opposition to the pace of development intensified.
 
 These moratoria concentrate in the same counties that look best on a parcel screen: flat terrain, inexpensive agricultural land, no obvious constraints. A buyer who filters for flatness and low prices in eastern NC will land on exactly the counties that have moved fastest to restrict new solar development. The correlation isn't accidental.
 
