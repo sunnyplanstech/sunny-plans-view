@@ -7,6 +7,12 @@
 //
 // Colors are RGBA 0-255 and rendered as-is — pick the alpha you want to
 // see on the map.
+//
+// All overlays are no-go zones. Green is reserved for the brand
+// (sunscore = "go"), so layers draw from the warm exclusion ramp
+// below — anchored to --destructive (hue 0), all outside the brand
+// green band (hue 66–100). Wetlands stay blue: that's a universal
+// cartographic convention for water and doesn't read as endorsement.
 
 export interface PMTilesLayerConfig {
   id: string;
@@ -23,19 +29,29 @@ export interface PMTilesLayerConfig {
 const TILES_BUCKET_BASE =
   "https://storage.googleapis.com/sunnyplans-tiles";
 
+// Exclusion ramp (RGB only; per-layer alpha set on use).
+const NOGO = {
+  crimson:    [197,  43,  56] as const, // strict     — protected lands
+  vermillion: [219,  82,  36] as const, // high       — terrain
+  ochre:      [197, 131,  38] as const, // moderate   — reserved
+  sienna:     [129,  80,  45] as const, // secondary  — reserved
+  magenta:    [180,  60, 122] as const, // distinct   — reserved (heritage)
+  plum:       [121,  64, 135] as const, // cool       — reserved (infra)
+};
+
 const STEEP_25_BASE = {
   label: "Steep terrain (>25%)",
   description: "Slope > 25% — generally non-developable for utility solar",
-  fillColor: [220, 80, 30, 77] as [number, number, number, number],
-  lineColor: [180, 50, 10, 140] as [number, number, number, number],
+  fillColor: [...NOGO.vermillion, 77]  as [number, number, number, number],
+  lineColor: [...NOGO.vermillion, 180] as [number, number, number, number],
   minZoom: 0,
   maxZoom: 12,
   defaultVisible: false,
 };
 
 const PROTECTED_AREA_BASE = {
-  fillColor: [40, 140, 70, 63] as [number, number, number, number],
-  lineColor: [20, 90, 40, 140] as [number, number, number, number],
+  fillColor: [...NOGO.crimson, 63]  as [number, number, number, number],
+  lineColor: [...NOGO.crimson, 180] as [number, number, number, number],
   minZoom: 0,
   maxZoom: 12,
   defaultVisible: false,
