@@ -174,13 +174,14 @@ export const PMTILES_LAYERS_BY_COUNTRY: Record<string, PMTilesLayerConfig[]> = {
       label: "Wetlands (NWI)",
       description:
         "USFWS National Wetlands Inventory — Clean Water Act permitting risk and ecological-sensitivity flag",
-      fillColor: [60, 110, 200, 63],
-      // No outline: NWI is dense polygon data and the outline turns into
-      // visual quilt-noise at every zoom. Fill alpha alone reads as a
-      // soft wash. minZoom: 10 keeps render cost bounded — at state/
-      // metro zooms the polygon count per tile is in the tens of
-      // thousands and tessellation jams the JS main thread.
-      minZoom: 10,
+      fillColor: [60, 110, 200, 120],
+      // No outline on dense polygon data — outlines read as visual
+      // quilt-noise at every zoom. Fill alpha alone is a soft wash.
+      // minZoom is being tuned empirically; previously z10 (parcel-only)
+      // for safety, currently testing z6 (state view) — the worst case
+      // we expect to support — to see if the browser holds after the
+      // outline-drop made tiles significantly cheaper to render.
+      minZoom: 6,
       maxZoom: 12,
       defaultVisible: false,
       requiresRegionScope: true,
