@@ -3,7 +3,7 @@ import { ChevronDown, ChevronUp, Layers, Loader2 } from "lucide-react";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Button } from "@/components/ui/button";
 import type { PMTilesLayerConfig } from "./pmtilesLayers";
-import type { PMTilesLayerState } from "./usePMTilesOverlays";
+import type { LayerHeader, PMTilesLayerState } from "./usePMTilesOverlays";
 
 interface LayerPanelProps {
   layers: PMTilesLayerConfig[];
@@ -13,6 +13,13 @@ interface LayerPanelProps {
   // True when the user is on a state/region (or deeper) page. Layers
   // declaring `requiresRegionScope` stay disabled until this flips.
   hasRegionScope?: boolean;
+
+  // Per-layer header zoom range from the .pmtiles file plus the map's
+  // current zoom. When the current zoom is below header.minZoom, the
+  // toggle is disabled with a "Zoom in" hint — the bake config drives
+  // the threshold, no frontend literal involved.
+  layerHeaders?: Record<string, LayerHeader>;
+  currentZoom?: number;
 
   // Heatmap is special-cased here so the user has one place to manage
   // every overlay; the underlying data shape (server-rendered hexes vs.
@@ -31,6 +38,8 @@ export function LayerPanel({
   state,
   onToggle,
   hasRegionScope,
+  layerHeaders,
+  currentZoom,
   showHeatmap,
   hexLoading,
   onToggleHeatmap,
@@ -103,7 +112,19 @@ export function LayerPanel({
             const s = state[layer.id] ?? {
               visible: layer.defaultVisible ?? false,
             };
-            const gated = !!layer.requiresRegionScope && !hasRegionScope;
+            const scopeGated = !!layer.requiresRegionScope && !hasRegionScope;
+            const header = layerHeaders?.[layer.id];
+            const zoomGated =
+              !scopeGated &&
+              header != null &&
+              currentZoom != null &&
+              currentZoom < header.minZoom;
+            const gated = scopeGated || zoomGated;
+            const hint = scopeGated
+              ? "Open a state to enable this layer."
+              : zoomGated
+                ? "Zoom in to see this layer."
+                : null;
             const labelClass = gated
               ? "flex items-start gap-2 text-sm opacity-50"
               : "flex cursor-pointer items-start gap-2 text-sm";
@@ -125,10 +146,8 @@ export function LayerPanel({
                     <span className="leading-tight">{layer.label}</span>
                   </span>
                 </label>
-                {gated ? (
-                  <p className="pl-6 text-xs italic text-white/50">
-                    Open a state to enable this layer.
-                  </p>
+                {hint ? (
+                  <p className="pl-6 text-xs italic text-white/50">{hint}</p>
                 ) : (
                   layer.description && (
                     <p className="pl-6 text-xs text-white/60">

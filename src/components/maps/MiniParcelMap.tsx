@@ -167,7 +167,16 @@ export function MiniParcelMap({
       [id]: { visible: !prev[id]?.visible },
     }));
   }, []);
-  usePMTilesOverlays(map, pmtilesLayers, layerState);
+  const { headers: layerHeaders } = usePMTilesOverlays(map, pmtilesLayers, layerState);
+
+  const [currentZoom, setCurrentZoom] = useState<number | undefined>(undefined);
+  useEffect(() => {
+    if (!map) return;
+    const update = () => setCurrentZoom(map.getZoom());
+    update();
+    const listener = map.addListener("zoom_changed", update);
+    return () => google.maps.event.removeListener(listener);
+  }, [map]);
 
   if (!isVisible || !isLoaded || !geom) {
     return (
@@ -260,6 +269,8 @@ export function MiniParcelMap({
           state={layerState}
           onToggle={toggleLayer}
           hasRegionScope={!!regionSlug}
+          layerHeaders={layerHeaders}
+          currentZoom={currentZoom}
         />
       )}
     </div>

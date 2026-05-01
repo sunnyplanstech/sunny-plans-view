@@ -33,6 +33,10 @@ export interface PartitionSpec {
   urlByCode: Record<string, string>;
 }
 
+// Zoom range is intentionally absent — it lives in the .pmtiles header
+// (set via each `tiles_*` Dagster asset's `min_zoom`/`max_zoom`) and is
+// fetched at runtime in usePMTilesOverlays. Centralizing on the bake
+// config means the frontend can never drift from what's actually baked.
 export interface PMTilesLayerConfig {
   id: string;
   url?: string;
@@ -41,8 +45,6 @@ export interface PMTilesLayerConfig {
   description?: string;
   fillColor: [number, number, number, number];
   lineColor?: [number, number, number, number];
-  minZoom?: number;
-  maxZoom?: number;
   defaultVisible?: boolean;
   // Layers like NWI fan out to ~50 partitioned PMTiles files; toggling
   // one on at the country view triggers tile fetches against every
@@ -125,16 +127,12 @@ const SLOPE_25_BASE = {
   description: "Slope > 25% — generally non-developable for utility solar",
   fillColor: [...NOGO.vermillion, 77]  as [number, number, number, number],
   lineColor: [...NOGO.vermillion, 180] as [number, number, number, number],
-  minZoom: 0,
-  maxZoom: 12,
   defaultVisible: false,
 };
 
 const PROTECTED_AREA_BASE = {
   fillColor: [...NOGO.crimson, 63]  as [number, number, number, number],
   lineColor: [...NOGO.crimson, 180] as [number, number, number, number],
-  minZoom: 0,
-  maxZoom: 12,
   defaultVisible: false,
 };
 
@@ -177,10 +175,9 @@ export const PMTILES_LAYERS_BY_COUNTRY: Record<string, PMTilesLayerConfig[]> = {
       fillColor: [30, 80, 220, 200],
       // No outline on dense polygon data — outlines read as visual
       // quilt-noise at every zoom. Fill alpha alone is a soft wash.
-      // minZoom is being bisected: z6 crashed the UI (too many polygons
-      // per tile on dense states), z10 was safe. Currently testing z8.
-      minZoom: 8,
-      maxZoom: 12,
+      // Zoom range comes from the .pmtiles header at runtime; the bake
+      // sets min_zoom=8 because dense polygon tiles below that crash
+      // the JS main thread.
       defaultVisible: false,
       requiresRegionScope: true,
     },

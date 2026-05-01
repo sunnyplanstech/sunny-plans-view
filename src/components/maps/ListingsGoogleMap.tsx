@@ -102,7 +102,7 @@ export function ListingsGoogleMap({
     );
   }, [pmtilesLayers]);
 
-  usePMTilesOverlays(map, pmtilesLayers, layerState);
+  const { headers: layerHeaders } = usePMTilesOverlays(map, pmtilesLayers, layerState);
 
   const toggleLayer = useCallback((id: string) => {
     setLayerState((prev) => ({
@@ -110,6 +110,18 @@ export function ListingsGoogleMap({
       [id]: { visible: !prev[id]?.visible },
     }));
   }, []);
+
+  // Track the current zoom so LayerPanel can disable zoom-gated layers
+  // (e.g. NWI at z<header.minZoom) with a "Zoom in" hint. zoom_changed
+  // fires on every zoom step; google.maps.event.removeListener cleans up.
+  const [currentZoom, setCurrentZoom] = useState<number | undefined>(undefined);
+  useEffect(() => {
+    if (!map) return;
+    const update = () => setCurrentZoom(map.getZoom());
+    update();
+    const listener = map.addListener("zoom_changed", update);
+    return () => google.maps.event.removeListener(listener);
+  }, [map]);
 
   // Filter listings to only those with valid coordinates from geom_json
   const listingsWithCoords = useMemo(() => {
@@ -273,6 +285,8 @@ export function ListingsGoogleMap({
         state={layerState}
         onToggle={toggleLayer}
         hasRegionScope={!!regionSlug}
+        layerHeaders={layerHeaders}
+        currentZoom={currentZoom}
         showHeatmap={showHeatmap}
         hexLoading={hexLoading}
         onToggleHeatmap={onToggleHeatmap}
