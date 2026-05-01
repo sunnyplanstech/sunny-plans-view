@@ -1,7 +1,7 @@
 // Per-country PMTiles overlay config — see roadmap p2-e2.
 //
-// Each entry maps to one .pmtiles file on the public pipeline bucket
-// (gs://sunnyplans-pipeline/tiles/<id>.pmtiles, baked by the matching
+// Each entry maps to one .pmtiles file on the public tiles bucket
+// (gs://sunnyplans-tiles/<id>.pmtiles, baked by the matching
 // `*_pmtiles` Dagster asset). Adding a layer = one entry here + one
 // asset in pipelines/core/<group>/.
 //
@@ -20,8 +20,8 @@ export interface PMTilesLayerConfig {
   defaultVisible?: boolean;
 }
 
-const PIPELINE_BUCKET_BASE =
-  "https://storage.googleapis.com/sunnyplans-pipeline/tiles";
+const TILES_BUCKET_BASE =
+  "https://storage.googleapis.com/sunnyplans-tiles";
 
 const STEEP_25_BASE = {
   label: "Steep terrain (>25%)",
@@ -45,12 +45,12 @@ export const PMTILES_LAYERS_BY_COUNTRY: Record<string, PMTilesLayerConfig[]> = {
   italy: [
     {
       id: "steep_25_it",
-      url: `${PIPELINE_BUCKET_BASE}/steep_25_it.pmtiles`,
+      url: `${TILES_BUCKET_BASE}/steep_25_it.pmtiles`,
       ...STEEP_25_BASE,
     },
     {
       id: "natura2000_it",
-      url: `${PIPELINE_BUCKET_BASE}/natura2000_it.pmtiles`,
+      url: `${TILES_BUCKET_BASE}/natura2000_it.pmtiles`,
       label: "Natura 2000",
       description:
         "EU Natura 2000 protected sites (Habitats + Birds Directives) — autorizzazione paesaggistica required, ~6–12 month delay",
@@ -60,7 +60,7 @@ export const PMTILES_LAYERS_BY_COUNTRY: Record<string, PMTilesLayerConfig[]> = {
   "united-states": [
     {
       id: "pad_us",
-      url: `${PIPELINE_BUCKET_BASE}/pad_us.pmtiles`,
+      url: `${TILES_BUCKET_BASE}/pad_us.pmtiles`,
       label: "Protected areas (PAD-US)",
       description:
         "Federal/state protected lands restricted for development (PAD-US Fee + Other, GAP 1–2 / Wilderness / NWR / etc.)",
@@ -68,12 +68,12 @@ export const PMTILES_LAYERS_BY_COUNTRY: Record<string, PMTilesLayerConfig[]> = {
     },
     {
       id: "steep_25_us",
-      url: `${PIPELINE_BUCKET_BASE}/steep_25_us.pmtiles`,
+      url: `${TILES_BUCKET_BASE}/steep_25_us.pmtiles`,
       ...STEEP_25_BASE,
     },
     {
       id: "nwi_us",
-      url: `${PIPELINE_BUCKET_BASE}/nwi_us.pmtiles`,
+      url: `${TILES_BUCKET_BASE}/nwi_us.pmtiles`,
       label: "Wetlands (NWI)",
       description:
         "USFWS National Wetlands Inventory — Clean Water Act permitting risk and ecological-sensitivity flag",
