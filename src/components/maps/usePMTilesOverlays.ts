@@ -6,7 +6,6 @@ import type { PMTilesLayerConfig } from "./pmtilesLayers";
 // catalog stays decoupled from the live UI state.
 export interface PMTilesLayerState {
   visible: boolean;
-  opacity: number;
 }
 
 // Lazily code-split the deck.gl + pmtiles + loaders.gl chunks: a user
@@ -62,14 +61,6 @@ function getPMTiles(
     pmtilesCache.set(key, pmt);
   }
   return pmt;
-}
-
-function withAlpha(
-  color: [number, number, number, number],
-  opacity: number,
-): [number, number, number, number] {
-  const a = Math.round(color[3] * Math.max(0, Math.min(1, opacity)));
-  return [color[0], color[1], color[2], a];
 }
 
 /**
@@ -129,10 +120,8 @@ export function usePMTilesOverlays(
         const s = state[layer.id];
         if (!s || !s.visible) return null;
         const pmt = getPMTiles(mods.PMTiles, layer);
-        const fill = withAlpha(layer.fillColor, s.opacity);
-        const line = layer.lineColor
-          ? withAlpha(layer.lineColor, s.opacity)
-          : undefined;
+        const fill = layer.fillColor;
+        const line = layer.lineColor;
         return new mods.TileLayer({
           id: `pmtiles-${layer.id}`,
           minZoom: layer.minZoom ?? 0,
@@ -162,12 +151,6 @@ export function usePMTilesOverlays(
               lineWidthUnits: "pixels",
               getLineWidth: 1,
             });
-          },
-          updateTriggers: {
-            // deck.gl caches sub-layer factories by these triggers — bumping
-            // them on opacity change forces a re-render with the new colors
-            // without remounting the TileLayer (which would re-fetch tiles).
-            renderSubLayers: [fill.join(","), line?.join(",") ?? ""],
           },
         });
       })

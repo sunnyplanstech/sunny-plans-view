@@ -78,10 +78,7 @@ export function ListingsGoogleMap({
       Object.fromEntries(
         pmtilesLayers.map((l) => [
           l.id,
-          {
-            visible: l.defaultVisible ?? false,
-            opacity: l.defaultOpacity ?? 0.7,
-          },
+          { visible: l.defaultVisible ?? false },
         ]),
       ),
   );
@@ -91,10 +88,7 @@ export function ListingsGoogleMap({
       Object.fromEntries(
         pmtilesLayers.map((l) => [
           l.id,
-          {
-            visible: l.defaultVisible ?? false,
-            opacity: l.defaultOpacity ?? 0.7,
-          },
+          { visible: l.defaultVisible ?? false },
         ]),
       ),
     );
@@ -105,13 +99,7 @@ export function ListingsGoogleMap({
   const toggleLayer = useCallback((id: string) => {
     setLayerState((prev) => ({
       ...prev,
-      [id]: { ...prev[id], visible: !prev[id]?.visible },
-    }));
-  }, []);
-  const setLayerOpacity = useCallback((id: string, opacity: number) => {
-    setLayerState((prev) => ({
-      ...prev,
-      [id]: { ...prev[id], opacity },
+      [id]: { visible: !prev[id]?.visible },
     }));
   }, []);
 
@@ -276,7 +264,6 @@ export function ListingsGoogleMap({
         layers={pmtilesLayers}
         state={layerState}
         onToggle={toggleLayer}
-        onOpacityChange={setLayerOpacity}
         showHeatmap={showHeatmap}
         hexLoading={hexLoading}
         onToggleHeatmap={onToggleHeatmap}

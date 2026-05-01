@@ -1,7 +1,6 @@
 import { useState } from "react";
 import { ChevronDown, ChevronUp, Layers, Loader2 } from "lucide-react";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Slider } from "@/components/ui/slider";
 import { Button } from "@/components/ui/button";
 import type { PMTilesLayerConfig } from "./pmtilesLayers";
 import type { PMTilesLayerState } from "./usePMTilesOverlays";
@@ -10,7 +9,6 @@ interface LayerPanelProps {
   layers: PMTilesLayerConfig[];
   state: Record<string, PMTilesLayerState>;
   onToggle: (id: string) => void;
-  onOpacityChange: (id: string, opacity: number) => void;
 
   // Heatmap is special-cased here so the user has one place to manage
   // every overlay; the underlying data shape (server-rendered hexes vs.
@@ -28,7 +26,6 @@ export function LayerPanel({
   layers,
   state,
   onToggle,
-  onOpacityChange,
   showHeatmap,
   hexLoading,
   onToggleHeatmap,
@@ -100,7 +97,6 @@ export function LayerPanel({
           {layers.map((layer) => {
             const s = state[layer.id] ?? {
               visible: layer.defaultVisible ?? false,
-              opacity: layer.defaultOpacity ?? 0.7,
             };
             return (
               <div key={layer.id} className="space-y-1.5">
@@ -123,20 +119,6 @@ export function LayerPanel({
                   <p className="pl-6 text-xs text-white/60">
                     {layer.description}
                   </p>
-                )}
-                {s.visible && (
-                  <div className="pl-6">
-                    <Slider
-                      value={[Math.round(s.opacity * 100)]}
-                      min={10}
-                      max={100}
-                      step={5}
-                      onValueChange={([v]) =>
-                        onOpacityChange(layer.id, v / 100)
-                      }
-                      aria-label={`${layer.label} opacity`}
-                    />
-                  </div>
                 )}
               </div>
             );

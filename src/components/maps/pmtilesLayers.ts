@@ -5,9 +5,8 @@
 // `*_pmtiles` Dagster asset). Adding a layer = one entry here + one
 // asset in pipelines/core/<group>/.
 //
-// Colors are RGBA 0-255. The hook multiplies the alpha channel by the
-// per-layer opacity slider, so the alphas below are the *base* visual
-// weight at slider = 1.0.
+// Colors are RGBA 0-255 and rendered as-is — pick the alpha you want to
+// see on the map.
 
 export interface PMTilesLayerConfig {
   id: string;
@@ -19,7 +18,6 @@ export interface PMTilesLayerConfig {
   minZoom?: number;
   maxZoom?: number;
   defaultVisible?: boolean;
-  defaultOpacity?: number;
 }
 
 const PIPELINE_BUCKET_BASE =
@@ -28,12 +26,19 @@ const PIPELINE_BUCKET_BASE =
 const STEEP_25_BASE = {
   label: "Steep terrain (>25%)",
   description: "Slope > 25% — generally non-developable for utility solar",
-  fillColor: [220, 80, 30, 110] as [number, number, number, number],
-  lineColor: [180, 50, 10, 200] as [number, number, number, number],
+  fillColor: [220, 80, 30, 77] as [number, number, number, number],
+  lineColor: [180, 50, 10, 140] as [number, number, number, number],
   minZoom: 0,
   maxZoom: 12,
   defaultVisible: false,
-  defaultOpacity: 0.7,
+};
+
+const PROTECTED_AREA_BASE = {
+  fillColor: [40, 140, 70, 63] as [number, number, number, number],
+  lineColor: [20, 90, 40, 140] as [number, number, number, number],
+  minZoom: 0,
+  maxZoom: 12,
+  defaultVisible: false,
 };
 
 export const PMTILES_LAYERS_BY_COUNTRY: Record<string, PMTilesLayerConfig[]> = {
@@ -43,6 +48,14 @@ export const PMTILES_LAYERS_BY_COUNTRY: Record<string, PMTilesLayerConfig[]> = {
       url: `${PIPELINE_BUCKET_BASE}/steep_25_it.pmtiles`,
       ...STEEP_25_BASE,
     },
+    {
+      id: "natura2000_it",
+      url: `${PIPELINE_BUCKET_BASE}/natura2000_it.pmtiles`,
+      label: "Natura 2000",
+      description:
+        "EU Natura 2000 protected sites (Habitats + Birds Directives) — autorizzazione paesaggistica required, ~6–12 month delay",
+      ...PROTECTED_AREA_BASE,
+    },
   ],
   "united-states": [
     {
@@ -51,16 +64,25 @@ export const PMTILES_LAYERS_BY_COUNTRY: Record<string, PMTilesLayerConfig[]> = {
       label: "Protected areas (PAD-US)",
       description:
         "Federal/state protected lands restricted for development (PAD-US Fee + Other, GAP 1–2 / Wilderness / NWR / etc.)",
-      fillColor: [40, 140, 70, 90],
-      lineColor: [20, 90, 40, 200],
+      ...PROTECTED_AREA_BASE,
+    },
+    {
+      id: "steep_25_us",
+      url: `${PIPELINE_BUCKET_BASE}/steep_25_us.pmtiles`,
+      ...STEEP_25_BASE,
+    },
+    {
+      id: "nwi_us",
+      url: `${PIPELINE_BUCKET_BASE}/nwi_us.pmtiles`,
+      label: "Wetlands (NWI)",
+      description:
+        "USFWS National Wetlands Inventory — Clean Water Act permitting risk and ecological-sensitivity flag",
+      fillColor: [60, 110, 200, 63],
+      lineColor: [30, 70, 150, 140],
       minZoom: 0,
       maxZoom: 12,
       defaultVisible: false,
-      defaultOpacity: 0.7,
     },
-    // steep_25_us bake asset not yet shipped — placeholder slot once
-    // the per-state pmtiles asset lands. The frontend tolerates a
-    // missing tile file (range request 404 → empty layer).
   ],
 };
 
