@@ -45,11 +45,22 @@ export const PMTILES_LAYERS_BY_COUNTRY: Record<string, PMTilesLayerConfig[]> = {
     },
   ],
   "united-states": [
+    {
+      id: "pad_us",
+      url: `${PIPELINE_BUCKET_BASE}/pad_us.pmtiles`,
+      label: "Protected areas (PAD-US)",
+      description:
+        "Federal/state protected lands restricted for development (PAD-US Fee + Other, GAP 1–2 / Wilderness / NWR / etc.)",
+      fillColor: [40, 140, 70, 90],
+      lineColor: [20, 90, 40, 200],
+      minZoom: 0,
+      maxZoom: 12,
+      defaultVisible: false,
+      defaultOpacity: 0.7,
+    },
     // steep_25_us bake asset not yet shipped — placeholder slot once
     // the per-state pmtiles asset lands. The frontend tolerates a
-    // missing tile file (range request 404 → empty layer), but we keep
-    // the entry list empty until the asset materialises so the panel
-    // doesn't show a permanently-broken toggle.
+    // missing tile file (range request 404 → empty layer).
   ],
 };
 
