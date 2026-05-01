@@ -1,14 +1,16 @@
 import { GoogleMap } from "@react-google-maps/api";
 import { useMemo, useState, useCallback, useEffect, useRef } from "react";
-import { MapPin, Layers, Loader2 } from "lucide-react";
+import { MapPin } from "lucide-react";
 import type { USListing } from "@/countries/unitedStates";
 import type { HexCell } from "@/hooks/useHexHeatmap";
 import { useGoogleMaps } from "./GoogleMapsProvider";
 import { getParcelCenter } from "@/lib/geo";
-import { Button } from "@/components/ui/button";
-
-const DEBUG_PMTILES_URL =
-  "https://r2-public.protomaps.com/protomaps-sample-datasets/nz-buildings-v3.pmtiles";
+import { LayerPanel } from "./LayerPanel";
+import { pmtilesLayersFor } from "./pmtilesLayers";
+import {
+  usePMTilesOverlays,
+  type PMTilesLayerState,
+} from "./usePMTilesOverlays";
 
 interface ListingsGoogleMapProps {
   listings: USListing[];
@@ -64,13 +66,54 @@ export function ListingsGoogleMap({
   }, [requestLoad]);
   const dataLayerRef = useRef<google.maps.Data | null>(null);
   const infoWindowRef = useRef<google.maps.InfoWindow | null>(null);
-  const debugPmtiles =
-    typeof window !== "undefined" &&
-    new URLSearchParams(window.location.search).get("debug") === "pmtiles";
-  const defaultCenter = debugPmtiles
-    ? { lat: -41.0, lng: 174.0 }
-    : defaultCenters[country || "united-states"] || defaultCenterUS;
-  const defaultZoom = debugPmtiles ? 5 : country === "italy" ? 6 : 4;
+  const defaultCenter = defaultCenters[country || "united-states"] || defaultCenterUS;
+  const defaultZoom = country === "italy" ? 6 : 4;
+
+  // PMTiles constraint overlays: catalog from country config, live state
+  // managed locally so the LayerPanel toggles persist across renders
+  // without bleeding into URL or global store.
+  const pmtilesLayers = useMemo(() => pmtilesLayersFor(country), [country]);
+  const [layerState, setLayerState] = useState<Record<string, PMTilesLayerState>>(
+    () =>
+      Object.fromEntries(
+        pmtilesLayers.map((l) => [
+          l.id,
+          {
+            visible: l.defaultVisible ?? false,
+            opacity: l.defaultOpacity ?? 0.7,
+          },
+        ]),
+      ),
+  );
+  // Re-seed when the country (and therefore the layer catalog) changes.
+  useEffect(() => {
+    setLayerState(
+      Object.fromEntries(
+        pmtilesLayers.map((l) => [
+          l.id,
+          {
+            visible: l.defaultVisible ?? false,
+            opacity: l.defaultOpacity ?? 0.7,
+          },
+        ]),
+      ),
+    );
+  }, [pmtilesLayers]);
+
+  usePMTilesOverlays(map, pmtilesLayers, layerState);
+
+  const toggleLayer = useCallback((id: string) => {
+    setLayerState((prev) => ({
+      ...prev,
+      [id]: { ...prev[id], visible: !prev[id]?.visible },
+    }));
+  }, []);
+  const setLayerOpacity = useCallback((id: string, opacity: number) => {
+    setLayerState((prev) => ({
+      ...prev,
+      [id]: { ...prev[id], opacity },
+    }));
+  }, []);
 
   // Filter listings to only those with valid coordinates from geom_json
   const listingsWithCoords = useMemo(() => {
@@ -95,7 +138,6 @@ export function ListingsGoogleMap({
 
   // Update bounds when map or listings change
   useMemo(() => {
-    if (debugPmtiles) return;
     if (map && isLoaded && listingsWithCoords.length > 0 && typeof google !== "undefined") {
       const bounds = new google.maps.LatLngBounds();
 
@@ -105,7 +147,7 @@ export function ListingsGoogleMap({
 
       map.fitBounds(bounds, { top: 50, right: 50, bottom: 50, left: 50 });
     }
-  }, [map, listingsWithCoords, isLoaded, debugPmtiles]);
+  }, [map, listingsWithCoords, isLoaded]);
 
   // Manage heatmap data layer
   useEffect(() => {
@@ -184,77 +226,6 @@ export function ListingsGoogleMap({
     };
   }, [map, isLoaded, showHeatmap, hexCells, maxPointCount]);
 
-  // Debug-only: render a public PMTiles file as a deck.gl overlay to validate
-  // the GoogleMapsOverlay + PMTiles integration. Toggle with ?debug=pmtiles.
-  useEffect(() => {
-    if (!map || !isLoaded || !debugPmtiles) return;
-
-    let cancelled = false;
-    let cleanup = () => {};
-
-    (async () => {
-      const [
-        { GoogleMapsOverlay },
-        { TileLayer },
-        { GeoJsonLayer },
-        { PMTiles },
-        { MVTLoader },
-        { parse },
-      ] = await Promise.all([
-        import("@deck.gl/google-maps"),
-        import("@deck.gl/geo-layers"),
-        import("@deck.gl/layers"),
-        import("pmtiles"),
-        import("@loaders.gl/mvt"),
-        import("@loaders.gl/core"),
-      ]);
-
-      if (cancelled) return;
-
-      const pmt = new PMTiles(DEBUG_PMTILES_URL);
-
-      const overlay = new GoogleMapsOverlay({
-        layers: [
-          new TileLayer({
-            id: "debug-pmtiles",
-            minZoom: 0,
-            maxZoom: 14,
-            getTileData: async ({ index }) => {
-              const tile = await pmt.getZxy(index.z, index.x, index.y);
-              if (!tile) return null;
-              return parse(tile.data, MVTLoader, {
-                mvt: {
-                  coordinates: "wgs84",
-                  tileIndex: { x: index.x, y: index.y, z: index.z },
-                },
-              });
-            },
-            renderSubLayers: (props) => {
-              if (!props.data) return null;
-              return new GeoJsonLayer({
-                id: `${props.id}-geojson`,
-                data: props.data as GeoJSON.Feature[],
-                stroked: true,
-                filled: true,
-                getFillColor: [0, 200, 80, 70],
-                getLineColor: [0, 120, 40, 220],
-                lineWidthUnits: "pixels",
-                getLineWidth: 1,
-              });
-            },
-          }),
-        ],
-      });
-      overlay.setMap(map);
-      cleanup = () => overlay.setMap(null);
-    })();
-
-    return () => {
-      cancelled = true;
-      cleanup();
-    };
-  }, [map, isLoaded, debugPmtiles]);
-
   // Show fallback if Google Maps is not available
   if (!isLoaded) {
     return (
@@ -301,22 +272,15 @@ export function ListingsGoogleMap({
         options={mapOptions}
         onLoad={onLoad}
       />
-      {onToggleHeatmap && (
-        <Button
-          variant={showHeatmap ? "default" : "outline"}
-          size="sm"
-          className="absolute top-3 left-3 z-10 shadow-lg border-0 text-white bg-gray-800/80 hover:bg-gray-800/95 backdrop-blur-sm"
-          onClick={onToggleHeatmap}
-          disabled={hexLoading}
-        >
-          {hexLoading ? (
-            <Loader2 className="w-4 h-4 mr-1 animate-spin" />
-          ) : (
-            <Layers className="w-4 h-4 mr-1" />
-          )}
-          {hexLoading ? "Loading..." : showHeatmap ? "Hide Heatmap" : "Show Heatmap"}
-        </Button>
-      )}
+      <LayerPanel
+        layers={pmtilesLayers}
+        state={layerState}
+        onToggle={toggleLayer}
+        onOpacityChange={setLayerOpacity}
+        showHeatmap={showHeatmap}
+        hexLoading={hexLoading}
+        onToggleHeatmap={onToggleHeatmap}
+      />
     </div>
   );
 }
