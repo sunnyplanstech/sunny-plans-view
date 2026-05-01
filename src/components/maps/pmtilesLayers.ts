@@ -177,11 +177,10 @@ export const PMTILES_LAYERS_BY_COUNTRY: Record<string, PMTilesLayerConfig[]> = {
       fillColor: [60, 110, 200, 120],
       // No outline on dense polygon data — outlines read as visual
       // quilt-noise at every zoom. Fill alpha alone is a soft wash.
-      // minZoom is being tuned empirically; previously z10 (parcel-only)
-      // for safety, currently testing z6 (state view) — the worst case
-      // we expect to support — to see if the browser holds after the
-      // outline-drop made tiles significantly cheaper to render.
-      minZoom: 6,
+      // minZoom: 10 keeps render cost bounded — at metro/state zooms the
+      // polygon count per tile is tens of thousands and tessellation
+      // jams the JS main thread (z6 crashed the UI in testing).
+      minZoom: 10,
       maxZoom: 12,
       defaultVisible: false,
       requiresRegionScope: true,
