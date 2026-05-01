@@ -115,7 +115,7 @@ const NOGO = {
   plum:       [121,  64, 135] as const, // cool       — reserved (infra)
 };
 
-const STEEP_25_BASE = {
+const SLOPE_25_BASE = {
   label: "Steep terrain (>25%)",
   description: "Slope > 25% — generally non-developable for utility solar",
   fillColor: [...NOGO.vermillion, 77]  as [number, number, number, number],
@@ -136,9 +136,9 @@ const PROTECTED_AREA_BASE = {
 export const PMTILES_LAYERS_BY_COUNTRY: Record<string, PMTilesLayerConfig[]> = {
   italy: [
     {
-      id: "steep_25_it",
-      partition: itRegionPartition("steep_25_it"),
-      ...STEEP_25_BASE,
+      id: "slope_25_it",
+      partition: itRegionPartition("slope_25_it"),
+      ...SLOPE_25_BASE,
     },
     {
       id: "natura2000_it",
@@ -159,9 +159,9 @@ export const PMTILES_LAYERS_BY_COUNTRY: Record<string, PMTilesLayerConfig[]> = {
       ...PROTECTED_AREA_BASE,
     },
     {
-      id: "steep_25_us",
-      partition: usStatePartition("steep_25_us"),
-      ...STEEP_25_BASE,
+      id: "slope_25_us",
+      partition: usStatePartition("slope_25_us"),
+      ...SLOPE_25_BASE,
     },
     {
       id: "nwi_us",
