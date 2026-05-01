@@ -16,6 +16,10 @@ interface ListingsGoogleMapProps {
   listings: USListing[];
   className?: string;
   country?: string;
+  // URL scope hint — when on a region/subregion page, lets the PMTiles
+  // catalog narrow per-state-partitioned layers (e.g. NWI) down to that
+  // one state's .pmtiles instead of registering all 50.
+  regionSlug?: string;
   hexCells?: HexCell[];
   showHeatmap?: boolean;
   hexLoading?: boolean;
@@ -53,6 +57,7 @@ export function ListingsGoogleMap({
   listings,
   className,
   country,
+  regionSlug,
   hexCells,
   showHeatmap = false,
   hexLoading = false,
@@ -72,7 +77,10 @@ export function ListingsGoogleMap({
   // PMTiles constraint overlays: catalog from country config, live state
   // managed locally so the LayerPanel toggles persist across renders
   // without bleeding into URL or global store.
-  const pmtilesLayers = useMemo(() => pmtilesLayersFor(country), [country]);
+  const pmtilesLayers = useMemo(
+    () => pmtilesLayersFor(country, regionSlug),
+    [country, regionSlug],
+  );
   const [layerState, setLayerState] = useState<Record<string, PMTilesLayerState>>(
     () =>
       Object.fromEntries(

@@ -139,11 +139,14 @@ export const unitedStates: CountryAdapter = {
   },
 
   renderMap(props: MapRenderProps) {
+    const regionSlug =
+      props.scope.level !== "national" ? props.scope.regionSlug : undefined;
     return (
       <ListingsGoogleMap
         listings={props.listings as USListing[]}
         className="w-full h-full min-h-[400px]"
         country="united-states"
+        regionSlug={regionSlug}
         hexCells={props.hexCells}
         showHeatmap={props.showHeatmap}
         hexLoading={props.hexLoading}

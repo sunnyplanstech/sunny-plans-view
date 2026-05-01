@@ -45,22 +45,29 @@ function loadDeckModules() {
   return modulesPromise;
 }
 
-// One PMTiles client per (layer.id, layer.url) pair, cached across
-// re-renders so toggling visibility doesn't tear down the underlying
-// HTTP range-request session (PMTiles caches the directory section).
+// One PMTiles client per source URL, cached across re-renders so
+// toggling visibility doesn't tear down the underlying HTTP
+// range-request session (PMTiles caches the directory section).
+// Multi-URL layers (e.g. the per-state NWI bake) share this cache —
+// one client per .pmtiles file regardless of which logical layer
+// references it.
 const pmtilesCache = new Map<string, unknown>();
 
 function getPMTiles(
   PMTilesCtor: typeof import("pmtiles").PMTiles,
-  layer: PMTilesLayerConfig,
+  url: string,
 ) {
-  const key = `${layer.id}::${layer.url}`;
-  let pmt = pmtilesCache.get(key) as InstanceType<typeof PMTilesCtor> | undefined;
+  let pmt = pmtilesCache.get(url) as InstanceType<typeof PMTilesCtor> | undefined;
   if (!pmt) {
-    pmt = new PMTilesCtor(layer.url);
-    pmtilesCache.set(key, pmt);
+    pmt = new PMTilesCtor(url);
+    pmtilesCache.set(url, pmt);
   }
   return pmt;
+}
+
+function layerUrls(layer: PMTilesLayerConfig): string[] {
+  if (layer.partition) return Object.values(layer.partition.urlByCode);
+  return layer.url ? [layer.url] : [];
 }
 
 /**
@@ -115,15 +122,19 @@ export function usePMTilesOverlays(
     const mods = modsRef.current;
     if (!overlay || !mods) return;
 
-    const visibleLayers = layers
-      .map((layer) => {
-        const s = state[layer.id];
-        if (!s || !s.visible) return null;
-        const pmt = getPMTiles(mods.PMTiles, layer);
-        const fill = layer.fillColor;
-        const line = layer.lineColor;
+    const visibleLayers = layers.flatMap((layer) => {
+      const s = state[layer.id];
+      if (!s || !s.visible) return [];
+      const fill = layer.fillColor;
+      const line = layer.lineColor;
+      const urls = layerUrls(layer);
+      return urls.map((url, i) => {
+        const pmt = getPMTiles(mods.PMTiles, url);
         return new mods.TileLayer({
-          id: `pmtiles-${layer.id}`,
+          // deck.gl needs unique ids; the index suffix disambiguates
+          // multi-URL layers while keeping the visibility key (layer.id)
+          // shared so one toggle controls the whole group.
+          id: urls.length > 1 ? `pmtiles-${layer.id}-${i}` : `pmtiles-${layer.id}`,
           minZoom: layer.minZoom ?? 0,
           maxZoom: layer.maxZoom ?? 14,
           getTileData: async ({ index }: { index: { x: number; y: number; z: number } }) => {
@@ -153,8 +164,8 @@ export function usePMTilesOverlays(
             });
           },
         });
-      })
-      .filter((l): l is NonNullable<typeof l> => l !== null);
+      });
+    });
 
     overlay.setProps({ layers: visibleLayers });
   }, [layers, state]);

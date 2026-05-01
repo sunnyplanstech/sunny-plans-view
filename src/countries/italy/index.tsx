@@ -149,11 +149,14 @@ export const italy: CountryAdapter = {
   },
 
   renderMap(props: MapRenderProps) {
+    const regionSlug =
+      props.scope.level !== "national" ? props.scope.regionSlug : undefined;
     return (
       <ListingsGoogleMap
         listings={toMapShape(props.listings as ITListing[])}
         className="w-full h-full min-h-[400px]"
         country="italy"
+        regionSlug={regionSlug}
         hexCells={props.hexCells}
         showHeatmap={props.showHeatmap}
         hexLoading={props.hexLoading}
