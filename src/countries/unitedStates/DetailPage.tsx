@@ -131,6 +131,8 @@ export function USDetailPage({ id, listing, onPaymentSuccess }: DetailPageProps<
             locationAccuracyM={listing.location_accuracy_m}
             className="w-full h-full"
             interactive={accessGranted}
+            country={country}
+            regionSlug={region}
           />
           <div className="absolute top-4 left-4 flex flex-wrap gap-2">
             <Badge className="text-lg py-1 px-3 bg-primary">

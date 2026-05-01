@@ -1,7 +1,10 @@
 import { GoogleMap, Marker, Polygon } from "@react-google-maps/api";
-import { useMemo, useRef, useState, useEffect } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { MapPin } from "lucide-react";
 import { useGoogleMaps } from "./GoogleMapsProvider";
+import { LayerPanel } from "./LayerPanel";
+import { pmtilesLayersFor } from "./pmtilesLayers";
+import { usePMTilesOverlays, type PMTilesLayerState } from "./usePMTilesOverlays";
 
 interface MiniParcelMapProps {
   geomJson: unknown;
@@ -15,6 +18,14 @@ interface MiniParcelMapProps {
    * cannot fill the viewport. Polygon geometries ignore this value.
    */
   locationAccuracyM: number | null;
+  /**
+   * Country + region slug enable PMTiles constraint overlays
+   * (PAD-US, slope, NWI for US; slope, Natura 2000 for IT) on the
+   * detail-page map for unlocked (polygon) rows. Listing cards leave
+   * these unset so the small per-card maps stay overlay-free.
+   */
+  country?: string;
+  regionSlug?: string;
 }
 
 const mapContainerStyle = {
@@ -97,6 +108,8 @@ export function MiniParcelMap({
   className,
   interactive = false,
   locationAccuracyM,
+  country,
+  regionSlug,
 }: MiniParcelMapProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const [isVisible, setIsVisible] = useState(false);
@@ -123,6 +136,39 @@ export function MiniParcelMap({
     return () => observer.disconnect();
   }, [requestLoad]);
 
+  // Overlays mount only for unlocked rows (polygon present) when the
+  // detail page passes country+regionSlug. Free preview rows arrive as
+  // an obfuscated Point — overlaying constraints on a jittered location
+  // would be misleading.
+  const hasPolygon = (geom?.paths.length ?? 0) > 0;
+  const overlaysEnabled = hasPolygon && !!country;
+
+  const [map, setMap] = useState<google.maps.Map | null>(null);
+  const pmtilesLayers = useMemo(
+    () => (overlaysEnabled ? pmtilesLayersFor(country, regionSlug) : []),
+    [overlaysEnabled, country, regionSlug],
+  );
+  const [layerState, setLayerState] = useState<Record<string, PMTilesLayerState>>(
+    () =>
+      Object.fromEntries(
+        pmtilesLayers.map((l) => [l.id, { visible: l.defaultVisible ?? false }]),
+      ),
+  );
+  useEffect(() => {
+    setLayerState(
+      Object.fromEntries(
+        pmtilesLayers.map((l) => [l.id, { visible: l.defaultVisible ?? false }]),
+      ),
+    );
+  }, [pmtilesLayers]);
+  const toggleLayer = useCallback((id: string) => {
+    setLayerState((prev) => ({
+      ...prev,
+      [id]: { visible: !prev[id]?.visible },
+    }));
+  }, []);
+  usePMTilesOverlays(map, pmtilesLayers, layerState);
+
   if (!isVisible || !isLoaded || !geom) {
     return (
       <div
@@ -134,7 +180,6 @@ export function MiniParcelMap({
     );
   }
 
-  const hasPolygon = geom.paths.length > 0;
   const isObfuscatedPoint = !hasPolygon && locationAccuracyM != null && locationAccuracyM > 0;
 
   const mapOptions: google.maps.MapOptions = {
@@ -155,21 +200,22 @@ export function MiniParcelMap({
   // Map is fully uncontrolled: viewport is set imperatively in onLoad. Passing
   // center/zoom as props alongside fitBounds caused the satellite tile loader
   // to enter an inconsistent state and render a blank gray background.
-  const handleMapLoad = (map: google.maps.Map) => {
+  const handleMapLoad = (mapInstance: google.maps.Map) => {
+    setMap(mapInstance);
     if (hasPolygon) {
       const bounds = new google.maps.LatLngBounds();
       geom.paths.forEach((path) => path.forEach((p) => bounds.extend(p)));
-      map.fitBounds(bounds, 24);
+      mapInstance.fitBounds(bounds, 24);
     } else if (isObfuscatedPoint) {
-      map.fitBounds(buildAccuracyBounds(geom.center, locationAccuracyM!));
+      mapInstance.fitBounds(buildAccuracyBounds(geom.center, locationAccuracyM!));
     } else {
-      map.setCenter(geom.center);
-      map.setZoom(15);
+      mapInstance.setCenter(geom.center);
+      mapInstance.setZoom(15);
     }
   };
 
   return (
-    <div ref={containerRef} className={className}>
+    <div ref={containerRef} className={`relative ${className ?? ""}`}>
       <GoogleMap
         mapContainerStyle={mapContainerStyle}
         options={mapOptions}
@@ -208,6 +254,14 @@ export function MiniParcelMap({
               />
             )}
       </GoogleMap>
+      {overlaysEnabled && (
+        <LayerPanel
+          layers={pmtilesLayers}
+          state={layerState}
+          onToggle={toggleLayer}
+          hasRegionScope={!!regionSlug}
+        />
+      )}
     </div>
   );
 }
