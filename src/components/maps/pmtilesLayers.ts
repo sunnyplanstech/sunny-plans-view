@@ -174,7 +174,7 @@ export const PMTILES_LAYERS_BY_COUNTRY: Record<string, PMTilesLayerConfig[]> = {
       label: "Wetlands (NWI)",
       description:
         "USFWS National Wetlands Inventory — Clean Water Act permitting risk and ecological-sensitivity flag",
-      fillColor: [60, 110, 200, 170],
+      fillColor: [30, 80, 220, 200],
       // No outline on dense polygon data — outlines read as visual
       // quilt-noise at every zoom. Fill alpha alone is a soft wash.
       // minZoom is being bisected: z6 crashed the UI (too many polygons
