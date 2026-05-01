@@ -56,8 +56,12 @@ export function ListingsGoogleMap({
   hexLoading = false,
   onToggleHeatmap,
 }: ListingsGoogleMapProps) {
-  const { isLoaded, hasApiKey } = useGoogleMaps();
+  const { isLoaded, hasApiKey, requestLoad } = useGoogleMaps();
   const [map, setMap] = useState<google.maps.Map | null>(null);
+
+  useEffect(() => {
+    requestLoad();
+  }, [requestLoad]);
   const dataLayerRef = useRef<google.maps.Data | null>(null);
   const infoWindowRef = useRef<google.maps.InfoWindow | null>(null);
   const debugPmtiles =
