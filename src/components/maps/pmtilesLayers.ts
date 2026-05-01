@@ -44,6 +44,11 @@ export interface PMTilesLayerConfig {
   minZoom?: number;
   maxZoom?: number;
   defaultVisible?: boolean;
+  // Layers like NWI fan out to ~50 partitioned PMTiles files; toggling
+  // one on at the country view triggers tile fetches against every
+  // partition. Set this on dense partitioned layers to keep the toggle
+  // disabled until the user is on a state/region page.
+  requiresRegionScope?: boolean;
 }
 
 const TILES_BUCKET_BASE =
@@ -174,6 +179,7 @@ export const PMTILES_LAYERS_BY_COUNTRY: Record<string, PMTilesLayerConfig[]> = {
       minZoom: 0,
       maxZoom: 12,
       defaultVisible: false,
+      requiresRegionScope: true,
     },
   ],
 };

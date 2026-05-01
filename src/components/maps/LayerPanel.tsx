@@ -10,6 +10,10 @@ interface LayerPanelProps {
   state: Record<string, PMTilesLayerState>;
   onToggle: (id: string) => void;
 
+  // True when the user is on a state/region (or deeper) page. Layers
+  // declaring `requiresRegionScope` stay disabled until this flips.
+  hasRegionScope?: boolean;
+
   // Heatmap is special-cased here so the user has one place to manage
   // every overlay; the underlying data shape (server-rendered hexes vs.
   // client-loaded PMTiles) is incidental.
@@ -26,6 +30,7 @@ export function LayerPanel({
   layers,
   state,
   onToggle,
+  hasRegionScope,
   showHeatmap,
   hexLoading,
   onToggleHeatmap,
@@ -98,12 +103,17 @@ export function LayerPanel({
             const s = state[layer.id] ?? {
               visible: layer.defaultVisible ?? false,
             };
+            const gated = !!layer.requiresRegionScope && !hasRegionScope;
+            const labelClass = gated
+              ? "flex items-start gap-2 text-sm opacity-50"
+              : "flex cursor-pointer items-start gap-2 text-sm";
             return (
               <div key={layer.id} className="space-y-1.5">
-                <label className="flex cursor-pointer items-start gap-2 text-sm">
+                <label className={labelClass}>
                   <Checkbox
-                    checked={s.visible}
-                    onCheckedChange={() => onToggle(layer.id)}
+                    checked={!gated && s.visible}
+                    disabled={gated}
+                    onCheckedChange={() => !gated && onToggle(layer.id)}
                     className="mt-0.5 border-white/40 data-[state=checked]:border-white data-[state=checked]:bg-white data-[state=checked]:text-gray-900"
                   />
                   <span className="flex flex-1 items-center gap-2">
@@ -115,10 +125,16 @@ export function LayerPanel({
                     <span className="leading-tight">{layer.label}</span>
                   </span>
                 </label>
-                {layer.description && (
-                  <p className="pl-6 text-xs text-white/60">
-                    {layer.description}
+                {gated ? (
+                  <p className="pl-6 text-xs italic text-white/50">
+                    Open a state to enable this layer.
                   </p>
+                ) : (
+                  layer.description && (
+                    <p className="pl-6 text-xs text-white/60">
+                      {layer.description}
+                    </p>
+                  )
                 )}
               </div>
             );

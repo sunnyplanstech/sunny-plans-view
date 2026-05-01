@@ -272,6 +272,7 @@ export function ListingsGoogleMap({
         layers={pmtilesLayers}
         state={layerState}
         onToggle={toggleLayer}
+        hasRegionScope={!!regionSlug}
         showHeatmap={showHeatmap}
         hexLoading={hexLoading}
         onToggleHeatmap={onToggleHeatmap}
