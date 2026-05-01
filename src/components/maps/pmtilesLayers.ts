@@ -175,8 +175,12 @@ export const PMTILES_LAYERS_BY_COUNTRY: Record<string, PMTilesLayerConfig[]> = {
       description:
         "USFWS National Wetlands Inventory — Clean Water Act permitting risk and ecological-sensitivity flag",
       fillColor: [60, 110, 200, 63],
-      lineColor: [30, 70, 150, 140],
-      minZoom: 0,
+      // No outline: NWI is dense polygon data and the outline turns into
+      // visual quilt-noise at every zoom. Fill alpha alone reads as a
+      // soft wash. minZoom: 10 keeps render cost bounded — at state/
+      // metro zooms the polygon count per tile is in the tens of
+      // thousands and tessellation jams the JS main thread.
+      minZoom: 10,
       maxZoom: 12,
       defaultVisible: false,
       requiresRegionScope: true,
