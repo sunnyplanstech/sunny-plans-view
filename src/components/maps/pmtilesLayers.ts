@@ -128,6 +128,10 @@ const SLOPE_25_BASE = {
   fillColor: [...NOGO.vermillion, 77]  as [number, number, number, number],
   lineColor: [...NOGO.vermillion, 180] as [number, number, number, number],
   defaultVisible: false,
+  // Per-state/region bake is large (CA alone is ~360 MiB); toggling at
+  // the country view would fan out fetches across every partition. Gate
+  // on region scope so the toggle only enables on a state/region page.
+  requiresRegionScope: true,
 };
 
 const PROTECTED_AREA_BASE = {
