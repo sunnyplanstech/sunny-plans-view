@@ -1,7 +1,7 @@
 ---
 title: "FERC Order 2023 and What It Actually Changed for Solar Land Buyers"
 description: "FERC Order 2023 reformed how solar and storage projects get interconnected to the US grid. Here's what the rule actually changed — site control requirements, deposit structure, cluster studies — and what it means for land near a substation."
-date: "2026-05-01"
+date: "2026-05-03"
 author: "Sunnyplans Team"
 tags: "solar, interconnection, FERC, grid"
 target_query: "what is FERC Order 2023"
