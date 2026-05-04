@@ -1,5 +1,5 @@
 ---
-title: "How to Buy Land for a Solar Farm in Ohio in 2026"
+title: "Buying Land for a Solar Farm in Ohio in 2026: Senate Bill 52 Changes the Map"
 description: "Ohio sits entirely in PJM territory — cluster studies, post-FERC Order 2023 deposit rules, a congested queue. Senate Bill 52 handed county commissioners veto power over utility-scale projects, and many counties in the state's best solar corridor have used it."
 date: "2026-05-04"
 author: "Sunnyplans Team"
