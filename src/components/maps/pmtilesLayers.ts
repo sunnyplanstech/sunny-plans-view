@@ -122,18 +122,6 @@ const NOGO = {
   plum:       [121,  64, 135] as const, // cool       — reserved (infra)
 };
 
-const SLOPE_25_BASE = {
-  label: "Steep terrain (>25%)",
-  description: "Slope > 25% — generally non-developable for utility solar",
-  fillColor: [...NOGO.vermillion, 77]  as [number, number, number, number],
-  lineColor: [...NOGO.vermillion, 180] as [number, number, number, number],
-  defaultVisible: false,
-  // Per-state/region bake is large (CA alone is ~360 MiB); toggling at
-  // the country view would fan out fetches across every partition. Gate
-  // on region scope so the toggle only enables on a state/region page.
-  requiresRegionScope: true,
-};
-
 const PROTECTED_AREA_BASE = {
   fillColor: [...NOGO.crimson, 63]  as [number, number, number, number],
   lineColor: [...NOGO.crimson, 180] as [number, number, number, number],
@@ -142,11 +130,6 @@ const PROTECTED_AREA_BASE = {
 
 export const PMTILES_LAYERS_BY_COUNTRY: Record<string, PMTilesLayerConfig[]> = {
   italy: [
-    {
-      id: "slope_25_it",
-      partition: itRegionPartition("slope_25_it"),
-      ...SLOPE_25_BASE,
-    },
     {
       id: "natura2000_it",
       url: `${TILES_BUCKET_BASE}/natura2000_it.pmtiles`,
@@ -164,11 +147,6 @@ export const PMTILES_LAYERS_BY_COUNTRY: Record<string, PMTilesLayerConfig[]> = {
       description:
         "Federal/state protected lands restricted for development (PAD-US Fee + Other, GAP 1–2 / Wilderness / NWR / etc.)",
       ...PROTECTED_AREA_BASE,
-    },
-    {
-      id: "slope_25_us",
-      partition: usStatePartition("slope_25_us"),
-      ...SLOPE_25_BASE,
     },
     {
       id: "nwi_us",
