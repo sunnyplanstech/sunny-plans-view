@@ -15,6 +15,7 @@ import { cn } from "@/lib/utils";
 import { optionalAuthApi } from "@/lib/apiClient";
 import { getParcelCenter } from "@/lib/geo";
 import { evaluateLayer, type Verdict } from "@/components/layers/evaluate";
+import { layerTag } from "@/components/layers/layerTag";
 import type { Layer } from "@/components/layers/registry";
 import type { BaseListing } from "@/countries/types";
 
@@ -54,14 +55,14 @@ function useListingDetail(id: string | null) {
 function VerdictIcon({ verdict }: { verdict: Verdict }) {
   if (verdict === "pass") {
     return (
-      <span className="inline-flex h-5 w-5 items-center justify-center rounded-full bg-emerald-100 text-emerald-700">
+      <span className="inline-flex h-5 w-5 items-center justify-center rounded-full bg-primary/15 text-primary">
         <Check className="h-3 w-3" strokeWidth={3} />
       </span>
     );
   }
   if (verdict === "fail") {
     return (
-      <span className="inline-flex h-5 w-5 items-center justify-center rounded-full bg-rose-100 text-rose-700">
+      <span className="inline-flex h-5 w-5 items-center justify-center rounded-full bg-destructive/15 text-destructive">
         <X className="h-3 w-3" strokeWidth={3} />
       </span>
     );
@@ -92,47 +93,70 @@ function PassFailStrip({
   layers: Layer[];
 }) {
   if (layers.length === 0) return null;
+  const verdicts = layers.map((l) => ({
+    layer: l,
+    verdict: evaluateLayer(listing, l),
+  }));
+  const pass = verdicts.filter((v) => v.verdict === "pass").length;
+  const fail = verdicts.filter((v) => v.verdict === "fail").length;
+  const unknown = verdicts.filter((v) => v.verdict === "unknown").length;
+  const allPass = fail === 0 && unknown === 0;
   return (
     <section>
-      <h3 className="mb-2 font-mono text-[10px] uppercase tracking-[0.18em] text-muted-foreground">
-        Constraints
-      </h3>
-      <ul className="divide-y divide-border rounded-md border border-border">
-        {layers.map((layer) => {
-          const verdict = evaluateLayer(listing, layer);
-          return (
-            <li
-              key={layer.id}
-              className="flex items-center gap-3 px-3 py-2.5"
-            >
-              <VerdictIcon verdict={verdict} />
-              <div className="min-w-0 flex-1">
-                <p className="text-sm font-medium text-foreground truncate">
-                  {layer.label}
-                </p>
-                <p className="font-mono text-[10px] text-muted-foreground">
-                  {verdictLabel(verdict)}
-                </p>
-              </div>
-            </li>
-          );
-        })}
+      <div className="mb-2 flex items-baseline justify-between">
+        <h3 className="tp-eyebrow">Constraints</h3>
+        <span className="tp-mono text-[10px] tabular-nums text-muted-foreground">
+          <span className="text-primary">{pass} pass</span>
+          {fail > 0 && (
+            <>
+              {" · "}
+              <span className="text-destructive">{fail} fail</span>
+            </>
+          )}
+          {unknown > 0 && (
+            <>
+              {" · "}
+              <span>{unknown} unknown</span>
+            </>
+          )}
+        </span>
+      </div>
+      <ul className="divide-y divide-border rounded-md border border-border bg-card">
+        {verdicts.map(({ layer, verdict }) => (
+          <li
+            key={layer.id}
+            className="flex items-center gap-3 px-3 py-2.5"
+          >
+            <VerdictIcon verdict={verdict} />
+            <div className="min-w-0 flex-1">
+              <p className="text-sm font-medium text-foreground truncate">
+                {layer.label}
+              </p>
+              <p className="tp-mono text-[10px] text-muted-foreground">
+                <span className="font-semibold tracking-wider">{layerTag(layer.id)}</span>
+                {" · "}
+                {verdictLabel(verdict)}
+              </p>
+            </div>
+          </li>
+        ))}
       </ul>
+      {allPass && (
+        <p className="mt-2 text-[11px] font-medium text-primary">
+          ✓ Parcel qualifies under your spec
+        </p>
+      )}
     </section>
   );
 }
 
 function SunnyScoreRow({ listing }: { listing: BaseListing }) {
   const pct =
-    listing.prob_solar === null
-      ? null
-      : Math.round(listing.prob_solar * 100);
+    listing.prob_solar === null ? null : Math.round(listing.prob_solar * 100);
   return (
     <section>
-      <h3 className="mb-2 font-mono text-[10px] uppercase tracking-[0.18em] text-muted-foreground">
-        SunnyScore
-      </h3>
-      <div className="flex items-center gap-3 rounded-md border border-border px-3 py-2.5">
+      <h3 className="tp-eyebrow mb-2">SunnyScore</h3>
+      <div className="flex items-center gap-3 rounded-md border border-border bg-card px-3 py-2.5">
         <Sun className="h-5 w-5 text-primary" />
         <div className="flex-1">
           <p className="text-sm font-medium text-foreground">
@@ -153,10 +177,8 @@ function SunnyScoreRow({ listing }: { listing: BaseListing }) {
 function CoordRow({ label, value }: { label: string; value: string }) {
   return (
     <div className="flex items-baseline justify-between gap-3 text-sm">
-      <span className="font-mono text-[10px] uppercase tracking-[0.18em] text-muted-foreground">
-        {label}
-      </span>
-      <span className="font-mono tabular-nums text-foreground">{value}</span>
+      <span className="tp-eyebrow">{label}</span>
+      <span className="tp-mono tabular-nums text-foreground">{value}</span>
     </div>
   );
 }
@@ -178,10 +200,8 @@ function CoordsBlock({
 
   return (
     <section>
-      <h3 className="mb-2 font-mono text-[10px] uppercase tracking-[0.18em] text-muted-foreground">
-        Location
-      </h3>
-      <div className="space-y-2 rounded-md border border-border px-3 py-2.5">
+      <h3 className="tp-eyebrow mb-2">Location</h3>
+      <div className="space-y-2 rounded-md border border-border bg-card px-3 py-2.5">
         {center ? (
           <>
             <CoordRow
@@ -198,7 +218,7 @@ function CoordsBlock({
             />
           </>
         ) : (
-          <p className="font-mono text-[10px] text-muted-foreground">
+          <p className="tp-mono text-[10px] text-muted-foreground">
             No geometry on this parcel.
           </p>
         )}
@@ -266,14 +286,15 @@ export function EvaluateDrawer({
       >
         {listing && (
           <>
-            <header className="flex items-start justify-between gap-3 border-b border-border bg-gradient-to-b from-muted/30 to-transparent px-5 py-4">
-              <div>
-                <p className="font-mono text-[10px] uppercase tracking-[0.22em] text-muted-foreground">
-                  Evaluate parcel
-                </p>
-                <h2 className="mt-0.5 text-base font-semibold tracking-tight text-foreground">
+            <header className="flex items-start justify-between gap-3 border-b border-border bg-gradient-subtle px-5 py-4">
+              <div className="min-w-0">
+                <p className="tp-eyebrow">Evaluate parcel</p>
+                <h2 className="mt-1 text-base font-semibold tracking-tight text-foreground truncate">
                   {title}
                 </h2>
+                <p className="tp-mono mt-0.5 text-[10px] text-muted-foreground/80 truncate">
+                  ID · {listing.id}
+                </p>
               </div>
               <SheetClose className="rounded-md p-1 text-muted-foreground hover:bg-muted hover:text-foreground transition-colors">
                 <X className="h-4 w-4" />

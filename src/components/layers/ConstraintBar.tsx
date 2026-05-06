@@ -16,9 +16,11 @@
 // drops the fieldkit shortcut. If user testing shows expert users want
 // presets we add them back as a thin wrapper over `onToggle`.
 import { Check } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 import type { Layer } from "./registry";
 import type { LayerEffect } from "./evaluate";
+import { layerTag } from "./layerTag";
 
 interface ConstraintBarProps {
   layers: Layer[];
@@ -40,28 +42,6 @@ interface ConstraintBarProps {
   hasRegionScope: boolean;
 }
 
-function swatchStyle(layer: Layer, selected: boolean): React.CSSProperties {
-  if (layer.id.startsWith("slope_lt_5")) {
-    return {
-      background: selected
-        ? "repeating-linear-gradient(45deg, hsl(95 55% 50% / 0.95) 0 4px, hsl(95 55% 42% / 0.95) 4px 8px)"
-        : "repeating-linear-gradient(45deg, hsl(95 30% 70% / 0.5) 0 4px, hsl(95 30% 60% / 0.5) 4px 8px)",
-    };
-  }
-  if (layer.id === "nwi_us") {
-    return {
-      background: selected
-        ? "repeating-linear-gradient(135deg, hsl(218 80% 50% / 0.85) 0 3px, hsl(218 80% 42% / 0.85) 3px 6px)"
-        : "repeating-linear-gradient(135deg, hsl(218 35% 70% / 0.5) 0 3px, hsl(218 35% 62% / 0.5) 3px 6px)",
-    };
-  }
-  return {
-    background: selected
-      ? "repeating-linear-gradient(45deg, hsl(355 60% 50% / 0.85) 0 3px, hsl(355 60% 42% / 0.85) 3px 7px)"
-      : "repeating-linear-gradient(45deg, hsl(355 30% 70% / 0.5) 0 3px, hsl(355 30% 62% / 0.5) 3px 7px)",
-  };
-}
-
 interface RowState {
   belowMinZoom: boolean;
   needsRegion: boolean;
@@ -81,10 +61,13 @@ function rowState(
   };
 }
 
-function effectLabel(effect: LayerEffect, total: number): string | null {
+// "740/12,400" — fixed-width-friendly. Returns null when the layer has
+// no per-listing data on the payload yet (so the row stays honest
+// instead of showing a meaningless zero).
+function effectRatio(effect: LayerEffect, total: number): string | null {
   const evaluated = effect.passing + effect.failing;
   if (evaluated === 0) return null;
-  return `${effect.passing} / ${total} qualify`;
+  return `${effect.passing.toLocaleString()}/${total.toLocaleString()}`;
 }
 
 export function ConstraintBar({
@@ -110,104 +93,100 @@ export function ConstraintBar({
   const selectedCount = selectedIds.size;
 
   return (
-    <aside className="rounded-lg border border-border bg-card shadow-sm overflow-hidden">
-      <header className="border-b border-border bg-gradient-to-b from-muted/30 to-transparent px-4 py-3">
-        <p className="text-[10px] uppercase tracking-[0.2em] text-muted-foreground/80">
-          Layer-first preview · constraints
-        </p>
-        <div className="mt-1 flex items-baseline justify-between gap-3">
-          <h2 className="text-base font-semibold text-foreground">Constraints</h2>
-          <span className="font-mono text-[11px] text-muted-foreground tabular-nums">
+    <aside className="rounded-lg border border-border/70 bg-card shadow-sm overflow-hidden">
+      <header className="flex items-baseline justify-between gap-3 border-b border-border/60 bg-gradient-subtle px-4 py-3">
+        <div className="flex items-baseline gap-2">
+          <h2 className="text-sm font-semibold text-foreground">Constraints</h2>
+          <span className="tp-mono text-[10px] text-muted-foreground tabular-nums">
             {selectedCount}/{layers.length} on
           </span>
         </div>
-        {selectedCount > 0 && (
-          <button
-            type="button"
-            onClick={onClear}
-            className="mt-2 inline-flex items-center rounded-sm border border-transparent text-[11px] text-muted-foreground hover:text-foreground transition-colors"
-          >
-            Clear all
-          </button>
-        )}
+        <button
+          type="button"
+          onClick={onClear}
+          disabled={selectedCount === 0}
+          className={cn(
+            "text-[11px] font-medium transition-colors",
+            selectedCount === 0
+              ? "text-muted-foreground/40 cursor-default"
+              : "text-muted-foreground hover:text-primary",
+          )}
+        >
+          Clear all
+        </button>
       </header>
 
-      <ul className="divide-y divide-border">
+      <ul className="divide-y divide-border/60">
         {layers.map((layer) => {
           const selected = selectedIds.has(layer.id);
           const state = rowState(layer, effectsById, hasRegionScope, currentZoom);
-          const effectText = state.effect
-            ? effectLabel(state.effect, totalListings)
-            : null;
-          const showCounter = !state.belowMinZoom && effectText !== null;
+          const ratio = state.effect ? effectRatio(state.effect, totalListings) : null;
+          const showRatio = !state.belowMinZoom && ratio !== null;
+          const tag = layerTag(layer.id);
           return (
             <li key={layer.id}>
               <button
                 type="button"
-                onClick={() => onToggle(layer.id)}
+                className="tp-row focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-inset"
                 aria-pressed={selected}
-                className={cn(
-                  "group relative flex w-full items-start gap-3 px-4 py-3 text-left transition-colors",
-                  "hover:bg-muted/40",
-                  selected && "bg-muted/30",
-                )}
+                onClick={() => onToggle(layer.id)}
               >
                 <span
                   aria-hidden
                   className={cn(
-                    "absolute inset-y-0 left-0 w-[3px] transition-all",
-                    selected ? "bg-primary" : "bg-transparent",
-                  )}
-                />
-                <span
-                  aria-hidden
-                  className={cn(
-                    "relative mt-0.5 flex h-7 w-7 flex-shrink-0 items-center justify-center rounded-md border",
+                    "tp-mono mt-0.5 inline-flex h-6 min-w-[44px] items-center justify-center rounded-md border px-1.5 text-[10px] font-semibold tracking-wider transition-colors",
                     selected
-                      ? "border-foreground/20 shadow-inner"
-                      : "border-border/70 opacity-70 group-hover:opacity-100",
+                      ? "border-primary/60 bg-primary/10 text-primary"
+                      : "border-border bg-background text-muted-foreground",
                   )}
-                  style={swatchStyle(layer, selected)}
                 >
-                  {selected && (
-                    <Check
-                      strokeWidth={3}
-                      className="h-3.5 w-3.5 text-white drop-shadow-[0_1px_1px_rgba(0,0,0,0.4)]"
-                    />
-                  )}
+                  {tag}
                 </span>
-                <div className="min-w-0 flex-1 space-y-1">
+                <div className="min-w-0">
                   <div className="flex items-baseline justify-between gap-2">
                     <span
                       className={cn(
-                        "text-sm leading-tight",
+                        "text-[13px] leading-tight",
                         selected
                           ? "font-semibold text-foreground"
-                          : "font-medium text-foreground/85",
+                          : "font-medium text-foreground/90",
                       )}
                     >
                       {layer.label}
                     </span>
-                    {showCounter && (
-                      <span className="font-mono text-[10px] tabular-nums text-muted-foreground">
-                        {effectText}
-                      </span>
-                    )}
                   </div>
-                  <p className="text-[11px] leading-snug text-muted-foreground">
+                  <p className="mt-0.5 text-[11px] leading-snug text-muted-foreground">
                     {layer.description}
                   </p>
-                  {state.belowMinZoom && (
-                    <p className="font-mono text-[10px] italic text-muted-foreground/80">
-                      Zoom in to apply (z{layer.minZoom}+)
-                    </p>
-                  )}
-                  {!state.belowMinZoom && state.needsRegion && (
-                    <p className="font-mono text-[10px] italic text-muted-foreground/80">
-                      Map overlay activates inside a region
-                    </p>
-                  )}
+                  <div className="mt-1.5 flex flex-wrap items-center gap-1.5">
+                    {showRatio && (
+                      <span className="tp-mono text-[10px] tabular-nums text-muted-foreground">
+                        {ratio} qualify
+                      </span>
+                    )}
+                    {state.belowMinZoom && (
+                      <Badge variant="outline" className="h-4 gap-1 border-amber-300 bg-amber-50 px-1.5 text-[9px] font-medium tracking-wider text-amber-800 dark:bg-amber-950/30 dark:text-amber-200">
+                        Z{layer.minZoom}+
+                      </Badge>
+                    )}
+                    {!state.belowMinZoom && state.needsRegion && (
+                      <Badge variant="outline" className="h-4 px-1.5 text-[9px] font-medium tracking-wider text-muted-foreground">
+                        Region
+                      </Badge>
+                    )}
+                  </div>
                 </div>
+                <span
+                  aria-hidden
+                  className={cn(
+                    "mt-1 inline-flex h-5 w-5 flex-shrink-0 items-center justify-center rounded-full border transition-colors",
+                    selected
+                      ? "border-primary bg-primary text-primary-foreground"
+                      : "border-border bg-background text-transparent",
+                  )}
+                >
+                  <Check className="h-3 w-3" strokeWidth={3} />
+                </span>
               </button>
             </li>
           );

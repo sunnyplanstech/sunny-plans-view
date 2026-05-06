@@ -15,14 +15,19 @@
 //     qualifying parcels under the current constraint stack. A toggle
 //     expands it to full-width over the map for linear scanning.
 //
+// Visual aesthetic — inherits the brand theme (gradient-subtle canvas,
+// brand olive/citron, default shadcn radius) so the preview reads as
+// part of the same family as the landing page and the existing maps.
+// A small set of helpers (`tp-eyebrow`, `tp-mono`, `tp-row`, `tp-hud`,
+// `tp-scope`) in `src/index.css` adds the dense "instrument-panel"
+// texture the layer-first UI needs (mono counters / IDs / coords, soft
+// row-hover with a primary-tinted left bar on selection).
+//
 // Constraint filtering runs client-side via `evaluateLayer` against
 // the per-listing fields the API already returns (e.g. flat_5_acres
 // for slope_lt_5). Layers without per-parcel flags (wetlands, PAD,
 // Natura 2000) gate only the map overlay until the per-parcel
 // constraint-flag pipeline lands (p1-e2-constraint-flags-on-parcels).
-//
-// Clicking a card opens the EvaluateDrawer over the map. In-map
-// parcel-pin click routing to the same drawer is a separate slice.
 import { useCallback, useMemo, useState } from "react";
 import { useParams } from "react-router-dom";
 import { ChevronRight, Layers, List, MapIcon, Maximize2, Minimize2 } from "lucide-react";
@@ -59,6 +64,14 @@ const LIMIT = 20;
 // On mobile only one surface is visible at a time. Floating buttons
 // at the bottom of the viewport rotate through these three.
 type MobileSurface = "constraints" | "map" | "list";
+
+function formatScopeSegment(slug?: string): string | null {
+  if (!slug) return null;
+  return slug
+    .split("-")
+    .map((s) => s.charAt(0).toUpperCase() + s.slice(1).toLowerCase())
+    .join(" ");
+}
 
 const ListingsSearchPreview = () => {
   const { country, region, province } = useParams();
@@ -218,7 +231,7 @@ const CountryPreview = ({ adapter, country, region, province }: InnerProps) => {
         structuredData={seo.structuredData}
       />
 
-      <div className="min-h-screen bg-background flex flex-col">
+      <div className="min-h-screen flex flex-col bg-gradient-subtle">
         <PreviewBanner />
         <PageHeader
           country={country}
@@ -233,28 +246,28 @@ const CountryPreview = ({ adapter, country, region, province }: InnerProps) => {
 
         {/* Desktop workspace — three columns, full-bleed within the
             viewport so the map can act as protagonist. */}
-        <div
-          className={cn(
-            "hidden lg:flex flex-1 min-h-0 border-t border-border",
-            // Each direct child gets its own scroll context; only the
-            // map keeps a static height while listings + constraint
-            // bar scroll independently.
-          )}
-        >
+        <div className="hidden lg:flex flex-1 min-h-0 border-t border-border/60">
           {railOpen ? (
-            <aside className="w-[300px] xl:w-[320px] flex-shrink-0 overflow-y-auto border-r border-border bg-muted/10 p-3">
-              <RailToggleHeader
-                label="Constraints"
-                onCollapse={() => setRailOpen(false)}
-              />
+            <aside className="w-[300px] xl:w-[330px] flex-shrink-0 overflow-y-auto border-r border-border/60 bg-muted/10 p-3">
+              <div className="mb-2 flex items-center justify-between">
+                <span className="tp-eyebrow">Project spec</span>
+                <button
+                  type="button"
+                  onClick={() => setRailOpen(false)}
+                  className="rounded-md p-1 text-muted-foreground hover:bg-muted hover:text-foreground transition-colors"
+                  aria-label="Collapse constraints rail"
+                >
+                  <ChevronRight className="h-3.5 w-3.5 rotate-180" />
+                </button>
+              </div>
               {constraintBar}
             </aside>
           ) : (
             <button
               type="button"
               onClick={() => setRailOpen(true)}
-              className="w-9 flex-shrink-0 border-r border-border bg-muted/10 hover:bg-muted/30 transition-colors flex items-start justify-center pt-4"
-              aria-label="Show constraints"
+              className="w-9 flex-shrink-0 border-r border-border/60 bg-muted/10 hover:bg-muted/30 transition-colors flex items-start justify-center pt-4"
+              aria-label="Show constraints rail"
             >
               <ChevronRight className="h-4 w-4 text-muted-foreground" />
             </button>
@@ -268,8 +281,8 @@ const CountryPreview = ({ adapter, country, region, province }: InnerProps) => {
 
           <aside
             className={cn(
-              "flex-shrink-0 border-l border-border bg-card overflow-hidden flex flex-col",
-              listExpanded ? "flex-1 min-w-0" : "w-[360px] xl:w-[400px]",
+              "flex-shrink-0 overflow-hidden flex flex-col border-l border-border/60 bg-card",
+              listExpanded ? "flex-1 min-w-0" : "w-[380px] xl:w-[420px]",
             )}
           >
             {listings}
@@ -278,19 +291,25 @@ const CountryPreview = ({ adapter, country, region, province }: InnerProps) => {
 
         {/* Mobile workspace — single visible surface chosen by the
             floating segmented control at the bottom. */}
-        <div className="flex-1 lg:hidden border-t border-border">
+        <div className="flex-1 lg:hidden border-t border-border/60">
           {mobileSurface === "constraints" && (
-            <div className="p-4">{constraintBar}</div>
+            <div className="p-3">{constraintBar}</div>
           )}
           {mobileSurface === "map" && (
             <div className="h-[calc(100vh-220px)] min-h-[420px]">{map}</div>
           )}
           {mobileSurface === "list" && (
-            <div className="h-[calc(100vh-220px)] min-h-[420px] overflow-y-auto">
+            <div className="h-[calc(100vh-220px)] min-h-[420px] overflow-y-auto bg-card">
               {listings}
             </div>
           )}
         </div>
+
+        <MobileSurfaceToggle
+          surface={mobileSurface}
+          onChange={setMobileSurface}
+          constraintCount={selectedLayers.length}
+        />
 
         <div className="container mx-auto px-4 py-6">
           <SubdivisionNav
@@ -304,12 +323,6 @@ const CountryPreview = ({ adapter, country, region, province }: InnerProps) => {
             currentProvince={province}
           />
         </div>
-
-        <MobileSurfaceToggle
-          surface={mobileSurface}
-          onChange={setMobileSurface}
-          constraintCount={selectedLayers.length}
-        />
       </div>
 
       <EvaluateDrawer
@@ -342,44 +355,72 @@ const PageHeader = ({
   totalListings,
   visibleCount,
   selectedCount,
-}: PageHeaderProps) => (
-  <header className="border-b border-border bg-card">
-    <div className="container mx-auto px-4 py-3">
-      <ListingsBreadcrumb country={country} region={region} province={province} />
-      <div className="mt-2 flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1">
-        <h1 className="text-xl md:text-2xl font-semibold tracking-tight text-foreground">
-          <span className="text-primary">{locationName}</span>{" "}
-          <span className="font-normal text-muted-foreground">{listingTerm}</span>
-        </h1>
-        <p className="font-mono text-[10px] uppercase tracking-[0.22em] text-muted-foreground">
-          {selectedCount === 0
-            ? `${totalListings} in scope · no constraints`
-            : `${visibleCount} of ${totalListings} qualify · ${selectedCount} constraint${selectedCount > 1 ? "s" : ""}`}
-        </p>
+}: PageHeaderProps) => {
+  const segments = [
+    formatScopeSegment(country) ?? "—",
+    formatScopeSegment(region),
+    formatScopeSegment(province),
+  ].filter(Boolean) as string[];
+  return (
+    <header className="border-b border-border/60 bg-card/60 backdrop-blur-sm">
+      <div className="container mx-auto px-4 py-3">
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <ListingsBreadcrumb country={country} region={region} province={province} />
+          <div className="tp-scope hidden md:inline-flex">
+            {segments.map((seg, i) => (
+              <span key={`${seg}-${i}`} className="flex items-center gap-1">
+                <b>{seg}</b>
+                {i < segments.length - 1 && <span className="sep">›</span>}
+              </span>
+            ))}
+          </div>
+        </div>
+        <div className="mt-2 flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1.5">
+          <h1 className="text-xl md:text-2xl font-semibold tracking-tight text-foreground">
+            <span className="text-primary">{locationName}</span>{" "}
+            <span className="font-normal text-muted-foreground">{listingTerm}</span>
+          </h1>
+          <div className="flex flex-wrap items-center gap-x-4 gap-y-1">
+            <ReadoutPair label="In scope" value={totalListings.toLocaleString()} />
+            {selectedCount > 0 ? (
+              <ReadoutPair
+                label="Qualify"
+                value={`${visibleCount.toLocaleString()} / ${totalListings.toLocaleString()}`}
+                accent
+              />
+            ) : (
+              <ReadoutPair label="Qualify" value="— no spec yet" />
+            )}
+            <ReadoutPair
+              label="Constraints"
+              value={`${selectedCount} on`}
+            />
+          </div>
+        </div>
       </div>
-    </div>
-  </header>
-);
+    </header>
+  );
+};
 
-const RailToggleHeader = ({
+const ReadoutPair = ({
   label,
-  onCollapse,
+  value,
+  accent,
 }: {
   label: string;
-  onCollapse: () => void;
+  value: string;
+  accent?: boolean;
 }) => (
-  <div className="mb-2 flex items-center justify-between">
-    <span className="font-mono text-[10px] uppercase tracking-[0.18em] text-muted-foreground">
-      {label}
-    </span>
-    <button
-      type="button"
-      onClick={onCollapse}
-      className="rounded-md p-1 text-muted-foreground hover:bg-muted hover:text-foreground transition-colors"
-      aria-label={`Collapse ${label.toLowerCase()}`}
+  <div className="inline-flex items-baseline gap-1.5">
+    <span className="tp-eyebrow">{label}</span>
+    <span
+      className={cn(
+        "tp-mono tabular-nums text-[12px]",
+        accent ? "text-primary font-semibold" : "text-foreground",
+      )}
     >
-      <ChevronRight className="h-3.5 w-3.5 rotate-180" />
-    </button>
+      {value}
+    </span>
   </div>
 );
 
@@ -413,17 +454,28 @@ const ListingsRail = ({
   onClearConstraints,
 }: ListingsRailProps) => (
   <>
-    <header className="border-b border-border px-4 py-3 flex items-center justify-between gap-2">
+    <header className="border-b border-border/60 bg-gradient-subtle px-4 py-3 flex items-center justify-between gap-2">
       <div className="min-w-0">
-        <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-muted-foreground">
-          Listings
-        </p>
-        <p className="font-mono text-[11px] tabular-nums text-foreground">
-          {isLoading
-            ? "loading…"
-            : selectedConstraintCount === 0
-              ? `${total} in scope`
-              : `${listings.length} of ${total} qualify`}
+        <p className="tp-eyebrow">Listings</p>
+        <p className="tp-mono mt-0.5 text-[11px] tabular-nums text-foreground">
+          {isLoading ? (
+            <span className="text-muted-foreground">loading…</span>
+          ) : selectedConstraintCount === 0 ? (
+            <>
+              {total.toLocaleString()}{" "}
+              <span className="text-muted-foreground">in scope</span>
+            </>
+          ) : (
+            <>
+              <span className="text-primary font-semibold">
+                {listings.length.toLocaleString()}
+              </span>
+              <span className="text-muted-foreground">
+                {" / "}
+                {total.toLocaleString()} qualify
+              </span>
+            </>
+          )}
         </p>
       </div>
       <div className="flex items-center gap-1.5 flex-shrink-0">
@@ -445,11 +497,11 @@ const ListingsRail = ({
       </div>
     </header>
 
-    <div className="flex-1 overflow-y-auto p-4">
+    <div className="flex-1 overflow-y-auto p-3">
       {isLoading ? (
-        <div className="space-y-4">
+        <div className="space-y-3">
           {[1, 2, 3].map((i) => (
-            <div key={i} className="h-44 bg-muted animate-pulse rounded-lg" />
+            <div key={i} className="h-32 bg-muted animate-pulse rounded-lg" />
           ))}
         </div>
       ) : listings.length === 0 ? (
@@ -460,8 +512,8 @@ const ListingsRail = ({
       ) : (
         <div
           className={cn(
-            "space-y-4",
-            expanded && "grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4 space-y-0",
+            "space-y-3",
+            expanded && "grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-3 space-y-0",
           )}
         >
           {listings.map((listing, i) => (
@@ -484,15 +536,15 @@ const MobileSurfaceToggle = ({
   onChange: (s: MobileSurface) => void;
   constraintCount: number;
 }) => (
-  <div className="fixed bottom-4 left-1/2 -translate-x-1/2 lg:hidden z-40 inline-flex rounded-full border border-border bg-background shadow-lg overflow-hidden">
+  <div className="fixed bottom-4 left-1/2 -translate-x-1/2 lg:hidden z-40 inline-flex rounded-full border border-border/70 bg-card shadow-lg overflow-hidden">
     <SurfaceButton
       active={surface === "constraints"}
       onClick={() => onChange("constraints")}
       icon={<Layers className="h-4 w-4" />}
       label={
         constraintCount > 0
-          ? `Constraints · ${constraintCount}`
-          : "Constraints"
+          ? `Spec · ${constraintCount}`
+          : "Spec"
       }
     />
     <SurfaceButton

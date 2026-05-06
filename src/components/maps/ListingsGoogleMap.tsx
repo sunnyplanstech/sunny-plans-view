@@ -356,6 +356,13 @@ export function ListingsGoogleMap({
     fullscreenControl: true,
   };
 
+  // Active overlay count surfaced in the HUD only when the parent (the
+  // layer-first preview) actually drives overlay selection. Production
+  // map keeps the standard LayerPanel and no HUD chrome.
+  const activeOverlayCount = pageControlled
+    ? pageControlledOverlayIds!.size
+    : 0;
+
   return (
     <div className={`relative ${className}`}>
       <GoogleMap
@@ -365,6 +372,24 @@ export function ListingsGoogleMap({
         options={mapOptions}
         onLoad={onLoad}
       />
+      {pageControlled && (
+        <div className="pointer-events-none absolute top-3 left-3 z-10 flex flex-col items-start gap-1.5">
+          <div className="tp-hud">
+            <span>Scope</span>
+            <b>{country === "italy" ? "IT" : "US"}{regionSlug ? ` · ${regionSlug.toUpperCase()}` : ""}</b>
+          </div>
+          <div className="tp-hud">
+            <span>Z</span>
+            <b className="tabular-nums">{currentZoom !== undefined ? currentZoom : "—"}</b>
+            <span className="opacity-50">·</span>
+            <span>N</span>
+            <b className="tabular-nums">{listings.length}</b>
+            <span className="opacity-50">·</span>
+            <span>Ovl</span>
+            <b className="tabular-nums">{activeOverlayCount}</b>
+          </div>
+        </div>
+      )}
       <LayerPanel
         layers={pageControlled ? [] : pmtilesLayers}
         state={layerState}

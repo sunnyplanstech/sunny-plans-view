@@ -57,30 +57,17 @@ function getRankBadge(listing: USListing, showRank: "global" | "state" | "county
 }
 
 const USListingCard = ({ listing, showRank = "global", onSelect }: USListingCardProps) => {
-  const listingUrl = `/listing/${listing.id}`;
   const interactive = !!onSelect;
-  const solarPercentage = listing.prob_solar ? Math.round(listing.prob_solar * 100) : null;
+  if (interactive) {
+    return <USListingTerminalRow listing={listing} onSelect={onSelect!} />;
+  }
 
-  const handleSelect = onSelect ? () => onSelect(listing) : undefined;
-  const handleKey = handleSelect
-    ? (event: React.KeyboardEvent<HTMLDivElement>) => {
-        if (event.key === "Enter" || event.key === " ") {
-          event.preventDefault();
-          handleSelect();
-        }
-      }
-    : undefined;
+  const listingUrl = `/listing/${listing.id}`;
+  const solarPercentage = listing.prob_solar ? Math.round(listing.prob_solar * 100) : null;
 
   return (
     <Card
-      className={cn(
-        "group overflow-hidden hover:shadow-lg transition-all duration-300 border-border/60 bg-card",
-        interactive && "cursor-pointer focus-visible:ring-2 focus-visible:ring-primary focus-visible:outline-none",
-      )}
-      role={interactive ? "button" : undefined}
-      tabIndex={interactive ? 0 : undefined}
-      onClick={handleSelect}
-      onKeyDown={handleKey}
+      className="group overflow-hidden hover:shadow-lg transition-all duration-300 border-border/60 bg-card"
     >
       <div className="flex flex-col sm:flex-row">
         {/* Map section */}
@@ -154,20 +141,122 @@ const USListingCard = ({ listing, showRank = "global", onSelect }: USListingCard
             </div>
           </CardContent>
 
-          {!interactive && (
-            <CardFooter className="p-4 pt-0 flex items-center gap-3">
-              <Button asChild className="flex-1 group/btn">
-                <Link to={listingUrl} className="flex items-center justify-center gap-2">
-                  View Details
-                  <ArrowRight className="w-4 h-4 transition-transform group-hover/btn:translate-x-0.5" />
-                </Link>
-              </Button>
-            </CardFooter>
-          )}
+          <CardFooter className="p-4 pt-0 flex items-center gap-3">
+            <Button asChild className="flex-1 group/btn">
+              <Link to={listingUrl} className="flex items-center justify-center gap-2">
+                View Details
+                <ArrowRight className="w-4 h-4 transition-transform group-hover/btn:translate-x-0.5" />
+              </Link>
+            </Button>
+          </CardFooter>
         </div>
       </div>
     </Card>
   );
 };
+
+// Terminal-style row used inside the layer-first preview. Stays inside
+// this file so the existing prop contract is unchanged — the parent
+// just sets `onSelect` and gets the dense surface back. The production
+// listings page never sets `onSelect`, so this renderer is preview-only.
+function USListingTerminalRow({
+  listing,
+  onSelect,
+}: {
+  listing: USListing;
+  onSelect: (listing: USListing) => void;
+}) {
+  const solarPercentage = listing.prob_solar ? Math.round(listing.prob_solar * 100) : null;
+  const handleSelect = () => onSelect(listing);
+  const handleKey = (event: React.KeyboardEvent<HTMLDivElement>) => {
+    if (event.key === "Enter" || event.key === " ") {
+      event.preventDefault();
+      handleSelect();
+    }
+  };
+
+  return (
+    <Card
+      role="button"
+      tabIndex={0}
+      onClick={handleSelect}
+      onKeyDown={handleKey}
+      className="group cursor-pointer overflow-hidden border-border/60 bg-card transition-all duration-200 hover:border-primary/40 hover:shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+    >
+      <div className="grid grid-cols-[120px_1fr] gap-3 p-3">
+        <div className="relative h-[120px] overflow-hidden rounded-md border border-border/60">
+          <MiniParcelMap
+            geomJson={listing.geom_json}
+            locationAccuracyM={listing.location_accuracy_m}
+            className="w-full h-full"
+          />
+          <div
+            className={cn(
+              "absolute top-1.5 left-1.5 inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-xs font-bold shadow-md",
+              getSolarScoreColor(listing.prob_solar),
+            )}
+          >
+            <Sun className="h-3 w-3" />
+            {solarPercentage !== null ? `${solarPercentage}%` : "N/A"}
+          </div>
+        </div>
+
+        <div className="min-w-0 flex flex-col">
+          <div className="flex items-start justify-between gap-2">
+            <h3 className="text-[14px] font-semibold text-foreground leading-tight truncate">
+              {listing.county}, {listing.state_code}
+            </h3>
+            <span className="tp-mono text-[10px] tabular-nums text-muted-foreground whitespace-nowrap">
+              ~{listing.list_price ? formatPrice(listing.list_price) : "—"}
+            </span>
+          </div>
+
+          <div className="mt-2">
+            <div className="flex items-baseline justify-between text-xs">
+              <span className="tp-eyebrow">SunnyScore</span>
+              <span className="tp-mono tabular-nums font-medium text-foreground">
+                {solarPercentage !== null ? `${solarPercentage}/100` : "—"}
+              </span>
+            </div>
+            <div className="mt-1 h-1.5 overflow-hidden rounded-full bg-muted">
+              <div
+                className="h-full rounded-full bg-gradient-to-r from-primary/70 to-primary transition-all"
+                style={{ width: `${solarPercentage || 0}%` }}
+              />
+            </div>
+          </div>
+
+          <dl className="mt-2 grid grid-cols-2 gap-x-3 text-[12px] text-muted-foreground">
+            <div className="flex items-center gap-1.5">
+              <Ruler className="w-3 h-3" />
+              <dt className="sr-only">Acres</dt>
+              <dd className="tp-mono tabular-nums text-foreground font-medium">
+                ~{formatAcres(listing.lot_acres)}
+              </dd>
+              <span className="text-[10px]">ac</span>
+            </div>
+            <div className="flex items-center gap-1.5">
+              <Zap className="w-3 h-3" />
+              <dt className="sr-only">Distance to substation</dt>
+              <dd className="tp-mono tabular-nums text-foreground font-medium">
+                ~{formatSubstationDistance(listing.power_substation)}
+              </dd>
+              <span className="text-[10px]">to sub</span>
+            </div>
+          </dl>
+
+          <div className="mt-auto pt-2 flex items-center justify-between">
+            <span className="tp-mono text-[10px] text-muted-foreground/70 truncate">
+              {listing.id.slice(0, 8)}
+            </span>
+            <span className="text-[11px] font-medium text-muted-foreground transition-colors group-hover:text-primary">
+              Evaluate <ArrowRight className="inline h-3 w-3 transition-transform group-hover:translate-x-0.5" />
+            </span>
+          </div>
+        </div>
+      </div>
+    </Card>
+  );
+}
 
 export default USListingCard;

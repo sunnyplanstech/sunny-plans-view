@@ -124,3 +124,101 @@ All colors MUST be HSL.
     @apply bg-background text-foreground;
   }
 }
+
+/* Layer-first preview helpers. The preview page (`/preview/...`) inherits
+   the brand theme — `bg-gradient-subtle`, brand olive/citron, default
+   shadcn radius — so it visually agrees with the rest of the site and
+   the maps. These classes only add the small "instrument-panel" texture
+   the layer-first UI needs: monospace counters/IDs/coords, a hairline
+   row hover, and a soft floating HUD plate for the map. */
+.tp-mono {
+  font-family: ui-monospace, "SF Mono", "JetBrains Mono", Menlo, Consolas, monospace;
+  font-feature-settings: "tnum" 1, "ss01" 1;
+}
+.tp-eyebrow {
+  font-family: ui-monospace, "SF Mono", "JetBrains Mono", Menlo, Consolas, monospace;
+  font-size: 10px;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: hsl(var(--muted-foreground));
+}
+
+/* Constraint row — soft hover, primary-tinted left bar on selection.
+   Uses brand tokens directly so it lives in the same family as the
+   landing page cards. */
+.tp-row {
+  position: relative;
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  gap: 0.65rem 0.75rem;
+  align-items: start;
+  padding: 0.7rem 0.9rem 0.7rem 1rem;
+  width: 100%;
+  text-align: left;
+  background: transparent;
+  border: 0;
+  cursor: pointer;
+  color: inherit;
+  transition: background-color 160ms ease;
+}
+.tp-row:hover {
+  background: hsl(var(--primary) / 0.04);
+}
+.tp-row[aria-pressed="true"] {
+  background: hsl(var(--primary) / 0.06);
+}
+.tp-row::before {
+  content: "";
+  position: absolute;
+  inset: 0 auto 0 0;
+  width: 2px;
+  background: transparent;
+  border-radius: 2px;
+}
+.tp-row[aria-pressed="true"]::before {
+  background: hsl(var(--primary));
+}
+
+/* Map HUD chrome — soft floating plates on the Google Map. Backdrop
+   blur lets the satellite read through; brand border-radius keeps it
+   in the same family as the landing-page badges. */
+.tp-hud {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  padding: 5px 10px;
+  background: hsl(var(--background) / 0.86);
+  border: 1px solid hsl(var(--border));
+  border-radius: calc(var(--radius) - 2px);
+  backdrop-filter: blur(6px);
+  font-family: ui-monospace, "SF Mono", "JetBrains Mono", Menlo, Consolas, monospace;
+  font-size: 10px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: hsl(var(--muted-foreground));
+  box-shadow: var(--shadow-sm);
+}
+.tp-hud b {
+  color: hsl(var(--foreground));
+  font-weight: 600;
+}
+
+/* Scope readout — `country › region › province` in mono, used in the
+   page header. Quiet by default, heading-color on the active leaves. */
+.tp-scope {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  flex-wrap: wrap;
+  font-family: ui-monospace, "SF Mono", "JetBrains Mono", Menlo, Consolas, monospace;
+  font-size: 11px;
+  color: hsl(var(--muted-foreground));
+  letter-spacing: 0.04em;
+}
+.tp-scope b {
+  color: hsl(var(--foreground));
+  font-weight: 600;
+}
+.tp-scope .sep {
+  color: hsl(var(--muted-foreground) / 0.5);
+}
