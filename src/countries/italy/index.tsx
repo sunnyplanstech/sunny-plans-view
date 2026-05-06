@@ -179,6 +179,7 @@ export const italy: CountryAdapter = {
         onToggleHeatmap={props.onToggleHeatmap}
         pageControlledOverlayIds={props.pageControlledOverlayIds}
         onZoomChange={props.onZoomChange}
+        onListingClick={props.onListingClick}
       />
     );
   },

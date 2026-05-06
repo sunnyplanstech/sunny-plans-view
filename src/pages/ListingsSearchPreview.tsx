@@ -156,6 +156,16 @@ const CountryPreview = ({ adapter, country, region, province }: InnerProps) => {
     (listing: BaseListing) => setEvaluating(listing),
     [],
   );
+  // Marker click in the map fires with just the id (the country
+  // adapter's map shape may not match BaseListing exactly). Resolve
+  // here so the drawer always sees the page's authoritative listing.
+  const handleSelectById = useCallback(
+    (id: string) => {
+      const found = allListings.find((l) => l.id === id);
+      if (found) setEvaluating(found);
+    },
+    [allListings],
+  );
 
   const constraintBar = (
     <ConstraintBar
@@ -178,6 +188,7 @@ const CountryPreview = ({ adapter, country, region, province }: InnerProps) => {
     hexLoading: false,
     pageControlledOverlayIds: overlayIds,
     onZoomChange: setCurrentZoom,
+    onListingClick: handleSelectById,
   });
 
   const listings = (

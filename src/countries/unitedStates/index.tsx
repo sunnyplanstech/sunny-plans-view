@@ -167,6 +167,7 @@ export const unitedStates: CountryAdapter = {
         onToggleHeatmap={props.onToggleHeatmap}
         pageControlledOverlayIds={props.pageControlledOverlayIds}
         onZoomChange={props.onZoomChange}
+        onListingClick={props.onListingClick}
       />
     );
   },

@@ -46,6 +46,10 @@ export interface MapRenderProps {
   // calls this on every zoom_changed event. `undefined` means the map
   // hasn't initialized yet.
   onZoomChange?: (zoom: number | undefined) => void;
+  // Marker click in the layer-first preview. The map fires this with
+  // the listing's id; the page resolves it back to a BaseListing and
+  // opens the EvaluateDrawer.
+  onListingClick?: (id: string) => void;
 }
 
 export interface HeadingStrings {

@@ -34,6 +34,11 @@ interface ListingsGoogleMapProps {
   // page uses this to gate the constraint bar's "zoom in to apply"
   // hint. `undefined` until the map mounts.
   onZoomChange?: (zoom: number | undefined) => void;
+  // Click handler for the per-parcel markers. Fires with the listing's
+  // id; the parent looks up its full BaseListing and opens the
+  // EvaluateDrawer. When undefined, markers still render but click is
+  // a no-op (production listings page hasn't wired a handler yet).
+  onListingClick?: (id: string) => void;
 }
 
 const mapContainerStyle = {
@@ -74,6 +79,7 @@ export function ListingsGoogleMap({
   onToggleHeatmap,
   pageControlledOverlayIds,
   onZoomChange,
+  onListingClick,
 }: ListingsGoogleMapProps) {
   const pageControlled = pageControlledOverlayIds !== undefined;
   const { isLoaded, hasApiKey, requestLoad } = useGoogleMaps();
@@ -84,6 +90,13 @@ export function ListingsGoogleMap({
   }, [requestLoad]);
   const dataLayerRef = useRef<google.maps.Data | null>(null);
   const infoWindowRef = useRef<google.maps.InfoWindow | null>(null);
+  const markersRef = useRef<google.maps.Marker[]>([]);
+  // Stable ref so the marker effect doesn't tear down on every parent
+  // render that produces a fresh handler closure.
+  const onListingClickRef = useRef(onListingClick);
+  useEffect(() => {
+    onListingClickRef.current = onListingClick;
+  }, [onListingClick]);
   const defaultCenter = defaultCenters[country || "united-states"] || defaultCenterUS;
   const defaultZoom = country === "italy" ? 6 : 4;
 
@@ -192,6 +205,42 @@ export function ListingsGoogleMap({
       map.fitBounds(bounds, { top: 50, right: 50, bottom: 50, left: 50 });
     }
   }, [map, listingsWithCoords, isLoaded]);
+
+  // Render one marker per listing. Color follows the heatmap's
+  // probSolarToColor so a parcel's solar score reads consistently
+  // across surfaces. Click delegates to onListingClickRef so the
+  // parent can open the EvaluateDrawer (or any future per-parcel
+  // surface) without forcing this effect to tear down on every
+  // handler-identity change.
+  useEffect(() => {
+    if (!map || !isLoaded || typeof google === "undefined") return;
+    for (const m of markersRef.current) m.setMap(null);
+    markersRef.current = [];
+    for (const { listing, coords } of listingsWithCoords) {
+      const color = probSolarToColor(listing.prob_solar ?? 0);
+      const marker = new google.maps.Marker({
+        position: coords,
+        map,
+        icon: {
+          path: google.maps.SymbolPath.CIRCLE,
+          scale: 7,
+          fillColor: color,
+          fillOpacity: 0.9,
+          strokeColor: "#1a1a1a",
+          strokeWeight: 1,
+        },
+        title: `Solar ${listing.prob_solar !== null ? Math.round(listing.prob_solar * 100) : "?"}%`,
+      });
+      marker.addListener("click", () => {
+        onListingClickRef.current?.(listing.id);
+      });
+      markersRef.current.push(marker);
+    }
+    return () => {
+      for (const m of markersRef.current) m.setMap(null);
+      markersRef.current = [];
+    };
+  }, [map, isLoaded, listingsWithCoords]);
 
   // Manage heatmap data layer
   useEffect(() => {
