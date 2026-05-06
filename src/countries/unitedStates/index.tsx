@@ -140,12 +140,14 @@ export const unitedStates: CountryAdapter = {
     return "national";
   },
 
-  renderListingCard(listing, scope) {
+  renderListingCard(listing, scope, _listIndex, options) {
+    const us = listing as USListing;
     return (
       <USListingCard
-        key={(listing as USListing).id}
-        listing={listing as USListing}
+        key={us.id}
+        listing={us}
         showRank={rankShowFor(scope)}
+        onSelect={options?.onSelect as ((l: USListing) => void) | undefined}
       />
     );
   },
@@ -164,6 +166,7 @@ export const unitedStates: CountryAdapter = {
         hexLoading={props.hexLoading}
         onToggleHeatmap={props.onToggleHeatmap}
         pageControlledOverlayIds={props.pageControlledOverlayIds}
+        onZoomChange={props.onZoomChange}
       />
     );
   },

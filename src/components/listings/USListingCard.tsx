@@ -11,6 +11,12 @@ import { formatPrice, formatAcres, formatSubstationDistance } from "@/lib/format
 interface USListingCardProps {
   listing: USListing;
   showRank?: "global" | "state" | "county";
+  // When provided, the whole card becomes a click target and the
+  // footer "View Details" button is hidden — used by the layer-first
+  // preview to open the EvaluateDrawer instead of routing to the URL
+  // detail page. When absent (production listings page), the card
+  // renders the standard "View Details" link to /listing/:id.
+  onSelect?: (listing: USListing) => void;
 }
 
 function getSolarScoreColor(prob: number | null) {
@@ -50,13 +56,32 @@ function getRankBadge(listing: USListing, showRank: "global" | "state" | "county
   );
 }
 
-const USListingCard = ({ listing, showRank = "global" }: USListingCardProps) => {
+const USListingCard = ({ listing, showRank = "global", onSelect }: USListingCardProps) => {
   const listingUrl = `/listing/${listing.id}`;
-
+  const interactive = !!onSelect;
   const solarPercentage = listing.prob_solar ? Math.round(listing.prob_solar * 100) : null;
 
+  const handleSelect = onSelect ? () => onSelect(listing) : undefined;
+  const handleKey = handleSelect
+    ? (event: React.KeyboardEvent<HTMLDivElement>) => {
+        if (event.key === "Enter" || event.key === " ") {
+          event.preventDefault();
+          handleSelect();
+        }
+      }
+    : undefined;
+
   return (
-    <Card className="group overflow-hidden hover:shadow-lg transition-all duration-300 border-border/60 bg-card">
+    <Card
+      className={cn(
+        "group overflow-hidden hover:shadow-lg transition-all duration-300 border-border/60 bg-card",
+        interactive && "cursor-pointer focus-visible:ring-2 focus-visible:ring-primary focus-visible:outline-none",
+      )}
+      role={interactive ? "button" : undefined}
+      tabIndex={interactive ? 0 : undefined}
+      onClick={handleSelect}
+      onKeyDown={handleKey}
+    >
       <div className="flex flex-col sm:flex-row">
         {/* Map section */}
         <div className="relative w-full sm:w-40 h-32 sm:h-auto sm:min-h-[180px] flex-shrink-0 overflow-hidden">
@@ -129,14 +154,16 @@ const USListingCard = ({ listing, showRank = "global" }: USListingCardProps) => 
             </div>
           </CardContent>
 
-          <CardFooter className="p-4 pt-0 flex items-center gap-3">
-            <Button asChild className="flex-1 group/btn">
-              <Link to={listingUrl} className="flex items-center justify-center gap-2">
-                View Details
-                <ArrowRight className="w-4 h-4 transition-transform group-hover/btn:translate-x-0.5" />
-              </Link>
-            </Button>
-          </CardFooter>
+          {!interactive && (
+            <CardFooter className="p-4 pt-0 flex items-center gap-3">
+              <Button asChild className="flex-1 group/btn">
+                <Link to={listingUrl} className="flex items-center justify-center gap-2">
+                  View Details
+                  <ArrowRight className="w-4 h-4 transition-transform group-hover/btn:translate-x-0.5" />
+                </Link>
+              </Button>
+            </CardFooter>
+          )}
         </div>
       </div>
     </Card>

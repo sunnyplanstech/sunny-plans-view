@@ -30,6 +30,10 @@ interface ListingsGoogleMapProps {
   // The in-map layer rows are hidden in that mode; the heatmap toggle
   // stays since it's a different control surface.
   pageControlledOverlayIds?: ReadonlySet<string>;
+  // Surfaces every zoom_changed event to the parent. The layer-first
+  // page uses this to gate the constraint bar's "zoom in to apply"
+  // hint. `undefined` until the map mounts.
+  onZoomChange?: (zoom: number | undefined) => void;
 }
 
 const mapContainerStyle = {
@@ -69,6 +73,7 @@ export function ListingsGoogleMap({
   hexLoading = false,
   onToggleHeatmap,
   pageControlledOverlayIds,
+  onZoomChange,
 }: ListingsGoogleMapProps) {
   const pageControlled = pageControlledOverlayIds !== undefined;
   const { isLoaded, hasApiKey, requestLoad } = useGoogleMaps();
@@ -147,6 +152,12 @@ export function ListingsGoogleMap({
     const listener = map.addListener("zoom_changed", update);
     return () => google.maps.event.removeListener(listener);
   }, [map]);
+  // Forward zoom to the parent (layer-first preview's constraint bar).
+  // Kept as a dedicated effect so the in-map LayerPanel's existing
+  // zoom-aware logic stays untouched.
+  useEffect(() => {
+    onZoomChange?.(currentZoom);
+  }, [currentZoom, onZoomChange]);
 
   // Filter listings to only those with valid coordinates from geom_json
   const listingsWithCoords = useMemo(() => {

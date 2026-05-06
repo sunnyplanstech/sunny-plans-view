@@ -57,6 +57,11 @@ export interface Layer {
   // pmtiles entry; we mirror it here so the panel can show the hint
   // even when the layer is filter-only.
   requiresRegionScope?: boolean;
+  // Lowest map zoom at which this layer's data is meaningful. Below
+  // this zoom the constraint bar surfaces a "zoom in to apply" hint and
+  // the row's effect counter is held back. The toggle stays selectable —
+  // a constraint is the user's project intent, not a map-local toggle.
+  minZoom: number;
   listingsFilter?: LayerListingsFilter;
   chip?: LayerChip;
 }
@@ -83,6 +88,7 @@ export const LAYER_REGISTRY: Layer[] = [
     spatialUnit: "parcel",
     country: "united-states",
     pmtilesLayerId: "pad_us",
+    minZoom: 6,
   },
   {
     id: "nwi_us",
@@ -94,6 +100,7 @@ export const LAYER_REGISTRY: Layer[] = [
     country: "united-states",
     pmtilesLayerId: "nwi_us",
     requiresRegionScope: true,
+    minZoom: 11,
   },
   {
     id: "slope_lt_5_us",
@@ -105,6 +112,7 @@ export const LAYER_REGISTRY: Layer[] = [
     country: "united-states",
     pmtilesLayerId: "slope_lt_5_us",
     requiresRegionScope: true,
+    minZoom: 11,
     listingsFilter: SLOPE_LT_5_FILTER,
     chip: SLOPE_LT_5_CHIP,
   },
@@ -117,6 +125,7 @@ export const LAYER_REGISTRY: Layer[] = [
     spatialUnit: "parcel",
     country: "italy",
     pmtilesLayerId: "natura2000_it",
+    minZoom: 6,
   },
   {
     id: "slope_lt_5_it",
@@ -127,30 +136,16 @@ export const LAYER_REGISTRY: Layer[] = [
     country: "italy",
     pmtilesLayerId: "slope_lt_5_it",
     requiresRegionScope: true,
+    minZoom: 11,
     listingsFilter: SLOPE_LT_5_FILTER,
     chip: SLOPE_LT_5_CHIP,
   },
 ];
 
-export interface VerticalBundle {
-  vertical: Vertical;
-  label: string;
-  description: string;
-}
-
-export const VERTICAL_BUNDLES: VerticalBundle[] = [
-  {
-    vertical: "energy",
-    label: "Energy fieldkit",
-    description: "Solar / BESS siting layers — slope, protected lands, wetlands",
-  },
-];
-
-// Layers visible to the user given the current country. The registry
-// is filtered statically (no data probe yet — that's a follow-up when
-// the layer-first layout flag goes live). Per "no dead toggles" the
-// pmtiles-backed entries also gate against the catalog so a layer with
-// no baked tile in this build silently disappears.
+// Layers visible to the user given the current country. Per "no dead
+// toggles" the pmtiles-backed entries gate against the bake catalog so
+// a layer with no baked tile in this build silently disappears. A
+// future capabilities probe replaces this with API-driven availability.
 export function availableLayers(country: CountrySlug | undefined): Layer[] {
   if (!country) return [];
   const baked = new Set(
@@ -159,13 +154,6 @@ export function availableLayers(country: CountrySlug | undefined): Layer[] {
   return LAYER_REGISTRY.filter(
     (l) => l.country === country && (!l.pmtilesLayerId || baked.has(l.pmtilesLayerId)),
   );
-}
-
-export function layersInVertical(
-  layers: Layer[],
-  vertical: Vertical,
-): Layer[] {
-  return layers.filter((l) => l.vertical === vertical);
 }
 
 // Build the listings query params from selected layer ids.

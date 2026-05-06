@@ -41,6 +41,11 @@ export interface MapRenderProps {
   // driven by the parent's selection (page-level LayerPanel) instead
   // of the in-map toggles. See ListingsGoogleMap.pageControlledOverlayIds.
   pageControlledOverlayIds?: ReadonlySet<string>;
+  // Zoom-aware UI hooks: the constraint bar uses the current map zoom
+  // to surface a "zoom in to apply (zN+)" hint per layer. The map
+  // calls this on every zoom_changed event. `undefined` means the map
+  // hasn't initialized yet.
+  onZoomChange?: (zoom: number | undefined) => void;
 }
 
 export interface HeadingStrings {
@@ -79,9 +84,25 @@ export interface CountryAdapter {
   formatParentName(scope: Scope): string;
   rankSortLabel(scope: Scope): string;
 
-  renderListingCard(listing: BaseListing, scope: Scope, listIndex: number): ReactNode;
+  renderListingCard(
+    listing: BaseListing,
+    scope: Scope,
+    listIndex: number,
+    options?: RenderCardOptions,
+  ): ReactNode;
   renderMap(props: MapRenderProps): ReactNode;
   seoCopy(scope: Scope, listings: BaseListing[]): SeoCopy;
+}
+
+// Per-card opts the page can hand to `renderListingCard`. Kept as an
+// options bag (not a positional arg) so future per-card behaviors —
+// comparison checkbox, hover-preview, etc. — slot in without churning
+// adapter signatures.
+export interface RenderCardOptions {
+  // Layer-first preview hook: when provided, clicking the card calls
+  // this instead of routing to /listing/:id. The receiving page opens
+  // the EvaluateDrawer for the listing.
+  onSelect?: (listing: BaseListing) => void;
 }
 
 export function parseScopeFromParams(params: { region?: string; province?: string }): Scope {

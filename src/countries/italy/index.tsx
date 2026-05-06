@@ -151,13 +151,15 @@ export const italy: CountryAdapter = {
     return "national";
   },
 
-  renderListingCard(listing, scope, listIndex) {
+  renderListingCard(listing, scope, listIndex, options) {
+    const it = listing as ITListing;
     return (
       <ITListingCard
-        key={(listing as ITListing).id}
-        listing={listing as ITListing}
+        key={it.id}
+        listing={it}
         showRank={rankShowFor(scope)}
         listPosition={listIndex + 1}
+        onSelect={options?.onSelect as ((l: ITListing) => void) | undefined}
       />
     );
   },
@@ -176,6 +178,7 @@ export const italy: CountryAdapter = {
         hexLoading={props.hexLoading}
         onToggleHeatmap={props.onToggleHeatmap}
         pageControlledOverlayIds={props.pageControlledOverlayIds}
+        onZoomChange={props.onZoomChange}
       />
     );
   },
