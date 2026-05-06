@@ -17,6 +17,10 @@ export interface BaseListing {
   // on full-mart (unlocked) rows, where geom_json is the exact polygon.
   location_accuracy_m: number | null;
   rank_global: number | null;
+  // Acres of <5% slope on the parcel — sidecar from the slope_lt_5
+  // pipeline (p1-e2-slope-flat-5pct-layer). Cross-country numeric so
+  // the layer chip can read it without per-country branching.
+  flat_5_acres: number | null;
 }
 
 export interface SeoCopy {
@@ -32,7 +36,11 @@ export interface MapRenderProps {
   hexCells?: HexCell[];
   showHeatmap: boolean;
   hexLoading: boolean;
-  onToggleHeatmap: () => void;
+  onToggleHeatmap?: () => void;
+  // Layer-first preview: when set, pmtiles overlay visibility is
+  // driven by the parent's selection (page-level LayerPanel) instead
+  // of the in-map toggles. See ListingsGoogleMap.pageControlledOverlayIds.
+  pageControlledOverlayIds?: ReadonlySet<string>;
 }
 
 export interface HeadingStrings {
@@ -56,7 +64,15 @@ export interface CountryAdapter {
 
   parseScope(params: { region?: string; province?: string }): Scope;
 
-  useListings(scope: Scope, limit: number): UseQueryResult<BaseListing[]>;
+  // `extraParams` carries layer-driven filters (e.g. min_flat_5_acres
+  // when the slope_lt_5 layer is selected). Adapters merge these into
+  // the listings query URL and the React Query cache key. Optional —
+  // legacy callers that pass nothing get an unfiltered list.
+  useListings(
+    scope: Scope,
+    limit: number,
+    extraParams?: URLSearchParams,
+  ): UseQueryResult<BaseListing[]>;
   useHeatmap(enabled: boolean): UseQueryResult<HexCell[]>;
 
   formatScopeName(scope: Scope): string;

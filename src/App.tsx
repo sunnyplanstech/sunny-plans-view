@@ -11,6 +11,9 @@ import { AuthProvider } from "@/contexts/AuthContext";
 
 // Lazy load heavy route components
 const ListingsSearch = lazy(() => import("./pages/ListingsSearch"));
+const ListingsSearchPreview = lazy(
+  () => import("./pages/ListingsSearchPreview"),
+);
 const ListingDetail = lazy(() => import("./pages/ListingDetail"));
 const Blog = lazy(() => import("./pages/Blog"));
 const BlogPost = lazy(() => import("./pages/BlogPost"));
@@ -43,6 +46,13 @@ const App = () => (
         <BrowserRouter>
         <Routes>
           <Route path="/" element={<Index />} />
+
+          {/* Layer-first listings preview (roadmap p1-e3-layer-first-ui).
+              Parallel to /:country/... so the new UX can be reviewed
+              without flipping the production listings flow. */}
+          <Route path="/preview/:country" element={<Suspense fallback={<PageLoader />}><ListingsSearchPreview /></Suspense>} />
+          <Route path="/preview/:country/:region" element={<Suspense fallback={<PageLoader />}><ListingsSearchPreview /></Suspense>} />
+          <Route path="/preview/:country/:region/:province" element={<Suspense fallback={<PageLoader />}><ListingsSearchPreview /></Suspense>} />
 
           {/* Country-level pages */}
           <Route path="/:country" element={<Suspense fallback={<PageLoader />}><ListingsSearch /></Suspense>} />

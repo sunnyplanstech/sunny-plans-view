@@ -1,0 +1,202 @@
+// Layer-first UI registry — see roadmap p1-e3-layer-first-ui.
+//
+// Each Layer entry is the single source of truth for a user-selectable
+// constraint or suitability layer: how it's labelled, which vertical
+// bundle it belongs to, what listings filter it applies, what chip it
+// surfaces on a card, and which pmtiles overlay it lights up.
+//
+// The map overlay catalog (`pmtilesLayers.ts`) stays the authoritative
+// list of *baked* tiles. This registry is the user-facing layer model
+// and references map overlay ids by string — so a layer can exist in
+// the panel without a map overlay (e.g. a numeric-only filter), or
+// reference an overlay that's also rendered by the in-map LayerPanel.
+//
+// Per the roadmap's "no dead toggles" rule, layers without backing
+// data for the user's region must be filtered out before render — see
+// `availableLayers()` below.
+import { PMTILES_LAYERS_BY_COUNTRY } from "@/components/maps/pmtilesLayers";
+
+export type Vertical = "energy" | "van-life";
+export type SpatialUnit = "parcel" | "street-segment";
+export type CountrySlug = "united-states" | "italy";
+
+export interface LayerListingsFilter {
+  // Query param name appended to the listings URL when this layer is
+  // selected (e.g. "min_flat_5_acres").
+  param: string;
+  // Default value for the filter. The user-story names "5" as the
+  // unanimous "definitely usable" cutoff for slope_lt_5.
+  defaultValue: string;
+}
+
+export interface LayerChip {
+  // Numeric field on the listing payload that drives the chip (e.g.
+  // "flat_5_acres"). The chip renders only when this value is present
+  // and `condition` returns true.
+  fieldKey: string;
+  condition: (value: number) => boolean;
+  format: (value: number) => string;
+}
+
+export interface Layer {
+  id: string;
+  label: string;
+  // One-line technical description shown beneath the label in the
+  // page-level LayerPanel.
+  description: string;
+  vertical: Vertical;
+  spatialUnit: SpatialUnit;
+  // Country scope — undefined means cross-country.
+  country: CountrySlug;
+  // Map overlay this layer toggles, by pmtilesLayers.ts id. Optional:
+  // a layer can be filter-only with no overlay, or overlay-only with
+  // no listings filter.
+  pmtilesLayerId?: string;
+  // True when the layer's overlay needs the user to be on a state /
+  // region (or deeper) page — the catalog already encodes this on the
+  // pmtiles entry; we mirror it here so the panel can show the hint
+  // even when the layer is filter-only.
+  requiresRegionScope?: boolean;
+  listingsFilter?: LayerListingsFilter;
+  chip?: LayerChip;
+}
+
+const SLOPE_LT_5_CHIP: LayerChip = {
+  fieldKey: "flat_5_acres",
+  condition: (v) => v > 0,
+  format: (v) =>
+    v >= 10 ? `${Math.round(v)} ac flat` : `${v.toFixed(1)} ac flat`,
+};
+
+const SLOPE_LT_5_FILTER: LayerListingsFilter = {
+  param: "min_flat_5_acres",
+  defaultValue: "5",
+};
+
+export const LAYER_REGISTRY: Layer[] = [
+  {
+    id: "pad_us",
+    label: "Protected areas",
+    description:
+      "PAD-US — federal/state protected lands where development is restricted",
+    vertical: "energy",
+    spatialUnit: "parcel",
+    country: "united-states",
+    pmtilesLayerId: "pad_us",
+  },
+  {
+    id: "nwi_us",
+    label: "Wetlands",
+    description:
+      "USFWS National Wetlands Inventory — Clean Water Act permitting risk",
+    vertical: "energy",
+    spatialUnit: "parcel",
+    country: "united-states",
+    pmtilesLayerId: "nwi_us",
+    requiresRegionScope: true,
+  },
+  {
+    id: "slope_lt_5_us",
+    label: "Flat land (<5% slope)",
+    description:
+      "Slope <5% — usable terrain for utility solar / BESS siting",
+    vertical: "energy",
+    spatialUnit: "parcel",
+    country: "united-states",
+    pmtilesLayerId: "slope_lt_5_us",
+    requiresRegionScope: true,
+    listingsFilter: SLOPE_LT_5_FILTER,
+    chip: SLOPE_LT_5_CHIP,
+  },
+  {
+    id: "natura2000_it",
+    label: "Natura 2000",
+    description:
+      "EU protected sites — autorizzazione paesaggistica required, ~6–12 month delay",
+    vertical: "energy",
+    spatialUnit: "parcel",
+    country: "italy",
+    pmtilesLayerId: "natura2000_it",
+  },
+  {
+    id: "slope_lt_5_it",
+    label: "Flat land (<5% slope)",
+    description: "Pendenza <5% — usable terrain for solar / BESS siting",
+    vertical: "energy",
+    spatialUnit: "parcel",
+    country: "italy",
+    pmtilesLayerId: "slope_lt_5_it",
+    requiresRegionScope: true,
+    listingsFilter: SLOPE_LT_5_FILTER,
+    chip: SLOPE_LT_5_CHIP,
+  },
+];
+
+export interface VerticalBundle {
+  vertical: Vertical;
+  label: string;
+  description: string;
+}
+
+export const VERTICAL_BUNDLES: VerticalBundle[] = [
+  {
+    vertical: "energy",
+    label: "Energy fieldkit",
+    description: "Solar / BESS siting layers — slope, protected lands, wetlands",
+  },
+];
+
+// Layers visible to the user given the current country. The registry
+// is filtered statically (no data probe yet — that's a follow-up when
+// the layer-first layout flag goes live). Per "no dead toggles" the
+// pmtiles-backed entries also gate against the catalog so a layer with
+// no baked tile in this build silently disappears.
+export function availableLayers(country: CountrySlug | undefined): Layer[] {
+  if (!country) return [];
+  const baked = new Set(
+    (PMTILES_LAYERS_BY_COUNTRY[country] ?? []).map((l) => l.id),
+  );
+  return LAYER_REGISTRY.filter(
+    (l) => l.country === country && (!l.pmtilesLayerId || baked.has(l.pmtilesLayerId)),
+  );
+}
+
+export function layersInVertical(
+  layers: Layer[],
+  vertical: Vertical,
+): Layer[] {
+  return layers.filter((l) => l.vertical === vertical);
+}
+
+// Build the listings query params from selected layer ids.
+// Returns an empty URLSearchParams when no layer contributes a filter,
+// so callers can compose this with their existing scope params.
+export function listingsParamsFor(
+  selectedIds: ReadonlySet<string>,
+  layers: Layer[],
+): URLSearchParams {
+  const params = new URLSearchParams();
+  for (const layer of layers) {
+    if (!selectedIds.has(layer.id)) continue;
+    const filter = layer.listingsFilter;
+    if (!filter) continue;
+    params.set(filter.param, filter.defaultValue);
+  }
+  return params;
+}
+
+// Map overlay ids unlocked by the current selection. Used to drive
+// the deck.gl overlay state from the page-level LayerPanel instead of
+// the in-map toggle.
+export function selectedOverlayIds(
+  selectedIds: ReadonlySet<string>,
+  layers: Layer[],
+): Set<string> {
+  const out = new Set<string>();
+  for (const layer of layers) {
+    if (selectedIds.has(layer.id) && layer.pmtilesLayerId) {
+      out.add(layer.pmtilesLayerId);
+    }
+  }
+  return out;
+}

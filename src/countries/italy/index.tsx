@@ -22,17 +22,30 @@ export interface ITListing extends BaseListing {
   rank_in_comune: number | null;
 }
 
-function buildListingsUrl(scope: Scope, limit: number): string {
+function buildListingsUrl(
+  scope: Scope,
+  limit: number,
+  extraParams?: URLSearchParams,
+): string {
   const params = new URLSearchParams({ limit: String(limit) });
   if (scope.level !== "national") params.set("region_slug", scope.regionSlug);
   if (scope.level === "subregion") params.set("comune_slug", scope.subregionSlug);
+  if (extraParams) {
+    for (const [k, v] of extraParams) params.set(k, v);
+  }
   return `/api/listings/it/public/?${params}`;
 }
 
-function useITListings(scope: Scope, limit: number) {
+function useITListings(
+  scope: Scope,
+  limit: number,
+  extraParams?: URLSearchParams,
+) {
+  const extraKey = extraParams ? extraParams.toString() : "";
   return useQuery({
-    queryKey: ["it-listings", scope, limit],
-    queryFn: () => publicApi<ITListing[]>(buildListingsUrl(scope, limit)),
+    queryKey: ["it-listings", scope, limit, extraKey],
+    queryFn: () =>
+      publicApi<ITListing[]>(buildListingsUrl(scope, limit, extraParams)),
   });
 }
 
@@ -85,6 +98,7 @@ function toMapShape(listings: ITListing[]) {
     rank_global: listing.rank_global,
     rank_in_state: null as number | null,
     rank_in_county: listing.rank_in_comune,
+    flat_5_acres: listing.flat_5_acres,
   }));
 }
 
@@ -161,6 +175,7 @@ export const italy: CountryAdapter = {
         showHeatmap={props.showHeatmap}
         hexLoading={props.hexLoading}
         onToggleHeatmap={props.onToggleHeatmap}
+        pageControlledOverlayIds={props.pageControlledOverlayIds}
       />
     );
   },

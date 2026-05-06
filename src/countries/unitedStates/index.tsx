@@ -27,7 +27,11 @@ export interface USListing extends BaseListing {
   power_substation: number | null;
 }
 
-function buildListingsUrl(scope: Scope, limit: number): string | null {
+function buildListingsUrl(
+  scope: Scope,
+  limit: number,
+  extraParams?: URLSearchParams,
+): string | null {
   const params = new URLSearchParams({ limit: String(limit) });
   if (scope.level !== "national") {
     const stateCode = slugToStateCode(scope.regionSlug);
@@ -37,13 +41,21 @@ function buildListingsUrl(scope: Scope, limit: number): string | null {
   if (scope.level === "subregion") {
     params.set("county", slugToCounty(scope.subregionSlug));
   }
+  if (extraParams) {
+    for (const [k, v] of extraParams) params.set(k, v);
+  }
   return `/api/listings/public/?${params}`;
 }
 
-function useUSListings(scope: Scope, limit: number) {
-  const url = buildListingsUrl(scope, limit);
+function useUSListings(
+  scope: Scope,
+  limit: number,
+  extraParams?: URLSearchParams,
+) {
+  const url = buildListingsUrl(scope, limit, extraParams);
+  const extraKey = extraParams ? extraParams.toString() : "";
   return useQuery({
-    queryKey: ["us-listings", scope, limit],
+    queryKey: ["us-listings", scope, limit, extraKey],
     queryFn: () => publicApi<USListing[]>(url!),
     enabled: url !== null,
   });
@@ -151,6 +163,7 @@ export const unitedStates: CountryAdapter = {
         showHeatmap={props.showHeatmap}
         hexLoading={props.hexLoading}
         onToggleHeatmap={props.onToggleHeatmap}
+        pageControlledOverlayIds={props.pageControlledOverlayIds}
       />
     );
   },

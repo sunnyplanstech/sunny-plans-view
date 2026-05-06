@@ -24,6 +24,12 @@ interface ListingsGoogleMapProps {
   showHeatmap?: boolean;
   hexLoading?: boolean;
   onToggleHeatmap?: () => void;
+  // Layer-first preview hook (roadmap p1-e3-layer-first-ui): when
+  // provided, pmtiles overlay visibility is driven by the parent's
+  // selection (a page-level LayerPanel) instead of the in-map toggles.
+  // The in-map layer rows are hidden in that mode; the heatmap toggle
+  // stays since it's a different control surface.
+  pageControlledOverlayIds?: ReadonlySet<string>;
 }
 
 const mapContainerStyle = {
@@ -62,7 +68,9 @@ export function ListingsGoogleMap({
   showHeatmap = false,
   hexLoading = false,
   onToggleHeatmap,
+  pageControlledOverlayIds,
 }: ListingsGoogleMapProps) {
+  const pageControlled = pageControlledOverlayIds !== undefined;
   const { isLoaded, hasApiKey, requestLoad } = useGoogleMaps();
   const [map, setMap] = useState<google.maps.Map | null>(null);
 
@@ -102,7 +110,24 @@ export function ListingsGoogleMap({
     );
   }, [pmtilesLayers]);
 
-  const { headers: layerHeaders } = usePMTilesOverlays(map, pmtilesLayers, layerState);
+  // In page-controlled mode the parent owns the selection — derive a
+  // synthetic layerState so usePMTilesOverlays sees the right
+  // visibility set, and ignore in-map toggles (the rows are hidden).
+  const effectiveLayerState = useMemo(() => {
+    if (!pageControlled) return layerState;
+    return Object.fromEntries(
+      pmtilesLayers.map((l) => [
+        l.id,
+        { visible: pageControlledOverlayIds!.has(l.id) },
+      ]),
+    );
+  }, [pageControlled, layerState, pmtilesLayers, pageControlledOverlayIds]);
+
+  const { headers: layerHeaders } = usePMTilesOverlays(
+    map,
+    pmtilesLayers,
+    effectiveLayerState,
+  );
 
   const toggleLayer = useCallback((id: string) => {
     setLayerState((prev) => ({
@@ -281,7 +306,7 @@ export function ListingsGoogleMap({
         onLoad={onLoad}
       />
       <LayerPanel
-        layers={pmtilesLayers}
+        layers={pageControlled ? [] : pmtilesLayers}
         state={layerState}
         onToggle={toggleLayer}
         hasRegionScope={!!regionSlug}

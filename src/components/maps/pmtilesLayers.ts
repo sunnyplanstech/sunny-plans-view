@@ -15,11 +15,13 @@
 // Colors are RGBA 0-255 and rendered as-is — pick the alpha you want to
 // see on the map.
 //
-// All overlays are no-go zones. Green is reserved for the brand
-// (sunscore = "go"), so layers draw from the warm exclusion ramp
+// Most overlays are no-go zones drawn from the warm exclusion ramp
 // below — anchored to --destructive (hue 0), all outside the brand
 // green band (hue 66–100). Wetlands stay blue: that's a universal
 // cartographic convention for water and doesn't read as endorsement.
+// Suitability layers (e.g. slope_lt_5 — the <5% flat-land layer) are
+// the deliberate exception: they signal "go" and use the brand green
+// band so the cartographic semantics line up with the brand promise.
 
 import { STATE_CODE_TO_SLUG, slugToStateCode } from "@/data/locations";
 
@@ -128,6 +130,16 @@ const PROTECTED_AREA_BASE = {
   defaultVisible: false,
 };
 
+// Brand green band — used only by suitability layers (slope_lt_5).
+// Hue ~80, so it reads as "go" without colliding with the warm
+// exclusion ramp.
+const SUITABLE_GREEN = [110, 175, 70] as const;
+const SUITABLE_BASE = {
+  fillColor: [...SUITABLE_GREEN, 70]  as [number, number, number, number],
+  lineColor: [...SUITABLE_GREEN, 180] as [number, number, number, number],
+  defaultVisible: false,
+};
+
 export const PMTILES_LAYERS_BY_COUNTRY: Record<string, PMTilesLayerConfig[]> = {
   italy: [
     {
@@ -137,6 +149,15 @@ export const PMTILES_LAYERS_BY_COUNTRY: Record<string, PMTilesLayerConfig[]> = {
       description:
         "EU Natura 2000 protected sites (Habitats + Birds Directives) — autorizzazione paesaggistica required, ~6–12 month delay",
       ...PROTECTED_AREA_BASE,
+    },
+    {
+      id: "slope_lt_5_it",
+      partition: itRegionPartition("slope_lt_5_it"),
+      label: "Flat land (<5% slope)",
+      description:
+        "Pendenza <5% — the unanimous \"definitely usable\" cutoff for utility solar/BESS siting",
+      ...SUITABLE_BASE,
+      requiresRegionScope: true,
     },
   ],
   "united-states": [
@@ -161,6 +182,15 @@ export const PMTILES_LAYERS_BY_COUNTRY: Record<string, PMTilesLayerConfig[]> = {
       // sets min_zoom=8 because dense polygon tiles below that crash
       // the JS main thread.
       defaultVisible: false,
+      requiresRegionScope: true,
+    },
+    {
+      id: "slope_lt_5_us",
+      partition: usStatePartition("slope_lt_5_us"),
+      label: "Flat land (<5% slope)",
+      description:
+        "Slope <5% — the unanimous \"definitely usable\" cutoff for utility solar/BESS siting",
+      ...SUITABLE_BASE,
       requiresRegionScope: true,
     },
   ],
