@@ -8,6 +8,16 @@ import MiniParcelMap from "@/components/maps/MiniParcelMap";
 import { cn } from "@/lib/utils";
 import { formatPrice, formatAcres, formatSubstationDistance } from "@/lib/format";
 
+// Miles-only distance for the dense preview row. The verbose
+// "1291 m (0.8 mi)" form stays on the production-mode card and the
+// detail page where horizontal space allows it.
+function formatSubstationMiles(meters: number | null): string {
+  if (!meters) return "N/A";
+  const miles = meters * 0.000621371;
+  if (miles < 0.1) return `${Math.round(meters)} m`;
+  return `${miles.toFixed(1)} mi`;
+}
+
 interface USListingCardProps {
   listing: USListing;
   showRank?: "global" | "state" | "county";
@@ -212,7 +222,7 @@ function USListingTerminalRow({
           </p>
 
           <p className="text-[11px] tabular-nums text-muted-foreground">
-            ~{formatSubstationDistance(listing.power_substation)} to substation
+            ~{formatSubstationMiles(listing.power_substation)} to substation
           </p>
         </div>
       </div>

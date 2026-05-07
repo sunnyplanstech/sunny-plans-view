@@ -12,10 +12,11 @@ import { Sheet, SheetContent } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { optionalAuthApi } from "@/lib/apiClient";
-import { getParcelCenter } from "@/lib/geo";
 import { evaluateLayer, type Verdict } from "@/components/layers/evaluate";
 import type { Layer } from "@/components/layers/registry";
 import type { BaseListing } from "@/countries/types";
+import type { OsmDistanceFields } from "@/data/osmDistanceFields";
+import MiniParcelMap from "@/components/maps/MiniParcelMap";
 
 interface EvaluateDrawerProps {
   // The parcel under evaluation. `null` collapses the drawer.
@@ -29,22 +30,26 @@ interface EvaluateDrawerProps {
   // fields since the drawer itself is country-agnostic.
   title: string;
   // Country-formatted spec line under the title — typically
-  // ["~12.4 ac", "~$285k", "~1.8 mi to substation"]. Joined with
+  // ["~12.4 ac", "~$285k", "~0.8 mi to substation"]. Joined with
   // `·` separators. Composed by the page since size/price/distance
   // fields are country-specific.
   summary?: string[];
+  // Distance unit for the proximity section — imperial for US,
+  // metric for IT. Defaults to imperial.
+  unit?: "imperial" | "metric";
   onClose: () => void;
 }
 
-// Subset of the listing-detail endpoint we actually read here. The
-// endpoint returns "****" for locked text fields and a jittered Point
-// for locked geom_json; `access_granted` is the single source of
-// truth for whether the user paid.
-interface ListingDetail {
+// Detail-endpoint response. The endpoint returns "****" for locked
+// text fields and a jittered Point for locked geom_json;
+// `access_granted` is the single source of truth for whether the
+// user paid. OSM distance fields are real numbers regardless — they
+// aren't parcel-identifying so the API returns them in the clear.
+type ListingDetail = OsmDistanceFields & {
   access_granted: boolean;
   property_url: string;
   geom_json: unknown;
-}
+};
 
 function useListingDetail(id: string | null) {
   return useQuery({
@@ -59,6 +64,7 @@ export function EvaluateDrawer({
   selectedLayers,
   title,
   summary,
+  unit = "imperial",
   onClose,
 }: EvaluateDrawerProps) {
   const isOpen = listing !== null;
@@ -91,12 +97,14 @@ export function EvaluateDrawer({
             </header>
 
             <div className="flex-1 overflow-y-auto">
-              <ScoreSection listing={listing} />
-              <SpecSection listing={listing} layers={selectedLayers} />
-              <LocationSection
+              <ThumbnailSection
                 detail={detail.data}
                 fallbackGeom={listing.geom_json}
+                fallbackAccuracyM={listing.location_accuracy_m}
               />
+              <ScoreSection listing={listing} />
+              <SpecSection listing={listing} layers={selectedLayers} />
+              <ProximitySection detail={detail.data} unit={unit} />
             </div>
 
             <footer className="border-t border-border bg-card px-5 py-4">
@@ -106,6 +114,33 @@ export function EvaluateDrawer({
         )}
       </SheetContent>
     </Sheet>
+  );
+}
+
+// Visual confirmation. The same parcel is shown on the protagonist
+// map already, but the drawer is anchored to one parcel — a small
+// thumbnail removes the "wait, which one did I click?" moment.
+function ThumbnailSection({
+  detail,
+  fallbackGeom,
+  fallbackAccuracyM,
+}: {
+  detail: ListingDetail | undefined;
+  fallbackGeom: unknown;
+  fallbackAccuracyM: number | null;
+}) {
+  const accessGranted = detail?.access_granted ?? false;
+  const geom = accessGranted ? detail?.geom_json ?? fallbackGeom : fallbackGeom;
+  return (
+    <section className="px-5 pt-5">
+      <div className="h-40 w-full overflow-hidden rounded-md border border-border bg-muted/30">
+        <MiniParcelMap
+          geomJson={geom}
+          locationAccuracyM={accessGranted ? null : fallbackAccuracyM}
+          className="w-full h-full"
+        />
+      </div>
+    </section>
   );
 }
 
@@ -210,63 +245,84 @@ function VerdictIcon({ verdict }: { verdict: Verdict }) {
   );
 }
 
-// Lat/lng with a single inline "approximate" tag when locked. The
-// numeric precision (2 vs 6 decimals) carries the rest of the signal.
-function LocationSection({
-  detail,
-  fallbackGeom,
-}: {
-  detail: ListingDetail | undefined;
-  fallbackGeom: unknown;
-}) {
-  const accessGranted = detail?.access_granted ?? false;
-  // When granted, the detail endpoint returns the unlocked exact
-  // polygon; otherwise we read the public listing's jittered geom.
-  const sourceGeom = accessGranted
-    ? detail?.geom_json ?? fallbackGeom
-    : fallbackGeom;
-  const center = getParcelCenter(sourceGeom);
+// Key OSM proximities. Solar/BESS developers care most about (a) how
+// far to the grid (substation + transmission line), (b) road access
+// for construction, (c) distance to load centers / nearest built-up
+// area. The full 53-field breakdown lives on the detail page; the
+// drawer surfaces only these four because they drive most of the
+// site-usability gut-check.
+const PROXIMITY_ROWS: ReadonlyArray<{
+  label: string;
+  // First non-null wins so we always show the closest of a category.
+  fields: ReadonlyArray<keyof OsmDistanceFields>;
+}> = [
+  { label: "Substation", fields: ["power_substation"] },
+  { label: "Transmission line", fields: ["power_line"] },
+  {
+    label: "Major road",
+    fields: ["highway_motorway", "highway_trunk", "highway_primary"],
+  },
+  {
+    label: "Built-up area",
+    fields: ["landuse_residential", "landuse_commercial"],
+  },
+];
 
-  return (
-    <section className="border-t border-border px-5 py-5">
-      <div className="flex items-baseline justify-between gap-3">
-        <h3 className="tp-eyebrow">Location</h3>
-        {!accessGranted && (
-          <span className="tp-mono text-[10px] uppercase tracking-wider text-amber-700 dark:text-amber-300">
-            Approximate
-          </span>
-        )}
-      </div>
-      {center ? (
-        <dl className="mt-3 space-y-1.5">
-          <CoordRow
-            label="Lat"
-            value={
-              accessGranted ? center.lat.toFixed(6) : center.lat.toFixed(2)
-            }
-          />
-          <CoordRow
-            label="Lng"
-            value={
-              accessGranted ? center.lng.toFixed(6) : center.lng.toFixed(2)
-            }
-          />
-        </dl>
-      ) : (
-        <p className="mt-3 text-xs text-muted-foreground">
-          No geometry on this parcel.
-        </p>
-      )}
-    </section>
-  );
+function nearestOf(
+  detail: ListingDetail,
+  fields: ReadonlyArray<keyof OsmDistanceFields>,
+): number | null {
+  let best: number | null = null;
+  for (const f of fields) {
+    const v = detail[f];
+    if (v != null && Number.isFinite(v) && (best == null || v < best)) best = v;
+  }
+  return best;
 }
 
-function CoordRow({ label, value }: { label: string; value: string }) {
+function formatMeters(meters: number, unit: "imperial" | "metric"): string {
+  if (unit === "imperial") {
+    const miles = meters * 0.000621371;
+    if (miles < 0.1) return `${Math.round(meters)} m`;
+    return `${miles.toFixed(miles < 10 ? 2 : 1)} mi`;
+  }
+  if (meters < 1000) return `${Math.round(meters)} m`;
+  const km = meters / 1000;
+  return `${km.toFixed(km < 10 ? 2 : 1)} km`;
+}
+
+function ProximitySection({
+  detail,
+  unit,
+}: {
+  detail: ListingDetail | undefined;
+  unit: "imperial" | "metric";
+}) {
+  if (!detail) return null;
+  const accessGranted = detail.access_granted;
+  const rows = PROXIMITY_ROWS.map(({ label, fields }) => ({
+    label,
+    meters: nearestOf(detail, fields),
+  })).filter((r) => r.meters !== null) as Array<{ label: string; meters: number }>;
+  if (rows.length === 0) return null;
   return (
-    <div className="flex items-baseline justify-between gap-3 text-sm">
-      <span className="tp-eyebrow">{label}</span>
-      <span className="tp-mono tabular-nums text-foreground">{value}</span>
-    </div>
+    <section className="border-t border-border px-5 py-5">
+      <h3 className="tp-eyebrow">Proximity</h3>
+      <dl className="mt-3 space-y-1.5">
+        {rows.map(({ label, meters }) => (
+          <div
+            key={label}
+            className="flex items-baseline justify-between gap-3 text-sm"
+          >
+            <dt className="text-muted-foreground">{label}</dt>
+            <dd className="tp-mono tabular-nums text-foreground">
+              {accessGranted ? "" : "~"}
+              {formatMeters(meters, unit)}
+            </dd>
+          </div>
+        ))}
+      </dl>
+    </section>
   );
 }
 

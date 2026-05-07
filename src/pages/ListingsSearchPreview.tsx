@@ -64,7 +64,6 @@ import {
   formatAcres,
   formatHectares,
   formatPrice,
-  formatSubstationDistance,
   formatSubstationDistanceMetric,
 } from "@/lib/format";
 
@@ -351,6 +350,7 @@ const CountryPreview = ({ adapter, country, region, province }: InnerProps) => {
         selectedLayers={selectedLayers}
         title={drawerTitle}
         summary={drawerSummary}
+        unit={country === "italy" ? "metric" : "imperial"}
         onClose={() => setEvaluating(null)}
       />
     </>
@@ -676,7 +676,10 @@ function summaryForListing(country: CountrySlug, listing: BaseListing): string[]
     if (us.list_price !== null && us.list_price !== undefined) {
       lines.push(`~${formatPrice(us.list_price)}`);
     }
-    lines.push(`~${formatSubstationDistance(us.power_substation)} to substation`);
+    if (us.power_substation != null) {
+      const miles = us.power_substation * 0.000621371;
+      lines.push(`~${miles.toFixed(1)} mi to substation`);
+    }
     return lines;
   }
   const it = listing as ITListing;
