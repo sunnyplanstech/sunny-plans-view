@@ -222,3 +222,12 @@ All colors MUST be HSL.
 .tp-scope .sep {
   color: hsl(var(--muted-foreground) / 0.5);
 }
+
+/* Mini-map attribution suppression. Scoped strictly to listing-card
+   thumbnails (`.mini-parcel-map`) so the full-size map and the detail
+   page keep the required Google logo + Map data / Terms links. */
+.mini-parcel-map .gm-style-cc,
+.mini-parcel-map a[href^="https://maps.google.com"],
+.mini-parcel-map a[href^="https://www.google.com/maps"] {
+  display: none !important;
+}

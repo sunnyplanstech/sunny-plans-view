@@ -178,6 +178,11 @@ export function MiniParcelMap({
     return () => google.maps.event.removeListener(listener);
   }, [map]);
 
+  // `mini-parcel-map` scopes the listing-card thumbnail attribution
+  // suppression in src/index.css. Detail-page maps run in `interactive`
+  // mode and keep the Google logo + Map data / Terms links visible.
+  const wrapperClass = `relative ${interactive ? "" : "mini-parcel-map"} ${className ?? ""}`.trim();
+
   if (!isVisible || !isLoaded || !geom) {
     return (
       <div
@@ -224,7 +229,7 @@ export function MiniParcelMap({
   };
 
   return (
-    <div ref={containerRef} className={`relative ${className ?? ""}`}>
+    <div ref={containerRef} className={wrapperClass}>
       <GoogleMap
         mapContainerStyle={mapContainerStyle}
         options={mapOptions}
