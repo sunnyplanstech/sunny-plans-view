@@ -244,11 +244,13 @@ const CountryPreview = ({ adapter, country, region, province }: InnerProps) => {
           selectedCount={selectedLayers.length}
         />
 
-        {/* Desktop workspace — three columns, full-bleed within the
-            viewport so the map can act as protagonist. */}
-        <div className="hidden lg:flex flex-1 min-h-0 border-t border-border/60">
+        {/* Desktop workspace — three columns. Map and constraint rail
+            stick to the viewport top so the page itself is the scroll
+            container: cards in the listings rail scroll past the
+            sticky map, and the footer is reachable at the bottom. */}
+        <div className="hidden lg:flex items-start border-t border-border/60">
           {railOpen ? (
-            <aside className="w-[300px] xl:w-[330px] flex-shrink-0 overflow-y-auto border-r border-border/60 bg-muted/10 p-3">
+            <aside className="w-[300px] xl:w-[330px] flex-shrink-0 sticky top-0 self-start h-screen overflow-y-auto border-r border-border/60 bg-muted/10 p-3">
               <div className="mb-2 flex items-center justify-between">
                 <span className="tp-eyebrow">Project spec</span>
                 <button
@@ -266,7 +268,7 @@ const CountryPreview = ({ adapter, country, region, province }: InnerProps) => {
             <button
               type="button"
               onClick={() => setRailOpen(true)}
-              className="w-9 flex-shrink-0 border-r border-border/60 bg-muted/10 hover:bg-muted/30 transition-colors flex items-start justify-center pt-4"
+              className="w-9 flex-shrink-0 sticky top-0 self-start h-screen border-r border-border/60 bg-muted/10 hover:bg-muted/30 transition-colors flex items-start justify-center pt-4"
               aria-label="Show constraints rail"
             >
               <ChevronRight className="h-4 w-4 text-muted-foreground" />
@@ -274,14 +276,14 @@ const CountryPreview = ({ adapter, country, region, province }: InnerProps) => {
           )}
 
           {!listExpanded && (
-            <section className="flex-1 min-w-0 relative">
+            <section className="flex-1 min-w-0 sticky top-0 self-start h-screen">
               <div className="absolute inset-0">{map}</div>
             </section>
           )}
 
           <aside
             className={cn(
-              "flex-shrink-0 overflow-hidden flex flex-col border-l border-border/60 bg-card",
+              "flex-shrink-0 flex flex-col border-l border-border/60 bg-card",
               listExpanded ? "flex-1 min-w-0" : "w-[380px] xl:w-[420px]",
             )}
           >
@@ -454,7 +456,7 @@ const ListingsRail = ({
   onClearConstraints,
 }: ListingsRailProps) => (
   <>
-    <header className="border-b border-border/60 bg-gradient-subtle px-4 py-3 flex items-center justify-between gap-2">
+    <header className="sticky top-0 z-10 border-b border-border/60 bg-gradient-subtle px-4 py-3 flex items-center justify-between gap-2">
       <div className="min-w-0">
         <p className="tp-eyebrow">Listings</p>
         <p className="tp-mono mt-0.5 text-[11px] tabular-nums text-foreground">
@@ -497,7 +499,7 @@ const ListingsRail = ({
       </div>
     </header>
 
-    <div className="flex-1 overflow-y-auto p-3">
+    <div className="p-3">
       {isLoading ? (
         <div className="space-y-3">
           {[1, 2, 3].map((i) => (

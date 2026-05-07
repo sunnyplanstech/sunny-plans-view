@@ -8,7 +8,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { Link } from "react-router-dom";
 import { Check, ExternalLink, HelpCircle, Lock, Sun, X } from "lucide-react";
-import { Sheet, SheetContent, SheetClose } from "@/components/ui/sheet";
+import { Sheet, SheetContent } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
@@ -286,20 +286,14 @@ export function EvaluateDrawer({
       >
         {listing && (
           <>
-            <header className="flex items-start justify-between gap-3 border-b border-border bg-gradient-subtle px-5 py-4">
-              <div className="min-w-0">
-                <p className="tp-eyebrow">Evaluate parcel</p>
-                <h2 className="mt-1 text-base font-semibold tracking-tight text-foreground truncate">
-                  {title}
-                </h2>
-                <p className="tp-mono mt-0.5 text-[10px] text-muted-foreground/80 truncate">
-                  ID · {listing.id}
-                </p>
-              </div>
-              <SheetClose className="rounded-md p-1 text-muted-foreground hover:bg-muted hover:text-foreground transition-colors">
-                <X className="h-4 w-4" />
-                <span className="sr-only">Close</span>
-              </SheetClose>
+            <header className="border-b border-border bg-gradient-subtle px-5 py-4 pr-12">
+              <p className="tp-eyebrow">Evaluate parcel</p>
+              <h2 className="mt-1 text-base font-semibold tracking-tight text-foreground truncate">
+                {title}
+              </h2>
+              <p className="tp-mono mt-0.5 text-[10px] text-muted-foreground/80 truncate">
+                ID · {listing.id}
+              </p>
             </header>
 
             <div className="flex-1 overflow-y-auto px-5 py-5 space-y-5">
