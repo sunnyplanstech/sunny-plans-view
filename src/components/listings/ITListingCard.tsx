@@ -168,7 +168,8 @@ const ITListingCard = ({
   );
 };
 
-// Terminal-style row used inside the layer-first preview.
+// Preview-rail row. Symmetric with USListingTerminalRow — comune as
+// title, region folded into the spec line, score anchored top-right.
 function ITListingTerminalRow({
   listing,
   onSelect,
@@ -176,7 +177,7 @@ function ITListingTerminalRow({
   listing: ITListing;
   onSelect: (listing: ITListing) => void;
 }) {
-  const solarPercentage = listing.prob_solar ? Math.round(listing.prob_solar * 100) : null;
+  const score = listing.prob_solar !== null ? Math.round(listing.prob_solar * 100) : null;
   const handleSelect = () => onSelect(listing);
   const handleKey = (event: React.KeyboardEvent<HTMLDivElement>) => {
     if (event.key === "Enter" || event.key === " ") {
@@ -191,81 +192,56 @@ function ITListingTerminalRow({
       tabIndex={0}
       onClick={handleSelect}
       onKeyDown={handleKey}
-      className="group cursor-pointer overflow-hidden border-border/60 bg-card transition-all duration-200 hover:border-primary/40 hover:shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+      className="group cursor-pointer overflow-hidden border-border/60 bg-card transition-colors hover:border-primary/40 hover:shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
     >
-      <div className="grid grid-cols-[120px_1fr] gap-3 p-3">
-        <div className="relative h-[120px] overflow-hidden rounded-md border border-border/60">
+      <div className="flex gap-3 p-3">
+        <div className="relative h-[88px] w-[88px] flex-shrink-0 overflow-hidden rounded-md border border-border/60 bg-muted/30">
           <MiniParcelMap
             geomJson={listing.geom_json}
             locationAccuracyM={listing.location_accuracy_m}
-            className="w-full h-full"
+            className="absolute inset-0"
           />
-          <div
-            className={cn(
-              "absolute top-1.5 left-1.5 inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-xs font-bold shadow-md",
-              getSolarScoreColor(listing.prob_solar),
-            )}
-          >
-            <Sun className="h-3 w-3" />
-            {solarPercentage !== null ? `${solarPercentage}%` : "N/A"}
-          </div>
         </div>
 
-        <div className="min-w-0 flex flex-col">
-          <div className="flex items-start justify-between gap-2">
-            <h3 className="text-[14px] font-semibold text-foreground leading-tight truncate">
+        <div className="min-w-0 flex-1 flex flex-col justify-between">
+          <div className="flex items-start justify-between gap-3">
+            <h3 className="text-sm font-semibold leading-tight text-foreground truncate">
               {listing.comune_name}
             </h3>
-            <span className="tp-mono text-[10px] uppercase tracking-wider text-muted-foreground whitespace-nowrap truncate max-w-[120px]">
-              {formatRegionSlug(listing.region_slug)}
-            </span>
+            <ScoreReadout value={score} />
           </div>
 
-          <div className="mt-2">
-            <div className="flex items-baseline justify-between text-xs">
-              <span className="tp-eyebrow">SunnyScore</span>
-              <span className="tp-mono tabular-nums font-medium text-foreground">
-                {solarPercentage !== null ? `${solarPercentage}/100` : "—"}
-              </span>
-            </div>
-            <div className="mt-1 h-1.5 overflow-hidden rounded-full bg-muted">
-              <div
-                className="h-full rounded-full bg-gradient-to-r from-primary/70 to-primary transition-all"
-                style={{ width: `${solarPercentage || 0}%` }}
-              />
-            </div>
-          </div>
+          <p className="text-xs tabular-nums text-foreground/85">
+            <span className="font-medium">~{formatHectares(listing.area_ha)} ha</span>
+            <span className="text-muted-foreground/60"> · </span>
+            <span className="text-muted-foreground truncate">{formatRegionSlug(listing.region_slug)}</span>
+          </p>
 
-          <dl className="mt-2 grid grid-cols-2 gap-x-3 text-[12px] text-muted-foreground">
-            <div className="flex items-center gap-1.5">
-              <Ruler className="w-3 h-3" />
-              <dt className="sr-only">Hectares</dt>
-              <dd className="tp-mono tabular-nums text-foreground font-medium">
-                ~{formatHectares(listing.area_ha)}
-              </dd>
-              <span className="text-[10px]">ha</span>
-            </div>
-            <div className="flex items-center gap-1.5">
-              <Zap className="w-3 h-3" />
-              <dt className="sr-only">Distance to substation</dt>
-              <dd className="tp-mono tabular-nums text-foreground font-medium">
-                ~{formatSubstationDistanceMetric(listing.power_substation)}
-              </dd>
-              <span className="text-[10px]">to sub</span>
-            </div>
-          </dl>
-
-          <div className="mt-auto pt-2 flex items-center justify-between">
-            <span className="tp-mono text-[10px] text-muted-foreground/70 truncate">
-              {listing.id.slice(0, 8)}
-            </span>
-            <span className="text-[11px] font-medium text-muted-foreground transition-colors group-hover:text-primary">
-              Valuta <ArrowRight className="inline h-3 w-3 transition-transform group-hover:translate-x-0.5" />
-            </span>
-          </div>
+          <p className="text-[11px] tabular-nums text-muted-foreground">
+            ~{formatSubstationDistanceMetric(listing.power_substation)} to substation
+          </p>
         </div>
       </div>
     </Card>
+  );
+}
+
+// Score is the strongest cross-card signal (default sort key). Big,
+// tabular, color-graded so the eye can rank parcels without parsing.
+function ScoreReadout({ value }: { value: number | null }) {
+  if (value === null) {
+    return (
+      <span className="text-lg font-semibold leading-none tabular-nums text-muted-foreground/50">
+        —
+      </span>
+    );
+  }
+  const tone =
+    value >= 70 ? "text-primary" : value >= 50 ? "text-foreground" : "text-muted-foreground";
+  return (
+    <span className={cn("text-lg font-semibold leading-none tabular-nums", tone)}>
+      {value}
+    </span>
   );
 }
 
