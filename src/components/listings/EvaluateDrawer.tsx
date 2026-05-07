@@ -24,10 +24,15 @@ interface EvaluateDrawerProps {
   // section — when empty, the section is suppressed and the drawer
   // shows only score + location + CTA.
   selectedLayers: Layer[];
-  // Free-text title surfaced at the top ("Madison County, AL" or
-  // "Comune di Bra"). The page composes this from the adapter's
-  // `formatScopeName` since the drawer itself is country-agnostic.
+  // Free-text title for the clicked parcel (e.g. "Madison County, AL"
+  // or "Bra"). The page composes this from the listing's own admin
+  // fields since the drawer itself is country-agnostic.
   title: string;
+  // Country-formatted spec line under the title — typically
+  // ["~12.4 ac", "~$285k", "~1.8 mi to substation"]. Joined with
+  // `·` separators. Composed by the page since size/price/distance
+  // fields are country-specific.
+  summary?: string[];
   onClose: () => void;
 }
 
@@ -53,6 +58,7 @@ export function EvaluateDrawer({
   listing,
   selectedLayers,
   title,
+  summary,
   onClose,
 }: EvaluateDrawerProps) {
   const isOpen = listing !== null;
@@ -77,6 +83,11 @@ export function EvaluateDrawer({
               <h2 className="text-lg font-semibold tracking-tight text-foreground truncate">
                 {title}
               </h2>
+              {summary && summary.length > 0 && (
+                <p className="mt-1 text-xs tabular-nums text-muted-foreground">
+                  {summary.join(" · ")}
+                </p>
+              )}
             </header>
 
             <div className="flex-1 overflow-y-auto">

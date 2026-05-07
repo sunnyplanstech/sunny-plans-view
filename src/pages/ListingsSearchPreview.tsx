@@ -58,6 +58,15 @@ import {
 } from "@/components/layers/evaluate";
 import { getCountryAdapter, type CountryAdapter } from "@/countries";
 import type { BaseListing } from "@/countries/types";
+import type { USListing } from "@/countries/unitedStates";
+import type { ITListing } from "@/countries/italy";
+import {
+  formatAcres,
+  formatHectares,
+  formatPrice,
+  formatSubstationDistance,
+  formatSubstationDistanceMetric,
+} from "@/lib/format";
 
 const LIMIT = 20;
 
@@ -163,7 +172,17 @@ const CountryPreview = ({ adapter, country, region, province }: InnerProps) => {
   const seo = adapter.seoCopy(scope, visibleListings);
   const canonicalUrl = buildCanonicalUrl(country, region, province);
   const hasRegionScope = !!region;
-  const drawerTitle = locationName;
+  // Drawer identity comes from the clicked parcel's own admin fields,
+  // not the page's URL scope — at state zoom every parcel would share
+  // the same title otherwise. Summary lines (country-specific size +
+  // price + grid distance) live here too because BaseListing is
+  // intentionally agnostic of those fields.
+  const drawerTitle = evaluating
+    ? titleForListing(country, evaluating)
+    : locationName;
+  const drawerSummary = evaluating
+    ? summaryForListing(country, evaluating)
+    : undefined;
 
   const handleSelectListing = useCallback(
     (listing: BaseListing) => setEvaluating(listing),
@@ -331,6 +350,7 @@ const CountryPreview = ({ adapter, country, region, province }: InnerProps) => {
         listing={evaluating}
         selectedLayers={selectedLayers}
         title={drawerTitle}
+        summary={drawerSummary}
         onClose={() => setEvaluating(null)}
       />
     </>
@@ -635,6 +655,36 @@ const CountryNotSupported = ({ slug }: { slug?: string }) => (
     </p>
   </div>
 );
+
+// Drawer identity + summary, country-specific. The runtime listing is
+// already a USListing or ITListing (the adapter's useListings returns
+// the country type even though the page narrows to BaseListing); we
+// cast on the country slug we already trust at this layer.
+function titleForListing(country: CountrySlug, listing: BaseListing): string {
+  if (country === "united-states") {
+    const us = listing as USListing;
+    return `${us.county}, ${us.state_code}`;
+  }
+  const it = listing as ITListing;
+  return it.comune_name;
+}
+
+function summaryForListing(country: CountrySlug, listing: BaseListing): string[] {
+  if (country === "united-states") {
+    const us = listing as USListing;
+    const lines = [`~${formatAcres(us.lot_acres)} ac`];
+    if (us.list_price !== null && us.list_price !== undefined) {
+      lines.push(`~${formatPrice(us.list_price)}`);
+    }
+    lines.push(`~${formatSubstationDistance(us.power_substation)} to substation`);
+    return lines;
+  }
+  const it = listing as ITListing;
+  return [
+    `~${formatHectares(it.area_ha)} ha`,
+    `~${formatSubstationDistanceMetric(it.power_substation)} to substation`,
+  ];
+}
 
 function buildCanonicalUrl(
   country: string,
