@@ -12,18 +12,23 @@
 // partition layer down to a single file when the user is on a
 // state/region page.
 //
-// Colors are RGBA 0-255 and rendered as-is — pick the alpha you want to
-// see on the map.
+// Visual encoding follows the framework in
+// sunnyplans-docs/02_branding/01_map_visual_language.md:
 //
-// Most overlays are no-go zones drawn from the warm exclusion ramp
-// below — anchored to --destructive (hue 0), all outside the brand
-// green band (hue 66–100). Wetlands stay blue: that's a universal
-// cartographic convention for water and doesn't read as endorsement.
-// Suitability layers (e.g. slope_lt_5 — the <5% flat-land layer) are
-// the deliberate exception: they signal "go" and use the brand green
-// band so the cartographic semantics line up with the brand promise.
+//   - Hard exclusions (PAD, Natura 2000, NWI, urban) use *texture*
+//     (hatch patterns) on a neutral fill, not hue. Different sources
+//     get different hatch patterns so they remain distinguishable when
+//     they overlap, without each one consuming a scarce hue slot.
+//   - NWI keeps a slate-blue tint inside its hatch — water convention
+//     is strong enough that breaking it confuses more than it helps.
+//   - Soft suitability layers (slope_lt_5) use a low-saturation warm-
+//     grey wash with no pattern: a positive-but-quiet affordance that
+//     never competes with parcels for visual weight.
+//   - Parcels (rendered separately, see ListingsGoogleMap.tsx) remain
+//     the only saturated thing on the map. Nothing here may be louder.
 
 import { STATE_CODE_TO_SLUG, slugToStateCode } from "@/data/locations";
+import type { HatchPatternName } from "./hatchPatternAtlas";
 
 export type PartitionKind = "us-state" | "it-region";
 
@@ -47,6 +52,9 @@ export interface PMTilesLayerConfig {
   description?: string;
   fillColor: [number, number, number, number];
   lineColor?: [number, number, number, number];
+  // Hatch pattern from hatchPatternAtlas. Present only on hard-
+  // exclusion layers; absent (undefined) means a plain solid fill.
+  pattern?: HatchPatternName;
   defaultVisible?: boolean;
   // Layers like NWI fan out to ~50 partitioned PMTiles files; toggling
   // one on at the country view triggers tile fetches against every
@@ -114,29 +122,29 @@ function itRegionPartition(objectIdPrefix: string): PartitionSpec {
   };
 }
 
-// Exclusion ramp (RGB only; per-layer alpha set on use).
-const NOGO = {
-  crimson:    [197,  43,  56] as const, // strict     — protected lands
-  vermillion: [219,  82,  36] as const, // high       — terrain
-  ochre:      [197, 131,  38] as const, // moderate   — reserved
-  sienna:     [129,  80,  45] as const, // secondary  — reserved
-  magenta:    [180,  60, 122] as const, // distinct   — reserved (heritage)
-  plum:       [121,  64, 135] as const, // cool       — reserved (infra)
-};
+// Hard-exclusion palette — neutral slate, no warm hue. Fill alpha is
+// low because the hatch (white opaque pixels in the atlas, masked to
+// fillColor by FillStyleExtension) carries the visual weight. Outline
+// stays at higher alpha so the exclusion's *boundary* still reads at
+// low zoom where the hatch is sub-pixel.
+const NEUTRAL_SLATE = [80, 92, 110] as const;       // PAD, Natura 2000
+const SLATE_BLUE    = [60, 110, 160] as const;      // NWI (water convention)
 
-const PROTECTED_AREA_BASE = {
-  fillColor: [...NOGO.crimson, 63]  as [number, number, number, number],
-  lineColor: [...NOGO.crimson, 180] as [number, number, number, number],
+const HARD_EXCLUSION_BASE = {
+  fillColor: [...NEUTRAL_SLATE, 200] as [number, number, number, number],
+  lineColor: [...NEUTRAL_SLATE, 200] as [number, number, number, number],
   defaultVisible: false,
 };
 
-// Brand green band — used only by suitability layers (slope_lt_5).
-// Hue ~80, so it reads as "go" without colliding with the warm
-// exclusion ramp.
-const SUITABLE_GREEN = [110, 175, 70] as const;
+// Soft suitability — a low-saturation warm-grey wash. Deliberately
+// *not* in the brand olive band: parcels own that slot, and a green
+// "flat-land" overlay would visually compete with the actual targets.
+// Warm grey reads as "neutral positive" — the user notices it but the
+// eye still lands on parcels first.
+const WARM_GREY = [196, 178, 140] as const;
 const SUITABLE_BASE = {
-  fillColor: [...SUITABLE_GREEN, 70]  as [number, number, number, number],
-  lineColor: [...SUITABLE_GREEN, 180] as [number, number, number, number],
+  fillColor: [...WARM_GREY, 70]  as [number, number, number, number],
+  lineColor: [...WARM_GREY, 140] as [number, number, number, number],
   defaultVisible: false,
 };
 
@@ -144,11 +152,13 @@ export const PMTILES_LAYERS_BY_COUNTRY: Record<string, PMTilesLayerConfig[]> = {
   italy: [
     {
       id: "natura2000_it",
-      url: `${TILES_BUCKET_BASE}/natura2000_it.pmtiles`,
+      partition: itRegionPartition("natura2000_it"),
       label: "Natura 2000",
       description:
         "EU Natura 2000 protected sites (Habitats + Birds Directives) — autorizzazione paesaggistica required, ~6–12 month delay",
-      ...PROTECTED_AREA_BASE,
+      ...HARD_EXCLUSION_BASE,
+      pattern: "diagonal-left",
+      requiresRegionScope: true,
     },
     {
       id: "slope_lt_5_it",
@@ -163,11 +173,13 @@ export const PMTILES_LAYERS_BY_COUNTRY: Record<string, PMTilesLayerConfig[]> = {
   "united-states": [
     {
       id: "pad_us",
-      url: `${TILES_BUCKET_BASE}/pad_us.pmtiles`,
+      partition: usStatePartition("pad_us"),
       label: "Protected areas (PAD-US)",
       description:
         "Federal/state protected lands restricted for development (PAD-US Fee + Other, GAP 1–2 / Wilderness / NWR / etc.)",
-      ...PROTECTED_AREA_BASE,
+      ...HARD_EXCLUSION_BASE,
+      pattern: "diagonal-right",
+      requiresRegionScope: true,
     },
     {
       id: "nwi_us",
@@ -175,12 +187,9 @@ export const PMTILES_LAYERS_BY_COUNTRY: Record<string, PMTilesLayerConfig[]> = {
       label: "Wetlands (NWI)",
       description:
         "USFWS National Wetlands Inventory — Clean Water Act permitting risk and ecological-sensitivity flag",
-      fillColor: [30, 80, 220, 200],
-      // No outline on dense polygon data — outlines read as visual
-      // quilt-noise at every zoom. Fill alpha alone is a soft wash.
-      // Zoom range comes from the .pmtiles header at runtime; the bake
-      // sets min_zoom=8 because dense polygon tiles below that crash
-      // the JS main thread.
+      fillColor: [...SLATE_BLUE, 200] as [number, number, number, number],
+      lineColor: [...SLATE_BLUE, 200] as [number, number, number, number],
+      pattern: "horizontal",
       defaultVisible: false,
       requiresRegionScope: true,
     },

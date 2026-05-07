@@ -42,7 +42,11 @@ The app uses geographic URL hierarchy for SEO. All listing pages are handled by 
 /:country/:region/:province/listing/:id     → Individual listing (ListingDetail.tsx)
 ```
 
-URL variants: `/listings` suffix for US, `/particelle` suffix for Italy.
+URL variants — the `/listings` (US) and `/particelle` (IT) suffix is only
+valid at the **province** and **municipality** levels, not at country or
+state. So `/united-states/california/` is correct but
+`/united-states/california/listings` is a 404. See `App.tsx` for the
+exact routes.
 
 ### Key Data Files
 

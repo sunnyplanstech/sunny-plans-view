@@ -33,6 +33,29 @@ function rgbCss([r, g, b]: [number, number, number, number]): string {
   return `rgb(${r}, ${g}, ${b})`;
 }
 
+// Mirrors the four hatch atlas patterns in hatchPatternAtlas.ts using
+// CSS gradients, so the legend swatch reads the same as what's rendered
+// on the map. Kept in CSS (not a canvas image) because a 12px swatch
+// doesn't need atlas precision and we avoid loading the deck.gl chunks
+// just to render a legend.
+function patternBackground(
+  pattern: PMTilesLayerConfig["pattern"],
+  rgb: string,
+): string {
+  switch (pattern) {
+    case "diagonal-right":
+      return `repeating-linear-gradient(135deg, ${rgb} 0 2px, transparent 2px 5px)`;
+    case "diagonal-left":
+      return `repeating-linear-gradient(45deg, ${rgb} 0 2px, transparent 2px 5px)`;
+    case "horizontal":
+      return `repeating-linear-gradient(0deg, ${rgb} 0 2px, transparent 2px 5px)`;
+    case "dots":
+      return `radial-gradient(${rgb} 1px, transparent 1.5px) 0 0 / 4px 4px`;
+    default:
+      return rgb;
+  }
+}
+
 export function LayerPanel({
   layers,
   state,
@@ -141,7 +164,12 @@ export function LayerPanel({
                     <span
                       aria-hidden
                       className="inline-block h-3 w-3 rounded-sm border border-white/30"
-                      style={{ background: rgbCss(layer.fillColor) }}
+                      style={{
+                        background: patternBackground(
+                          layer.pattern,
+                          rgbCss(layer.fillColor),
+                        ),
+                      }}
                     />
                     <span className="leading-tight">{layer.label}</span>
                   </span>

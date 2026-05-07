@@ -1,5 +1,10 @@
 import { useEffect, useRef, useState } from "react";
 import type { PMTilesLayerConfig } from "./pmtilesLayers";
+import {
+  HATCH_PATTERN_MAPPING,
+  HATCH_PATTERN_SCALE,
+  getHatchAtlasUrl,
+} from "./hatchPatternAtlas";
 
 // Per-layer toggle state owned by the parent (LayerPanel writes, this
 // hook reads). Kept separate from PMTilesLayerConfig so the immutable
@@ -57,6 +62,7 @@ let modulesPromise: Promise<{
   GoogleMapsOverlay: typeof import("@deck.gl/google-maps").GoogleMapsOverlay;
   TileLayer: typeof import("@deck.gl/geo-layers").TileLayer;
   GeoJsonLayer: typeof import("@deck.gl/layers").GeoJsonLayer;
+  FillStyleExtension: typeof import("@deck.gl/extensions").FillStyleExtension;
   PMTiles: typeof import("pmtiles").PMTiles;
   MVTLoader: typeof import("@loaders.gl/mvt").MVTLoader;
   parse: typeof import("@loaders.gl/core").parse;
@@ -69,6 +75,7 @@ function loadDeckModules() {
         { GoogleMapsOverlay },
         { TileLayer },
         { GeoJsonLayer },
+        { FillStyleExtension },
         { PMTiles },
         { MVTLoader },
         { parse },
@@ -76,11 +83,20 @@ function loadDeckModules() {
         import("@deck.gl/google-maps"),
         import("@deck.gl/geo-layers"),
         import("@deck.gl/layers"),
+        import("@deck.gl/extensions"),
         import("pmtiles"),
         import("@loaders.gl/mvt"),
         import("@loaders.gl/core"),
       ]);
-      return { GoogleMapsOverlay, TileLayer, GeoJsonLayer, PMTiles, MVTLoader, parse };
+      return {
+        GoogleMapsOverlay,
+        TileLayer,
+        GeoJsonLayer,
+        FillStyleExtension,
+        PMTiles,
+        MVTLoader,
+        parse,
+      };
     })();
   }
   return modulesPromise;
@@ -199,6 +215,12 @@ export function usePMTilesOverlays(
     const mods = modsRef.current;
     if (!overlay || !mods) return;
 
+    // Hatch atlas is shared across every pattern-using layer — one PNG
+    // data URL, one mapping, instantiated once on the client. Falls
+    // back to null in non-DOM environments; the extension wiring is
+    // skipped in that case and the layer renders as a plain solid fill.
+    const hatchAtlasUrl = getHatchAtlasUrl();
+
     const visibleLayers = layers.flatMap((layer) => {
       const s = state[layer.id];
       if (!s || !s.visible) return [];
@@ -209,6 +231,8 @@ export function usePMTilesOverlays(
       if (!header) return [];
       const fill = layer.fillColor;
       const line = layer.lineColor;
+      const pattern = layer.pattern;
+      const usePattern = pattern != null && hatchAtlasUrl != null;
       const urls = layerUrls(layer);
       return urls.map((url, i) => {
         const pmt = getPMTiles(mods.PMTiles, url);
@@ -234,6 +258,19 @@ export function usePMTilesOverlays(
           },
           renderSubLayers: (props: { id: string; data: unknown }) => {
             if (!props.data) return null;
+            // Pattern fills are opt-in per layer; layers without a
+            // `pattern` key get a plain solid GeoJsonLayer (slope, and
+            // the no-DOM fallback path).
+            const patternProps = usePattern
+              ? {
+                  extensions: [new mods.FillStyleExtension({ pattern: true })],
+                  fillPatternAtlas: hatchAtlasUrl!,
+                  fillPatternMapping: HATCH_PATTERN_MAPPING,
+                  getFillPattern: () => pattern!,
+                  getFillPatternScale: HATCH_PATTERN_SCALE,
+                  getFillPatternOffset: [0, 0] as [number, number],
+                }
+              : {};
             return new mods.GeoJsonLayer({
               id: `${props.id}-geojson`,
               data: props.data as GeoJSON.Feature[],
@@ -243,6 +280,7 @@ export function usePMTilesOverlays(
               getLineColor: line ?? [0, 0, 0, 0],
               lineWidthUnits: "pixels",
               getLineWidth: 1,
+              ...patternProps,
             });
           },
         });
