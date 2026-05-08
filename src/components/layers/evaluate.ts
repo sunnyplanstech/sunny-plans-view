@@ -60,8 +60,14 @@ function isEvaluable(layer: Layer): boolean {
   return !!layer.chip;
 }
 
-// Listings that pass every layer in `layers` (skipping unevaluable
-// ones — those don't filter, only the overlay).
+// Listings that aren't a definitive `fail` on any layer in `layers`
+// (skipping unevaluable ones — those don't filter, only the overlay).
+//
+// Unknown verdicts pass through. We only drop a listing when we KNOW
+// it fails — e.g. the slope sidecar reported `flat_5_acres = 0`. A
+// missing field (null `flat_5_acres`) is "we don't have the data
+// here yet", not "this parcel doesn't qualify"; treating it as fail
+// would empty the cohort whenever a sidecar lags the listings mart.
 function filterBy(
   listings: ReadonlyArray<BaseListing>,
   layers: ReadonlyArray<Layer>,
@@ -69,7 +75,7 @@ function filterBy(
   const evaluable = layers.filter(isEvaluable);
   if (evaluable.length === 0) return [...listings];
   return listings.filter((l) =>
-    evaluable.every((layer) => evaluateLayer(l, layer) === "pass"),
+    evaluable.every((layer) => evaluateLayer(l, layer) !== "fail"),
   );
 }
 
@@ -96,10 +102,10 @@ export function costFor(
   if (isSelected) {
     const others = selectedLayers.filter((l) => l.id !== layer.id);
     const passingOthers = filterBy(allListings, others);
-    const passingAll = passingOthers.filter(
-      (l) => evaluateLayer(l, layer) === "pass",
+    const survivingAll = passingOthers.filter(
+      (l) => evaluateLayer(l, layer) !== "fail",
     );
-    return passingOthers.length - passingAll.length;
+    return passingOthers.length - survivingAll.length;
   }
   const visible = filterBy(allListings, selectedLayers);
   let wouldFail = 0;
@@ -131,7 +137,7 @@ export function funnelSteps(
   let cohort: BaseListing[] = [...allListings];
   for (const layer of evaluable) {
     const before = cohort.length;
-    cohort = cohort.filter((l) => evaluateLayer(l, layer) === "pass");
+    cohort = cohort.filter((l) => evaluateLayer(l, layer) !== "fail");
     steps.push({
       layer,
       remaining: cohort.length,

@@ -31,7 +31,17 @@
 // Natura 2000) gate only the map overlay until the per-parcel
 // constraint-flag pipeline lands (p1-e2-constraint-flags-on-parcels).
 import { useCallback, useMemo, useState } from "react";
-import { useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
+import {
+  useUSCountyAggregate,
+  useITProvinceAggregate,
+} from "@/hooks/useAggregateChoropleth";
+import {
+  COUNTRIES,
+  countyToSlug,
+  slugToStateCode,
+  stateCodeToSlug,
+} from "@/data/locations";
 import { ChevronRight, Layers, List, MapIcon, Maximize2, Minimize2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
@@ -72,6 +82,12 @@ import {
 } from "@/lib/format";
 
 const LIMIT = 20;
+// Below this zoom we render the country/state-zoom choropleth (counties
+// for US, provinces for IT) and suppress the parcel-pin map. At/above
+// this zoom the existing parcel layer takes over. The threshold sits
+// just below the per-parcel layers' minZoom (NWI / slope_lt_5 = 11) so
+// the choropleth → pins handoff lines up with constraint activation.
+const CHOROPLETH_MAX_ZOOM = 10;
 
 // On mobile only one surface is visible at a time. Floating buttons
 // at the bottom of the viewport rotate through these three.
@@ -194,7 +210,7 @@ const CountryPreview = ({ adapter, country, region, province }: InnerProps) => {
     const evaluable = selectedLayers.filter((l) => l.chip);
     if (evaluable.length === 0) return sortListings(allListings, sortKey);
     const filtered = allListings.filter((listing) =>
-      evaluable.every((layer) => evaluateLayer(listing, layer) === "pass"),
+      evaluable.every((layer) => evaluateLayer(listing, layer) !== "fail"),
     );
     return sortListings(filtered, sortKey);
   }, [allListings, selectedLayers, sortKey]);
@@ -276,6 +292,51 @@ const CountryPreview = ({ adapter, country, region, province }: InnerProps) => {
     [],
   );
 
+  // Choropleth wiring (roadmap p1-e3-layer-first-ui — frontend slice).
+  // The aggregate endpoint payload is small (~3,143 county features,
+  // ~107 IT provinces) and per-country, so we cache once and let the
+  // map decide whether to render based on zoom. At/above
+  // CHOROPLETH_MAX_ZOOM the existing parcel-pin map takes over.
+  const choroplethVisible =
+    currentZoom === undefined || currentZoom <= CHOROPLETH_MAX_ZOOM;
+  const usCountyQuery = useUSCountyAggregate(
+    country === "united-states" && choroplethVisible,
+    scope.level !== "national" ? slugToStateCode(scope.regionSlug) : undefined,
+  );
+  const itProvinceQuery = useITProvinceAggregate(
+    country === "italy" && choroplethVisible,
+  );
+  const navigate = useNavigate();
+  const handleChoroplethClick = useCallback(
+    (props: Record<string, unknown>) => {
+      if (country === "united-states") {
+        const stateCode = props.state_code as string | undefined;
+        const countyName = props.county_name as string | undefined;
+        if (!stateCode || !countyName) return;
+        const stateSlug = stateCodeToSlug(stateCode);
+        if (!stateSlug) return;
+        navigate(`/preview/united-states/${stateSlug}/${countyToSlug(countyName)}`);
+        return;
+      }
+      // Italy — partition-name → URL slug match. The IT region URL
+      // slugs are inconsistent (`emiliaromagna` vs `valle-daosta`), so
+      // try a normalized name lookup against the static catalog.
+      const partitionName = props.region as string | undefined;
+      if (!partitionName) return;
+      const normalized = partitionName.toLowerCase().replace(/-/g, "");
+      const match = COUNTRIES.italy.regions.find(
+        (r) => r.slug.replace(/-/g, "").toLowerCase() === normalized,
+      );
+      if (!match) return;
+      navigate(`/preview/italy/${match.slug}`);
+    },
+    [country, navigate],
+  );
+  const choroplethFeatures =
+    country === "united-states"
+      ? usCountyQuery.data
+      : itProvinceQuery.data;
+
   const map = adapter.renderMap({
     listings: visibleListings,
     scope,
@@ -285,6 +346,13 @@ const CountryPreview = ({ adapter, country, region, province }: InnerProps) => {
     pageControlledOverlayIds: overlayIds,
     onZoomChange: setCurrentZoom,
     onListingClick: handleSelectById,
+    choropleth: choroplethFeatures
+      ? {
+          features: choroplethFeatures,
+          visible: choroplethVisible,
+          onFeatureClick: handleChoroplethClick,
+        }
+      : undefined,
   });
 
   const listings = (

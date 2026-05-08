@@ -50,6 +50,29 @@ export interface MapRenderProps {
   // the listing's id; the page resolves it back to a BaseListing and
   // opens the EvaluateDrawer.
   onListingClick?: (id: string) => void;
+  // Country/state-zoom choropleth. When `visible`, the map renders the
+  // FeatureCollection as a polygon Data layer tinted by `max_sunnyscore`
+  // and suppresses parcel markers. The page owns the zoom gate and the
+  // click→navigation contract; the map is purely a renderer here.
+  choropleth?: ChoroplethSurface;
+}
+
+// Minimal GeoJSON shape — we don't pull in @types/geojson just for two
+// fields. Geometry is whatever the API returned; the map's Data layer
+// handles parsing.
+export interface ChoroplethFeatureLike {
+  type: "Feature";
+  geometry: unknown;
+  properties: Record<string, unknown>;
+}
+
+export interface ChoroplethSurface {
+  features: {
+    type: "FeatureCollection";
+    features: ChoroplethFeatureLike[];
+  };
+  visible: boolean;
+  onFeatureClick?: (properties: Record<string, unknown>) => void;
 }
 
 export interface HeadingStrings {

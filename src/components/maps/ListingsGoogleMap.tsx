@@ -3,6 +3,7 @@ import { useMemo, useState, useCallback, useEffect, useRef } from "react";
 import { MapPin } from "lucide-react";
 import type { USListing } from "@/countries/unitedStates";
 import type { HexCell } from "@/hooks/useHexHeatmap";
+import type { ChoroplethSurface } from "@/countries/types";
 import { useGoogleMaps } from "./GoogleMapsProvider";
 import { getParcelCenter } from "@/lib/geo";
 import { LayerPanel } from "./LayerPanel";
@@ -39,6 +40,10 @@ interface ListingsGoogleMapProps {
   // EvaluateDrawer. When undefined, markers still render but click is
   // a no-op (production listings page hasn't wired a handler yet).
   onListingClick?: (id: string) => void;
+  // Country/state-zoom polygon overlay (counties for US, provinces
+  // for IT). Page owns the zoom gate via `visible`; when on, parcel
+  // markers are suppressed and the polygons become the click surface.
+  choropleth?: ChoroplethSurface;
 }
 
 const mapContainerStyle = {
@@ -63,6 +68,19 @@ function probSolarToColor(prob: number): string {
   return `hsl(${hue}, 100%, 50%)`;
 }
 
+// max_sunnyscore is a 0–1 number (NULL on counties with no qualifying
+// parcels). Map to a brand-olive ramp; missing data → muted gray.
+function choroplethTint(score: number | null): string {
+  if (score === null || score === undefined || Number.isNaN(score)) {
+    return "#9ca3af"; // muted slate — "no data"
+  }
+  const clamped = Math.max(0, Math.min(1, score));
+  // hsl(75 …) is the brand olive family; lighten at low scores so the
+  // ramp reads from sand → olive → deep olive at high SunnyScore.
+  const lightness = 80 - clamped * 40; // 80% → 40%
+  return `hsl(75, 35%, ${lightness}%)`;
+}
+
 function probSolarToOpacity(pointCount: number, maxCount: number): number {
   if (maxCount === 0) return 0.3;
   return 0.25 + 0.5 * (pointCount / maxCount);
@@ -80,6 +98,7 @@ export function ListingsGoogleMap({
   pageControlledOverlayIds,
   onZoomChange,
   onListingClick,
+  choropleth,
 }: ListingsGoogleMapProps) {
   const pageControlled = pageControlledOverlayIds !== undefined;
   const { isLoaded, hasApiKey, requestLoad } = useGoogleMaps();
@@ -91,6 +110,14 @@ export function ListingsGoogleMap({
   const dataLayerRef = useRef<google.maps.Data | null>(null);
   const infoWindowRef = useRef<google.maps.InfoWindow | null>(null);
   const markersRef = useRef<google.maps.Marker[]>([]);
+  const choroplethLayerRef = useRef<google.maps.Data | null>(null);
+  // Stable ref so the choropleth click handler doesn't tear the layer
+  // down on every parent render that produces a fresh closure.
+  const onChoroplethClickRef = useRef(choropleth?.onFeatureClick);
+  useEffect(() => {
+    onChoroplethClickRef.current = choropleth?.onFeatureClick;
+  }, [choropleth?.onFeatureClick]);
+  const choroplethVisible = choropleth?.visible ?? false;
   // Stable ref so the marker effect doesn't tear down on every parent
   // render that produces a fresh handler closure.
   const onListingClickRef = useRef(onListingClick);
@@ -193,8 +220,12 @@ export function ListingsGoogleMap({
     setMap(mapInstance);
   }, []);
 
-  // Update bounds when map or listings change
+  // Update bounds when map or listings change. Skipped when the
+  // choropleth is on — the map should stay at the country/state-zoom
+  // polygon view rather than zooming into whichever parcels happen to
+  // be loaded behind it.
   useMemo(() => {
+    if (choroplethVisible) return;
     if (map && isLoaded && listingsWithCoords.length > 0 && typeof google !== "undefined") {
       const bounds = new google.maps.LatLngBounds();
 
@@ -204,7 +235,7 @@ export function ListingsGoogleMap({
 
       map.fitBounds(bounds, { top: 50, right: 50, bottom: 50, left: 50 });
     }
-  }, [map, listingsWithCoords, isLoaded]);
+  }, [map, listingsWithCoords, isLoaded, choroplethVisible]);
 
   // Render one marker per listing. Color follows the heatmap's
   // probSolarToColor so a parcel's solar score reads consistently
@@ -216,6 +247,7 @@ export function ListingsGoogleMap({
     if (!map || !isLoaded || typeof google === "undefined") return;
     for (const m of markersRef.current) m.setMap(null);
     markersRef.current = [];
+    if (choroplethVisible) return;
     for (const { listing, coords } of listingsWithCoords) {
       const color = probSolarToColor(listing.prob_solar ?? 0);
       const marker = new google.maps.Marker({
@@ -240,7 +272,7 @@ export function ListingsGoogleMap({
       for (const m of markersRef.current) m.setMap(null);
       markersRef.current = [];
     };
-  }, [map, isLoaded, listingsWithCoords]);
+  }, [map, isLoaded, listingsWithCoords, choroplethVisible]);
 
   // Manage heatmap data layer
   useEffect(() => {
@@ -319,6 +351,73 @@ export function ListingsGoogleMap({
     };
   }, [map, isLoaded, showHeatmap, hexCells, maxPointCount]);
 
+  // County / province choropleth (page-driven, country/state zoom).
+  // Tints by `max_sunnyscore` on a brand olive ramp; null/0 → muted
+  // gray ("no data"). Click delegates to the page through the stable
+  // ref so the layer stays mounted across navigation closures.
+  useEffect(() => {
+    if (!map || !isLoaded || typeof google === "undefined") return;
+    if (choroplethLayerRef.current) {
+      choroplethLayerRef.current.setMap(null);
+      choroplethLayerRef.current = null;
+    }
+    if (!choropleth || !choropleth.visible || !choropleth.features) return;
+
+    const layer = new google.maps.Data({ map });
+    choroplethLayerRef.current = layer;
+    try {
+      layer.addGeoJson(choropleth.features);
+    } catch {
+      // bad payload — bail rather than half-render
+      layer.setMap(null);
+      choroplethLayerRef.current = null;
+      return;
+    }
+
+    layer.setStyle((feature) => {
+      const score = feature.getProperty("max_sunnyscore") as number | null;
+      const count = feature.getProperty("parcel_count") as number | null;
+      return {
+        fillColor: choroplethTint(score),
+        fillOpacity: count && count > 0 ? 0.55 : 0.18,
+        strokeColor: "#ffffff",
+        strokeWeight: 0.6,
+        strokeOpacity: 0.9,
+      };
+    });
+
+    const overListener = layer.addListener(
+      "mouseover",
+      (event: google.maps.Data.MouseEvent) => {
+        layer.overrideStyle(event.feature, { strokeWeight: 1.6, strokeColor: "#1a1a1a" });
+      },
+    );
+    const outListener = layer.addListener(
+      "mouseout",
+      (event: google.maps.Data.MouseEvent) => {
+        layer.revertStyle(event.feature);
+      },
+    );
+    const clickListener = layer.addListener(
+      "click",
+      (event: google.maps.Data.MouseEvent) => {
+        const props: Record<string, unknown> = {};
+        event.feature.forEachProperty((value, key) => {
+          props[key] = value;
+        });
+        onChoroplethClickRef.current?.(props);
+      },
+    );
+
+    return () => {
+      google.maps.event.removeListener(overListener);
+      google.maps.event.removeListener(outListener);
+      google.maps.event.removeListener(clickListener);
+      layer.setMap(null);
+      choroplethLayerRef.current = null;
+    };
+  }, [map, isLoaded, choropleth]);
+
   // Show fallback if Google Maps is not available
   if (!isLoaded) {
     return (
@@ -362,6 +461,9 @@ export function ListingsGoogleMap({
   const activeOverlayCount = pageControlled
     ? pageControlledOverlayIds!.size
     : 0;
+  const choroplethCount = choroplethVisible
+    ? choropleth?.features.features.length ?? 0
+    : 0;
 
   return (
     <div className={`relative ${className}`}>
@@ -382,8 +484,8 @@ export function ListingsGoogleMap({
             <span>Z</span>
             <b className="tabular-nums">{currentZoom !== undefined ? currentZoom : "—"}</b>
             <span className="opacity-50">·</span>
-            <span>N</span>
-            <b className="tabular-nums">{listings.length}</b>
+            <span>{choroplethVisible ? "Areas" : "N"}</span>
+            <b className="tabular-nums">{choroplethVisible ? choroplethCount : listings.length}</b>
             <span className="opacity-50">·</span>
             <span>Ovl</span>
             <b className="tabular-nums">{activeOverlayCount}</b>

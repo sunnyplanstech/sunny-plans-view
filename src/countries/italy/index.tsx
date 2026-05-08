@@ -180,6 +180,7 @@ export const italy: CountryAdapter = {
         pageControlledOverlayIds={props.pageControlledOverlayIds}
         onZoomChange={props.onZoomChange}
         onListingClick={props.onListingClick}
+        choropleth={props.choropleth}
       />
     );
   },
