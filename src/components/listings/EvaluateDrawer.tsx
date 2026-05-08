@@ -160,7 +160,7 @@ function ScoreSection({ listing }: { listing: BaseListing }) {
   return (
     <section className="px-5 py-5">
       <div className="flex items-baseline justify-between gap-3">
-        <h3 className="tp-eyebrow">SunnyScore</h3>
+        <h3 className="text-sm font-semibold text-foreground">SunnyScore</h3>
         <span
           className={cn(
             "text-3xl font-semibold leading-none tabular-nums",
@@ -201,12 +201,12 @@ function SpecSection({
   return (
     <section className="border-t border-border px-5 py-5">
       <div className="flex items-baseline justify-between gap-3">
-        <h3 className="tp-eyebrow">Spec</h3>
-        <span className="tp-mono text-[11px] tabular-nums">
+        <h3 className="text-sm font-semibold text-foreground">Spec</h3>
+        <span className="text-xs tabular-nums">
           <span className={cn(allPass ? "text-primary font-semibold" : "text-foreground")}>
-            {pass}/{total}
+            {pass} of {total}
           </span>
-          <span className="text-muted-foreground/70"> pass</span>
+          <span className="text-muted-foreground"> pass</span>
         </span>
       </div>
       <ul className="mt-3 space-y-2">
@@ -307,7 +307,7 @@ function ProximitySection({
   if (rows.length === 0) return null;
   return (
     <section className="border-t border-border px-5 py-5">
-      <h3 className="tp-eyebrow">Proximity</h3>
+      <h3 className="text-sm font-semibold text-foreground">Proximity</h3>
       <dl className="mt-3 space-y-1.5">
         {rows.map(({ label, meters }) => (
           <div
@@ -315,7 +315,7 @@ function ProximitySection({
             className="flex items-baseline justify-between gap-3 text-sm"
           >
             <dt className="text-muted-foreground">{label}</dt>
-            <dd className="tp-mono tabular-nums text-foreground">
+            <dd className="tabular-nums font-medium text-foreground">
               {accessGranted ? "" : "~"}
               {formatMeters(meters, unit)}
             </dd>

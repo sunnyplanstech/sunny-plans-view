@@ -17,11 +17,13 @@
 //
 // Visual aesthetic — inherits the brand theme (gradient-subtle canvas,
 // brand olive/citron, default shadcn radius) so the preview reads as
-// part of the same family as the landing page and the existing maps.
-// A small set of helpers (`tp-eyebrow`, `tp-mono`, `tp-row`, `tp-hud`,
-// `tp-scope`) in `src/index.css` adds the dense "instrument-panel"
-// texture the layer-first UI needs (mono counters / IDs / coords, soft
-// row-hover with a primary-tinted left bar on selection).
+// part of the same family as the landing page. Sans-serif throughout;
+// `tabular-nums` keeps counts aligned without dropping into monospace.
+// `tp-mono` survives only on small `SLOPE` / `NWI` / `N2K` / `PAD`
+// layer-identifier chips, where mono is the right idiom (these are
+// stable code names, not user-facing copy). `tp-row` and `tp-hud` are
+// retained for the constraint-row hover bar and the floating map HUD
+// plates respectively.
 //
 // Constraint filtering runs client-side via `evaluateLayer` against
 // the per-listing fields the API already returns (e.g. flat_5_acres
@@ -39,12 +41,9 @@ import SubdivisionNav from "@/components/listings/SubdivisionNav";
 import SEOHead from "@/components/listings/SEOHead";
 import EvaluateDrawer from "@/components/listings/EvaluateDrawer";
 import SortSelector from "@/components/listings/SortSelector";
-import {
-  DEFAULT_SORT_KEY,
-  sortListings,
-  type SortKey,
-} from "@/components/listings/sortListings";
+import { sortListings, type SortKey } from "@/components/listings/sortListings";
 import ConstraintBar from "@/components/layers/ConstraintBar";
+import SpecChipsHeader from "@/components/layers/SpecChipsHeader";
 import {
   availableLayers,
   selectedOverlayIds,
@@ -52,10 +51,15 @@ import {
   type Layer,
 } from "@/components/layers/registry";
 import {
+  costFor,
   effectFor,
   evaluateLayer,
+  funnelSteps,
+  type FunnelStep,
   type LayerEffect,
 } from "@/components/layers/evaluate";
+import { layerTag } from "@/components/layers/layerTag";
+import { useUrlSpecState } from "@/components/layers/useUrlSpecState";
 import { getCountryAdapter, type CountryAdapter } from "@/countries";
 import type { BaseListing } from "@/countries/types";
 import type { USListing } from "@/countries/unitedStates";
@@ -79,6 +83,21 @@ function formatScopeSegment(slug?: string): string | null {
     .split("-")
     .map((s) => s.charAt(0).toUpperCase() + s.slice(1).toLowerCase())
     .join(" ");
+}
+
+// Title-cased segments for the breadcrumb / spec scope chip — shared
+// between PageHeader (mono `tp-scope` line) and SpecChipsHeader
+// (gradient-card pill) so both surfaces show the same scope identity.
+function scopeSegmentsFor(
+  country?: string,
+  region?: string,
+  province?: string,
+): string[] {
+  return [
+    formatScopeSegment(country) ?? "—",
+    formatScopeSegment(region),
+    formatScopeSegment(province),
+  ].filter(Boolean) as string[];
 }
 
 const ListingsSearchPreview = () => {
@@ -106,24 +125,18 @@ interface InnerProps {
 
 const CountryPreview = ({ adapter, country, region, province }: InnerProps) => {
   const layers = useMemo(() => availableLayers(country), [country]);
-  const [selectedIds, setSelectedIds] = useState<Set<string>>(() => new Set());
-  const [sortKey, setSortKey] = useState<SortKey>(DEFAULT_SORT_KEY);
+  const {
+    selectedIds,
+    sortKey,
+    toggleConstraint,
+    clearConstraints,
+    setSortKey,
+  } = useUrlSpecState(layers);
   const [evaluating, setEvaluating] = useState<BaseListing | null>(null);
   const [listExpanded, setListExpanded] = useState(false);
   const [railOpen, setRailOpen] = useState(true);
   const [mobileSurface, setMobileSurface] = useState<MobileSurface>("map");
   const [currentZoom, setCurrentZoom] = useState<number | undefined>(undefined);
-
-  const toggleConstraint = useCallback((id: string) => {
-    setSelectedIds((prev) => {
-      const next = new Set(prev);
-      if (next.has(id)) next.delete(id);
-      else next.add(id);
-      return next;
-    });
-  }, []);
-
-  const clearConstraints = useCallback(() => setSelectedIds(new Set()), []);
 
   const selectedLayers = useMemo<Layer[]>(
     () => layers.filter((l) => selectedIds.has(l.id)),
@@ -154,6 +167,25 @@ const CountryPreview = ({ adapter, country, region, province }: InnerProps) => {
     return out;
   }, [layers, allListings]);
 
+  // Cost-of-constraint per layer — depends on the current selection,
+  // so recomputes on every toggle. Cheap for our scale (<100 listings,
+  // <12 layers) and keeps the contract pure: ConstraintBar receives a
+  // dict, no callback indirection.
+  const costsById = useMemo<Record<string, number | null>>(() => {
+    const out: Record<string, number | null> = {};
+    for (const layer of layers) {
+      out[layer.id] = costFor(allListings, layer, selectedLayers);
+    }
+    return out;
+  }, [layers, allListings, selectedLayers]);
+
+  // Cumulative narrowing through the selected stack — drives the
+  // SpecFunnel under the constraint bar.
+  const steps = useMemo<FunnelStep[]>(
+    () => funnelSteps(allListings, selectedLayers),
+    [allListings, selectedLayers],
+  );
+
   // Listings rail shows the post-filter, post-sort set. A listing
   // passes the filter iff it passes every selected layer that can be
   // evaluated locally; layers without per-listing data don't filter
@@ -166,6 +198,23 @@ const CountryPreview = ({ adapter, country, region, province }: InnerProps) => {
     );
     return sortListings(filtered, sortKey);
   }, [allListings, selectedLayers, sortKey]);
+
+  // Per-constraint elimination breakdown for the rail header. Only
+  // includes constraints that are both selected AND evaluable.
+  const eliminationByLayer = useMemo<{ layer: Layer; eliminated: number }[]>(
+    () =>
+      steps
+        .filter((s) => s.eliminated > 0)
+        .map((s) => ({ layer: s.layer, eliminated: s.eliminated })),
+    [steps],
+  );
+
+  // Stable signature of the spec stack — drives a key-based remount of
+  // the cards container so they re-animate in on filter/sort change.
+  const specSignature = useMemo(
+    () => `${sortKey}|${selectedLayers.map((l) => l.id).join(",")}`,
+    [sortKey, selectedLayers],
+  );
 
   const locationName = adapter.formatScopeName(scope);
   const seo = adapter.seoCopy(scope, visibleListings);
@@ -198,6 +247,11 @@ const CountryPreview = ({ adapter, country, region, province }: InnerProps) => {
     [allListings],
   );
 
+  // US first-level admin unit is "state"; Italy uses "region". Drives
+  // the constraint bar's "Pick a {state/region} first" hint copy.
+  const regionLabel: "state" | "region" =
+    country === "italy" ? "region" : "state";
+
   const constraintBar = (
     <ConstraintBar
       layers={layers}
@@ -205,10 +259,21 @@ const CountryPreview = ({ adapter, country, region, province }: InnerProps) => {
       onToggle={toggleConstraint}
       onClear={clearConstraints}
       effectsById={effectsById}
+      costsById={costsById}
+      funnelSteps={steps}
       totalListings={allListings.length}
       currentZoom={currentZoom}
       hasRegionScope={hasRegionScope}
+      regionLabel={regionLabel}
     />
+  );
+
+  // Mobile-only intent: empty-state chip in the spec header surfaces
+  // the constraints surface so the user can pick from the bar.
+  // Desktop leaves this undefined since the bar is always visible.
+  const focusConstraints = useCallback(
+    () => setMobileSurface("constraints"),
+    [],
   );
 
   const map = adapter.renderMap({
@@ -236,6 +301,8 @@ const CountryPreview = ({ adapter, country, region, province }: InnerProps) => {
       onToggleExpanded={() => setListExpanded((v) => !v)}
       selectedConstraintCount={selectedLayers.length}
       onClearConstraints={clearConstraints}
+      eliminationByLayer={eliminationByLayer}
+      animationKey={specSignature}
     />
   );
 
@@ -261,6 +328,13 @@ const CountryPreview = ({ adapter, country, region, province }: InnerProps) => {
           visibleCount={visibleListings.length}
           selectedCount={selectedLayers.length}
         />
+        <SpecChipsHeader
+          selectedLayers={selectedLayers}
+          scopeSegments={scopeSegmentsFor(country, region, province)}
+          onRemove={toggleConstraint}
+          onClear={clearConstraints}
+          onAddIntent={mobileSurface !== "constraints" ? focusConstraints : undefined}
+        />
 
         {/* Desktop workspace — three columns. Map and constraint rail
             stick to the viewport top so the page itself is the scroll
@@ -270,7 +344,7 @@ const CountryPreview = ({ adapter, country, region, province }: InnerProps) => {
           {railOpen ? (
             <aside className="w-[300px] xl:w-[330px] flex-shrink-0 sticky top-0 self-start h-screen overflow-y-auto border-r border-border/60 bg-muted/10 p-3">
               <div className="mb-2 flex items-center justify-between">
-                <span className="tp-eyebrow">Project spec</span>
+                <span className="text-xs font-medium text-muted-foreground">Project spec</span>
                 <button
                   type="button"
                   onClick={() => setRailOpen(false)}
@@ -378,73 +452,41 @@ const PageHeader = ({
   visibleCount,
   selectedCount,
 }: PageHeaderProps) => {
-  const segments = [
-    formatScopeSegment(country) ?? "—",
-    formatScopeSegment(region),
-    formatScopeSegment(province),
-  ].filter(Boolean) as string[];
+  // The spec-chips header below carries the qualify/constraints
+  // readout. The page header keeps the scope breadcrumb + the
+  // headline, plus a single quiet "in scope" counter so the headline
+  // anchors to a number even when no spec is set yet.
+  const scopeCount =
+    selectedCount > 0
+      ? `${visibleCount.toLocaleString()} / ${totalListings.toLocaleString()}`
+      : totalListings.toLocaleString();
   return (
     <header className="border-b border-border/60 bg-card/60 backdrop-blur-sm">
       <div className="container mx-auto px-4 py-3">
-        <div className="flex flex-wrap items-center justify-between gap-3">
-          <ListingsBreadcrumb country={country} region={region} province={province} />
-          <div className="tp-scope hidden md:inline-flex">
-            {segments.map((seg, i) => (
-              <span key={`${seg}-${i}`} className="flex items-center gap-1">
-                <b>{seg}</b>
-                {i < segments.length - 1 && <span className="sep">›</span>}
-              </span>
-            ))}
-          </div>
-        </div>
-        <div className="mt-2 flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1.5">
+        <ListingsBreadcrumb country={country} region={region} province={province} />
+        <div className="mt-2 flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1">
           <h1 className="text-xl md:text-2xl font-semibold tracking-tight text-foreground">
             <span className="text-primary">{locationName}</span>{" "}
             <span className="font-normal text-muted-foreground">{listingTerm}</span>
           </h1>
-          <div className="flex flex-wrap items-center gap-x-4 gap-y-1">
-            <ReadoutPair label="In scope" value={totalListings.toLocaleString()} />
-            {selectedCount > 0 ? (
-              <ReadoutPair
-                label="Qualify"
-                value={`${visibleCount.toLocaleString()} / ${totalListings.toLocaleString()}`}
-                accent
-              />
-            ) : (
-              <ReadoutPair label="Qualify" value="— no spec yet" />
-            )}
-            <ReadoutPair
-              label="Constraints"
-              value={`${selectedCount} on`}
-            />
-          </div>
+          <p className="text-sm text-muted-foreground">
+            {selectedCount > 0 ? "Qualify" : "In scope"}{" "}
+            <span
+              className={cn(
+                "tabular-nums",
+                selectedCount > 0
+                  ? "text-primary font-semibold"
+                  : "font-medium text-foreground",
+              )}
+            >
+              {scopeCount}
+            </span>
+          </p>
         </div>
       </div>
     </header>
   );
 };
-
-const ReadoutPair = ({
-  label,
-  value,
-  accent,
-}: {
-  label: string;
-  value: string;
-  accent?: boolean;
-}) => (
-  <div className="inline-flex items-baseline gap-1.5">
-    <span className="tp-eyebrow">{label}</span>
-    <span
-      className={cn(
-        "tp-mono tabular-nums text-[12px]",
-        accent ? "text-primary font-semibold" : "text-foreground",
-      )}
-    >
-      {value}
-    </span>
-  </div>
-);
 
 interface ListingsRailProps {
   listings: BaseListing[];
@@ -459,6 +501,15 @@ interface ListingsRailProps {
   onToggleExpanded: () => void;
   selectedConstraintCount: number;
   onClearConstraints: () => void;
+  // Per-constraint elimination breakdown — already filtered to
+  // entries with eliminated > 0 by the page. Empty array → no
+  // breakdown line rendered (the rail header stays compact when
+  // selections don't bite the cohort).
+  eliminationByLayer: { layer: Layer; eliminated: number }[];
+  // Stable signature of the spec stack; changing it remounts the
+  // cards container so the stagger fade-in plays each time the
+  // user changes their spec.
+  animationKey: string;
 }
 
 const ListingsRail = ({
@@ -474,31 +525,36 @@ const ListingsRail = ({
   onToggleExpanded,
   selectedConstraintCount,
   onClearConstraints,
+  eliminationByLayer,
+  animationKey,
 }: ListingsRailProps) => (
   <>
-    <header className="sticky top-0 z-10 border-b border-border/60 bg-gradient-subtle px-4 py-3 flex items-center justify-between gap-2">
+    <header className="sticky top-0 z-10 border-b border-border/60 bg-gradient-subtle px-4 py-3 flex items-start justify-between gap-2">
       <div className="min-w-0">
-        <p className="tp-eyebrow">Listings</p>
-        <p className="tp-mono mt-0.5 text-[11px] tabular-nums text-foreground">
+        <h2 className="text-sm font-semibold text-foreground">Listings</h2>
+        <p className="mt-0.5 text-xs text-muted-foreground tabular-nums">
           {isLoading ? (
-            <span className="text-muted-foreground">loading…</span>
+            "loading…"
           ) : selectedConstraintCount === 0 ? (
             <>
-              {total.toLocaleString()}{" "}
-              <span className="text-muted-foreground">in scope</span>
+              <span className="font-medium text-foreground">
+                {total.toLocaleString()}
+              </span>{" "}
+              in scope
             </>
           ) : (
             <>
               <span className="text-primary font-semibold">
                 {listings.length.toLocaleString()}
               </span>
-              <span className="text-muted-foreground">
-                {" / "}
-                {total.toLocaleString()} qualify
-              </span>
+              {" of "}
+              {total.toLocaleString()} qualify
             </>
           )}
         </p>
+        {!isLoading && eliminationByLayer.length > 0 && (
+          <EliminationBreakdown items={eliminationByLayer} />
+        )}
       </div>
       <div className="flex items-center gap-1.5 flex-shrink-0">
         <SortSelector value={sortKey} onChange={onSortChange} />
@@ -533,20 +589,67 @@ const ListingsRail = ({
         />
       ) : (
         <div
+          key={animationKey}
           className={cn(
             "space-y-3",
             expanded && "grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-3 space-y-0",
           )}
         >
           {listings.map((listing, i) => (
-            <div key={listing.id}>
+            <AnimatedCard key={listing.id} index={i}>
               {adapter.renderListingCard(listing, scope, i, { onSelect })}
-            </div>
+            </AnimatedCard>
           ))}
         </div>
       )}
     </div>
   </>
+);
+
+// Stagger-fade-in wrapper. The animation plays once per remount —
+// the parent provides a key derived from the spec signature, so
+// changing the spec replays the cascade and the user perceives the
+// cohort "settling" into its new shape.
+const STAGGER_MS = 28;
+const MAX_STAGGER_MS = 360;
+
+const AnimatedCard = ({
+  index,
+  children,
+}: {
+  index: number;
+  children: React.ReactNode;
+}) => (
+  <div
+    className="animate-in fade-in-0 slide-in-from-bottom-1 duration-300 ease-out fill-mode-both"
+    style={{ animationDelay: `${Math.min(index * STAGGER_MS, MAX_STAGGER_MS)}ms` }}
+  >
+    {children}
+  </div>
+);
+
+// Per-constraint "eliminated by" line. Uses the same mono layer-tag
+// vocabulary as the constraint bar so the user reads the same names
+// in both surfaces.
+const EliminationBreakdown = ({
+  items,
+}: {
+  items: { layer: Layer; eliminated: number }[];
+}) => (
+  <p className="mt-1 flex flex-wrap items-center gap-x-2 gap-y-0.5 text-[11px] text-muted-foreground">
+    <span>Eliminated by</span>
+    {items.map(({ layer, eliminated }, i) => (
+      <span key={layer.id} className="inline-flex items-center gap-1">
+        <span className="tp-mono rounded-sm border border-border/70 bg-background/70 px-1 py-px text-[9px] font-semibold tracking-wider text-muted-foreground">
+          {layerTag(layer.id)}
+        </span>
+        <span className="tabular-nums text-destructive/80">
+          −{eliminated.toLocaleString()}
+        </span>
+        {i < items.length - 1 && <span className="text-muted-foreground/40">·</span>}
+      </span>
+    ))}
+  </p>
 );
 
 const MobileSurfaceToggle = ({

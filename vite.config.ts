@@ -27,6 +27,21 @@ export default defineConfig(({ mode }) => ({
   server: {
     host: "::",
     port: 8080,
+    // Dev-only API proxy — mirrors the prod `[[redirects]]` block in
+    // netlify.toml that forwards `/api/*` to api.sunnyplans.com. Lets
+    // local dev hit the prod (or any) API without browser CORS in the
+    // way: requests stay same-origin from the browser's POV. With
+    // `VITE_API_BASE_URL` left empty, the apiClient emits relative
+    // `/api/...` paths that this proxy intercepts. Has zero effect on
+    // the production bundle (Vite dev server only).
+    proxy: {
+      "/api": {
+        target:
+          process.env.VITE_DEV_API_PROXY_TARGET ?? "https://api.sunnyplans.com",
+        changeOrigin: true,
+        secure: true,
+      },
+    },
   },
   optimizeDeps: {
     // Force re-optimization to avoid stale cache issues

@@ -19,7 +19,7 @@ export function SortSelector({ value, onChange }: SortSelectorProps) {
   return (
     <Select value={value} onValueChange={(v) => onChange(v as SortKey)}>
       <SelectTrigger className="h-8 w-[170px] text-xs">
-        <span className="tp-eyebrow mr-1">Sort</span>
+        <span className="mr-1.5 text-muted-foreground">Sort</span>
         <SelectValue />
       </SelectTrigger>
       <SelectContent>

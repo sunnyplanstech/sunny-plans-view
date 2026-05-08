@@ -88,6 +88,7 @@ export const LAYER_REGISTRY: Layer[] = [
     spatialUnit: "parcel",
     country: "united-states",
     pmtilesLayerId: "pad_us",
+    requiresRegionScope: true,
     minZoom: 6,
   },
   {
@@ -125,6 +126,7 @@ export const LAYER_REGISTRY: Layer[] = [
     spatialUnit: "parcel",
     country: "italy",
     pmtilesLayerId: "natura2000_it",
+    requiresRegionScope: true,
     minZoom: 6,
   },
   {

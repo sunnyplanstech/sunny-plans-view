@@ -52,3 +52,91 @@ export function effectFor(
   }
   return { passing, failing, unknown };
 }
+
+// True when this layer narrows the listings array — i.e. it has a chip
+// (per-listing field) we can evaluate. Layers without a chip toggle the
+// map overlay only and don't affect counts in the rail.
+function isEvaluable(layer: Layer): boolean {
+  return !!layer.chip;
+}
+
+// Listings that pass every layer in `layers` (skipping unevaluable
+// ones — those don't filter, only the overlay).
+function filterBy(
+  listings: ReadonlyArray<BaseListing>,
+  layers: ReadonlyArray<Layer>,
+): BaseListing[] {
+  const evaluable = layers.filter(isEvaluable);
+  if (evaluable.length === 0) return [...listings];
+  return listings.filter((l) =>
+    evaluable.every((layer) => evaluateLayer(l, layer) === "pass"),
+  );
+}
+
+// Cost-of-constraint signal — how many listings would change if a
+// single layer were toggled, holding all other selections fixed.
+//
+// For an unselected layer: returns the count of currently-visible
+// listings that would FAIL this layer (i.e. how many would be
+// eliminated if the user added it). Read as "−N if added".
+//
+// For a selected layer: returns how many ADDITIONAL listings would
+// qualify if this layer were removed (i.e. listings that pass every
+// other selected layer but fail this one). Read as "+N if removed".
+//
+// Returns `null` when the layer has no per-listing chip — we don't
+// know its cost locally and showing a fake number would be misleading.
+export function costFor(
+  allListings: ReadonlyArray<BaseListing>,
+  layer: Layer,
+  selectedLayers: ReadonlyArray<Layer>,
+): number | null {
+  if (!isEvaluable(layer)) return null;
+  const isSelected = selectedLayers.some((l) => l.id === layer.id);
+  if (isSelected) {
+    const others = selectedLayers.filter((l) => l.id !== layer.id);
+    const passingOthers = filterBy(allListings, others);
+    const passingAll = passingOthers.filter(
+      (l) => evaluateLayer(l, layer) === "pass",
+    );
+    return passingOthers.length - passingAll.length;
+  }
+  const visible = filterBy(allListings, selectedLayers);
+  let wouldFail = 0;
+  for (const l of visible) {
+    if (evaluateLayer(l, layer) === "fail") wouldFail += 1;
+  }
+  return wouldFail;
+}
+
+// Stepped narrowing for the SpecFunnel — given the user's selected
+// layers in registry order, return the qualifying count after each
+// step is applied cumulatively. Only evaluable (chip-bearing) layers
+// contribute steps; unevaluable selections are skipped silently.
+export interface FunnelStep {
+  layer: Layer;
+  // Listings remaining after applying this layer on top of all prior
+  // steps in the funnel.
+  remaining: number;
+  // Listings eliminated by this step alone.
+  eliminated: number;
+}
+
+export function funnelSteps(
+  allListings: ReadonlyArray<BaseListing>,
+  selectedLayers: ReadonlyArray<Layer>,
+): FunnelStep[] {
+  const evaluable = selectedLayers.filter(isEvaluable);
+  const steps: FunnelStep[] = [];
+  let cohort: BaseListing[] = [...allListings];
+  for (const layer of evaluable) {
+    const before = cohort.length;
+    cohort = cohort.filter((l) => evaluateLayer(l, layer) === "pass");
+    steps.push({
+      layer,
+      remaining: cohort.length,
+      eliminated: before - cohort.length,
+    });
+  }
+  return steps;
+}
