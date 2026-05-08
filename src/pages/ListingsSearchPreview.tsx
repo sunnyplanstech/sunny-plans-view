@@ -53,7 +53,6 @@ import EvaluateDrawer from "@/components/listings/EvaluateDrawer";
 import SortSelector from "@/components/listings/SortSelector";
 import { sortListings, type SortKey } from "@/components/listings/sortListings";
 import ConstraintBar from "@/components/layers/ConstraintBar";
-import SpecChipsHeader from "@/components/layers/SpecChipsHeader";
 import {
   availableLayers,
   selectedOverlayIds,
@@ -92,29 +91,6 @@ const CHOROPLETH_MAX_ZOOM = 10;
 // On mobile only one surface is visible at a time. Floating buttons
 // at the bottom of the viewport rotate through these three.
 type MobileSurface = "constraints" | "map" | "list";
-
-function formatScopeSegment(slug?: string): string | null {
-  if (!slug) return null;
-  return slug
-    .split("-")
-    .map((s) => s.charAt(0).toUpperCase() + s.slice(1).toLowerCase())
-    .join(" ");
-}
-
-// Title-cased segments for the breadcrumb / spec scope chip — shared
-// between PageHeader (mono `tp-scope` line) and SpecChipsHeader
-// (gradient-card pill) so both surfaces show the same scope identity.
-function scopeSegmentsFor(
-  country?: string,
-  region?: string,
-  province?: string,
-): string[] {
-  return [
-    formatScopeSegment(country) ?? "—",
-    formatScopeSegment(region),
-    formatScopeSegment(province),
-  ].filter(Boolean) as string[];
-}
 
 const ListingsSearchPreview = () => {
   const { country, region, province } = useParams();
@@ -276,20 +252,11 @@ const CountryPreview = ({ adapter, country, region, province }: InnerProps) => {
       onClear={clearConstraints}
       effectsById={effectsById}
       costsById={costsById}
-      funnelSteps={steps}
       totalListings={allListings.length}
       currentZoom={currentZoom}
       hasRegionScope={hasRegionScope}
       regionLabel={regionLabel}
     />
-  );
-
-  // Mobile-only intent: empty-state chip in the spec header surfaces
-  // the constraints surface so the user can pick from the bar.
-  // Desktop leaves this undefined since the bar is always visible.
-  const focusConstraints = useCallback(
-    () => setMobileSurface("constraints"),
-    [],
   );
 
   // Choropleth wiring (roadmap p1-e3-layer-first-ui — frontend slice).
@@ -396,14 +363,6 @@ const CountryPreview = ({ adapter, country, region, province }: InnerProps) => {
           visibleCount={visibleListings.length}
           selectedCount={selectedLayers.length}
         />
-        <SpecChipsHeader
-          selectedLayers={selectedLayers}
-          scopeSegments={scopeSegmentsFor(country, region, province)}
-          onRemove={toggleConstraint}
-          onClear={clearConstraints}
-          onAddIntent={mobileSurface !== "constraints" ? focusConstraints : undefined}
-        />
-
         {/* Desktop workspace — three columns. Map and constraint rail
             stick to the viewport top so the page itself is the scroll
             container: cards in the listings rail scroll past the

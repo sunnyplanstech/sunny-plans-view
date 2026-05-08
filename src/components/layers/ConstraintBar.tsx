@@ -18,9 +18,8 @@
 import { Check, MapPin, ZoomIn } from "lucide-react";
 import { cn } from "@/lib/utils";
 import type { Layer } from "./registry";
-import type { FunnelStep, LayerEffect } from "./evaluate";
+import type { LayerEffect } from "./evaluate";
 import { layerTag } from "./layerTag";
-import SpecFunnel from "./SpecFunnel";
 
 interface ConstraintBarProps {
   layers: Layer[];
@@ -36,9 +35,6 @@ interface ConstraintBarProps {
   // fixed. `null` means the layer has no per-listing chip and we
   // can't compute the cost locally. See `costFor` in evaluate.ts.
   costsById: Record<string, number | null>;
-  // Cumulative narrowing through the selected stack — drives the
-  // SpecFunnel footer. Empty array hides the funnel.
-  funnelSteps: FunnelStep[];
   // Total listings in the current scope. The denominator for the row's
   // counter ("740 / 12,400 qualify") and the empty-selection summary.
   totalListings: number;
@@ -84,19 +80,30 @@ function effectRatio(effect: LayerEffect, total: number): string | null {
 
 // Cost label for the right-aligned "what does this constraint do"
 // signal. Reads as a permanent inline trade-off, not a hover tooltip.
-//   selected  → "+N if removed"  (count that comes back if you drop it)
-//   unselected→ "−N if added"    (count it would eliminate)
-//   delta=0   → quiet "no effect" (still informative — the constraint
-//                                  doesn't bite the current cohort)
-//   delta=null→ no label         (layer has no chip; we can't compute)
+//   selected   → "+N if removed"  (count that comes back if you drop it)
+//   unselected → "−N if added"    (count it would eliminate)
+//   delta=0 + some data → quiet "no effect" (the constraint genuinely
+//                                            doesn't bite this cohort)
+//   delta=0 + no data   → "no data yet" (per-listing field is null on
+//                                        every visible listing — usually
+//                                        a sidecar lag, not a no-op)
+//   delta=null → no label         (layer has no chip; we can't compute)
 interface CostLabel {
   text: string;
   tone: "positive" | "negative" | "neutral";
 }
 
-function costLabel(delta: number | null, selected: boolean): CostLabel | null {
+function costLabel(
+  delta: number | null,
+  selected: boolean,
+  effect?: LayerEffect,
+): CostLabel | null {
   if (delta === null) return null;
   if (delta === 0) {
+    const evaluated = (effect?.passing ?? 0) + (effect?.failing ?? 0);
+    if (evaluated === 0 && (effect?.unknown ?? 0) > 0) {
+      return { text: "no data yet", tone: "neutral" };
+    }
     return { text: "no effect here", tone: "neutral" };
   }
   if (selected) {
@@ -112,7 +119,6 @@ export function ConstraintBar({
   onClear,
   effectsById,
   costsById,
-  funnelSteps,
   totalListings,
   currentZoom,
   hasRegionScope,
@@ -163,7 +169,7 @@ export function ConstraintBar({
           const tag = layerTag(layer.id);
           const cost = state.belowMinZoom
             ? null
-            : costLabel(costsById[layer.id] ?? null, selected);
+            : costLabel(costsById[layer.id] ?? null, selected, state.effect);
           return (
             <li key={layer.id}>
               <button
@@ -236,8 +242,6 @@ export function ConstraintBar({
           );
         })}
       </ul>
-
-      <SpecFunnel totalListings={totalListings} steps={funnelSteps} />
     </aside>
   );
 }
