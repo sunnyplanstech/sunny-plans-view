@@ -36,6 +36,13 @@ All colors MUST be HSL.
     --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 0 0% 100%;
 
+    /* Analytical "negative" tone — terracotta. Used for data-viz where
+       a value is below baseline or unfavourable, but the eye shouldn't
+       recoil the way it does for `destructive`. Pairs with the olive/
+       citron palette without alarming. */
+    --negative: 15 65% 50%;
+    --negative-foreground: 0 0% 100%;
+
     --border: 72 35% 85%;
     --input: 72 35% 85%;
     --ring: 88 68% 26%;
@@ -93,6 +100,11 @@ All colors MUST be HSL.
 
     --destructive: 0 62.8% 30.6%;
     --destructive-foreground: 210 40% 98%;
+
+    /* Terracotta tweaked for dark backgrounds — slightly brighter so it
+       reads against the deep olive canvas. */
+    --negative: 15 60% 55%;
+    --negative-foreground: 0 0% 100%;
 
     --border: 88 68% 20%;
     --input: 88 68% 20%;

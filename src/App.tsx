@@ -1,4 +1,5 @@
 import { lazy, Suspense } from "react";
+import { ThemeProvider } from "next-themes";
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -14,6 +15,7 @@ const ListingsSearch = lazy(() => import("./pages/ListingsSearch"));
 const ListingsSearchPreview = lazy(
   () => import("./pages/ListingsSearchPreview"),
 );
+const SunnyScorePreview = lazy(() => import("./pages/SunnyScorePreview"));
 const ListingDetail = lazy(() => import("./pages/ListingDetail"));
 const Blog = lazy(() => import("./pages/Blog"));
 const BlogPost = lazy(() => import("./pages/BlogPost"));
@@ -38,6 +40,7 @@ const queryClient = new QueryClient();
 
 const App = () => (
   <QueryClientProvider client={queryClient}>
+    <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
     <AuthProvider>
     <GoogleMapsProvider>
       <TooltipProvider>
@@ -46,6 +49,10 @@ const App = () => (
         <BrowserRouter>
         <Routes>
           <Route path="/" element={<Index />} />
+
+          {/* SunnyScore™ explanation preview (roadmap p2-e1-sunnyscore-visual).
+              Visual sandbox — gauge + helping/hurting bars across surfaces. */}
+          <Route path="/preview/sunnyscore" element={<Suspense fallback={<PageLoader />}><SunnyScorePreview /></Suspense>} />
 
           {/* Layer-first listings preview (roadmap p1-e3-layer-first-ui).
               Parallel to /:country/... so the new UX can be reviewed
@@ -101,6 +108,7 @@ const App = () => (
       </TooltipProvider>
     </GoogleMapsProvider>
     </AuthProvider>
+    </ThemeProvider>
   </QueryClientProvider>
 );
 

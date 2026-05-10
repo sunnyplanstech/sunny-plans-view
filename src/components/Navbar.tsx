@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Sun, ChevronDown, Menu, X, LogIn } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import UserMenu from "@/components/auth/UserMenu";
+import ThemeToggle from "@/components/ThemeToggle";
 
 const Navbar = () => {
   const [scrolled, setScrolled] = useState(false);
@@ -39,7 +40,7 @@ const Navbar = () => {
       className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
         scrolled
           ? "bg-background/95 backdrop-blur-md border-b border-border shadow-sm"
-          : "bg-white/90 backdrop-blur-sm border-b border-border/40 shadow-sm"
+          : "bg-background/90 backdrop-blur-sm border-b border-border/40 shadow-sm"
       }`}
     >
       <div className="container px-4 mx-auto">
@@ -106,6 +107,8 @@ const Navbar = () => {
               Blog
             </a>
 
+            <ThemeToggle className="ml-1" />
+
             {isAuthenticated ? (
               <div className="ml-3">
                 <UserMenu />
@@ -120,14 +123,17 @@ const Navbar = () => {
             )}
           </nav>
 
-          {/* Mobile hamburger */}
-          <button
-            className="md:hidden p-2 text-muted-foreground hover:text-foreground"
-            onClick={() => setMobileOpen((o) => !o)}
-            aria-label="Toggle menu"
-          >
-            {mobileOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
-          </button>
+          {/* Mobile: theme toggle + hamburger */}
+          <div className="md:hidden flex items-center gap-1">
+            <ThemeToggle />
+            <button
+              className="p-2 text-muted-foreground hover:text-foreground"
+              onClick={() => setMobileOpen((o) => !o)}
+              aria-label="Toggle menu"
+            >
+              {mobileOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
+            </button>
+          </div>
         </div>
       </div>
 

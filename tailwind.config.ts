@@ -35,6 +35,13 @@ export default {
           DEFAULT: "hsl(var(--destructive))",
           foreground: "hsl(var(--destructive-foreground))",
         },
+        // Analytical "negative" tone — terracotta. See index.css.
+        // Use for data-viz where a value is below baseline; reach for
+        // `destructive` instead for action UI (delete, errors).
+        negative: {
+          DEFAULT: "hsl(var(--negative))",
+          foreground: "hsl(var(--negative-foreground))",
+        },
         muted: {
           DEFAULT: "hsl(var(--muted))",
           foreground: "hsl(var(--muted-foreground))",
