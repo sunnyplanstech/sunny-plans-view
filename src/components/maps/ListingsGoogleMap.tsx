@@ -220,21 +220,26 @@ export function ListingsGoogleMap({
     setMap(mapInstance);
   }, []);
 
-  // Update bounds when map or listings change. Skipped when the
-  // choropleth is on — the map should stay at the country/state-zoom
-  // polygon view rather than zooming into whichever parcels happen to
-  // be loaded behind it.
-  useMemo(() => {
+  // Auto-fit the parcel set once per scope. Refitting on every
+  // `listings` change pulled the viewport back whenever the user
+  // toggled a constraint in the layer-first preview, undoing their
+  // pan/zoom. Resetting on `country`/`regionSlug` keeps state-level
+  // navigation snappy; constraint toggles within the same scope
+  // leave the viewport intact. Skipped while the choropleth is on
+  // (the country/state polygon view owns the camera).
+  const hasFitBoundsRef = useRef(false);
+  useEffect(() => {
+    hasFitBoundsRef.current = false;
+  }, [country, regionSlug]);
+  useEffect(() => {
     if (choroplethVisible) return;
-    if (map && isLoaded && listingsWithCoords.length > 0 && typeof google !== "undefined") {
-      const bounds = new google.maps.LatLngBounds();
-
-      listingsWithCoords.forEach(({ coords }) => {
-        bounds.extend(coords);
-      });
-
-      map.fitBounds(bounds, { top: 50, right: 50, bottom: 50, left: 50 });
-    }
+    if (!map || !isLoaded || typeof google === "undefined") return;
+    if (listingsWithCoords.length === 0) return;
+    if (hasFitBoundsRef.current) return;
+    const bounds = new google.maps.LatLngBounds();
+    listingsWithCoords.forEach(({ coords }) => bounds.extend(coords));
+    map.fitBounds(bounds, { top: 50, right: 50, bottom: 50, left: 50 });
+    hasFitBoundsRef.current = true;
   }, [map, listingsWithCoords, isLoaded, choroplethVisible]);
 
   // Render one marker per listing. Color follows the heatmap's
