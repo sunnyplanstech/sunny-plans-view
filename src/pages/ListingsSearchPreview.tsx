@@ -32,6 +32,12 @@
 // constraint-flag pipeline lands (p1-e2-constraint-flags-on-parcels).
 import { useCallback, useMemo, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
+import { MapHud } from "@/components/maps/MapHud";
+import { pmtilesLayersFor } from "@/components/maps/pmtilesLayers";
+import {
+  usePMTilesOverlays,
+  type PMTilesLayerState,
+} from "@/components/maps/usePMTilesOverlays";
 import {
   useUSCountyAggregate,
   useITProvinceAggregate,
@@ -129,6 +135,7 @@ const CountryPreview = ({ adapter, country, region, province }: InnerProps) => {
   const [railOpen, setRailOpen] = useState(true);
   const [mobileSurface, setMobileSurface] = useState<MobileSurface>("map");
   const [currentZoom, setCurrentZoom] = useState<number | undefined>(undefined);
+  const [mapInstance, setMapInstance] = useState<google.maps.Map | null>(null);
 
   const selectedLayers = useMemo<Layer[]>(
     () => layers.filter((l) => selectedIds.has(l.id)),
@@ -141,6 +148,29 @@ const CountryPreview = ({ adapter, country, region, province }: InnerProps) => {
   );
 
   const scope = adapter.parseScope({ region, province });
+
+  // PMTiles overlay composition lives at the page level so the
+  // constraint bar reads progress directly — no callback gymnastics
+  // through the map. The map exposes its instance via `onMapReady`
+  // and we attach deck.gl to it ourselves.
+  const pmtilesRegionSlug =
+    scope.level !== "national" ? scope.regionSlug : undefined;
+  const pmtilesLayers = useMemo(
+    () => pmtilesLayersFor(country, pmtilesRegionSlug),
+    [country, pmtilesRegionSlug],
+  );
+  const pmtilesState = useMemo<Record<string, PMTilesLayerState>>(
+    () =>
+      Object.fromEntries(
+        pmtilesLayers.map((l) => [l.id, { visible: overlayIds.has(l.id) }]),
+      ),
+    [pmtilesLayers, overlayIds],
+  );
+  const { progress: layerProgress } = usePMTilesOverlays(
+    mapInstance,
+    pmtilesLayers,
+    pmtilesState,
+  );
   const listingsQuery = adapter.useListings(scope, LIMIT);
   const heatmapQuery = adapter.useHeatmap(false);
   const allListings = useMemo(
@@ -256,6 +286,7 @@ const CountryPreview = ({ adapter, country, region, province }: InnerProps) => {
       currentZoom={currentZoom}
       hasRegionScope={hasRegionScope}
       regionLabel={regionLabel}
+      layerProgress={layerProgress}
     />
   );
 
@@ -304,15 +335,33 @@ const CountryPreview = ({ adapter, country, region, province }: InnerProps) => {
       ? usCountyQuery.data
       : itProvinceQuery.data;
 
+  // Floating HUD shown only in the preview. Rendered as `overlays`
+  // so the map stays unaware of page-specific chrome.
+  const choroplethCount = choroplethVisible
+    ? choroplethFeatures?.features.length ?? 0
+    : 0;
+  const mapHud = (
+    <MapHud
+      country={country}
+      regionSlug={pmtilesRegionSlug}
+      zoom={currentZoom}
+      choroplethVisible={choroplethVisible}
+      choroplethCount={choroplethCount}
+      listingCount={visibleListings.length}
+      overlayCount={overlayIds.size}
+    />
+  );
+
   const map = adapter.renderMap({
     listings: visibleListings,
     scope,
     hexCells: heatmapQuery.data,
     showHeatmap: false,
     hexLoading: false,
-    pageControlledOverlayIds: overlayIds,
     onZoomChange: setCurrentZoom,
     onListingClick: handleSelectById,
+    onMapReady: setMapInstance,
+    overlays: mapHud,
     choropleth: choroplethFeatures
       ? {
           features: choroplethFeatures,

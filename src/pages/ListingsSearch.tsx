@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { useParams } from "react-router-dom";
 import { List, MapIcon, SlidersHorizontal } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -11,6 +11,12 @@ import SEOHead from "@/components/listings/SEOHead";
 import ListingsSEOContent from "@/components/listings/ListingsSEOContent";
 import { useListingViewCounter } from "@/hooks/useListingViewCounter";
 import { getCountryAdapter, type CountryAdapter } from "@/countries";
+import { LayerPanel } from "@/components/maps/LayerPanel";
+import { pmtilesLayersFor } from "@/components/maps/pmtilesLayers";
+import {
+  usePMTilesOverlays,
+  type PMTilesLayerState,
+} from "@/components/maps/usePMTilesOverlays";
 
 const LIMIT = 10;
 
@@ -38,6 +44,8 @@ interface InnerProps {
 const CountryListingsSearch = ({ adapter, country, region, province }: InnerProps) => {
   const [viewMode, setViewMode] = useState<"list" | "map">("list");
   const [showHeatmap, setShowHeatmap] = useState(false);
+  const [mapInstance, setMapInstance] = useState<google.maps.Map | null>(null);
+  const [currentZoom, setCurrentZoom] = useState<number | undefined>(undefined);
   const { shouldShowPopup, closePopup } = useListingViewCounter();
 
   const scope = adapter.parseScope({ region, province });
@@ -46,6 +54,60 @@ const CountryListingsSearch = ({ adapter, country, region, province }: InnerProp
 
   const listings = listingsQuery.data ?? [];
   const isLoading = listingsQuery.isLoading;
+
+  // PMTiles overlays — page-level so the LayerPanel reads the same
+  // headers/progress the deck.gl overlay produces. Toggle state is
+  // local to this page (no URL persistence yet).
+  const pmtilesRegionSlug =
+    scope.level !== "national" ? scope.regionSlug : undefined;
+  const pmtilesLayers = useMemo(
+    () => pmtilesLayersFor(country, pmtilesRegionSlug),
+    [country, pmtilesRegionSlug],
+  );
+  const [pmtilesState, setPmtilesState] = useState<
+    Record<string, PMTilesLayerState>
+  >(() =>
+    Object.fromEntries(
+      pmtilesLayers.map((l) => [l.id, { visible: l.defaultVisible ?? false }]),
+    ),
+  );
+  // Re-seed when the layer catalog changes (country / region switch).
+  useEffect(() => {
+    setPmtilesState(
+      Object.fromEntries(
+        pmtilesLayers.map((l) => [
+          l.id,
+          { visible: l.defaultVisible ?? false },
+        ]),
+      ),
+    );
+  }, [pmtilesLayers]);
+  const togglePmtilesLayer = useCallback((id: string) => {
+    setPmtilesState((prev) => ({
+      ...prev,
+      [id]: { visible: !prev[id]?.visible },
+    }));
+  }, []);
+  const { headers: layerHeaders, progress: layerProgress } = usePMTilesOverlays(
+    mapInstance,
+    pmtilesLayers,
+    pmtilesState,
+  );
+
+  const mapOverlays = (
+    <LayerPanel
+      layers={pmtilesLayers}
+      state={pmtilesState}
+      onToggle={togglePmtilesLayer}
+      hasRegionScope={!!region}
+      layerHeaders={layerHeaders}
+      layerProgress={layerProgress}
+      currentZoom={currentZoom}
+      showHeatmap={showHeatmap}
+      hexLoading={showHeatmap && heatmapQuery.isLoading}
+      onToggleHeatmap={() => setShowHeatmap((v) => !v)}
+    />
+  );
 
   const locationName = adapter.formatScopeName(scope);
   const sortLabel = adapter.rankSortLabel(scope);
@@ -157,6 +219,9 @@ const CountryListingsSearch = ({ adapter, country, region, province }: InnerProp
                   showHeatmap,
                   hexLoading: showHeatmap && heatmapQuery.isLoading,
                   onToggleHeatmap: () => setShowHeatmap(v => !v),
+                  onMapReady: setMapInstance,
+                  onZoomChange: setCurrentZoom,
+                  overlays: mapOverlays,
                 })}
               </div>
             </div>

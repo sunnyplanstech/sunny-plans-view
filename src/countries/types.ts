@@ -37,10 +37,6 @@ export interface MapRenderProps {
   showHeatmap: boolean;
   hexLoading: boolean;
   onToggleHeatmap?: () => void;
-  // Layer-first preview: when set, pmtiles overlay visibility is
-  // driven by the parent's selection (page-level LayerPanel) instead
-  // of the in-map toggles. See ListingsGoogleMap.pageControlledOverlayIds.
-  pageControlledOverlayIds?: ReadonlySet<string>;
   // Zoom-aware UI hooks: the constraint bar uses the current map zoom
   // to surface a "zoom in to apply (zN+)" hint per layer. The map
   // calls this on every zoom_changed event. `undefined` means the map
@@ -55,6 +51,14 @@ export interface MapRenderProps {
   // and suppresses parcel markers. The page owns the zoom gate and the
   // click→navigation contract; the map is purely a renderer here.
   choropleth?: ChoroplethSurface;
+  // Surfaces the underlying google.maps.Map instance to the page so it
+  // can attach its own imperative subsystems (e.g. PMTiles overlays
+  // composed at the page level). Fired with `null` on unmount.
+  onMapReady?: (map: google.maps.Map | null) => void;
+  // Optional absolutely-positioned overlays rendered on top of the
+  // map (HUD, LayerPanel, custom chrome). Pages own the imperative
+  // subsystems these UIs read from; the map is just the canvas.
+  overlays?: ReactNode;
 }
 
 // Minimal GeoJSON shape — we don't pull in @types/geojson just for two

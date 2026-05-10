@@ -15,7 +15,7 @@
 // No bundle / preset UI — v1 of the layer-first redesign explicitly
 // drops the fieldkit shortcut. If user testing shows expert users want
 // presets we add them back as a thin wrapper over `onToggle`.
-import { Check, MapPin, ZoomIn } from "lucide-react";
+import { Check, Loader2, MapPin, ZoomIn } from "lucide-react";
 import { cn } from "@/lib/utils";
 import type { Layer } from "./registry";
 import type { LayerEffect } from "./evaluate";
@@ -48,6 +48,11 @@ interface ConstraintBarProps {
   // the "Pick a {state/region} first" hint copy on layers that need a
   // region scope. The page picks the right word per country slug.
   regionLabel: "state" | "region";
+  // Per-layer PMTiles load progress. When present, rows whose overlay
+  // is mid-stream (header fetch or in-flight tiles) show a small
+  // spinner + tile-counter chip. Streaming has no honest total — the
+  // chip clears once the viewport is fully painted.
+  layerProgress?: Record<string, { headerLoading: boolean; tilesInflight: number }>;
 }
 
 interface RowState {
@@ -123,6 +128,7 @@ export function ConstraintBar({
   currentZoom,
   hasRegionScope,
   regionLabel,
+  layerProgress,
 }: ConstraintBarProps) {
   if (layers.length === 0) {
     return (
@@ -170,6 +176,13 @@ export function ConstraintBar({
           const cost = state.belowMinZoom
             ? null
             : costLabel(costsById[layer.id] ?? null, selected, state.effect);
+          const progress = layer.pmtilesLayerId
+            ? layerProgress?.[layer.pmtilesLayerId]
+            : undefined;
+          const isLoading =
+            selected &&
+            !!progress &&
+            (progress.headerLoading || progress.tilesInflight > 0);
           return (
             <li key={layer.id}>
               <button
@@ -223,6 +236,9 @@ export function ConstraintBar({
                         icon={<MapPin className="h-3 w-3" />}
                         text={`Pick a ${regionLabel} first`}
                       />
+                    )}
+                    {isLoading && progress && (
+                      <LoadingChip progress={progress} />
                     )}
                   </div>
                 </div>
@@ -281,6 +297,30 @@ function CostBadge({ cost }: { cost: CostLabel }) {
       )}
     >
       {cost.text}
+    </span>
+  );
+}
+
+// Inline loading indicator for a row whose PMTiles overlay is mid-stream.
+// Spinner is indeterminate (tile streams have no honest total); the
+// counter shows in-flight tiles when > 0 so power users can see the
+// stream draining as they pan/zoom.
+function LoadingChip({
+  progress,
+}: {
+  progress: { headerLoading: boolean; tilesInflight: number };
+}) {
+  const aria = progress.headerLoading
+    ? "Loading layer metadata"
+    : `Loading ${progress.tilesInflight} tile${progress.tilesInflight === 1 ? "" : "s"}`;
+  return (
+    <span
+      role="status"
+      aria-label={aria}
+      className="inline-flex items-center gap-1 rounded-full bg-muted px-1.5 py-0.5 text-[11px] tabular-nums text-muted-foreground"
+    >
+      <Loader2 className="h-3 w-3 animate-spin" aria-hidden />
+      {progress.tilesInflight > 0 ? progress.tilesInflight : null}
     </span>
   );
 }

@@ -3,7 +3,11 @@ import { ChevronDown, ChevronUp, Layers, Loader2 } from "lucide-react";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Button } from "@/components/ui/button";
 import type { PMTilesLayerConfig } from "./pmtilesLayers";
-import type { LayerHeader, PMTilesLayerState } from "./usePMTilesOverlays";
+import type {
+  LayerHeader,
+  LayerProgress,
+  PMTilesLayerState,
+} from "./usePMTilesOverlays";
 
 interface LayerPanelProps {
   layers: PMTilesLayerConfig[];
@@ -19,6 +23,12 @@ interface LayerPanelProps {
   // toggle is disabled with a "Zoom in" hint — the bake config drives
   // the threshold, no frontend literal involved.
   layerHeaders?: Record<string, LayerHeader>;
+
+  // Per-layer load progress (header fetch + in-flight tiles). When
+  // present, an indeterminate spinner + tile counter chip appears on
+  // the right of each row that's actively loading. Streams are
+  // continuous as the user pans/zooms — there's no honest total.
+  layerProgress?: Record<string, LayerProgress>;
   currentZoom?: number;
 
   // Heatmap is special-cased here so the user has one place to manage
@@ -62,6 +72,7 @@ export function LayerPanel({
   onToggle,
   hasRegionScope,
   layerHeaders,
+  layerProgress,
   currentZoom,
   showHeatmap,
   hexLoading,
@@ -151,6 +162,11 @@ export function LayerPanel({
             const labelClass = gated
               ? "flex items-start gap-2 text-sm opacity-50"
               : "flex cursor-pointer items-start gap-2 text-sm";
+            const progress = layerProgress?.[layer.id];
+            const loading =
+              s.visible &&
+              !!progress &&
+              (progress.headerLoading || progress.tilesInflight > 0);
             return (
               <div key={layer.id} className="space-y-1.5">
                 <label className={labelClass}>
@@ -172,6 +188,7 @@ export function LayerPanel({
                       }}
                     />
                     <span className="leading-tight">{layer.label}</span>
+                    {loading && <LayerProgressChip progress={progress!} />}
                   </span>
                 </label>
                 {hint ? (
@@ -189,6 +206,28 @@ export function LayerPanel({
         </div>
       )}
     </div>
+  );
+}
+
+/**
+ * Inline status chip for a loading layer. Indeterminate spinner
+ * paired with a tile counter; the counter is suppressed during the
+ * brief header-fetch window when no tiles are in flight yet.
+ */
+function LayerProgressChip({ progress }: { progress: LayerProgress }) {
+  const label = progress.tilesInflight > 0 ? `${progress.tilesInflight}` : null;
+  const aria = progress.headerLoading
+    ? "Loading layer metadata"
+    : `Loading ${progress.tilesInflight} tile${progress.tilesInflight === 1 ? "" : "s"}`;
+  return (
+    <span
+      role="status"
+      aria-label={aria}
+      className="ml-auto inline-flex items-center gap-1 rounded-full bg-white/10 px-1.5 py-0.5 text-[11px] tabular-nums text-white/80"
+    >
+      <Loader2 className="h-3 w-3 animate-spin" aria-hidden />
+      {label}
+    </span>
   );
 }
 

@@ -1,45 +1,45 @@
-// Listings map for the country listing pages and the layer-first
-// preview. This component is deliberately thin: each Google Maps
-// subsystem (zoom tracking, marker layer, hex heatmap, choropleth,
-// PMTiles overlays, auto-fit) lives in its own hook in this folder.
-// The body here is composition + layout.
+// Listings map — pure Google Maps canvas plus markers / heatmap /
+// choropleth. PMTiles overlays are composed at the page level (each
+// page owns its toggle UI and progress state); the map exposes its
+// google.maps.Map instance via `onMapReady` so the page can attach
+// deck.gl directly. `overlays` is the slot for any absolute UI the
+// page wants on top (HUD, LayerPanel, custom chrome).
 
 import { GoogleMap } from "@react-google-maps/api";
-import { useEffect, useMemo, useState } from "react";
+import {
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+  type ReactNode,
+} from "react";
 import type { USListing } from "@/countries/unitedStates";
 import type { HexCell } from "@/hooks/useHexHeatmap";
 import type { ChoroplethSurface } from "@/countries/types";
 import { getParcelCenter } from "@/lib/geo";
 import { useGoogleMaps } from "./GoogleMapsProvider";
-import { LayerPanel } from "./LayerPanel";
-import { MapHud } from "./MapHud";
 import { MapLoadingFallback } from "./MapLoadingFallback";
 import { useAutoFitBounds } from "./useAutoFitBounds";
 import { useChoroplethLayer } from "./useChoroplethLayer";
 import { useHexHeatmapLayer } from "./useHexHeatmapLayer";
 import { useListingMarkers, type ListingMarkerItem } from "./useListingMarkers";
 import { useMapZoom } from "./useMapZoom";
-import { usePMTilesLayerState } from "./usePMTilesLayerState";
-import { usePMTilesOverlays } from "./usePMTilesOverlays";
 
 interface ListingsGoogleMapProps {
   listings: USListing[];
   className?: string;
   country?: string;
-  // URL scope hint — when on a region/subregion page, lets the PMTiles
-  // catalog narrow per-state-partitioned layers (e.g. NWI) down to that
-  // one state's .pmtiles instead of registering all 50.
+  // URL scope hint — drives the auto-fit-bounds latch reset and the
+  // default center/zoom. PMTiles overlays don't live here anymore;
+  // pages compose them at their own level.
   regionSlug?: string;
   hexCells?: HexCell[];
   showHeatmap?: boolean;
   hexLoading?: boolean;
+  // Reserved for the in-map LayerPanel composed by the production
+  // listings page. The map itself doesn't render the panel; the
+  // page passes it via `overlays`.
   onToggleHeatmap?: () => void;
-  // Layer-first preview hook (roadmap p1-e3-layer-first-ui): when
-  // provided, pmtiles overlay visibility is driven by the parent's
-  // selection (a page-level LayerPanel) instead of the in-map toggles.
-  // The in-map layer rows are hidden in that mode; the heatmap toggle
-  // stays since it's a different control surface.
-  pageControlledOverlayIds?: ReadonlySet<string>;
   // Surfaces every zoom_changed event to the parent. The layer-first
   // page uses this to gate the constraint bar's "zoom in to apply"
   // hint. `undefined` until the map mounts.
@@ -53,6 +53,14 @@ interface ListingsGoogleMapProps {
   // for IT). Page owns the zoom gate via `visible`; when on, parcel
   // markers are suppressed and the polygons become the click surface.
   choropleth?: ChoroplethSurface;
+  // Surfaces the google.maps.Map instance to the page so it can
+  // compose imperative subsystems (deck.gl overlays, etc.) against
+  // the same map. Fired with `null` on unmount.
+  onMapReady?: (map: google.maps.Map | null) => void;
+  // Absolutely-positioned children rendered inside the map's
+  // relative wrapper. Use this for HUD, LayerPanel, and any other
+  // page-owned chrome that needs to sit on top of the map canvas.
+  overlays?: ReactNode;
 }
 
 const MAP_CONTAINER_STYLE = { width: "100%", height: "100%" };
@@ -77,14 +85,12 @@ export function ListingsGoogleMap({
   regionSlug,
   hexCells,
   showHeatmap = false,
-  hexLoading = false,
-  onToggleHeatmap,
-  pageControlledOverlayIds,
   onZoomChange,
   onListingClick,
   choropleth,
+  onMapReady,
+  overlays,
 }: ListingsGoogleMapProps) {
-  const pageControlled = pageControlledOverlayIds !== undefined;
   const { isLoaded, hasApiKey, requestLoad } = useGoogleMaps();
   const [map, setMap] = useState<google.maps.Map | null>(null);
 
@@ -92,26 +98,21 @@ export function ListingsGoogleMap({
     requestLoad();
   }, [requestLoad]);
 
-  const choroplethVisible = choropleth?.visible ?? false;
+  // Stable ref so callers passing a fresh closure each render don't
+  // cause the map-ready notification to refire.
+  const onMapReadyRef = useRef(onMapReady);
+  useEffect(() => {
+    onMapReadyRef.current = onMapReady;
+  }, [onMapReady]);
 
-  // PMTiles overlays — catalog + visibility live in their own hook so
-  // this body doesn't have to know whether the parent is driving
-  // selection or the in-map LayerPanel is.
-  const {
-    layers: pmtilesLayers,
-    effectiveState: pmtilesEffectiveState,
-    panelState: pmtilesPanelState,
-    toggle: togglePMTilesLayer,
-  } = usePMTilesLayerState({
-    country,
-    regionSlug,
-    pageControlledIds: pageControlledOverlayIds,
-  });
-  const { headers: layerHeaders } = usePMTilesOverlays(
-    map,
-    pmtilesLayers,
-    pmtilesEffectiveState,
-  );
+  useEffect(() => {
+    onMapReadyRef.current?.(map);
+    return () => {
+      onMapReadyRef.current?.(null);
+    };
+  }, [map]);
+
+  const choroplethVisible = choropleth?.visible ?? false;
 
   const currentZoom = useMapZoom(map);
   useEffect(() => {
@@ -128,9 +129,7 @@ export function ListingsGoogleMap({
           listing,
           coords: getParcelCenter(listing.geom_json),
         }))
-        .filter(
-          (item): item is ListingMarkerItem => item.coords !== null,
-        ),
+        .filter((item): item is ListingMarkerItem => item.coords !== null),
     [listings],
   );
   const fitCoords = useMemo(
@@ -190,11 +189,6 @@ export function ListingsGoogleMap({
   const defaultCenter = DEFAULT_CENTERS[countryKey] ?? FALLBACK_CENTER;
   const defaultZoom = DEFAULT_ZOOMS[countryKey] ?? FALLBACK_ZOOM;
 
-  const choroplethCount = choroplethVisible
-    ? choropleth?.features.features.length ?? 0
-    : 0;
-  const overlayCount = pageControlled ? pageControlledOverlayIds!.size : 0;
-
   return (
     <div className={`relative ${className ?? ""}`}>
       <GoogleMap
@@ -204,28 +198,7 @@ export function ListingsGoogleMap({
         options={mapOptions}
         onLoad={setMap}
       />
-      {pageControlled && (
-        <MapHud
-          country={country}
-          regionSlug={regionSlug}
-          zoom={currentZoom}
-          choroplethVisible={choroplethVisible}
-          choroplethCount={choroplethCount}
-          listingCount={listings.length}
-          overlayCount={overlayCount}
-        />
-      )}
-      <LayerPanel
-        layers={pageControlled ? [] : pmtilesLayers}
-        state={pmtilesPanelState}
-        onToggle={togglePMTilesLayer}
-        hasRegionScope={!!regionSlug}
-        layerHeaders={layerHeaders}
-        currentZoom={currentZoom}
-        showHeatmap={showHeatmap}
-        hexLoading={hexLoading}
-        onToggleHeatmap={onToggleHeatmap}
-      />
+      {overlays}
     </div>
   );
 }

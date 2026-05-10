@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import type { PMTilesLayerConfig } from "./pmtilesLayers";
 import {
   HATCH_PATTERN_MAPPING,
@@ -20,6 +20,18 @@ export interface PMTilesLayerState {
 export interface LayerHeader {
   minZoom: number;
   maxZoom: number;
+}
+
+/**
+ * Per-layer load progress surfaced to the LayerPanel. `headerLoading`
+ * is the brief PMTiles header fetch on first toggle; `tilesInflight`
+ * is the number of in-flight tile range-requests (rises as the user
+ * pans/zooms, drains as tiles arrive). When both are zero the layer
+ * is considered idle.
+ */
+export interface LayerProgress {
+  headerLoading: boolean;
+  tilesInflight: number;
 }
 
 // Module-level header cache keyed by URL — survives across hook re-mounts
@@ -144,7 +156,10 @@ export function usePMTilesOverlays(
   map: google.maps.Map | null,
   layers: PMTilesLayerConfig[],
   state: Record<string, PMTilesLayerState>,
-): { headers: Record<string, LayerHeader> } {
+): {
+  headers: Record<string, LayerHeader>;
+  progress: Record<string, LayerProgress>;
+} {
   // Hold the overlay + module bag in refs so re-renders don't tear it
   // down. The cleanup in the mount effect is the only path that calls
   // setMap(null).
@@ -154,6 +169,66 @@ export function usePMTilesOverlays(
   const modsRef = useRef<Awaited<ReturnType<typeof loadDeckModules>> | null>(null);
   const [modsReady, setModsReady] = useState(false);
   const [headers, setHeaders] = useState<Record<string, LayerHeader>>({});
+
+  // Progress accounting. Tiles arrive in bursts as the user
+  // pans/zooms; we keep authoritative counts in refs and flush a
+  // public snapshot to React state on the next animation frame. That
+  // collapses dozens of tile completions into one render and avoids
+  // re-rendering the whole LayerPanel per tile.
+  const [progress, setProgress] = useState<Record<string, LayerProgress>>({});
+  const inflightRef = useRef<Map<string, number>>(new Map());
+  const headerLoadingRef = useRef<Set<string>>(new Set());
+  const flushRafRef = useRef<number | null>(null);
+
+  const scheduleFlush = useCallback(() => {
+    if (flushRafRef.current !== null) return;
+    flushRafRef.current = requestAnimationFrame(() => {
+      flushRafRef.current = null;
+      const ids = new Set<string>([
+        ...inflightRef.current.keys(),
+        ...headerLoadingRef.current,
+      ]);
+      const next: Record<string, LayerProgress> = {};
+      for (const id of ids) {
+        next[id] = {
+          headerLoading: headerLoadingRef.current.has(id),
+          tilesInflight: inflightRef.current.get(id) ?? 0,
+        };
+      }
+      setProgress(next);
+    });
+  }, []);
+
+  const bumpInflight = useCallback(
+    (id: string, delta: number) => {
+      const cur = inflightRef.current.get(id) ?? 0;
+      const nextVal = Math.max(0, cur + delta);
+      if (nextVal === 0) inflightRef.current.delete(id);
+      else inflightRef.current.set(id, nextVal);
+      scheduleFlush();
+    },
+    [scheduleFlush],
+  );
+
+  const setHeaderLoading = useCallback(
+    (id: string, loading: boolean) => {
+      if (loading) headerLoadingRef.current.add(id);
+      else headerLoadingRef.current.delete(id);
+      scheduleFlush();
+    },
+    [scheduleFlush],
+  );
+
+  // Cancel any pending flush on unmount so we don't setState after
+  // the host map is gone.
+  useEffect(() => {
+    return () => {
+      if (flushRafRef.current !== null) {
+        cancelAnimationFrame(flushRafRef.current);
+        flushRafRef.current = null;
+      }
+    };
+  }, []);
 
   // Mount: load chunks, create the overlay, attach to map. Skip the
   // whole dance if the layer catalog is empty so we don't pay bundle
@@ -198,7 +273,9 @@ export function usePMTilesOverlays(
         setHeaders((prev) => (prev[layer.id] ? prev : { ...prev, [layer.id]: cached }));
         continue;
       }
+      setHeaderLoading(layer.id, true);
       fetchHeader(mods.PMTiles, url).then((h) => {
+        setHeaderLoading(layer.id, false);
         if (cancelled || !h) return;
         setHeaders((prev) => (prev[layer.id] ? prev : { ...prev, [layer.id]: h }));
       });
@@ -206,7 +283,7 @@ export function usePMTilesOverlays(
     return () => {
       cancelled = true;
     };
-  }, [layers, modsReady]);
+  }, [layers, modsReady, setHeaderLoading]);
 
   // Sync: rebuild the deck.gl layer array whenever config or state
   // changes. setProps is idempotent — deck.gl diffs by layer id.
@@ -246,15 +323,22 @@ export function usePMTilesOverlays(
           getTileData: async ({ index }: { index: { x: number; y: number; z: number } }) => {
             // PMTiles range-fetch the requested tile; null means the
             // tile is empty at this z/x/y, which the renderer handles.
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
-            const tile = await (pmt as any).getZxy(index.z, index.x, index.y);
-            if (!tile) return null;
-            return mods.parse(tile.data, mods.MVTLoader, {
-              mvt: {
-                coordinates: "wgs84",
-                tileIndex: { x: index.x, y: index.y, z: index.z },
-              },
-            });
+            // The bumpInflight bracket lets the LayerPanel surface a
+            // tile-counter chip while requests are in flight.
+            bumpInflight(layer.id, +1);
+            try {
+              // eslint-disable-next-line @typescript-eslint/no-explicit-any
+              const tile = await (pmt as any).getZxy(index.z, index.x, index.y);
+              if (!tile) return null;
+              return mods.parse(tile.data, mods.MVTLoader, {
+                mvt: {
+                  coordinates: "wgs84",
+                  tileIndex: { x: index.x, y: index.y, z: index.z },
+                },
+              });
+            } finally {
+              bumpInflight(layer.id, -1);
+            }
           },
           renderSubLayers: (props: { id: string; data: unknown }) => {
             if (!props.data) return null;
@@ -288,7 +372,7 @@ export function usePMTilesOverlays(
     });
 
     overlay.setProps({ layers: visibleLayers });
-  }, [layers, state, headers]);
+  }, [layers, state, headers, bumpInflight]);
 
-  return { headers };
+  return { headers, progress };
 }

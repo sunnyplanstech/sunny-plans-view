@@ -165,10 +165,11 @@ export const unitedStates: CountryAdapter = {
         showHeatmap={props.showHeatmap}
         hexLoading={props.hexLoading}
         onToggleHeatmap={props.onToggleHeatmap}
-        pageControlledOverlayIds={props.pageControlledOverlayIds}
         onZoomChange={props.onZoomChange}
         onListingClick={props.onListingClick}
         choropleth={props.choropleth}
+        onMapReady={props.onMapReady}
+        overlays={props.overlays}
       />
     );
   },
