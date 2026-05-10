@@ -180,7 +180,10 @@ export const italy: CountryAdapter = {
         onZoomChange={props.onZoomChange}
         onListingClick={props.onListingClick}
         choropleth={props.choropleth}
-        onMapReady={props.onMapReady}
+        pmtilesLayers={props.pmtilesLayers}
+        pmtilesState={props.pmtilesState}
+        onLayerHeadersChange={props.onLayerHeadersChange}
+        onLayerProgressChange={props.onLayerProgressChange}
         overlays={props.overlays}
       />
     );

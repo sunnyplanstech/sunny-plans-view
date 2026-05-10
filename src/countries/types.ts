@@ -1,6 +1,12 @@
 import type { ReactNode } from "react";
 import type { UseQueryResult } from "@tanstack/react-query";
 import type { HexCell } from "@/hooks/useHexHeatmap";
+import type { PMTilesLayerConfig } from "@/components/maps/pmtilesLayers";
+import type {
+  LayerHeader,
+  LayerProgress,
+  PMTilesLayerState,
+} from "@/components/maps/usePMTilesOverlays";
 
 export type { HexCell };
 
@@ -51,10 +57,14 @@ export interface MapRenderProps {
   // and suppresses parcel markers. The page owns the zoom gate and the
   // click→navigation contract; the map is purely a renderer here.
   choropleth?: ChoroplethSurface;
-  // Surfaces the underlying google.maps.Map instance to the page so it
-  // can attach its own imperative subsystems (e.g. PMTiles overlays
-  // composed at the page level). Fired with `null` on unmount.
-  onMapReady?: (map: google.maps.Map | null) => void;
+  // PMTiles overlays. The page owns selection state and the (region-
+  // narrowed) catalog; the map drives the deck.gl wiring against its
+  // own map instance and emits `headers` / `progress` back so the page
+  // can render LayerPanel and progress chips against the same data.
+  pmtilesLayers?: PMTilesLayerConfig[];
+  pmtilesState?: Record<string, PMTilesLayerState>;
+  onLayerHeadersChange?: (headers: Record<string, LayerHeader>) => void;
+  onLayerProgressChange?: (progress: Record<string, LayerProgress>) => void;
   // Optional absolutely-positioned overlays rendered on top of the
   // map (HUD, LayerPanel, custom chrome). Pages own the imperative
   // subsystems these UIs read from; the map is just the canvas.

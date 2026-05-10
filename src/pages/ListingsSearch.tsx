@@ -13,9 +13,10 @@ import { useListingViewCounter } from "@/hooks/useListingViewCounter";
 import { getCountryAdapter, type CountryAdapter } from "@/countries";
 import { LayerPanel } from "@/components/maps/LayerPanel";
 import { pmtilesLayersFor } from "@/components/maps/pmtilesLayers";
-import {
-  usePMTilesOverlays,
-  type PMTilesLayerState,
+import type {
+  LayerHeader,
+  LayerProgress,
+  PMTilesLayerState,
 } from "@/components/maps/usePMTilesOverlays";
 
 const LIMIT = 10;
@@ -44,7 +45,6 @@ interface InnerProps {
 const CountryListingsSearch = ({ adapter, country, region, province }: InnerProps) => {
   const [viewMode, setViewMode] = useState<"list" | "map">("list");
   const [showHeatmap, setShowHeatmap] = useState(false);
-  const [mapInstance, setMapInstance] = useState<google.maps.Map | null>(null);
   const [currentZoom, setCurrentZoom] = useState<number | undefined>(undefined);
   const { shouldShowPopup, closePopup } = useListingViewCounter();
 
@@ -55,9 +55,9 @@ const CountryListingsSearch = ({ adapter, country, region, province }: InnerProp
   const listings = listingsQuery.data ?? [];
   const isLoading = listingsQuery.isLoading;
 
-  // PMTiles overlays — page-level so the LayerPanel reads the same
-  // headers/progress the deck.gl overlay produces. Toggle state is
-  // local to this page (no URL persistence yet).
+  // PMTiles catalog + visibility live here so the LayerPanel (rendered
+  // as `overlays`) can drive toggles. The deck.gl wiring itself runs
+  // inside the map; headers and progress flow back via callbacks.
   const pmtilesRegionSlug =
     scope.level !== "national" ? scope.regionSlug : undefined;
   const pmtilesLayers = useMemo(
@@ -88,11 +88,12 @@ const CountryListingsSearch = ({ adapter, country, region, province }: InnerProp
       [id]: { visible: !prev[id]?.visible },
     }));
   }, []);
-  const { headers: layerHeaders, progress: layerProgress } = usePMTilesOverlays(
-    mapInstance,
-    pmtilesLayers,
-    pmtilesState,
-  );
+  const [layerHeaders, setLayerHeaders] = useState<
+    Record<string, LayerHeader>
+  >({});
+  const [layerProgress, setLayerProgress] = useState<
+    Record<string, LayerProgress>
+  >({});
 
   const mapOverlays = (
     <LayerPanel
@@ -219,7 +220,10 @@ const CountryListingsSearch = ({ adapter, country, region, province }: InnerProp
                   showHeatmap,
                   hexLoading: showHeatmap && heatmapQuery.isLoading,
                   onToggleHeatmap: () => setShowHeatmap(v => !v),
-                  onMapReady: setMapInstance,
+                  pmtilesLayers,
+                  pmtilesState,
+                  onLayerHeadersChange: setLayerHeaders,
+                  onLayerProgressChange: setLayerProgress,
                   onZoomChange: setCurrentZoom,
                   overlays: mapOverlays,
                 })}

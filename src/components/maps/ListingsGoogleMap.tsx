@@ -1,37 +1,37 @@
-// Listings map — pure Google Maps canvas plus markers / heatmap /
-// choropleth. PMTiles overlays are composed at the page level (each
-// page owns its toggle UI and progress state); the map exposes its
-// google.maps.Map instance via `onMapReady` so the page can attach
-// deck.gl directly. `overlays` is the slot for any absolute UI the
-// page wants on top (HUD, LayerPanel, custom chrome).
+// Listings map — Google Maps canvas plus markers / heatmap / choropleth /
+// PMTiles overlays. The page owns selection state and the layer catalog
+// (passed in via `pmtilesLayers` + `pmtilesState`); the map drives the
+// deck.gl wiring against its own `google.maps.Map` instance and emits
+// the resulting `headers` / `progress` back up via callbacks. `overlays`
+// is the slot for any absolute UI the page wants on top (HUD, LayerPanel).
 
 import { GoogleMap } from "@react-google-maps/api";
-import {
-  useEffect,
-  useMemo,
-  useRef,
-  useState,
-  type ReactNode,
-} from "react";
+import { useEffect, useMemo, useState, type ReactNode } from "react";
 import type { USListing } from "@/countries/unitedStates";
 import type { HexCell } from "@/hooks/useHexHeatmap";
 import type { ChoroplethSurface } from "@/countries/types";
 import { getParcelCenter } from "@/lib/geo";
 import { useGoogleMaps } from "./GoogleMapsProvider";
 import { MapLoadingFallback } from "./MapLoadingFallback";
+import type { PMTilesLayerConfig } from "./pmtilesLayers";
 import { useAutoFitBounds } from "./useAutoFitBounds";
 import { useChoroplethLayer } from "./useChoroplethLayer";
 import { useHexHeatmapLayer } from "./useHexHeatmapLayer";
 import { useListingMarkers, type ListingMarkerItem } from "./useListingMarkers";
 import { useMapZoom } from "./useMapZoom";
+import {
+  usePMTilesOverlays,
+  type LayerHeader,
+  type LayerProgress,
+  type PMTilesLayerState,
+} from "./usePMTilesOverlays";
 
 interface ListingsGoogleMapProps {
   listings: USListing[];
   className?: string;
   country?: string;
   // URL scope hint — drives the auto-fit-bounds latch reset and the
-  // default center/zoom. PMTiles overlays don't live here anymore;
-  // pages compose them at their own level.
+  // default center/zoom.
   regionSlug?: string;
   hexCells?: HexCell[];
   showHeatmap?: boolean;
@@ -53,10 +53,14 @@ interface ListingsGoogleMapProps {
   // for IT). Page owns the zoom gate via `visible`; when on, parcel
   // markers are suppressed and the polygons become the click surface.
   choropleth?: ChoroplethSurface;
-  // Surfaces the google.maps.Map instance to the page so it can
-  // compose imperative subsystems (deck.gl overlays, etc.) against
-  // the same map. Fired with `null` on unmount.
-  onMapReady?: (map: google.maps.Map | null) => void;
+  // PMTiles overlays — page passes the (region-narrowed) catalog and the
+  // visibility map; the deck.gl wiring lives inside the map. Headers and
+  // progress flow back up so the page can render LayerPanel / progress
+  // chips against the same source of truth.
+  pmtilesLayers?: PMTilesLayerConfig[];
+  pmtilesState?: Record<string, PMTilesLayerState>;
+  onLayerHeadersChange?: (headers: Record<string, LayerHeader>) => void;
+  onLayerProgressChange?: (progress: Record<string, LayerProgress>) => void;
   // Absolutely-positioned children rendered inside the map's
   // relative wrapper. Use this for HUD, LayerPanel, and any other
   // page-owned chrome that needs to sit on top of the map canvas.
@@ -78,6 +82,9 @@ const DEFAULT_ZOOMS: Record<string, number> = {
 const FALLBACK_CENTER = DEFAULT_CENTERS["united-states"];
 const FALLBACK_ZOOM = DEFAULT_ZOOMS["united-states"];
 
+const EMPTY_PMTILES_LAYERS: PMTilesLayerConfig[] = [];
+const EMPTY_PMTILES_STATE: Record<string, PMTilesLayerState> = {};
+
 export function ListingsGoogleMap({
   listings,
   className,
@@ -88,7 +95,10 @@ export function ListingsGoogleMap({
   onZoomChange,
   onListingClick,
   choropleth,
-  onMapReady,
+  pmtilesLayers = EMPTY_PMTILES_LAYERS,
+  pmtilesState = EMPTY_PMTILES_STATE,
+  onLayerHeadersChange,
+  onLayerProgressChange,
   overlays,
 }: ListingsGoogleMapProps) {
   const { isLoaded, hasApiKey, requestLoad } = useGoogleMaps();
@@ -98,21 +108,23 @@ export function ListingsGoogleMap({
     requestLoad();
   }, [requestLoad]);
 
-  // Stable ref so callers passing a fresh closure each render don't
-  // cause the map-ready notification to refire.
-  const onMapReadyRef = useRef(onMapReady);
-  useEffect(() => {
-    onMapReadyRef.current = onMapReady;
-  }, [onMapReady]);
-
-  useEffect(() => {
-    onMapReadyRef.current?.(map);
-    return () => {
-      onMapReadyRef.current?.(null);
-    };
-  }, [map]);
-
   const choroplethVisible = choropleth?.visible ?? false;
+
+  // PMTiles overlays. The hook is a no-op when `pmtilesLayers` is empty
+  // (legacy callers / countries with no tiles configured); when it has
+  // entries it drives a deck.gl `GoogleMapsOverlay` attached to `map`
+  // and surfaces per-layer header + tile-fetch progress.
+  const { headers: layerHeaders, progress: layerProgress } = usePMTilesOverlays(
+    map,
+    pmtilesLayers,
+    pmtilesState,
+  );
+  useEffect(() => {
+    onLayerHeadersChange?.(layerHeaders);
+  }, [layerHeaders, onLayerHeadersChange]);
+  useEffect(() => {
+    onLayerProgressChange?.(layerProgress);
+  }, [layerProgress, onLayerProgressChange]);
 
   const currentZoom = useMapZoom(map);
   useEffect(() => {

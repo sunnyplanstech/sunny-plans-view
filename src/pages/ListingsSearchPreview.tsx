@@ -34,9 +34,9 @@ import { useCallback, useMemo, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { MapHud } from "@/components/maps/MapHud";
 import { pmtilesLayersFor } from "@/components/maps/pmtilesLayers";
-import {
-  usePMTilesOverlays,
-  type PMTilesLayerState,
+import type {
+  LayerProgress,
+  PMTilesLayerState,
 } from "@/components/maps/usePMTilesOverlays";
 import {
   useUSCountyAggregate,
@@ -135,7 +135,9 @@ const CountryPreview = ({ adapter, country, region, province }: InnerProps) => {
   const [railOpen, setRailOpen] = useState(true);
   const [mobileSurface, setMobileSurface] = useState<MobileSurface>("map");
   const [currentZoom, setCurrentZoom] = useState<number | undefined>(undefined);
-  const [mapInstance, setMapInstance] = useState<google.maps.Map | null>(null);
+  const [layerProgress, setLayerProgress] = useState<
+    Record<string, LayerProgress>
+  >({});
 
   const selectedLayers = useMemo<Layer[]>(
     () => layers.filter((l) => selectedIds.has(l.id)),
@@ -149,10 +151,10 @@ const CountryPreview = ({ adapter, country, region, province }: InnerProps) => {
 
   const scope = adapter.parseScope({ region, province });
 
-  // PMTiles overlay composition lives at the page level so the
-  // constraint bar reads progress directly — no callback gymnastics
-  // through the map. The map exposes its instance via `onMapReady`
-  // and we attach deck.gl to it ourselves.
+  // PMTiles catalog is computed here (constraints → overlay ids) and
+  // handed to the map. The map drives the deck.gl wiring against its
+  // own google.maps.Map instance and emits per-layer progress back so
+  // the constraint bar can show a tile-counter chip.
   const pmtilesRegionSlug =
     scope.level !== "national" ? scope.regionSlug : undefined;
   const pmtilesLayers = useMemo(
@@ -165,11 +167,6 @@ const CountryPreview = ({ adapter, country, region, province }: InnerProps) => {
         pmtilesLayers.map((l) => [l.id, { visible: overlayIds.has(l.id) }]),
       ),
     [pmtilesLayers, overlayIds],
-  );
-  const { progress: layerProgress } = usePMTilesOverlays(
-    mapInstance,
-    pmtilesLayers,
-    pmtilesState,
   );
   const listingsQuery = adapter.useListings(scope, LIMIT);
   const heatmapQuery = adapter.useHeatmap(false);
@@ -360,7 +357,9 @@ const CountryPreview = ({ adapter, country, region, province }: InnerProps) => {
     hexLoading: false,
     onZoomChange: setCurrentZoom,
     onListingClick: handleSelectById,
-    onMapReady: setMapInstance,
+    pmtilesLayers,
+    pmtilesState,
+    onLayerProgressChange: setLayerProgress,
     overlays: mapHud,
     choropleth: choroplethFeatures
       ? {
