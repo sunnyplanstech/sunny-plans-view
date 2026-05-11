@@ -44,12 +44,25 @@ export interface PartitionSpec {
 // (set via each `tiles_*` Dagster asset's `min_zoom`/`max_zoom`) and is
 // fetched at runtime in usePMTilesOverlays. Centralizing on the bake
 // config means the frontend can never drift from what's actually baked.
+//
+// `kind` discriminates the rendering path:
+//   - "vector" (default): PMTiles delivers MVT; renderer is
+//     TileLayer + GeoJsonLayer (+ optional FillStyleExtension hatch).
+//   - "raster": PMTiles delivers PNG tiles; renderer is
+//     TileLayer + BitmapLayer with `fillColor` re-interpreted as
+//     tintColor (RGB) × opacity (alpha/255). Hatch + lineColor are
+//     ignored; the bake produces a flat translucent wash.
+// Picking raster for slope (only) is the p1-e1-slope-raster-tiles.md
+// trade-off: vector slope was carrying 1.8 MB / z8 of stairstep
+// polygon fragments, where the layer doesn't use any of vector tiles'
+// advanced features (no click, no hover, no per-feature styling).
 export interface PMTilesLayerConfig {
   id: string;
   url?: string;
   partition?: PartitionSpec;
   label: string;
   description?: string;
+  kind?: "vector" | "raster";
   fillColor: [number, number, number, number];
   lineColor?: [number, number, number, number];
   // Hatch pattern from hatchPatternAtlas. Present only on hard-
@@ -141,10 +154,16 @@ const HARD_EXCLUSION_BASE = {
 // "flat-land" overlay would visually compete with the actual targets.
 // Warm grey reads as "neutral positive" — the user notices it but the
 // eye still lands on parcels first.
+//
+// Slope is `kind: "raster"` (the only raster overlay) — `fillColor`'s
+// RGB becomes the BitmapLayer tintColor and the alpha becomes the
+// opacity. Alpha is bumped to 70 here to roughly match the on-screen
+// visual weight of the old vector wash (which the FillStyleExtension
+// underpainted with the same RGB at alpha 70 too).
 const WARM_GREY = [196, 178, 140] as const;
 const SUITABLE_BASE = {
+  kind: "raster" as const,
   fillColor: [...WARM_GREY, 70]  as [number, number, number, number],
-  lineColor: [...WARM_GREY, 140] as [number, number, number, number],
   defaultVisible: false,
 };
 

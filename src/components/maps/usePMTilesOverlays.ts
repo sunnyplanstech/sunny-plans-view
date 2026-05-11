@@ -70,10 +70,15 @@ async function fetchHeader(
 // who never opens the layer panel never pays the bundle cost. Cached as
 // a module-level promise so we only import each chunk once per page
 // load no matter how many maps mount.
+//
+// BitmapLayer is the only addition for the raster slope path — see
+// p1-e1-slope-raster-tiles.md. PMTiles tile bytes go straight to a
+// GPU bitmap upload, no MVT parse / polygon tessellation.
 let modulesPromise: Promise<{
   GoogleMapsOverlay: typeof import("@deck.gl/google-maps").GoogleMapsOverlay;
   TileLayer: typeof import("@deck.gl/geo-layers").TileLayer;
   GeoJsonLayer: typeof import("@deck.gl/layers").GeoJsonLayer;
+  BitmapLayer: typeof import("@deck.gl/layers").BitmapLayer;
   FillStyleExtension: typeof import("@deck.gl/extensions").FillStyleExtension;
   PMTiles: typeof import("pmtiles").PMTiles;
   MVTLoader: typeof import("@loaders.gl/mvt").MVTLoader;
@@ -86,7 +91,7 @@ function loadDeckModules() {
       const [
         { GoogleMapsOverlay },
         { TileLayer },
-        { GeoJsonLayer },
+        { GeoJsonLayer, BitmapLayer },
         { FillStyleExtension },
         { PMTiles },
         { MVTLoader },
@@ -104,6 +109,7 @@ function loadDeckModules() {
         GoogleMapsOverlay,
         TileLayer,
         GeoJsonLayer,
+        BitmapLayer,
         FillStyleExtension,
         PMTiles,
         MVTLoader,
@@ -306,10 +312,12 @@ export function usePMTilesOverlays(
       // is a brief window on first toggle, then cached forever.
       const header = headers[layer.id];
       if (!header) return [];
+      const isRaster = layer.kind === "raster";
       const fill = layer.fillColor;
       const line = layer.lineColor;
       const pattern = layer.pattern;
-      const usePattern = pattern != null && hatchAtlasUrl != null;
+      const usePattern =
+        !isRaster && pattern != null && hatchAtlasUrl != null;
       const urls = layerUrls(layer);
       return urls.map((url, i) => {
         const pmt = getPMTiles(mods.PMTiles, url);
@@ -330,6 +338,14 @@ export function usePMTilesOverlays(
               // eslint-disable-next-line @typescript-eslint/no-explicit-any
               const tile = await (pmt as any).getZxy(index.z, index.x, index.y);
               if (!tile) return null;
+              if (isRaster) {
+                // Raster path: PMTiles delivers PNG bytes; decode to
+                // ImageBitmap so BitmapLayer can upload straight to the
+                // GPU. No MVT parse, no polygon tessellation — that's
+                // the whole point of raster for the slope wash.
+                const blob = new Blob([tile.data], { type: "image/png" });
+                return await createImageBitmap(blob);
+              }
               return mods.parse(tile.data, mods.MVTLoader, {
                 mvt: {
                   coordinates: "wgs84",
@@ -340,11 +356,30 @@ export function usePMTilesOverlays(
               bumpInflight(layer.id, -1);
             }
           },
-          renderSubLayers: (props: { id: string; data: unknown }) => {
+          renderSubLayers: (props: {
+            id: string;
+            data: unknown;
+            tile: { boundingBox: [[number, number], [number, number]] };
+          }) => {
             if (!props.data) return null;
+            if (isRaster) {
+              // BitmapLayer bounds = [west, south, east, north].
+              // TileLayer's boundingBox is [[w,s],[e,n]] in lon/lat.
+              const [[w, s], [e, n]] = props.tile.boundingBox;
+              return new mods.BitmapLayer({
+                id: `${props.id}-bitmap`,
+                image: props.data as ImageBitmap,
+                bounds: [w, s, e, n],
+                // RGB → tint, alpha → opacity. The PNG itself is white
+                // pixels masked by alpha, so tintColor is the on-screen
+                // hue and `opacity` is the wash strength.
+                tintColor: [fill[0], fill[1], fill[2]],
+                opacity: fill[3] / 255,
+              });
+            }
             // Pattern fills are opt-in per layer; layers without a
-            // `pattern` key get a plain solid GeoJsonLayer (slope, and
-            // the no-DOM fallback path).
+            // `pattern` key get a plain solid GeoJsonLayer (and the
+            // no-DOM fallback path).
             const patternProps = usePattern
               ? {
                   extensions: [new mods.FillStyleExtension({ pattern: true })],
