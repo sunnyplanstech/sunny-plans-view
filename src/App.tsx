@@ -12,9 +12,6 @@ import { AuthProvider } from "@/contexts/AuthContext";
 
 // Lazy load heavy route components
 const ListingsSearch = lazy(() => import("./pages/ListingsSearch"));
-const ListingsSearchPreview = lazy(
-  () => import("./pages/ListingsSearchPreview"),
-);
 const SunnyScorePreview = lazy(() => import("./pages/SunnyScorePreview"));
 const ListingDetail = lazy(() => import("./pages/ListingDetail"));
 const Blog = lazy(() => import("./pages/Blog"));
@@ -53,13 +50,6 @@ const App = () => (
           {/* SunnyScore™ explanation preview (roadmap p2-e1-sunnyscore-visual).
               Visual sandbox — gauge + helping/hurting bars across surfaces. */}
           <Route path="/preview/sunnyscore" element={<Suspense fallback={<PageLoader />}><SunnyScorePreview /></Suspense>} />
-
-          {/* Layer-first listings preview (roadmap p1-e3-layer-first-ui).
-              Parallel to /:country/... so the new UX can be reviewed
-              without flipping the production listings flow. */}
-          <Route path="/preview/:country" element={<Suspense fallback={<PageLoader />}><ListingsSearchPreview /></Suspense>} />
-          <Route path="/preview/:country/:region" element={<Suspense fallback={<PageLoader />}><ListingsSearchPreview /></Suspense>} />
-          <Route path="/preview/:country/:region/:province" element={<Suspense fallback={<PageLoader />}><ListingsSearchPreview /></Suspense>} />
 
           {/* Country-level pages */}
           <Route path="/:country" element={<Suspense fallback={<PageLoader />}><ListingsSearch /></Suspense>} />

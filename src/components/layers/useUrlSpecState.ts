@@ -1,12 +1,12 @@
-// useUrlSpecState — bidirectional binding between the layer-first
-// preview's "project spec" (selected constraints + sort key) and the
-// browser URL's search params.
+// useUrlSpecState — bidirectional binding between the listings page's
+// "project spec" (selected constraints + sort key) and the browser
+// URL's search params.
 //
 // Why URL state? Selections are the user's spec, not page-local
 // chrome. Persisting them in the URL makes specs reload-safe,
 // shareable (sales demos, internal QA, pSEO targeting), and survives
-// scope navigation (`/preview/us` → `/preview/us/alabama` keeps the
-// spec attached). Free win — no backend, no auth.
+// scope navigation (`/united-states` → `/united-states/alabama` keeps
+// the spec attached). Free win — no backend, no auth.
 //
 // Encoding:
 //   - `c=slope_lt_5_us,nwi_us`  selected constraint ids (csv)

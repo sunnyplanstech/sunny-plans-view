@@ -137,12 +137,12 @@ All colors MUST be HSL.
   }
 }
 
-/* Layer-first preview helpers. The preview page (`/preview/...`) inherits
-   the brand theme — `bg-gradient-subtle`, brand olive/citron, default
-   shadcn radius — so it visually agrees with the rest of the site and
-   the maps. These classes only add the small "instrument-panel" texture
-   the layer-first UI needs: monospace counters/IDs/coords, a hairline
-   row hover, and a soft floating HUD plate for the map. */
+/* Layer-first UI helpers. The listings page inherits the brand theme —
+   `bg-gradient-subtle`, brand olive/citron, default shadcn radius — so it
+   visually agrees with the rest of the site and the maps. These classes
+   only add the small "instrument-panel" texture the layer-first UI needs:
+   monospace counters/IDs/coords, a hairline row hover, and a soft floating
+   HUD plate for the map. */
 .tp-mono {
   font-family: ui-monospace, "SF Mono", "JetBrains Mono", Menlo, Consolas, monospace;
   font-feature-settings: "tnum" 1, "ss01" 1;
