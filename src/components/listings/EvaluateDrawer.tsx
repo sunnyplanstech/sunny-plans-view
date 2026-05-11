@@ -326,10 +326,10 @@ function ProximitySection({
   );
 }
 
-// Single CTA. Unlocked users jump straight to the source listing on
-// realtor.com; everyone else gets a path into the full detail page,
-// where the per-object proximity breakdown lives and where premium
-// fields show their own paywall CTAs.
+// Single CTA. Unlocked users jump straight to the source listing;
+// everyone else gets a path into the full detail page, where the
+// per-object proximity breakdown lives and where premium fields
+// show their own paywall CTAs.
 function SourceBlock({
   detail,
   listingId,
@@ -344,7 +344,7 @@ function SourceBlock({
     return (
       <Button asChild className="w-full" size="lg">
         <a href={propertyUrl} target="_blank" rel="noopener noreferrer">
-          Open on realtor.com
+          Open original listing
           <ExternalLink className="ml-2 h-4 w-4" />
         </a>
       </Button>

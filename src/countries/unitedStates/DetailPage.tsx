@@ -204,7 +204,7 @@ export function USDetailPage({ id, listing, onPaymentSuccess }: DetailPageProps<
                 <div className="pt-2">
                   <Button asChild variant="outline" size="sm">
                     <a href={listing.property_url} target="_blank" rel="noopener noreferrer">
-                      View on Realtor.com
+                      Open original listing
                       <ExternalLink className="w-3 h-3 ml-2" />
                     </a>
                   </Button>
