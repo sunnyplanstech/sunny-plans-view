@@ -14,11 +14,15 @@
 // Per the roadmap's "no dead toggles" rule, layers without backing
 // data for the user's region must be filtered out before render — see
 // `availableLayers()` below.
-import { PMTILES_LAYERS_BY_COUNTRY } from "@/components/maps/pmtilesLayers";
+import {
+  PMTILES_LAYERS_BY_COUNTRY,
+  type LayerRole,
+} from "@/components/maps/pmtilesLayers";
 
 export type Vertical = "energy" | "van-life";
 export type SpatialUnit = "parcel" | "street-segment";
 export type CountrySlug = "united-states" | "italy";
+export type { LayerRole };
 
 export interface LayerListingsFilter {
   // Query param name appended to the listings URL when this layer is
@@ -46,6 +50,10 @@ export interface Layer {
   description: string;
   vertical: Vertical;
   spatialUnit: SpatialUnit;
+  // Cartographic role — see LayerRole in pmtilesLayers.ts. Drives the
+  // ConstraintBar's "Avoid / Target" grouping in the UI and pairs with
+  // the map-side encoding of the same role on PMTilesLayerConfig.
+  role: LayerRole;
   // Country scope — undefined means cross-country.
   country: CountrySlug;
   // Map overlay this layer toggles, by pmtilesLayers.ts id. Optional:
@@ -78,6 +86,9 @@ const SLOPE_LT_5_FILTER: LayerListingsFilter = {
   defaultValue: "5",
 };
 
+// Registry order = UI display order. Avoid layers first, then target —
+// users scan top-down and "is this parcel even legal?" must precede
+// "is it suitable?" (see visual-language doc §10).
 export const LAYER_REGISTRY: Layer[] = [
   {
     id: "pad_us",
@@ -86,6 +97,7 @@ export const LAYER_REGISTRY: Layer[] = [
       "PAD-US — federal/state protected lands where development is restricted",
     vertical: "energy",
     spatialUnit: "parcel",
+    role: "avoid",
     country: "united-states",
     pmtilesLayerId: "pad_us",
     requiresRegionScope: true,
@@ -98,6 +110,7 @@ export const LAYER_REGISTRY: Layer[] = [
       "USFWS National Wetlands Inventory — Clean Water Act permitting risk",
     vertical: "energy",
     spatialUnit: "parcel",
+    role: "avoid",
     country: "united-states",
     pmtilesLayerId: "nwi_us",
     requiresRegionScope: true,
@@ -110,6 +123,7 @@ export const LAYER_REGISTRY: Layer[] = [
       "Slope <5% — usable terrain for utility solar / BESS siting",
     vertical: "energy",
     spatialUnit: "parcel",
+    role: "target",
     country: "united-states",
     pmtilesLayerId: "slope_lt_5_us",
     requiresRegionScope: true,
@@ -124,6 +138,7 @@ export const LAYER_REGISTRY: Layer[] = [
       "EU protected sites — autorizzazione paesaggistica required, ~6–12 month delay",
     vertical: "energy",
     spatialUnit: "parcel",
+    role: "avoid",
     country: "italy",
     pmtilesLayerId: "natura2000_it",
     requiresRegionScope: true,
@@ -135,6 +150,7 @@ export const LAYER_REGISTRY: Layer[] = [
     description: "Pendenza <5% — usable terrain for solar / BESS siting",
     vertical: "energy",
     spatialUnit: "parcel",
+    role: "target",
     country: "italy",
     pmtilesLayerId: "slope_lt_5_it",
     requiresRegionScope: true,

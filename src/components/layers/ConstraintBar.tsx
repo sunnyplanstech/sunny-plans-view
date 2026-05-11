@@ -17,7 +17,7 @@
 // presets we add them back as a thin wrapper over `onToggle`.
 import { Check, Loader2, MapPin, ZoomIn } from "lucide-react";
 import { cn } from "@/lib/utils";
-import type { Layer } from "./registry";
+import type { Layer, LayerRole } from "./registry";
 import type { LayerEffect } from "./evaluate";
 import { layerTag } from "./layerTag";
 
@@ -59,6 +59,38 @@ interface RowState {
   belowMinZoom: boolean;
   needsRegion: boolean;
   effect?: LayerEffect;
+}
+
+// Display order: avoid before target. Mirrors the visual-language
+// doc §10 ("is this parcel even legal?" must precede "is it suitable?").
+const ROLE_ORDER: LayerRole[] = ["avoid", "target"];
+
+interface RoleSectionMeta {
+  label: string;
+  caption: string;
+}
+
+const ROLE_SECTION_META: Record<LayerRole, RoleSectionMeta> = {
+  avoid: {
+    label: "Avoid · hard exclusion",
+    caption: "Areas where development is restricted or permit-blocked",
+  },
+  target: {
+    label: "Target · soft suitability",
+    caption: "Areas that are positively suitable for solar / BESS",
+  },
+};
+
+function groupByRole(layers: Layer[]): { role: LayerRole; items: Layer[] }[] {
+  const buckets = new Map<LayerRole, Layer[]>();
+  for (const layer of layers) {
+    const bucket = buckets.get(layer.role) ?? [];
+    bucket.push(layer);
+    buckets.set(layer.role, bucket);
+  }
+  return ROLE_ORDER
+    .map((role) => ({ role, items: buckets.get(role) ?? [] }))
+    .filter((g) => g.items.length > 0);
 }
 
 function rowState(
@@ -166,99 +198,173 @@ export function ConstraintBar({
         </button>
       </header>
 
-      <ul className="divide-y divide-border/60">
-        {layers.map((layer) => {
-          const selected = selectedIds.has(layer.id);
-          const state = rowState(layer, effectsById, hasRegionScope, currentZoom);
-          const ratio = state.effect ? effectRatio(state.effect, totalListings) : null;
-          const showRatio = !state.belowMinZoom && ratio !== null;
-          const tag = layerTag(layer.id);
-          const cost = state.belowMinZoom
-            ? null
-            : costLabel(costsById[layer.id] ?? null, selected, state.effect);
-          const progress = layer.pmtilesLayerId
-            ? layerProgress?.[layer.pmtilesLayerId]
-            : undefined;
-          const isLoading =
-            selected &&
-            !!progress &&
-            (progress.headerLoading || progress.tilesInflight > 0);
-          return (
-            <li key={layer.id}>
-              <button
-                type="button"
-                className="tp-row focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-inset"
-                aria-pressed={selected}
-                onClick={() => onToggle(layer.id)}
-              >
-                <span
-                  aria-hidden
-                  className={cn(
-                    "tp-mono mt-0.5 inline-flex h-6 min-w-[44px] items-center justify-center rounded-md border px-1.5 text-[10px] font-semibold tracking-wider transition-colors",
-                    selected
-                      ? "border-primary/60 bg-primary/10 text-primary"
-                      : "border-border bg-background text-muted-foreground",
-                  )}
-                >
-                  {tag}
-                </span>
-                <div className="min-w-0">
-                  <div className="flex items-baseline justify-between gap-2">
-                    <span
-                      className={cn(
-                        "text-[13px] leading-tight",
-                        selected
-                          ? "font-semibold text-foreground"
-                          : "font-medium text-foreground/90",
-                      )}
-                    >
-                      {layer.label}
-                    </span>
-                    {cost && <CostBadge cost={cost} />}
-                  </div>
-                  <p className="mt-0.5 text-[11px] leading-snug text-muted-foreground">
-                    {layer.description}
-                  </p>
-                  <div className="mt-1.5 flex flex-wrap items-center gap-1.5">
-                    {showRatio && (
-                      <span className="text-[11px] tabular-nums text-muted-foreground">
-                        {ratio} qualify
-                      </span>
-                    )}
-                    {state.belowMinZoom && (
-                      <ScopeHint
-                        icon={<ZoomIn className="h-3 w-3" />}
-                        text="Zoom in to use"
-                      />
-                    )}
-                    {!state.belowMinZoom && state.needsRegion && (
-                      <ScopeHint
-                        icon={<MapPin className="h-3 w-3" />}
-                        text={`Pick a ${regionLabel} first`}
-                      />
-                    )}
-                    {isLoading && progress && (
-                      <LoadingChip progress={progress} />
-                    )}
-                  </div>
-                </div>
-                <span
-                  aria-hidden
-                  className={cn(
-                    "mt-1 inline-flex h-5 w-5 flex-shrink-0 items-center justify-center rounded-full border transition-colors",
-                    selected
-                      ? "border-primary bg-primary text-primary-foreground"
-                      : "border-border bg-background text-transparent",
-                  )}
-                >
-                  <Check className="h-3 w-3" strokeWidth={3} />
-                </span>
-              </button>
-            </li>
-          );
-        })}
-      </ul>
+      {groupByRole(layers).map(({ role, items }) => (
+        <section key={role} aria-labelledby={`constraint-role-${role}`}>
+          <RoleHeader role={role} id={`constraint-role-${role}`} />
+          <ul className="divide-y divide-border/60">
+            {items.map((layer) => (
+              <LayerRow
+                key={layer.id}
+                layer={layer}
+                selected={selectedIds.has(layer.id)}
+                onToggle={onToggle}
+                effectsById={effectsById}
+                costsById={costsById}
+                totalListings={totalListings}
+                currentZoom={currentZoom}
+                hasRegionScope={hasRegionScope}
+                regionLabel={regionLabel}
+                layerProgress={layerProgress}
+              />
+            ))}
+          </ul>
+        </section>
+      ))}
     </aside>
+  );
+}
+
+// Section header above each role group. Slate for avoid, olive for
+// target — the same role-coded vocabulary the map encoding uses
+// (hatched slate / cream spotlight wash). The caption explains the
+// role in one line; the section's heading is its label.
+function RoleHeader({ role, id }: { role: LayerRole; id: string }) {
+  const meta = ROLE_SECTION_META[role];
+  const tone =
+    role === "avoid"
+      ? "text-slate-700 dark:text-slate-300 border-slate-300/60 dark:border-slate-700/60 bg-slate-100/60 dark:bg-slate-900/30"
+      : "text-primary border-primary/30 bg-primary/5";
+  return (
+    <header
+      className={cn(
+        "px-4 py-2 border-y first:border-t-0",
+        tone,
+      )}
+    >
+      <h3
+        id={id}
+        className="tp-mono text-[10.5px] font-semibold uppercase tracking-[0.14em]"
+      >
+        {meta.label}
+      </h3>
+      <p className="mt-0.5 text-[10.5px] leading-snug text-muted-foreground">
+        {meta.caption}
+      </p>
+    </header>
+  );
+}
+
+interface LayerRowProps {
+  layer: Layer;
+  selected: boolean;
+  onToggle: (id: string) => void;
+  effectsById: Record<string, LayerEffect>;
+  costsById: Record<string, number | null>;
+  totalListings: number;
+  currentZoom?: number;
+  hasRegionScope: boolean;
+  regionLabel: "state" | "region";
+  layerProgress?: Record<string, { headerLoading: boolean; tilesInflight: number }>;
+}
+
+function LayerRow({
+  layer,
+  selected,
+  onToggle,
+  effectsById,
+  costsById,
+  totalListings,
+  currentZoom,
+  hasRegionScope,
+  regionLabel,
+  layerProgress,
+}: LayerRowProps) {
+  const state = rowState(layer, effectsById, hasRegionScope, currentZoom);
+  const ratio = state.effect ? effectRatio(state.effect, totalListings) : null;
+  const showRatio = !state.belowMinZoom && ratio !== null;
+  const tag = layerTag(layer.id);
+  const cost = state.belowMinZoom
+    ? null
+    : costLabel(costsById[layer.id] ?? null, selected, state.effect);
+  const progress = layer.pmtilesLayerId
+    ? layerProgress?.[layer.pmtilesLayerId]
+    : undefined;
+  const isLoading =
+    selected &&
+    !!progress &&
+    (progress.headerLoading || progress.tilesInflight > 0);
+  return (
+    <li>
+      <button
+        type="button"
+        className="tp-row focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-inset"
+        aria-pressed={selected}
+        onClick={() => onToggle(layer.id)}
+      >
+        <span
+          aria-hidden
+          className={cn(
+            "tp-mono mt-0.5 inline-flex h-6 min-w-[44px] items-center justify-center rounded-md border px-1.5 text-[10px] font-semibold tracking-wider transition-colors",
+            selected
+              ? "border-primary/60 bg-primary/10 text-primary"
+              : "border-border bg-background text-muted-foreground",
+          )}
+        >
+          {tag}
+        </span>
+        <div className="min-w-0">
+          <div className="flex items-baseline justify-between gap-2">
+            <span
+              className={cn(
+                "text-[13px] leading-tight",
+                selected
+                  ? "font-semibold text-foreground"
+                  : "font-medium text-foreground/90",
+              )}
+            >
+              {layer.label}
+            </span>
+            {cost && <CostBadge cost={cost} />}
+          </div>
+          <p className="mt-0.5 text-[11px] leading-snug text-muted-foreground">
+            {layer.description}
+          </p>
+          <div className="mt-1.5 flex flex-wrap items-center gap-1.5">
+            {showRatio && (
+              <span className="text-[11px] tabular-nums text-muted-foreground">
+                {ratio} qualify
+              </span>
+            )}
+            {state.belowMinZoom && (
+              <ScopeHint
+                icon={<ZoomIn className="h-3 w-3" />}
+                text="Zoom in to use"
+              />
+            )}
+            {!state.belowMinZoom && state.needsRegion && (
+              <ScopeHint
+                icon={<MapPin className="h-3 w-3" />}
+                text={`Pick a ${regionLabel} first`}
+              />
+            )}
+            {isLoading && progress && (
+              <LoadingChip progress={progress} />
+            )}
+          </div>
+        </div>
+        <span
+          aria-hidden
+          className={cn(
+            "mt-1 inline-flex h-5 w-5 flex-shrink-0 items-center justify-center rounded-full border transition-colors",
+            selected
+              ? "border-primary bg-primary text-primary-foreground"
+              : "border-border bg-background text-transparent",
+          )}
+        >
+          <Check className="h-3 w-3" strokeWidth={3} />
+        </span>
+      </button>
+    </li>
   );
 }
 

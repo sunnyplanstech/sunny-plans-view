@@ -47,10 +47,13 @@ export const HATCH_PATTERN_MAPPING: Record<HatchPatternName, PatternFrame> = {
   "dots":           { x: TILE * 3, y: 0, width: TILE, height: TILE },
 };
 
-// Stripe pixel width is the dominant readability lever. 2px on a 16px
-// tile = ~12% coverage per stripe; doubled by the cross direction it
-// reads as "marked off" without becoming a solid wash.
-const STROKE_PX = 2;
+// Stripe pixel width is the dominant readability lever. 3px on a 16px
+// tile gives ~37% per-tile coverage — denser than the original 2px
+// "decorative" hatch but still visibly striped (not a solid wash). The
+// extra density pairs with the per-layer base tint (`baseFillColor` on
+// PMTilesLayerConfig) to land the combined exclusion coverage in the
+// 55–65% range the visual-language doc now specs for hard exclusions.
+const STROKE_PX = 3;
 
 function drawDiagonal(
   ctx: CanvasRenderingContext2D,

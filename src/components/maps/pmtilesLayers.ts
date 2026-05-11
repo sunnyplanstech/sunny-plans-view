@@ -15,15 +15,30 @@
 // Visual encoding follows the framework in
 // sunnyplans-docs/02_branding/01_map_visual_language.md:
 //
+//   - Each layer has a `role`: "avoid" (hard exclusion) or "target"
+//     (soft suitability). The role drives both the map encoding here
+//     and the UI grouping in ConstraintBar.
 //   - Hard exclusions (PAD, Natura 2000, NWI, urban) use *texture*
-//     (hatch patterns) on a neutral fill, not hue. Different sources
-//     get different hatch patterns so they remain distinguishable when
-//     they overlap, without each one consuming a scarce hue slot.
-//   - NWI keeps a slate-blue tint inside its hatch — water convention
-//     is strong enough that breaking it confuses more than it helps.
-//   - Soft suitability layers (slope_lt_5) use a low-saturation warm-
-//     grey wash with no pattern: a positive-but-quiet affordance that
-//     never competes with parcels for visual weight.
+//     (hatch patterns) on a neutral *base tint* (~37% slate fill). The
+//     pattern carries source identity; the base tint carries coverage
+//     weight. Combined visual coverage lands in the 55–65% range the
+//     doc specs as "visibly blocking, basemap still readable".
+//   - NWI keeps a slate-blue base + hatch (water convention is strong
+//     enough that breaking it confuses more than it helps).
+//   - Soft-suitability *target* layers (slope_lt_5) are rendered by a
+//     custom subclass — `TargetScrimBitmapLayer` — whose fragment
+//     shader inverts the source mask alpha at render time. Where the
+//     bake's PNG is white (predicate true), the layer emits a fully
+//     transparent pixel; where the PNG is transparent, the layer
+//     emits the scrim ink. The target polygon stays at original
+//     basemap brightness; everything else darkens. The eye lands on
+//     the un-dimmed patches.
+//   - Same ink (`SCRIM_INK`, near-black) does the dimming job in both
+//     directions: painted *inside* an avoid polygon as the base fill
+//     under the hatch (so the avoid area looks de-emphasised), or
+//     *outside* a target polygon by the inverted-alpha shader (so the
+//     surroundings look de-emphasised). One hue, two complementary
+//     uses, encoding intent symmetrically across the two roles.
 //   - Parcels (rendered separately, see ListingsGoogleMap.tsx) remain
 //     the only saturated thing on the map. Nothing here may be louder.
 
@@ -31,6 +46,12 @@ import { STATE_CODE_TO_SLUG, slugToStateCode } from "@/data/locations";
 import type { HatchPatternName } from "./hatchPatternAtlas";
 
 export type PartitionKind = "us-state" | "it-region";
+
+// Layer role — drives both the map encoding (here) and the UI grouping
+// in ConstraintBar / registry.ts. Avoid layers are hard exclusions (you
+// can't build here); target layers are soft-suitability affordances
+// (you'd prefer to build here).
+export type LayerRole = "avoid" | "target";
 
 export interface PartitionSpec {
   kind: PartitionKind;
@@ -63,11 +84,28 @@ export interface PMTilesLayerConfig {
   label: string;
   description?: string;
   kind?: "vector" | "raster";
+  // Cartographic role — see LayerRole above. Drives both the in-map
+  // encoding pipeline (target layers also activate the global spotlight
+  // scrim) and the UI grouping of the layer's row in ConstraintBar.
+  role: LayerRole;
   fillColor: [number, number, number, number];
   lineColor?: [number, number, number, number];
+  // Outline stroke width in pixels. Defaults to 1 when omitted. Hard
+  // exclusions ship at 1.5 so the boundary still reads at low zoom
+  // where the hatch becomes sub-pixel.
+  lineWidth?: number;
   // Hatch pattern from hatchPatternAtlas. Present only on hard-
   // exclusion layers; absent (undefined) means a plain solid fill.
   pattern?: HatchPatternName;
+  // Translucent solid fill painted *underneath* the hatch pattern.
+  // Vector layers only — raster layers ignore this. The hatch carries
+  // the source-identifying texture; this base fill carries the visual
+  // coverage weight (the "you cannot build here" signal) by *darkening*
+  // the polygon area. Set in the ~140 alpha range using SCRIM_INK (or
+  // SCRIM_INK_BLUE for water-convention layers) — ≈ 55% solid coverage
+  // under the hatch, calibrated so the polygon visibly drops out of
+  // the search space without making the basemap unreadable.
+  baseFillColor?: [number, number, number, number];
   defaultVisible?: boolean;
   // Layers like NWI fan out to ~50 partitioned PMTiles files; toggling
   // one on at the country view triggers tile fetches against every
@@ -135,40 +173,84 @@ function itRegionPartition(objectIdPrefix: string): PartitionSpec {
   };
 }
 
-// Hard-exclusion palette — neutral slate, no warm hue. Fill alpha is
-// low because the hatch (white opaque pixels in the atlas, masked to
-// fillColor by FillStyleExtension) carries the visual weight. Outline
-// stays at higher alpha so the exclusion's *boundary* still reads at
-// low zoom where the hatch is sub-pixel.
-const NEUTRAL_SLATE = [80, 92, 110] as const;       // PAD, Natura 2000
-const SLATE_BLUE    = [60, 110, 160] as const;      // NWI (water convention)
+// Brand ink — the visual-language palette's dim hue. Used in two
+// complementary places:
+//   - As the *scrim* painted outside a target polygon (slope), where it
+//     dims the basemap so the target patch reads as bright by contrast.
+//   - As the *base fill* painted inside a hard-exclusion polygon (PAD,
+//     Natura 2000), where it dims the area itself so the exclusion
+//     reads as "darkened, do not build here". Same hue on both sides of
+//     the polygon keeps the avoid/target encoding visually coherent.
+const SCRIM_INK = [22, 26, 34] as const;
+
+// Blue-cast analog of SCRIM_INK — used as the dark base under NWI
+// wetlands. Same role as SCRIM_INK (darken the polygon area) but
+// preserves the water convention so wetlands stay readable as "wet"
+// against PAD's neutral darkening.
+const SCRIM_INK_BLUE = [16, 32, 64] as const;
+
+// Hard-exclusion palette. The pattern's fillColor is the *hatch* tint
+// (the stripes themselves) — kept at the higher-luminance slate /
+// slate-blue so the stripes stay legible against the darker base. The
+// baseFillColor is a translucent solid painted underneath the hatch
+// and carries the polygon's coverage weight; it uses SCRIM_INK (or
+// SCRIM_INK_BLUE for NWI) so the polygon visibly darkens its area on
+// the basemap, mirroring the slope scrim's dim effect but applied
+// inside the avoid polygon instead of outside it.
+const NEUTRAL_SLATE = [80, 92, 110] as const;       // PAD, Natura 2000 (stripes + outline)
+const SLATE_BLUE    = [60, 110, 160] as const;      // NWI (stripes + outline, water convention)
 
 const HARD_EXCLUSION_BASE = {
-  fillColor: [...NEUTRAL_SLATE, 200] as [number, number, number, number],
-  lineColor: [...NEUTRAL_SLATE, 200] as [number, number, number, number],
+  role: "avoid" as const,
+  fillColor:     [...NEUTRAL_SLATE, 230] as [number, number, number, number],
+  baseFillColor: [...SCRIM_INK, 140] as [number, number, number, number],
+  lineColor:     [...NEUTRAL_SLATE, 230] as [number, number, number, number],
+  lineWidth: 1.5,
   defaultVisible: false,
 };
 
-// Soft suitability — a low-saturation warm-grey wash. Deliberately
-// *not* in the brand olive band: parcels own that slot, and a green
-// "flat-land" overlay would visually compete with the actual targets.
-// Warm grey reads as "neutral positive" — the user notices it but the
-// eye still lands on parcels first.
+// Soft suitability (target affordance). The visual goal — set by the
+// spotlight-scrim direction in the visual-language doc — is for the
+// target polygon to read as *un-dimmed basemap* against a darkened
+// surround, with an olive boundary line at the transition.
 //
-// Slope is `kind: "raster"` (the only raster overlay) — `fillColor`'s
-// RGB becomes the BitmapLayer tintColor and the alpha becomes the
-// opacity. Alpha is bumped to 70 here to roughly match the on-screen
-// visual weight of the old vector wash (which the FillStyleExtension
-// underpainted with the same RGB at alpha 70 too).
-const WARM_GREY = [196, 178, 140] as const;
+// `TargetScrimBitmapLayer` (the custom subclass used for any raster
+// target layer) inverts the source PNG's alpha at render time: the
+// PNG is white where slope < 5% / transparent elsewhere, and the
+// custom shader flips that so the polygon area is fully transparent
+// (basemap shines through) while the rest of the tile renders as the
+// scrim colour. The shader also runs a 4-neighbour edge detect on
+// the source alpha and paints the transition in brand olive.
+//
+// `fillColor` is reinterpreted by the custom layer:
+//   - RGB → scrim colour (the dim painted *outside* the predicate)
+//   - A   → scrim alpha (how dark the dim looks)
+//
+// Alpha 115 ≈ 45%, calibrated to read as "this part of the map is
+// being de-emphasised" without going so dark it becomes unreadable.
 const SUITABLE_BASE = {
+  role: "target" as const,
   kind: "raster" as const,
-  fillColor: [...WARM_GREY, 70]  as [number, number, number, number],
+  fillColor: [...SCRIM_INK, 115] as [number, number, number, number],
   defaultVisible: false,
 };
 
+// Catalog ordering is the deck.gl render order (earlier = lower z).
+// Per the visual-language doc §5, target / soft-suitability layers
+// render *below* hard-exclusion hatching, so the exclusion polygon
+// always wins where the two overlap. Spotlight scrim is injected
+// separately by usePMTilesOverlays at z-order #3 (below everything).
 export const PMTILES_LAYERS_BY_COUNTRY: Record<string, PMTilesLayerConfig[]> = {
   italy: [
+    {
+      id: "slope_lt_5_it",
+      partition: itRegionPartition("slope_lt_5_it"),
+      label: "Flat land (<5% slope)",
+      description:
+        "Pendenza <5% — the unanimous \"definitely usable\" cutoff for utility solar/BESS siting",
+      ...SUITABLE_BASE,
+      requiresRegionScope: true,
+    },
     {
       id: "natura2000_it",
       partition: itRegionPartition("natura2000_it"),
@@ -179,17 +261,17 @@ export const PMTILES_LAYERS_BY_COUNTRY: Record<string, PMTilesLayerConfig[]> = {
       pattern: "diagonal-left",
       requiresRegionScope: true,
     },
+  ],
+  "united-states": [
     {
-      id: "slope_lt_5_it",
-      partition: itRegionPartition("slope_lt_5_it"),
+      id: "slope_lt_5_us",
+      partition: usStatePartition("slope_lt_5_us"),
       label: "Flat land (<5% slope)",
       description:
-        "Pendenza <5% — the unanimous \"definitely usable\" cutoff for utility solar/BESS siting",
+        "Slope <5% — the unanimous \"definitely usable\" cutoff for utility solar/BESS siting",
       ...SUITABLE_BASE,
       requiresRegionScope: true,
     },
-  ],
-  "united-states": [
     {
       id: "pad_us",
       partition: usStatePartition("pad_us"),
@@ -206,19 +288,13 @@ export const PMTILES_LAYERS_BY_COUNTRY: Record<string, PMTilesLayerConfig[]> = {
       label: "Wetlands (NWI)",
       description:
         "USFWS National Wetlands Inventory — Clean Water Act permitting risk and ecological-sensitivity flag",
-      fillColor: [...SLATE_BLUE, 200] as [number, number, number, number],
-      lineColor: [...SLATE_BLUE, 200] as [number, number, number, number],
+      role: "avoid",
+      fillColor:     [...SLATE_BLUE, 230] as [number, number, number, number],
+      baseFillColor: [...SCRIM_INK_BLUE, 140] as [number, number, number, number],
+      lineColor:     [...SLATE_BLUE, 230] as [number, number, number, number],
+      lineWidth: 1.5,
       pattern: "horizontal",
       defaultVisible: false,
-      requiresRegionScope: true,
-    },
-    {
-      id: "slope_lt_5_us",
-      partition: usStatePartition("slope_lt_5_us"),
-      label: "Flat land (<5% slope)",
-      description:
-        "Slope <5% — the unanimous \"definitely usable\" cutoff for utility solar/BESS siting",
-      ...SUITABLE_BASE,
       requiresRegionScope: true,
     },
   ],

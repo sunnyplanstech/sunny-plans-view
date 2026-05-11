@@ -1,0 +1,1151 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Layer Visual Language — Design Mockup</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght,SOFT@9..144,400;9..144,500;9..144,700;9..144,900&family=Manrope:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet" />
+<style>
+  /* -- design tokens ----------------------------------------------------- */
+  :root {
+    --paper: #F4F0E6;
+    --paper-2: #ECE6D8;
+    --ink: #161A22;
+    --ink-soft: #3A4150;
+    --rule: #C9C0AB;
+    --rule-soft: #DCD4C0;
+
+    /* role palette */
+    --citron: #B1BF36;
+    --olive:  #456F15;
+    --olive-mid: #688E3D;
+    --slate:  #505C6E;
+    --slate-blue: #3C6EA0;
+    --warm-grey: #C4B28C;
+
+    /* accents only used in variant B / C */
+    --amber: #D69441;
+    --amber-glow: rgba(214, 148, 65, 0.45);
+    --citron-glow: rgba(177, 191, 54, 0.42);
+
+    --shadow-soft: 0 1px 0 rgba(22,26,34,.04), 0 8px 32px -16px rgba(22,26,34,.18);
+
+    --serif: "Fraunces", "Iowan Old Style", "Hoefler Text", serif;
+    --sans:  "Manrope", system-ui, -apple-system, "Segoe UI", sans-serif;
+    --mono:  "JetBrains Mono", ui-monospace, "SFMono-Regular", monospace;
+  }
+
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; }
+  body {
+    font-family: var(--sans);
+    color: var(--ink);
+    background:
+      radial-gradient(120% 80% at 20% -10%, rgba(177,191,54,.06), transparent 50%),
+      radial-gradient(80% 60% at 100% 0%, rgba(60,110,160,.05), transparent 50%),
+      var(--paper);
+    background-attachment: fixed;
+    line-height: 1.45;
+    font-feature-settings: "ss01", "cv11";
+  }
+
+  /* paper grain — subtle, only visible at high zoom */
+  body::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 0;
+    background-image:
+      radial-gradient(rgba(22,26,34,.025) 1px, transparent 1px);
+    background-size: 3px 3px;
+    mix-blend-mode: multiply;
+  }
+
+  main { position: relative; z-index: 1; }
+
+  /* -- header ------------------------------------------------------------ */
+  header.page {
+    padding: 68px 7vw 36px;
+    border-bottom: 1px solid var(--rule);
+    background:
+      linear-gradient(180deg, transparent 60%, rgba(22,26,34,.012));
+  }
+  .eyebrow {
+    font-family: var(--mono);
+    font-size: 11px;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--olive);
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .eyebrow::before {
+    content: "";
+    display: inline-block;
+    width: 18px;
+    height: 1.5px;
+    background: var(--olive);
+  }
+  h1.title {
+    font-family: var(--serif);
+    font-variation-settings: "opsz" 144, "SOFT" 0;
+    font-weight: 900;
+    font-size: clamp(40px, 5.2vw, 76px);
+    line-height: 0.96;
+    letter-spacing: -0.028em;
+    margin: 18px 0 0;
+    max-width: 17ch;
+  }
+  h1.title em {
+    font-style: italic;
+    font-variation-settings: "opsz" 144, "SOFT" 100;
+    color: var(--olive);
+  }
+  .lede {
+    margin-top: 22px;
+    max-width: 58ch;
+    font-size: 17px;
+    color: var(--ink-soft);
+  }
+  .lede strong { color: var(--ink); font-weight: 600; }
+
+  .legend-bar {
+    margin-top: 36px;
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 28px;
+    max-width: 880px;
+  }
+  .legend-bar .role {
+    border-left: 2px solid var(--rule);
+    padding: 2px 0 2px 18px;
+  }
+  .legend-bar .role.avoid { border-left-color: var(--slate); }
+  .legend-bar .role.target { border-left-color: var(--olive); }
+  .legend-bar .role h3 {
+    font-family: var(--mono);
+    font-size: 11px;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    margin: 0 0 8px;
+  }
+  .legend-bar .role.avoid h3 { color: var(--slate); }
+  .legend-bar .role.target h3 { color: var(--olive); }
+  .legend-bar .role p {
+    margin: 0;
+    font-size: 14.5px;
+    color: var(--ink-soft);
+  }
+
+  /* -- variant section --------------------------------------------------- */
+  section.variant {
+    padding: 84px 7vw;
+    border-bottom: 1px solid var(--rule);
+  }
+  .variant-grid {
+    display: grid;
+    grid-template-columns: minmax(0, 320px) minmax(0, 1fr);
+    gap: 56px;
+    align-items: start;
+  }
+  @media (max-width: 980px) {
+    .variant-grid { grid-template-columns: 1fr; gap: 28px; }
+  }
+
+  .variant-meta .num {
+    font-family: var(--serif);
+    font-variation-settings: "opsz" 144;
+    font-style: italic;
+    font-weight: 400;
+    font-size: 84px;
+    line-height: 1;
+    color: var(--olive);
+    letter-spacing: -0.04em;
+  }
+  .variant-meta h2 {
+    font-family: var(--serif);
+    font-variation-settings: "opsz" 60;
+    font-weight: 700;
+    font-size: 34px;
+    line-height: 1.04;
+    letter-spacing: -0.02em;
+    margin: 6px 0 2px;
+    max-width: 14ch;
+  }
+  .variant-meta .tagline {
+    font-family: var(--serif);
+    font-style: italic;
+    font-size: 17px;
+    color: var(--ink-soft);
+    margin: 4px 0 22px;
+    max-width: 26ch;
+    line-height: 1.35;
+  }
+  .variant-meta .body {
+    font-size: 14.5px;
+    color: var(--ink-soft);
+    max-width: 36ch;
+  }
+  .variant-meta .body p { margin: 0 0 12px; }
+  .variant-meta .body strong { color: var(--ink); font-weight: 600; }
+
+  .tradeoff {
+    margin-top: 22px;
+    padding-top: 16px;
+    border-top: 1px dashed var(--rule);
+    font-family: var(--mono);
+    font-size: 11px;
+    letter-spacing: 0.06em;
+    color: var(--slate);
+    line-height: 1.55;
+  }
+  .tradeoff .label {
+    display: inline-block;
+    background: var(--ink);
+    color: var(--paper);
+    padding: 2px 6px;
+    border-radius: 2px;
+    margin-right: 6px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+  }
+
+  /* -- demo map frame ---------------------------------------------------- */
+  .demo {
+    position: relative;
+    background: var(--paper-2);
+    border: 1px solid var(--rule);
+    box-shadow: var(--shadow-soft);
+  }
+  .demo-chrome {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 14px 18px;
+    border-bottom: 1px solid var(--rule-soft);
+    background: linear-gradient(180deg, rgba(255,255,255,.55), transparent);
+  }
+  .demo-chrome .dot {
+    width: 8px; height: 8px; border-radius: 50%;
+    background: var(--rule);
+  }
+  .demo-chrome .crumb {
+    font-family: var(--mono);
+    font-size: 11px;
+    letter-spacing: 0.06em;
+    color: var(--slate);
+  }
+  .demo-chrome .crumb span.sep { color: var(--rule); margin: 0 8px; }
+  .demo-chrome .crumb span.live { color: var(--olive); font-weight: 700; }
+
+  .demo-stage {
+    position: relative;
+    aspect-ratio: 16 / 9;
+    overflow: hidden;
+  }
+  .demo-stage svg {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    display: block;
+  }
+
+  /* layer toggle pill bar */
+  .toggle-rail {
+    position: absolute;
+    top: 16px;
+    left: 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    z-index: 5;
+  }
+  .toggle-rail .group-label {
+    font-family: var(--mono);
+    font-size: 9.5px;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--ink-soft);
+    padding: 2px 0 4px;
+  }
+  .toggle-rail .group-label.avoid { color: var(--slate); }
+  .toggle-rail .group-label.target { color: var(--olive); }
+
+  .toggle {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    padding: 6px 11px 6px 8px;
+    background: rgba(244,240,230,.92);
+    border: 1px solid var(--rule);
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
+    cursor: pointer;
+    user-select: none;
+    transition: border-color .15s, transform .15s;
+    font-family: var(--mono);
+    font-size: 10.5px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--ink);
+    width: max-content;
+  }
+  .toggle:hover { border-color: var(--ink-soft); }
+  .toggle .swatch {
+    width: 22px; height: 14px;
+    border: 1px solid var(--ink-soft);
+    flex-shrink: 0;
+  }
+  .toggle .role-tag {
+    font-size: 8.5px;
+    color: var(--rule);
+    border-left: 1px solid var(--rule);
+    padding-left: 6px;
+    margin-left: 2px;
+  }
+  .toggle.avoid .role-tag { color: var(--slate); }
+  .toggle.target .role-tag { color: var(--olive); }
+  .toggle .swatch-nwi { background: #3C6EA0; opacity: .35; background-image: repeating-linear-gradient(0deg, rgba(255,255,255,.85) 0 1.5px, transparent 1.5px 4px); }
+  .toggle .swatch-pad { background: #505C6E; opacity: .35; background-image: repeating-linear-gradient(45deg, rgba(255,255,255,.85) 0 1.5px, transparent 1.5px 4px); }
+  .toggle .swatch-slope { background: var(--warm-grey); }
+  .toggle .swatch-parcel { background: var(--citron); border-color: var(--olive); }
+  .toggle input { position: absolute; opacity: 0; pointer-events: none; }
+  .toggle.is-off { opacity: 0.42; }
+  .toggle.is-off .swatch { filter: grayscale(.9); }
+
+  /* Inline legend strip at the bottom of each demo */
+  .demo-legend {
+    padding: 14px 18px;
+    border-top: 1px solid var(--rule-soft);
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 18px;
+    font-size: 12.5px;
+    color: var(--ink-soft);
+    background: rgba(255,255,255,.4);
+  }
+  .demo-legend .ent {
+    display: flex; align-items: flex-start; gap: 10px;
+  }
+  .demo-legend .key {
+    width: 28px; height: 18px; flex-shrink: 0;
+    border: 1px solid var(--ink-soft);
+    margin-top: 2px;
+  }
+  .demo-legend .ent.target .key { border-color: var(--olive); }
+  .demo-legend .ent .lbl b {
+    display: block;
+    font-family: var(--mono);
+    font-size: 10.5px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--ink);
+    margin-bottom: 1px;
+  }
+  .demo-legend .ent.avoid .lbl b { color: var(--slate); }
+  .demo-legend .ent.target .lbl b { color: var(--olive); }
+  .demo-legend .ent .lbl span { color: var(--ink-soft); font-size: 12px; }
+
+  /* corner pull-quote on each variant's map for added editorial feel */
+  .stage-quote {
+    position: absolute;
+    bottom: 14px;
+    right: 18px;
+    z-index: 4;
+    max-width: 240px;
+    font-family: var(--serif);
+    font-style: italic;
+    font-size: 14px;
+    line-height: 1.35;
+    color: var(--ink-soft);
+    text-align: right;
+    padding: 8px 10px;
+    background: rgba(244,240,230,.78);
+    backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
+    border-left: 2px solid var(--olive);
+  }
+
+  /* ---- variant A: spotlight & scrim ----------------------------------- */
+  /* When the slope layer is on, a viewport-wide scrim dims everything,
+     with the slope polygon as a clip-path cutout that "lets the light
+     through". Exclusion layers get high-opacity hatched fills + bold
+     strokes that read as "carved out, forbidden". */
+  .va .scrim {
+    pointer-events: none;
+    transition: opacity .35s ease;
+  }
+  .va.slope-on .scrim { opacity: 1; }
+  .va.slope-off .scrim { opacity: 0; }
+
+  .va .nwi-fill, .va .pad-fill {
+    transition: opacity .25s ease;
+  }
+  .va.nwi-off .nwi-fill { opacity: 0; }
+  .va.pad-off .pad-fill { opacity: 0; }
+  .va.slope-off .slope-cutout-fill { opacity: 0; }
+  .va .slope-cutout-fill { transition: opacity .35s ease; }
+
+  /* hatched exclusions — full-presence, not 25% whisper */
+  .va .pad-poly {
+    fill: url(#vaPadHatch);
+    stroke: #2D3340;
+    stroke-width: 1.5;
+  }
+  .va .nwi-poly {
+    fill: url(#vaNwiHatch);
+    stroke: #1F4A78;
+    stroke-width: 1.5;
+  }
+  .va .nwi-edge, .va .pad-edge {
+    fill: none;
+    stroke-width: 1.5;
+    stroke-dasharray: 4 3;
+    stroke-dashoffset: 0;
+    animation: marchA 24s linear infinite;
+  }
+  .va .nwi-edge { stroke: rgba(31,74,120,.85); }
+  .va .pad-edge { stroke: rgba(45,51,64,.85); }
+  @keyframes marchA { to { stroke-dashoffset: -210; } }
+
+  /* ---- variant B: halo & aperture ------------------------------------- */
+  /* No scrim. Target zones get an outward citron halo bloom. Exclusion
+     zones get a strong solid stroke + inner shadow so they appear
+     pressed into the map. Most respectful of the existing palette. */
+  .vb .slope-halo {
+    transition: opacity .3s ease;
+  }
+  .vb.slope-off .slope-halo, .vb.slope-off .slope-fill, .vb.slope-off .slope-rim {
+    opacity: 0;
+  }
+  .vb.nwi-off .nwi-poly { opacity: 0; }
+  .vb.pad-off .pad-poly { opacity: 0; }
+
+  .vb .pad-poly {
+    fill: url(#vbPadHatch);
+    stroke: #2D3340;
+    stroke-width: 2;
+    filter: url(#vbInnerShadow);
+  }
+  .vb .nwi-poly {
+    fill: url(#vbNwiHatch);
+    stroke: #1F4A78;
+    stroke-width: 2;
+    filter: url(#vbInnerShadow);
+  }
+  .vb .slope-fill {
+    fill: var(--warm-grey);
+    fill-opacity: 0.32;
+  }
+  .vb .slope-rim {
+    fill: none;
+    stroke: var(--olive-mid);
+    stroke-width: 1.2;
+    stroke-dasharray: 2 4;
+    animation: shimmerB 6s linear infinite;
+  }
+  @keyframes shimmerB { to { stroke-dashoffset: -120; } }
+
+  /* ---- variant C: topo negative space --------------------------------- */
+  /* The most editorial direction. Exclusions are LIGHTENED rather than
+     darkened — they read as "cleared off the map", the way a USGS quad
+     blanks city footprints. Target zones get an overlaid contour pattern.
+     Trade-off: a single direction-of-light reversal across the page. */
+  .vc.nwi-off .nwi-poly { opacity: 0; }
+  .vc.pad-off .pad-poly { opacity: 0; }
+  .vc.slope-off .slope-fill { opacity: 0; }
+
+  .vc .pad-poly {
+    fill: rgba(244,240,230,.92);
+    stroke: var(--slate);
+    stroke-width: 1.5;
+    stroke-dasharray: 5 2 1 2;
+  }
+  .vc .pad-mark {
+    fill: var(--slate);
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: 0.18em;
+    font-weight: 700;
+  }
+  .vc .nwi-poly {
+    fill: rgba(232,238,244,.85);
+    stroke: var(--slate-blue);
+    stroke-width: 1.5;
+    stroke-dasharray: 3 1.5 1 1.5;
+  }
+  .vc .nwi-mark {
+    fill: var(--slate-blue);
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: 0.18em;
+    font-weight: 700;
+  }
+  .vc .slope-fill {
+    fill: url(#vcContour);
+    stroke: var(--olive-mid);
+    stroke-width: 1.2;
+  }
+
+  /* parcels — common across variants, always full saturation */
+  .parcel {
+    fill: var(--citron);
+    fill-opacity: 0.78;
+    stroke: var(--olive);
+    stroke-width: 1.4;
+  }
+  .parcel-pin {
+    fill: var(--olive);
+  }
+
+  /* basemap simulation — gentle gradient with a few "road" lines */
+  .base-fill { fill: #E9E2CC; }
+  .road { stroke: rgba(80,92,110,.18); stroke-width: 1.4; fill: none; }
+  .road-major { stroke: rgba(80,92,110,.32); stroke-width: 2.2; fill: none; }
+  .label-town {
+    font-family: var(--serif);
+    font-style: italic;
+    font-size: 11px;
+    fill: rgba(80,92,110,.78);
+    letter-spacing: 0.04em;
+  }
+
+  /* -- final summary section -------------------------------------------- */
+  section.recommendation {
+    padding: 96px 7vw 120px;
+    background:
+      linear-gradient(180deg, transparent, rgba(177,191,54,.04)),
+      var(--paper);
+  }
+  .rec-grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1.4fr);
+    gap: 64px;
+    align-items: start;
+  }
+  @media (max-width: 980px) {
+    .rec-grid { grid-template-columns: 1fr; gap: 28px; }
+  }
+  .rec-grid h2 {
+    font-family: var(--serif);
+    font-variation-settings: "opsz" 144;
+    font-weight: 900;
+    font-size: clamp(34px, 4vw, 56px);
+    line-height: 0.98;
+    letter-spacing: -0.025em;
+    margin: 0;
+  }
+  .rec-grid h2 em {
+    font-style: italic;
+    font-variation-settings: "opsz" 144, "SOFT" 100;
+    color: var(--olive);
+  }
+  .rec-body p { font-size: 16px; max-width: 60ch; color: var(--ink-soft); }
+  .rec-body p strong { color: var(--ink); }
+  .rec-body ol {
+    margin: 22px 0 0;
+    padding-left: 0;
+    list-style: none;
+    counter-reset: rec;
+  }
+  .rec-body ol li {
+    counter-increment: rec;
+    padding: 16px 0 16px 56px;
+    border-top: 1px solid var(--rule);
+    position: relative;
+    font-size: 15px;
+    color: var(--ink-soft);
+  }
+  .rec-body ol li::before {
+    content: "0" counter(rec);
+    position: absolute;
+    left: 0;
+    top: 14px;
+    font-family: var(--mono);
+    font-size: 11px;
+    letter-spacing: 0.12em;
+    color: var(--olive);
+    font-weight: 700;
+  }
+  .rec-body ol li b {
+    color: var(--ink);
+    display: block;
+    font-family: var(--serif);
+    font-weight: 700;
+    font-size: 18px;
+    margin-bottom: 4px;
+    letter-spacing: -0.01em;
+  }
+  .rec-body ol li code {
+    font-family: var(--mono);
+    font-size: 12px;
+    background: var(--paper-2);
+    padding: 1px 5px;
+    color: var(--ink);
+    border: 1px solid var(--rule-soft);
+  }
+
+  footer.page {
+    padding: 40px 7vw;
+    border-top: 1px solid var(--rule);
+    font-family: var(--mono);
+    font-size: 11px;
+    letter-spacing: 0.08em;
+    color: var(--slate);
+    text-transform: uppercase;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 24px;
+    justify-content: space-between;
+    align-items: baseline;
+  }
+  footer.page .source { color: var(--ink-soft); }
+</style>
+</head>
+<body>
+<main>
+
+<header class="page">
+  <div class="eyebrow">Map visual language · revision proposal</div>
+  <h1 class="title">Two kinds of layer,<br/>two ways to <em>see</em>.</h1>
+  <p class="lede">
+    Today the <strong>NWI wetlands</strong>, <strong>PAD protected areas</strong>,
+    and <strong>flat-land slope</strong> overlays share a single quiet visual
+    register — light hatch, low alpha, warm-grey wash. The user can't tell at a
+    glance which polygons are <em>warnings</em> and which are <em>opportunities</em>.
+    Three encodings below, each committing to a different way of separating
+    the <strong>avoid</strong> set from the <strong>target</strong> set without
+    breaking the existing <code style="font-family:var(--mono);font-size:13px;background:var(--paper-2);padding:1px 5px;border:1px solid var(--rule-soft)">02_branding/01_map_visual_language.md</code> taxonomy.
+  </p>
+
+  <div class="legend-bar">
+    <div class="role avoid">
+      <h3>Avoid — hard exclusions</h3>
+      <p>Legal/regulatory no-build areas. The user should perceive
+        these as <em>removed from the search space</em>. NWI wetlands,
+        PAD protected, Natura 2000.</p>
+    </div>
+    <div class="role target">
+      <h3>Target — soft suitability</h3>
+      <p>Continuous preference layers. The user should perceive
+        these as <em>where to look</em>. Flat slope (&lt;5%), and later
+        irradiance, substation rings, etc.</p>
+    </div>
+  </div>
+</header>
+
+<!-- ====================================================================
+     Variant A — Spotlight & Scrim
+     ==================================================================== -->
+<section class="variant">
+  <div class="variant-grid">
+    <div class="variant-meta">
+      <div class="num">01</div>
+      <h2>Spotlight &amp; Scrim</h2>
+      <div class="tagline">Dim the world so the target zones glow on their own.</div>
+      <div class="body">
+        <p>A subtle <strong>5–8% dark scrim</strong> drops across the
+          entire viewport the moment a target layer is on. The
+          <code style="font-family:var(--mono);font-size:12px">slope_lt_5</code>
+          polygon is a clip-path cutout — the basemap shines through
+          at full brightness inside, dimmed outside.</p>
+        <p>Exclusion polygons get a much stronger version of the
+          existing hatch: <strong>opacity ~38%</strong>, bolder slate
+          stroke, animated march-ants outline on hover. They read as
+          deliberately carved-out territory.</p>
+        <p>The eye naturally lands on the bright cutouts. Nothing
+          changes about hue — only luminance, the channel the visual
+          language doc reserves for soft constraints.</p>
+      </div>
+      <div class="tradeoff">
+        <span class="label">Trade-off</span>
+        Strongest at-a-glance "where to look" signal of the three.
+        Subtle aesthetic change to the basemap (it dims when slope is on);
+        designers occasionally find that surprising.
+      </div>
+    </div>
+
+    <div class="demo">
+      <div class="demo-chrome">
+        <span class="dot"></span><span class="dot"></span><span class="dot"></span>
+        <span class="crumb">/preview/united-states/texas <span class="sep">›</span> <span class="live">Pecos County</span></span>
+      </div>
+      <div class="demo-stage va slope-on nwi-on pad-on" data-variant="va">
+
+        <!-- toggle rail -->
+        <div class="toggle-rail">
+          <div class="group-label avoid">Avoid · hard exclusion</div>
+          <label class="toggle avoid" data-layer="nwi">
+            <input type="checkbox" checked />
+            <span class="swatch swatch-nwi"></span>
+            <span>NWI</span><span class="role-tag">avoid</span>
+          </label>
+          <label class="toggle avoid" data-layer="pad">
+            <input type="checkbox" checked />
+            <span class="swatch swatch-pad"></span>
+            <span>PAD</span><span class="role-tag">avoid</span>
+          </label>
+          <div class="group-label target" style="margin-top:8px">Target · soft suitability</div>
+          <label class="toggle target" data-layer="slope">
+            <input type="checkbox" checked />
+            <span class="swatch swatch-slope"></span>
+            <span>Slope &lt;5%</span><span class="role-tag">target</span>
+          </label>
+        </div>
+
+        <svg viewBox="0 0 800 450" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+          <defs>
+            <pattern id="vaNwiHatch" patternUnits="userSpaceOnUse" width="6" height="6">
+              <rect width="6" height="6" fill="#3C6EA0" fill-opacity="0.34"/>
+              <line x1="0" y1="3" x2="6" y2="3" stroke="rgba(255,255,255,0.92)" stroke-width="1.2"/>
+            </pattern>
+            <pattern id="vaPadHatch" patternUnits="userSpaceOnUse" width="7" height="7" patternTransform="rotate(45)">
+              <rect width="7" height="7" fill="#505C6E" fill-opacity="0.36"/>
+              <line x1="0" y1="3.5" x2="7" y2="3.5" stroke="rgba(255,255,255,0.92)" stroke-width="1.4"/>
+            </pattern>
+            <linearGradient id="vaBase" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0" stop-color="#EEE7CF"/>
+              <stop offset="1" stop-color="#E1D7B8"/>
+            </linearGradient>
+            <radialGradient id="vaScrimGrad" cx="0.5" cy="0.5" r="0.75">
+              <stop offset="0" stop-color="rgba(22,26,34,0.16)"/>
+              <stop offset="1" stop-color="rgba(22,26,34,0.32)"/>
+            </radialGradient>
+            <mask id="vaSpotMask">
+              <!-- white = visible scrim, black = punched cutout -->
+              <rect width="800" height="450" fill="white"/>
+              <!-- slope polygon (clip out so basemap shines through) -->
+              <path d="M460,80 C560,90 660,140 700,220 C710,290 640,360 540,360 C440,360 360,310 360,230 C360,150 400,90 460,80 Z" fill="black"/>
+            </mask>
+          </defs>
+
+          <!-- basemap -->
+          <rect class="base-fill" width="800" height="450" fill="url(#vaBase)"/>
+          <!-- "roads" -->
+          <path class="road-major" d="M0,290 C220,260 460,310 800,250"/>
+          <path class="road" d="M120,0 C150,140 110,280 180,450"/>
+          <path class="road" d="M540,0 C500,120 570,260 520,450"/>
+          <path class="road" d="M0,90 C140,110 280,80 440,140"/>
+          <text class="label-town" x="200" y="340">Sheffield</text>
+          <text class="label-town" x="600" y="120">Iraan</text>
+
+          <!-- slope cutout fill: a faint amber wash inside the polygon, only
+               visible because the scrim mask is cut out here -->
+          <g class="slope-cutout-fill">
+            <path d="M460,80 C560,90 660,140 700,220 C710,290 640,360 540,360 C440,360 360,310 360,230 C360,150 400,90 460,80 Z"
+                  fill="rgba(196,178,140,0.16)"/>
+            <path d="M460,80 C560,90 660,140 700,220 C710,290 640,360 540,360 C440,360 360,310 360,230 C360,150 400,90 460,80 Z"
+                  fill="none" stroke="#688E3D" stroke-width="1.3" stroke-dasharray="3 4"/>
+          </g>
+
+          <!-- exclusion: NWI wetlands -->
+          <g class="nwi-fill">
+            <path class="nwi-poly" d="M40,200 C90,170 150,180 200,210 C230,260 200,310 150,320 C90,320 30,290 30,250 C30,225 30,210 40,200 Z"/>
+            <path class="nwi-edge" d="M40,200 C90,170 150,180 200,210 C230,260 200,310 150,320 C90,320 30,290 30,250 C30,225 30,210 40,200 Z"/>
+          </g>
+
+          <!-- exclusion: PAD protected -->
+          <g class="pad-fill">
+            <path class="pad-poly" d="M250,40 L380,30 L420,90 L370,160 L260,150 L230,90 Z"/>
+            <path class="pad-edge"  d="M250,40 L380,30 L420,90 L370,160 L260,150 L230,90 Z"/>
+          </g>
+
+          <!-- the dimming scrim. cutout = slope polygon -->
+          <rect class="scrim" width="800" height="450" fill="url(#vaScrimGrad)" mask="url(#vaSpotMask)"/>
+
+          <!-- parcels — top of stack, always full saturation -->
+          <circle class="parcel-pin" cx="500" cy="200" r="3"/>
+          <path class="parcel" d="M490,205 L555,210 L552,255 L482,250 Z"/>
+          <circle class="parcel-pin" cx="570" cy="290" r="3"/>
+          <path class="parcel" d="M560,295 L640,300 L635,335 L555,330 Z"/>
+          <circle class="parcel-pin" cx="430" cy="280" r="3"/>
+          <path class="parcel" d="M420,285 L475,288 L478,328 L420,325 Z"/>
+        </svg>
+
+        <div class="stage-quote">
+          The target zone reads as <em>light streaming in</em>;
+          the rest of the map politely steps back.
+        </div>
+      </div>
+
+      <div class="demo-legend">
+        <div class="ent avoid">
+          <div class="key" style="background:#3C6EA0;background-image:repeating-linear-gradient(0deg, rgba(255,255,255,.92) 0 1.2px, transparent 1.2px 3px);opacity:.6;border-color:#1F4A78"></div>
+          <div class="lbl"><b>NWI · wetlands</b><span>Slate-blue horizontal hatch · 38% alpha</span></div>
+        </div>
+        <div class="ent avoid">
+          <div class="key" style="background:#505C6E;background-image:repeating-linear-gradient(45deg, rgba(255,255,255,.92) 0 1.4px, transparent 1.4px 3.5px);opacity:.6;border-color:#2D3340"></div>
+          <div class="lbl"><b>PAD · protected</b><span>Neutral slate diagonal hatch · 38% alpha</span></div>
+        </div>
+        <div class="ent target">
+          <div class="key" style="background:radial-gradient(circle at 50% 50%, rgba(244,240,230,1), rgba(244,240,230,.8) 60%, rgba(22,26,34,.18) 100%)"></div>
+          <div class="lbl"><b>Slope · target</b><span>Spotlight cutout in viewport scrim</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ====================================================================
+     Variant B — Halo & Aperture
+     ==================================================================== -->
+<section class="variant">
+  <div class="variant-grid">
+    <div class="variant-meta">
+      <div class="num">02</div>
+      <h2>Halo &amp; Aperture</h2>
+      <div class="tagline">No scrim. Strengthen the rim, let the boundary do the work.</div>
+      <div class="body">
+        <p>Target zones gain a soft <strong>outward citron halo</strong>
+          (8–12px feather) at low alpha — a positive, opt-in glow that
+          doesn't add a new hue to the palette. Inside, the warm-grey
+          wash is kept but the rim is now a 1.2px <strong>olive
+          dashed stroke</strong> with a slow shimmer animation.</p>
+        <p>Exclusions get a thicker solid stroke (2px) and a
+          per-polygon <strong>inner shadow</strong>, so they appear
+          pressed into the page rather than painted onto it. The hatch
+          stays at the current opacity range but reads as enclosed
+          territory instead of a wash.</p>
+        <p>The most conservative direction — no global state, no
+          basemap modification. Every change is per-polygon.</p>
+      </div>
+      <div class="tradeoff">
+        <span class="label">Trade-off</span>
+        Most reversible &amp; least disruptive to the existing implementation.
+        The "where to look" signal is weaker than spotlight; relies on the
+        user noticing the rim treatment.
+      </div>
+    </div>
+
+    <div class="demo">
+      <div class="demo-chrome">
+        <span class="dot"></span><span class="dot"></span><span class="dot"></span>
+        <span class="crumb">/preview/united-states/texas <span class="sep">›</span> <span class="live">Pecos County</span></span>
+      </div>
+      <div class="demo-stage vb slope-on nwi-on pad-on" data-variant="vb">
+
+        <div class="toggle-rail">
+          <div class="group-label avoid">Avoid · hard exclusion</div>
+          <label class="toggle avoid" data-layer="nwi">
+            <input type="checkbox" checked />
+            <span class="swatch swatch-nwi"></span>
+            <span>NWI</span><span class="role-tag">avoid</span>
+          </label>
+          <label class="toggle avoid" data-layer="pad">
+            <input type="checkbox" checked />
+            <span class="swatch swatch-pad"></span>
+            <span>PAD</span><span class="role-tag">avoid</span>
+          </label>
+          <div class="group-label target" style="margin-top:8px">Target · soft suitability</div>
+          <label class="toggle target" data-layer="slope">
+            <input type="checkbox" checked />
+            <span class="swatch swatch-slope"></span>
+            <span>Slope &lt;5%</span><span class="role-tag">target</span>
+          </label>
+        </div>
+
+        <svg viewBox="0 0 800 450" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+          <defs>
+            <pattern id="vbNwiHatch" patternUnits="userSpaceOnUse" width="6" height="6">
+              <rect width="6" height="6" fill="#3C6EA0" fill-opacity="0.30"/>
+              <line x1="0" y1="3" x2="6" y2="3" stroke="rgba(255,255,255,0.85)" stroke-width="1.1"/>
+            </pattern>
+            <pattern id="vbPadHatch" patternUnits="userSpaceOnUse" width="7" height="7" patternTransform="rotate(45)">
+              <rect width="7" height="7" fill="#505C6E" fill-opacity="0.30"/>
+              <line x1="0" y1="3.5" x2="7" y2="3.5" stroke="rgba(255,255,255,0.85)" stroke-width="1.2"/>
+            </pattern>
+            <linearGradient id="vbBase" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0" stop-color="#EEE7CF"/>
+              <stop offset="1" stop-color="#E1D7B8"/>
+            </linearGradient>
+
+            <!-- inner shadow: erode, gauss-blur, composite-in to create a pressed-in look -->
+            <filter id="vbInnerShadow" x="-10%" y="-10%" width="120%" height="120%">
+              <feGaussianBlur in="SourceAlpha" stdDeviation="2"/>
+              <feOffset dx="0" dy="1" result="offset"/>
+              <feComposite in="offset" in2="SourceAlpha" operator="arithmetic" k2="-1" k3="1" result="inner"/>
+              <feColorMatrix in="inner" type="matrix"
+                values="0 0 0 0 0.08
+                        0 0 0 0 0.10
+                        0 0 0 0 0.13
+                        0 0 0 0.45 0"/>
+              <feComposite in2="SourceGraphic" operator="over"/>
+            </filter>
+
+            <!-- outward halo for target -->
+            <filter id="vbHalo" x="-30%" y="-30%" width="160%" height="160%">
+              <feGaussianBlur in="SourceAlpha" stdDeviation="10"/>
+              <feColorMatrix type="matrix" values="
+                0 0 0 0 0.42
+                0 0 0 0 0.56
+                0 0 0 0 0.24
+                0 0 0 0.55 0"/>
+              <feBlend in="SourceGraphic"/>
+            </filter>
+          </defs>
+
+          <rect class="base-fill" width="800" height="450" fill="url(#vbBase)"/>
+          <path class="road-major" d="M0,290 C220,260 460,310 800,250"/>
+          <path class="road" d="M120,0 C150,140 110,280 180,450"/>
+          <path class="road" d="M540,0 C500,120 570,260 520,450"/>
+          <path class="road" d="M0,90 C140,110 280,80 440,140"/>
+          <text class="label-town" x="200" y="340">Sheffield</text>
+          <text class="label-town" x="600" y="120">Iraan</text>
+
+          <!-- target — halo underlay (low-alpha citron bleed), then wash, then dashed rim -->
+          <g class="slope-halo" filter="url(#vbHalo)">
+            <path d="M460,80 C560,90 660,140 700,220 C710,290 640,360 540,360 C440,360 360,310 360,230 C360,150 400,90 460,80 Z"
+                  fill="#688E3D"/>
+          </g>
+          <path class="slope-fill" d="M460,80 C560,90 660,140 700,220 C710,290 640,360 540,360 C440,360 360,310 360,230 C360,150 400,90 460,80 Z"/>
+          <path class="slope-rim"  d="M460,80 C560,90 660,140 700,220 C710,290 640,360 540,360 C440,360 360,310 360,230 C360,150 400,90 460,80 Z"/>
+
+          <!-- exclusions: hatch + inner shadow filter for pressed-in feel -->
+          <path class="nwi-poly" d="M40,200 C90,170 150,180 200,210 C230,260 200,310 150,320 C90,320 30,290 30,250 C30,225 30,210 40,200 Z"/>
+          <path class="pad-poly" d="M250,40 L380,30 L420,90 L370,160 L260,150 L230,90 Z"/>
+
+          <!-- parcels -->
+          <circle class="parcel-pin" cx="500" cy="200" r="3"/>
+          <path class="parcel" d="M490,205 L555,210 L552,255 L482,250 Z"/>
+          <circle class="parcel-pin" cx="570" cy="290" r="3"/>
+          <path class="parcel" d="M560,295 L640,300 L635,335 L555,330 Z"/>
+          <circle class="parcel-pin" cx="430" cy="280" r="3"/>
+          <path class="parcel" d="M420,285 L475,288 L478,328 L420,325 Z"/>
+        </svg>
+
+        <div class="stage-quote">
+          A rim of olive light around the target —
+          the basemap is otherwise untouched.
+        </div>
+      </div>
+
+      <div class="demo-legend">
+        <div class="ent avoid">
+          <div class="key" style="background:#3C6EA0;background-image:repeating-linear-gradient(0deg, rgba(255,255,255,.85) 0 1.1px, transparent 1.1px 3px);opacity:.55;border:2px solid #1F4A78;box-shadow: inset 0 0 4px rgba(22,26,34,.45);"></div>
+          <div class="lbl"><b>NWI · wetlands</b><span>2px slate-blue stroke · inner shadow</span></div>
+        </div>
+        <div class="ent avoid">
+          <div class="key" style="background:#505C6E;background-image:repeating-linear-gradient(45deg, rgba(255,255,255,.85) 0 1.2px, transparent 1.2px 3.5px);opacity:.55;border:2px solid #2D3340;box-shadow: inset 0 0 4px rgba(22,26,34,.45);"></div>
+          <div class="lbl"><b>PAD · protected</b><span>2px slate stroke · inner shadow</span></div>
+        </div>
+        <div class="ent target">
+          <div class="key" style="background:var(--warm-grey);box-shadow: 0 0 0 2px rgba(244,240,230,.4), 0 0 12px 4px var(--citron-glow); border-color:var(--olive-mid); border-style:dashed;"></div>
+          <div class="lbl"><b>Slope · target</b><span>Warm-grey wash + outward citron halo</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ====================================================================
+     Variant C — Topo Negative Space
+     ==================================================================== -->
+<section class="variant">
+  <div class="variant-grid">
+    <div class="variant-meta">
+      <div class="num">03</div>
+      <h2>Topo Negative Space</h2>
+      <div class="tagline">Lift the avoid zones <em>off</em> the map. Engrave the target.</div>
+      <div class="body">
+        <p>Most editorial direction. <strong>Inverts the brightness
+          axis</strong>: exclusion zones are filled with near-paper
+          (lighter than the basemap, not darker) and labelled with a
+          small mono code-stamp — <code style="font-family:var(--mono);font-size:12px">NWI</code>,
+          <code style="font-family:var(--mono);font-size:12px">PAD</code>.
+          They read as "blanked off the chart" the way a USGS quad sheet
+          clears city footprints.</p>
+        <p>The target zone is overlaid with a faint <strong>contour-line
+          pattern</strong> in olive-mid, exactly the way topographic
+          maps shade flat areas to invite the eye. The contour pattern
+          becomes the layer's identity.</p>
+        <p>The strongest aesthetic break from the current map, but the
+          one that reads most as "this is a survey-grade chart, not a
+          consumer mood-board".</p>
+      </div>
+      <div class="tradeoff">
+        <span class="label">Trade-off</span>
+        Most distinctive identity; closest to USGS / IGM cartographic
+        register. Requires per-polygon label placement to land; not all
+        small NWI polygons can fit a stamp.
+      </div>
+    </div>
+
+    <div class="demo">
+      <div class="demo-chrome">
+        <span class="dot"></span><span class="dot"></span><span class="dot"></span>
+        <span class="crumb">/preview/united-states/texas <span class="sep">›</span> <span class="live">Pecos County</span></span>
+      </div>
+      <div class="demo-stage vc slope-on nwi-on pad-on" data-variant="vc">
+
+        <div class="toggle-rail">
+          <div class="group-label avoid">Avoid · hard exclusion</div>
+          <label class="toggle avoid" data-layer="nwi">
+            <input type="checkbox" checked />
+            <span class="swatch swatch-nwi"></span>
+            <span>NWI</span><span class="role-tag">avoid</span>
+          </label>
+          <label class="toggle avoid" data-layer="pad">
+            <input type="checkbox" checked />
+            <span class="swatch swatch-pad"></span>
+            <span>PAD</span><span class="role-tag">avoid</span>
+          </label>
+          <div class="group-label target" style="margin-top:8px">Target · soft suitability</div>
+          <label class="toggle target" data-layer="slope">
+            <input type="checkbox" checked />
+            <span class="swatch swatch-slope"></span>
+            <span>Slope &lt;5%</span><span class="role-tag">target</span>
+          </label>
+        </div>
+
+        <svg viewBox="0 0 800 450" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+          <defs>
+            <pattern id="vcContour" patternUnits="userSpaceOnUse" width="22" height="22">
+              <rect width="22" height="22" fill="rgba(196,178,140,.18)"/>
+              <path d="M0,16 Q11,8 22,16" fill="none" stroke="rgba(104,142,61,.42)" stroke-width="0.8"/>
+              <path d="M0,21 Q11,13 22,21" fill="none" stroke="rgba(104,142,61,.28)" stroke-width="0.6"/>
+            </pattern>
+            <linearGradient id="vcBase" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0" stop-color="#EEE7CF"/>
+              <stop offset="1" stop-color="#E1D7B8"/>
+            </linearGradient>
+          </defs>
+
+          <rect class="base-fill" width="800" height="450" fill="url(#vcBase)"/>
+          <path class="road-major" d="M0,290 C220,260 460,310 800,250"/>
+          <path class="road" d="M120,0 C150,140 110,280 180,450"/>
+          <path class="road" d="M540,0 C500,120 570,260 520,450"/>
+          <path class="road" d="M0,90 C140,110 280,80 440,140"/>
+          <text class="label-town" x="200" y="340">Sheffield</text>
+          <text class="label-town" x="600" y="120">Iraan</text>
+
+          <!-- target — contour pattern overlay -->
+          <path class="slope-fill" d="M460,80 C560,90 660,140 700,220 C710,290 640,360 540,360 C440,360 360,310 360,230 C360,150 400,90 460,80 Z"/>
+
+          <!-- exclusions — lightened to near-paper with a dashed stroke + stamp -->
+          <g>
+            <path class="nwi-poly" d="M40,200 C90,170 150,180 200,210 C230,260 200,310 150,320 C90,320 30,290 30,250 C30,225 30,210 40,200 Z"/>
+            <text class="nwi-mark" x="80" y="260">NWI · 027</text>
+          </g>
+          <g>
+            <path class="pad-poly" d="M250,40 L380,30 L420,90 L370,160 L260,150 L230,90 Z"/>
+            <text class="pad-mark" x="285" y="100">PAD · WPA</text>
+          </g>
+
+          <!-- parcels -->
+          <circle class="parcel-pin" cx="500" cy="200" r="3"/>
+          <path class="parcel" d="M490,205 L555,210 L552,255 L482,250 Z"/>
+          <circle class="parcel-pin" cx="570" cy="290" r="3"/>
+          <path class="parcel" d="M560,295 L640,300 L635,335 L555,330 Z"/>
+          <circle class="parcel-pin" cx="430" cy="280" r="3"/>
+          <path class="parcel" d="M420,285 L475,288 L478,328 L420,325 Z"/>
+        </svg>
+
+        <div class="stage-quote">
+          The map looks like it came out of a surveyor's drawer —
+          which is the trust posture we actually want.
+        </div>
+      </div>
+
+      <div class="demo-legend">
+        <div class="ent avoid">
+          <div class="key" style="background:rgba(244,240,230,.92);border:1.5px dashed var(--slate-blue);"></div>
+          <div class="lbl"><b>NWI · wetlands</b><span>Lightened to paper · dashed slate-blue · stamp</span></div>
+        </div>
+        <div class="ent avoid">
+          <div class="key" style="background:rgba(244,240,230,.92);border:1.5px dashed var(--slate);"></div>
+          <div class="lbl"><b>PAD · protected</b><span>Lightened to paper · dashed slate · stamp</span></div>
+        </div>
+        <div class="ent target">
+          <div class="key" style="background-color:rgba(196,178,140,.25);background-image: repeating-linear-gradient(180deg, rgba(104,142,61,.4) 0 0.7px, transparent 0.7px 3px); border-color:var(--olive-mid)"></div>
+          <div class="lbl"><b>Slope · target</b><span>Olive contour-line overlay · 1.2px olive rim</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ====================================================================
+     Recommendation
+     ==================================================================== -->
+<section class="recommendation">
+  <div class="rec-grid">
+    <div>
+      <div class="eyebrow">Recommendation</div>
+      <h2>Ship <em>Spotlight &amp; Scrim</em>, with two<br/>concessions from the others.</h2>
+    </div>
+    <div class="rec-body">
+      <p>
+        <strong>Variant 01 (Spotlight)</strong> is the clearest "where to look"
+        signal of the three. The luminance trick exploits the channel the
+        visual-language doc already reserves for soft constraints — no new
+        hue, no broken rules. The scrim is also <strong>opt-in by
+        construction</strong>: it appears only when the user has toggled a
+        target layer, so the default basemap stays untouched.
+      </p>
+      <ol>
+        <li>
+          <b>Promote the role grouping into the legend.</b>
+          The constraint bar currently mixes avoid/target layers in one
+          list. Split it into two labelled groups — <code>Avoid · hard exclusion</code>
+          and <code>Target · soft suitability</code> — using the bordered
+          chip style above. This single change does most of the cognitive
+          work; the encoding refresh seals it.
+        </li>
+        <li>
+          <b>Bump exclusion opacity to ~38% &amp; thicken the stroke.</b>
+          From variant 01. The current 25% slate hatch on a low-contrast
+          stroke disappears against the basemap; the user can't see the
+          warning.
+        </li>
+        <li>
+          <b>Keep the pressed-in inner shadow from variant 02.</b>
+          A small <code>filter: inner-shadow</code> on exclusion polygons
+          adds physicality without consuming a hue. Cheap, reversible,
+          subtle.
+        </li>
+        <li>
+          <b>Reserve variant 03 for the print/export view.</b>
+          The topo treatment looks superb on a static PDF page but is
+          heavy at interactive zoom levels. Ship it later as the layout
+          for <code>/listing/:id/report.pdf</code>.
+        </li>
+      </ol>
+    </div>
+  </div>
+</section>
+
+<footer class="page">
+  <span class="source">Mockup file · <code>public/layer-design-mockup.html</code></span>
+  <span>Spec source · <code>sunnyplans-docs/02_branding/01_map_visual_language.md</code></span>
+  <span>Touches · <code>src/components/maps/pmtilesLayers.ts</code> · <code>ConstraintBar.tsx</code></span>
+</footer>
+
+</main>
+
+<script>
+  // Each variant is independent. Toggling a checkbox flips a class on
+  // the matching .demo-stage so CSS does the rest. No state shared
+  // between variants — the page is purely a design comparison.
+  document.querySelectorAll(".demo-stage").forEach((stage) => {
+    stage.querySelectorAll(".toggle").forEach((label) => {
+      const layer = label.dataset.layer;          // "nwi" | "pad" | "slope"
+      const input = label.querySelector("input");
+      const sync = () => {
+        const on = input.checked;
+        stage.classList.toggle(`${layer}-on`, on);
+        stage.classList.toggle(`${layer}-off`, !on);
+        label.classList.toggle("is-off", !on);
+      };
+      input.addEventListener("change", sync);
+      sync();
+    });
+  });
+</script>
+</body>
+</html>
