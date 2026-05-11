@@ -7,7 +7,7 @@
 // the in-context evaluation surface.
 import { useQuery } from "@tanstack/react-query";
 import { Link } from "react-router-dom";
-import { Check, ExternalLink, HelpCircle, Lock, X } from "lucide-react";
+import { ArrowRight, Check, ExternalLink, HelpCircle, X } from "lucide-react";
 import { Sheet, SheetContent } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
@@ -108,7 +108,7 @@ export function EvaluateDrawer({
             </div>
 
             <footer className="border-t border-border bg-card px-5 py-4">
-              <SourceBlock detail={detail.data} />
+              <SourceBlock detail={detail.data} listingId={listing.id} />
             </footer>
           </>
         )}
@@ -326,9 +326,17 @@ function ProximitySection({
   );
 }
 
-// Single CTA. Primary in both states — acting on the parcel and
-// upgrading to act are equally important from the user's POV.
-function SourceBlock({ detail }: { detail: ListingDetail | undefined }) {
+// Single CTA. Unlocked users jump straight to the source listing on
+// realtor.com; everyone else gets a path into the full detail page,
+// where the per-object proximity breakdown lives and where premium
+// fields show their own paywall CTAs.
+function SourceBlock({
+  detail,
+  listingId,
+}: {
+  detail: ListingDetail | undefined;
+  listingId: string;
+}) {
   const granted = detail?.access_granted ?? false;
   const propertyUrl = granted ? detail?.property_url : null;
 
@@ -344,9 +352,9 @@ function SourceBlock({ detail }: { detail: ListingDetail | undefined }) {
   }
   return (
     <Button asChild className="w-full" size="lg">
-      <Link to="/checkout">
-        <Lock className="mr-2 h-4 w-4" />
-        Subscribe to unlock source listing
+      <Link to={`/listing/${listingId}`}>
+        View full details
+        <ArrowRight className="ml-2 h-4 w-4" />
       </Link>
     </Button>
   );
