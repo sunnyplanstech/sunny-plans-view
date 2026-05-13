@@ -7,6 +7,38 @@
   status = 200
   force = true
 
+# Legacy pSEO URL retirement (p1-e3-pseo-vertical-migration.md).
+# The old /united-states/<state>/<county> and /italy/<region>/<province>/<comune>
+# shapes are now served as static pages at /solar/<state-or-region>/...
+# (US state slugs are full names, so "/united-states/california/..." maps 1:1
+# to "/solar/california/..."). Root pages have no equivalent in the new
+# shape, so they redirect to the homepage. These must precede the SPA
+# catch-all below or the rewrite would mask them.
+
+[[redirects]]
+  from = "/united-states/*"
+  to = "/solar/:splat"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/united-states"
+  to = "/"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/italy/*"
+  to = "/solar/:splat"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/italy"
+  to = "/"
+  status = 301
+  force = true
+
 [[redirects]]
   from = "/*"
   to = "/index.html"
