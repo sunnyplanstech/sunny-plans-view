@@ -5,7 +5,7 @@ date: "2026-03-28"
 author: "Sunnyplans Team"
 tags: "solar, land lease, landowners"
 target_query: "how does a solar land lease work"
-cta_url: "/united-states"
+cta_url: "/"
 ---
 
 Most people who look into solar land leasing assume the deal works like a standard commercial lease: developer approaches landowner, they agree on a rate, construction starts, checks arrive. The reality has an extra phase at the beginning that changes the financial picture considerably — and it's the part most buyers don't account for before they purchase a parcel.

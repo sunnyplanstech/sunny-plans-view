@@ -5,7 +5,7 @@ date: "2026-04-10"
 author: "Sunnyplans Team"
 tags: "solar, easements, land purchase, due diligence"
 target_query: "what is a solar easement"
-cta_url: "/united-states"
+cta_url: "/"
 ---
 
 The term "solar easement" is used to describe two meaningfully different legal instruments, and conflating them is one of the more common errors in early-stage land research. The sunlight access easement protects a solar installation from shading by neighboring structures. The transmission easement — sometimes called a gen-tie easement or right-of-way — gives a developer the right to run lines across neighboring land to reach a substation. They appear in land transactions for different reasons, and what to do about either one when you find it in a title search depends entirely on which type it is.

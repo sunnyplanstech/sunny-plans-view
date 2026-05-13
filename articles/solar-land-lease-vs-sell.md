@@ -5,7 +5,7 @@ date: "2026-04-18"
 author: "Sunnyplans Team"
 tags: "solar, land lease, sell land, landowners, versus"
 target_query: "solar land lease vs sell"
-cta_url: "/united-states"
+cta_url: "/"
 ---
 
 The solar land lease vs. sell question assumes you have two competing offers on the table. For most landowners, that's not what happens.

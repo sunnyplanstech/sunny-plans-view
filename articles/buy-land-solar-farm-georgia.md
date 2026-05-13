@@ -5,7 +5,7 @@ date: "2026-05-01"
 author: "Sunnyplans Team"
 tags: "solar, Georgia, land buying, Georgia Power, interconnection, SERC"
 target_query: "buy land for solar farm in Georgia"
-cta_url: "/united-states/georgia"
+cta_url: "/solar/georgia"
 ---
 
 Georgia installed more solar in 2024 than in any previous year in its history — more than 1.5 gigawatts in a single calendar year, bringing the state to roughly 7,670 megawatts of cumulative capacity and a ranking of eighth nationally. The Inflation Reduction Act triggered a real development wave, and the project announcements that spread across Colquitt, Tift, Mitchell, and a dozen other counties looked like the beginning of a sustained cycle. What those announcements didn't explain was who decides which projects actually get built.
@@ -82,7 +82,7 @@ The spread within each range reflects substation proximity and CARES positioning
 
 ---
 
-*Sunnyplans screens Georgia parcels against PAD-US protected areas and the National Wetlands Inventory, and shows substation and transformer distances at the parcel level — the infrastructure inputs a developer checks before committing to a CARES bid. If you want to see which parcels in the counties with active pipelines have already cleared those filters, browse [solar land listings in Georgia](https://sunnyplans.com/united-states/georgia) by county.*
+*Sunnyplans screens Georgia parcels against PAD-US protected areas and the National Wetlands Inventory, and shows substation and transformer distances at the parcel level — the infrastructure inputs a developer checks before committing to a CARES bid. If you want to see which parcels in the counties with active pipelines have already cleared those filters, browse [solar land listings in Georgia](/solar/georgia) by county.*
 
 ---
 

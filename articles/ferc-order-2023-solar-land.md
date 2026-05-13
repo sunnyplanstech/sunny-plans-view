@@ -5,7 +5,7 @@ date: "2026-05-03"
 author: "Sunnyplans Team"
 tags: "solar, interconnection, FERC, grid"
 target_query: "what is FERC Order 2023"
-cta_url: "/united-states"
+cta_url: "/"
 ---
 
 Before July 2023, a solar developer could file an interconnection application for a few thousand dollars, hold a queue position for years, and exit without penalty if the studies came back unfavorable. 

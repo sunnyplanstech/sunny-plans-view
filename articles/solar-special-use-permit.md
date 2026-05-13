@@ -6,7 +6,7 @@ author: "Sunnyplans Team"
 tags: "solar, special use permit, zoning, land viability, permitting"
 target_query: "what is a special use permit solar"
 secondary_query: "solar farm special use permit process"
-cta_url: "/united-states"
+cta_url: "/"
 ---
 
 The difference between a parcel that can host a solar farm and one that can't isn't always about zoning. Sometimes a parcel is in exactly the right zone, the right distance from a substation, the right acreage — and still can't move forward because the county's planning board said no.

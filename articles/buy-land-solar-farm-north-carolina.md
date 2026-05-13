@@ -5,7 +5,7 @@ date: "2026-04-30"
 author: "Sunnyplans Team"
 tags: "solar, North Carolina, land buying, Duke Energy, interconnection, SERC"
 target_query: "buy land for solar farm in North Carolina"
-cta_url: "/united-states/north-carolina"
+cta_url: "/solar/north-carolina"
 ---
 
 North Carolina ranked second in the US for installed solar capacity for most of the past decade. The land-use story in 2026 is not one of shortage — there is plenty of flat agricultural land in eastern NC — but of regulatory friction stacking up in ways that have slowed developer activity across most of the state.
@@ -82,7 +82,7 @@ The procurement pause is already influencing what developers offer. A site that 
 
 ---
 
-*Sunnyplans screens parcels against PAD-US protected areas and the National Wetlands Inventory and shows substation and transformer distances at the parcel level for North Carolina listings. If you want to see which sites have already cleared those filters, browse [solar land listings in North Carolina](https://sunnyplans.com/united-states/north-carolina) by county.*
+*Sunnyplans screens parcels against PAD-US protected areas and the National Wetlands Inventory and shows substation and transformer distances at the parcel level for North Carolina listings. If you want to see which sites have already cleared those filters, browse [solar land listings in North Carolina](/solar/north-carolina) by county.*
 
 ---
 

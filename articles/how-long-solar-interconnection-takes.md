@@ -5,7 +5,7 @@ date: "2026-04-28"
 author: "Sunnyplans Team"
 tags: "solar, interconnection, grid"
 target_query: "how long does solar interconnection take"
-cta_url: "/united-states"
+cta_url: "/"
 ---
 
 Two to five years is the range developers give when landowners ask how long interconnection takes. It's an honest answer that tells you almost nothing useful. Whether your project is sitting in an eight-month study process or a four-year restudy cycle depends on factors that have nothing to do with your land — and everything to do with which grid operator is in charge and how congested their queue is right now.

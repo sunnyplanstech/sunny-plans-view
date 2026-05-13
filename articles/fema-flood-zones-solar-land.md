@@ -6,7 +6,7 @@ author: "Sunnyplans Team"
 tags: "solar, FEMA, flood zones, land viability"
 target_query: "FEMA flood zone solar farm"
 secondary_query: "can you build a solar farm in a flood zone"
-cta_url: "/united-states"
+cta_url: "/"
 ---
 
 Zone AE land doesn't automatically disqualify a parcel from solar development — but most project lenders treat it as a hard stop, and that shapes everything from the permitting process to what a developer's offer reflects. Whether you can build a solar farm in a flood zone depends less on what FEMA says than on what the project lender decides.

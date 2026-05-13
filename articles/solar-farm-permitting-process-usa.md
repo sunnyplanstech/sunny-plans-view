@@ -5,7 +5,7 @@ date: "2026-04-15"
 author: "Sunnyplans Team"
 tags: "solar, permitting, land use, zoning, NEPA, site selection"
 target_query: "solar farm permitting process USA"
-cta_url: "/united-states"
+cta_url: "/"
 ---
 
 The gap between a signed land option and the first shovel in the ground is almost always longer than landowners expect. Three years is common. Five years happens often enough that it's not exceptional. For a landowner watching a developer's annual option check arrive without any visible construction activity, the question is usually the same: what is actually happening?
