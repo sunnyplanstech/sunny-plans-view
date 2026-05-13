@@ -5,7 +5,7 @@ date: "2026-04-11"
 author: "Sunnyplans Team"
 tags: "solar, Texas, land buying, ERCOT, grid"
 target_query: "buy land for solar farm in Texas"
-cta_url: "/united-states/texas"
+cta_url: "/solar/texas"
 ---
 
 Texas runs its own grid. That one fact changes how solar land works here compared to every other state.
@@ -68,7 +68,7 @@ The spread within each range reflects grid proximity more than irradiance or ter
 
 ---
 
-*Sunnyplans shows substation and transformer distances at the parcel level for Texas listings, alongside a SunnyScore that weights grid proximity and solar potential. If you want to see how specific parcels sit on the infrastructure inputs developers check first, browse [solar land listings in Texas](https://sunnyplans.com/united-states/texas/listings) by county.*
+*Sunnyplans shows substation and transformer distances at the parcel level for Texas listings, alongside a SunnyScore that weights grid proximity and solar potential. If you want to see how specific parcels sit on the infrastructure inputs developers check first, browse [solar land listings in Texas](/solar/texas/listings) by county.*
 
 ---
 

@@ -5,7 +5,7 @@ date: "2026-05-04"
 author: "Sunnyplans Team"
 tags: "solar, Ohio, land buying, PJM, interconnection, OPSB, Senate Bill 52"
 target_query: "buy land for solar farm in Ohio"
-cta_url: "/united-states/ohio"
+cta_url: "/solar/ohio"
 ---
 
 Ohio has more flat agricultural land suited to solar development than most states east of the Mississippi. Northwest and west-central Ohio is Corn Belt terrain — inexpensive, well-drained, and physically suited for utility-scale panels. Whether a developer can actually build on it comes down to a 2021 state law that restructured who controls the approval process — and which has closed off significant portions of exactly the counties that look best on a standard site screen.
@@ -79,7 +79,7 @@ Ohio doesn't maintain a public lease rate registry. These ranges draw on NREL's 
 
 ---
 
-*Sunnyplans maps substation and transformer proximity and screens parcels against PAD-US protected areas and the National Wetlands Inventory for Ohio listings — the grid access and conservation constraint inputs developers check before committing to site control. Browse [solar land listings in Ohio](https://sunnyplans.com/united-states/ohio) to see which parcels have already cleared those filters.*
+*Sunnyplans maps substation and transformer proximity and screens parcels against PAD-US protected areas and the National Wetlands Inventory for Ohio listings — the grid access and conservation constraint inputs developers check before committing to site control. Browse [solar land listings in Ohio](/solar/ohio) to see which parcels have already cleared those filters.*
 
 ---
 

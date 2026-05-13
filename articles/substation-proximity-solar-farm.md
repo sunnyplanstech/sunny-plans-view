@@ -6,7 +6,7 @@ author: "Sunnyplans Team"
 tags: "solar, substation, grid access, interconnection, land selection"
 target_query: "substation proximity solar farm"
 secondary_query: "how far solar farm from substation"
-cta_url: "/united-states"
+cta_url: "/"
 ---
 
 A solar developer can screen a parcel for flood zone, slope, wetlands, and zoning in minutes — and get a binary answer on most of it. Either the land clears the filter or it doesn't. Substation proximity doesn't work that way. It doesn't kill a deal outright. It changes what the deal is worth, and it does that quietly, folded into the economics before the offer reaches you.
