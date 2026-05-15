@@ -12,7 +12,7 @@ import { ChevronDown, ChevronRight, TrendingDown, TrendingUp } from "lucide-reac
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 import {
-  baselineScore,
+  baselineScoreFromPayload,
   buildExplanation,
   computeContributionBar,
   findFeature,
@@ -53,12 +53,17 @@ export const SunnyScoreExplanation = ({
     () => computeContributionBar(explanation),
     [explanation],
   );
+  const baselineScore = useMemo(
+    () => baselineScoreFromPayload(payload),
+    [payload],
+  );
   const [hovered, setHovered] = useState<HoverState | null>(null);
 
   return (
     <div className="space-y-3">
       <ScoreGauge
         score={payload.score}
+        baselineScore={baselineScore}
         size={size}
         contributionBar={contributionBar}
         hovered={hovered}
@@ -82,6 +87,7 @@ export const SunnyScoreExplanation = ({
 
 interface ScoreGaugeProps {
   score: number;
+  baselineScore: number;
   size?: SunnyScoreSize;
   contributionBar: ContributionBar;
   hovered?: HoverState | null;
@@ -90,6 +96,7 @@ interface ScoreGaugeProps {
 
 const ScoreGauge = ({
   score,
+  baselineScore,
   size = "md",
   contributionBar,
   hovered,

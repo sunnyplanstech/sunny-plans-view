@@ -18,7 +18,6 @@ import { Button } from "@/components/ui/button";
 import { ArrowLeft, ArrowRight, ChevronRight, Info } from "lucide-react";
 import {
   buildExplanation,
-  BASELINE_LOGIT,
   SunnyScoreExplanation,
   type ParcelPayload,
 } from "@/components/listings/sunnyscore";
@@ -32,6 +31,7 @@ import {
 const PARCEL_HIGH: ParcelPayload = {
   score: 82,
   contributions: {
+    baseline: -0.2,
     power_substation: 1.04,
     power_line: 0.42,
     voltage_kv_within_5km: 0.28,
@@ -49,6 +49,7 @@ const PARCEL_HIGH: ParcelPayload = {
 const PARCEL_MID: ParcelPayload = {
   score: 54,
   contributions: {
+    baseline: -0.2,
     power_substation: 0.18,
     power_line: 0.06,
     irradiance_annual_mean: 0.22,
@@ -65,6 +66,7 @@ const PARCEL_MID: ParcelPayload = {
 const PARCEL_LOW: ParcelPayload = {
   score: 27,
   contributions: {
+    baseline: -0.2,
     power_substation: -0.62,
     power_line: -0.24,
     irradiance_annual_mean: 0.18,
@@ -383,9 +385,11 @@ const SunnyScorePreview = () => {
                 output, logit units, no scaling.
               </div>
               <div className="pt-2 border-t border-border/60 mt-2">
-                <strong className="text-foreground">baseline_logit</strong> = {BASELINE_LOGIT}{" "}
-                (FE constant for v1; see handover for the path to lifting it
-                onto a config endpoint).
+                <strong className="text-foreground">contributions.baseline</strong>{" "}
+                = reserved key the pipeline emits on every scored row.
+                Drives the reference-strip avg tick directly — no FE
+                fallback, since the pipeline contract guarantees its
+                presence.
               </div>
             </div>
           </CardContent>

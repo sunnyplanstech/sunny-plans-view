@@ -11,11 +11,13 @@ export type Contributions = Record<string, number>;
 export interface ParcelPayload {
   score: number;
   // `feature_name → SHAP value`, plus one reserved non-feature key
-  // `baseline` carrying the model's bias in logit units (emitted by
-  // pipelines/core/sunnyscore/apply.py). Unknown keys are dropped by
-  // buildExplanation, so the baseline is silently ignored by the
-  // grouping pass — until the FE is wired to consume it for the
-  // reference-strip tick (handover task).
+  // `baseline` (= BASELINE_KEY) carrying the model's bias in logit
+  // units. The pipeline (pipelines/core/sunnyscore/apply.py) emits
+  // `baseline` on every scored row; callers should guard on a
+  // populated `contributions` dict before handing the payload in.
+  // The grouping pass drops keys it doesn't recognise, so the
+  // baseline silently falls out there; the reference-strip avg tick
+  // reads it explicitly via baselineScoreFromPayload below.
   contributions: Contributions;
 }
 
@@ -316,11 +318,18 @@ export function findFeature(
   return null;
 }
 
-// Single per-model constant. The reference-strip avg tick lives at
-// `round(sigmoid(BASELINE_LOGIT) × 100)`. The pipeline now emits the
-// real baseline as `contributions.baseline` per row; threading it into
-// this constant (or into per-payload state) is a pending FE task.
-export const BASELINE_LOGIT = -0.2;
+// Reserved non-feature key in `contributions` that carries the model's
+// bias in logit units. Mirror of
+// pipelines/core/sunnyscore/apply.py:BASELINE_KEY — keep both sides
+// in sync if the pipeline-side constant ever moves.
+export const BASELINE_KEY = "baseline";
 
 const sigmoid = (x: number): number => 1 / (1 + Math.exp(-x));
-export const baselineScore = Math.round(sigmoid(BASELINE_LOGIT) * 100);
+
+// The reference-strip avg tick lives at sigmoid(baseline) × 100. Derived
+// per render from the payload so a per-model (or per-region) baseline
+// flows through without any config plumbing. Assumes the caller has
+// guarded on a populated `contributions` dict — the pipeline contract
+// guarantees `baseline` is present on every non-empty row.
+export const baselineScoreFromPayload = (payload: ParcelPayload): number =>
+  Math.round(sigmoid(payload.contributions[BASELINE_KEY]) * 100);
