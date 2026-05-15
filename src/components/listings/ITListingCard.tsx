@@ -81,8 +81,8 @@ const ITListingCard = ({
     listing.score ??
     (listing.prob_solar !== null ? Math.round(listing.prob_solar * 100) : null);
   const hasExplanation =
-    listing.score !== null &&
-    listing.contributions !== null &&
+    listing.score != null &&
+    listing.contributions != null &&
     Object.keys(listing.contributions).length > 0;
 
   return (

@@ -63,8 +63,8 @@ export function ITDetailPage({ id, listing, onPaymentSuccess }: DetailPageProps<
   const solarPercentage = listing.prob_solar ? Math.round(listing.prob_solar * 100) : null;
   const scoreInt = listing.score ?? solarPercentage;
   const hasExplanation =
-    listing.score !== null &&
-    listing.contributions !== null &&
+    listing.score != null &&
+    listing.contributions != null &&
     Object.keys(listing.contributions).length > 0;
   const regionName = formatRegionSlug(listing.region_slug);
   const openPaywall = () => setPaywallOpen(true);
