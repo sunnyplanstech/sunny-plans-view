@@ -18,6 +18,12 @@ export type Scope =
 export interface BaseListing {
   id: string;
   prob_solar: number | null;
+  // SunnyScore™ 0–100 (round(prob_solar × 100)) and per-feature
+  // TreeSHAP contributions in raw logit units. Both null until the
+  // pipeline rematerializes the marts; FE renders a degraded view.
+  // Free-tier visible per p2-e1-sunnyscore-visual.md.
+  score: number | null;
+  contributions: Record<string, number> | null;
   geom_json: unknown | null;
   // Disc-jitter radius in meters around geom_json. Public mart only — null
   // on full-mart (unlocked) rows, where geom_json is the exact polygon.

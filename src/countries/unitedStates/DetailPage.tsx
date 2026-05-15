@@ -13,6 +13,7 @@ import { FullAccessBadge } from "@/components/listings/FullAccessBadge";
 import { DetailShell } from "@/components/listings/DetailShell";
 import { LockedField, MapLockedOverlay, isLocked } from "@/components/listings/LockedField";
 import { PaywallDrawer } from "@/components/listings/PaywallDrawer";
+import { SunnyScoreExplanation } from "@/components/listings/sunnyscore";
 import { usePaywallAutoOpen } from "@/hooks/usePaywallAutoOpen";
 import type { OsmDistanceFields } from "@/data/osmDistanceFields";
 import type { DetailPageProps } from "../types";
@@ -40,6 +41,10 @@ export interface USListingDetail extends OsmDistanceFields {
   property_url: string;
   last_verified_at: string;
   prob_solar: number;
+  // SunnyScore™ + per-feature TreeSHAP contributions. Free-tier
+  // visible. Both null until the pipeline rematerializes the marts.
+  score: number | null;
+  contributions: Record<string, number> | null;
   rank_global: number;
   rank_in_state: number;
   rank_in_county: number;
@@ -64,6 +69,11 @@ export function USDetailPage({ id, listing, onPaymentSuccess }: DetailPageProps<
 
   const accessGranted = listing.access_granted;
   const solarPercentage = listing.prob_solar ? Math.round(listing.prob_solar * 100) : null;
+  const scoreInt = listing.score ?? solarPercentage;
+  const hasExplanation =
+    listing.score !== null &&
+    listing.contributions !== null &&
+    Object.keys(listing.contributions).length > 0;
   const openPaywall = () => setPaywallOpen(true);
 
   const country = "united-states";
@@ -137,7 +147,7 @@ export function USDetailPage({ id, listing, onPaymentSuccess }: DetailPageProps<
           <div className="absolute top-4 left-4 flex flex-wrap gap-2">
             <Badge className="text-lg py-1 px-3 bg-primary">
               <Sun className="w-4 h-4 mr-1" />
-              {solarPercentage}%
+              {scoreInt ?? "N/A"}
             </Badge>
             {listing.rank_global && (
               <Badge variant="outline" className="bg-amber-50/90 border-amber-300 text-amber-700 py-1">
@@ -167,22 +177,35 @@ export function USDetailPage({ id, listing, onPaymentSuccess }: DetailPageProps<
               <CardTitle>Property Details</CardTitle>
             </CardHeader>
             <CardContent className="space-y-6">
-              <div className="space-y-2">
-                <div className="flex justify-between">
-                  <span className="text-sm font-medium">Solar Probability</span>
-                  <span className="text-sm font-bold text-primary">{solarPercentage}%</span>
+              {hasExplanation ? (
+                <SunnyScoreExplanation
+                  payload={{
+                    score: listing.score!,
+                    contributions: listing.contributions!,
+                  }}
+                  size="lg"
+                  expandable
+                />
+              ) : (
+                <div className="space-y-2">
+                  <div className="flex justify-between">
+                    <span className="text-sm font-medium">Solar Probability</span>
+                    <span className="text-sm font-bold text-primary">
+                      {scoreInt !== null ? `${scoreInt}%` : "N/A"}
+                    </span>
+                  </div>
+                  <div className="h-3 bg-muted rounded-full overflow-hidden">
+                    <div
+                      className="h-full bg-gradient-to-r from-primary/80 to-primary rounded-full transition-all"
+                      style={{ width: `${scoreInt || 0}%` }}
+                    />
+                  </div>
+                  <p className="text-xs text-muted-foreground">
+                    This parcel has a {scoreInt}% probability of being suitable for solar
+                    development based on our analysis.
+                  </p>
                 </div>
-                <div className="h-3 bg-muted rounded-full overflow-hidden">
-                  <div
-                    className="h-full bg-gradient-to-r from-primary/80 to-primary rounded-full transition-all"
-                    style={{ width: `${solarPercentage || 0}%` }}
-                  />
-                </div>
-                <p className="text-xs text-muted-foreground">
-                  This parcel has a {solarPercentage}% probability of being suitable for solar
-                  development based on our analysis.
-                </p>
-              </div>
+              )}
 
               <div className="grid grid-cols-2 gap-4">
                 <SpecTile icon={Ruler} label="Size">

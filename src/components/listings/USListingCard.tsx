@@ -7,6 +7,7 @@ import type { USListing } from "@/countries/unitedStates";
 import MiniParcelMap from "@/components/maps/MiniParcelMap";
 import { cn } from "@/lib/utils";
 import { formatPrice, formatAcres, formatSubstationDistance } from "@/lib/format";
+import { SunnyScoreExplanation } from "@/components/listings/sunnyscore";
 
 // Miles-only distance for the dense preview row. The verbose
 // "1291 m (0.8 mi)" form stays on the production-mode card and the
@@ -73,7 +74,16 @@ const USListingCard = ({ listing, showRank = "global", onSelect }: USListingCard
   }
 
   const listingUrl = `/listing/${listing.id}`;
-  const solarPercentage = listing.prob_solar ? Math.round(listing.prob_solar * 100) : null;
+  // Prefer the int score (round(prob_solar × 100)); fall back to a
+  // computed % from prob_solar so cards still render before the
+  // pipeline rematerializes the new column.
+  const scoreInt =
+    listing.score ??
+    (listing.prob_solar !== null ? Math.round(listing.prob_solar * 100) : null);
+  const hasExplanation =
+    listing.score !== null &&
+    listing.contributions !== null &&
+    Object.keys(listing.contributions).length > 0;
 
   return (
     <Card
@@ -95,7 +105,7 @@ const USListingCard = ({ listing, showRank = "global", onSelect }: USListingCard
               getSolarScoreColor(listing.prob_solar)
             )}>
               <Sun className="w-3.5 h-3.5" />
-              {solarPercentage !== null ? `${solarPercentage}%` : "N/A"}
+              {scoreInt !== null ? scoreInt : "N/A"}
             </div>
           </div>
         </div>
@@ -121,19 +131,35 @@ const USListingCard = ({ listing, showRank = "global", onSelect }: USListingCard
               </div>
             </div>
 
-            {/* Solar score bar */}
-            <div className="space-y-1">
-              <div className="flex justify-between text-xs">
-                <span className="text-muted-foreground">Solar Probability</span>
-                <span className="font-medium">{solarPercentage !== null ? `${solarPercentage}%` : "N/A"}</span>
+            {/* SunnyScore explanation — gauge + helping/hurting bars
+                + ranked driver columns. Falls back to a simple bar if
+                the pipeline hasn't populated score+contributions yet. */}
+            {hasExplanation ? (
+              <SunnyScoreExplanation
+                payload={{
+                  score: listing.score!,
+                  contributions: listing.contributions!,
+                }}
+                size="sm"
+                maxRowsPerSide={2}
+                expandableHint
+              />
+            ) : (
+              <div className="space-y-1">
+                <div className="flex justify-between text-xs">
+                  <span className="text-muted-foreground">Solar Probability</span>
+                  <span className="font-medium">
+                    {scoreInt !== null ? `${scoreInt}%` : "N/A"}
+                  </span>
+                </div>
+                <div className="h-2 bg-muted rounded-full overflow-hidden">
+                  <div
+                    className="h-full bg-gradient-to-r from-primary/80 to-primary rounded-full transition-all"
+                    style={{ width: `${scoreInt || 0}%` }}
+                  />
+                </div>
               </div>
-              <div className="h-2 bg-muted rounded-full overflow-hidden">
-                <div
-                  className="h-full bg-gradient-to-r from-primary/80 to-primary rounded-full transition-all"
-                  style={{ width: `${solarPercentage || 0}%` }}
-                />
-              </div>
-            </div>
+            )}
 
             {/* Specs - horizontal layout */}
             <div className="flex flex-wrap items-center gap-x-4 gap-y-2 text-sm text-muted-foreground">
