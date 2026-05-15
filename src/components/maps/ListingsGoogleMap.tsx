@@ -14,6 +14,7 @@ import { getParcelCenter } from "@/lib/geo";
 import { useGoogleMaps } from "./GoogleMapsProvider";
 import { MapLoadingFallback } from "./MapLoadingFallback";
 import type { PMTilesLayerConfig } from "./pmtilesLayers";
+import { PremiumLabelsGate } from "./PremiumLabelsGate";
 import { useAutoFitBounds } from "./useAutoFitBounds";
 import { useChoroplethLayer } from "./useChoroplethLayer";
 import { useHexHeatmapLayer } from "./useHexHeatmapLayer";
@@ -210,6 +211,7 @@ export function ListingsGoogleMap({
         options={mapOptions}
         onLoad={setMap}
       />
+      <PremiumLabelsGate map={map} />
       {overlays}
     </div>
   );
