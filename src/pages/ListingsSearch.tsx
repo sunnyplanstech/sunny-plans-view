@@ -21,9 +21,10 @@
 //
 // Constraint filtering runs client-side via `evaluateLayer` against
 // the per-listing fields the API already returns (e.g. flat_5_acres
-// for slope_lt_5). Layers without per-parcel flags (wetlands, PAD,
-// Natura 2000) gate only the map overlay until the per-parcel
-// constraint-flag pipeline lands (p1-e2-constraint-flags-on-parcels).
+// for slope_lt_5). PAD, wetlands, and Natura 2000 are no longer
+// user-toggleable here — they're hard mart-level cuts (see Phase 3
+// comments in mart_us_listings.sql / mart_it_parcels.sql). Their
+// PMTiles overlays survive only as detail-page context layers.
 import { useCallback, useMemo, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { MapHud } from "@/components/maps/MapHud";

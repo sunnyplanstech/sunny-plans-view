@@ -89,33 +89,15 @@ const SLOPE_LT_5_FILTER: LayerListingsFilter = {
 // Registry order = UI display order. Avoid layers first, then target —
 // users scan top-down and "is this parcel even legal?" must precede
 // "is it suitable?" (see visual-language doc §10).
+//
+// PAD-US, NWI wetlands, and Natura 2000 used to live here as
+// user-toggleable "avoid" constraints; they're now hard mart-level
+// invariants (mart_us_listings.sql, mart_it_parcels.sql) because the
+// permitting reality doesn't admit partial overlap. The PMTiles
+// overlays remain in pmtilesLayers.ts so the detail-page MiniParcelMap
+// can still show them as context — they just don't surface as user
+// toggles on the listings page anymore.
 export const LAYER_REGISTRY: Layer[] = [
-  {
-    id: "pad_us",
-    label: "Protected areas",
-    description:
-      "PAD-US — federal/state protected lands where development is restricted",
-    vertical: "energy",
-    spatialUnit: "parcel",
-    role: "avoid",
-    country: "united-states",
-    pmtilesLayerId: "pad_us",
-    requiresRegionScope: true,
-    minZoom: 6,
-  },
-  {
-    id: "nwi_us",
-    label: "Wetlands",
-    description:
-      "USFWS National Wetlands Inventory — Clean Water Act permitting risk",
-    vertical: "energy",
-    spatialUnit: "parcel",
-    role: "avoid",
-    country: "united-states",
-    pmtilesLayerId: "nwi_us",
-    requiresRegionScope: true,
-    minZoom: 11,
-  },
   {
     id: "slope_lt_5_us",
     label: "Flat land (<5% slope)",
@@ -130,19 +112,6 @@ export const LAYER_REGISTRY: Layer[] = [
     minZoom: 11,
     listingsFilter: SLOPE_LT_5_FILTER,
     chip: SLOPE_LT_5_CHIP,
-  },
-  {
-    id: "natura2000_it",
-    label: "Natura 2000",
-    description:
-      "EU protected sites — autorizzazione paesaggistica required, ~6–12 month delay",
-    vertical: "energy",
-    spatialUnit: "parcel",
-    role: "avoid",
-    country: "italy",
-    pmtilesLayerId: "natura2000_it",
-    requiresRegionScope: true,
-    minZoom: 6,
   },
   {
     id: "slope_lt_5_it",
