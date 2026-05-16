@@ -19,20 +19,32 @@ interface MiniParcelMapProps {
   className?: string;
   interactive?: boolean;
   /**
-   * Disc-jitter radius (meters) around `geomJson` for obfuscated public
-   * data. Required: pass `null` for unlocked rows (exact Point or
-   * Polygon, no obfuscation). When non-null on a Point geometry, the map
-   * drops the marker and caps zoom so the implied disc (diameter 2*R)
-   * cannot fill the viewport. Polygon geometries ignore this value.
+   * Whether the viewer is looking at a paywalled (locked) version of
+   * the parcel — i.e. `!access_granted` from the API. Drives the
+   * rendering use case:
+   *   locked=true  → obfuscation disc: hide the marker, fit to a
+   *                  `locationAccuracyM`-sized box, cap zoom so the
+   *                  implied disc cannot fill the viewport. Overlays
+   *                  still mount on the detail surface as a regional
+   *                  preview that doesn't reveal the parcel.
+   *   locked=false → exact location: render the polygon if `geomJson`
+   *                  is one, otherwise drop a pin and zoom in close.
+   * Callers know this from `access_granted`; for list endpoints (which
+   * always serve obfuscated rows) it is unconditionally true.
+   */
+  locked: boolean;
+  /**
+   * Disc radius in meters around `geomJson`. Read only when
+   * `locked=true`. Ignored otherwise.
    */
   locationAccuracyM: number | null;
   /**
    * Country + region slug enable PMTiles constraint overlays
    * (PAD-US, slope, NWI for US; slope, Natura 2000 for IT) on the
-   * detail-page map — for both unlocked rows (real polygon) and
-   * free/public rows (obfuscated point, where overlays act as a
-   * regional preview without revealing the parcel). Listing cards
-   * leave these unset so the small per-card maps stay overlay-free.
+   * detail-page map — for both locked rows (obfuscation disc, where
+   * overlays act as a regional preview without revealing the parcel)
+   * and unlocked rows. Listing cards leave these unset so the small
+   * per-card maps stay overlay-free.
    */
   country?: string;
   regionSlug?: string;
@@ -110,6 +122,7 @@ export function MiniParcelMap({
   geomJson,
   className,
   interactive = false,
+  locked,
   locationAccuracyM,
   country,
   regionSlug,
@@ -139,16 +152,28 @@ export function MiniParcelMap({
     return () => observer.disconnect();
   }, [requestLoad]);
 
-  // Overlays mount on both unlocked rows (real polygon) and free/public
-  // rows (obfuscated point). For the obfuscated view the location stays
-  // hidden — no marker is drawn, zoom is locked by `interactive=false` —
-  // but the regional constraint landscape around the disc renders the
-  // same layers a paying user would see. That preview is the trust
-  // signal: "we really do have these layers", without leaking the parcel.
+  // Two orthogonal use-case axes drive every render branch below.
+  // Naming them explicitly here so the rest of the component reads as
+  // a switch on intent, not a chain of shape heuristics:
+  //
+  //   locked   — paywall state of the location data (= !access_granted)
+  //     true   the location is obfuscated; render the disc, hide the
+  //            marker, cap zoom by `locationAccuracyM`
+  //     false  the exact location is available; if it's a polygon
+  //            (IT premium) render it, otherwise drop a pin (US premium)
+  //
+  //   surface  — where this map is mounted
+  //     "detail"     full detail-page map; PMTiles overlays mount and
+  //                  Google attribution stays visible
+  //     "thumbnail"  listing-card / drawer preview; no overlays, no
+  //                  attribution
+  //
+  // Overlays mount whenever we have a geom to anchor on AND we're on
+  // the detail surface — including the locked disc surface, where they
+  // act as a regional trust preview without revealing the parcel.
   const hasPolygon = (geom?.paths.length ?? 0) > 0;
-  const isObfuscatedPoint =
-    !hasPolygon && locationAccuracyM != null && locationAccuracyM > 0;
-  const overlaysEnabled = (hasPolygon || isObfuscatedPoint) && !!country;
+  const surface: "detail" | "thumbnail" = country ? "detail" : "thumbnail";
+  const overlaysEnabled = surface === "detail" && geom != null;
 
   const [map, setMap] = useState<google.maps.Map | null>(null);
   const pmtilesLayers = useMemo(
@@ -179,14 +204,10 @@ export function MiniParcelMap({
   }, [map]);
 
   // `mini-parcel-map` scopes the listing-card thumbnail attribution
-  // suppression in src/index.css. Gated on "no `country` prop" — i.e.
-  // small per-card maps and the evaluate drawer — so that detail-page
-  // maps (which always pass country for the overlay layer config) keep
-  // the Google logo + Map data / Terms links visible for both premium
-  // and free viewers. Tying this to `interactive` was the old signal
-  // and hid attribution from free detail-page users.
-  const isCardThumbnail = !country;
-  const wrapperClass = `relative ${isCardThumbnail ? "mini-parcel-map" : ""} ${className ?? ""}`.trim();
+  // suppression in src/index.css. Only the thumbnail surface hides
+  // attribution; detail maps keep the Google logo + Map data / Terms
+  // links visible for both premium and free viewers.
+  const wrapperClass = `relative ${surface === "thumbnail" ? "mini-parcel-map" : ""} ${className ?? ""}`.trim();
 
   if (!isVisible || !isLoaded || !geom) {
     return (
@@ -206,11 +227,11 @@ export function MiniParcelMap({
     gestureHandling: interactive ? "cooperative" : "none",
     scrollwheel: interactive,
     draggable: interactive,
-    // Polygon: tile coverage tops out at z20; satellite goes blank past that.
-    // Obfuscated point: cap derived from disc radius so no street-level
-    // detail emerges through the obfuscation.
-    maxZoom: isObfuscatedPoint
-      ? computeAccuracyMaxZoom(locationAccuracyM!, geom.center.lat)
+    // Unlocked (polygon or exact pin): tile coverage tops out at z20;
+    // satellite goes blank past that. Locked: cap derived from disc
+    // radius so no street-level detail emerges through the obfuscation.
+    maxZoom: locked && locationAccuracyM != null
+      ? computeAccuracyMaxZoom(locationAccuracyM, geom.center.lat)
       : 19,
   };
 
@@ -219,12 +240,12 @@ export function MiniParcelMap({
   // to enter an inconsistent state and render a blank gray background.
   const handleMapLoad = (mapInstance: google.maps.Map) => {
     setMap(mapInstance);
-    if (hasPolygon) {
+    if (locked && locationAccuracyM != null) {
+      mapInstance.fitBounds(buildAccuracyBounds(geom.center, locationAccuracyM));
+    } else if (hasPolygon) {
       const bounds = new google.maps.LatLngBounds();
       geom.paths.forEach((path) => path.forEach((p) => bounds.extend(p)));
       mapInstance.fitBounds(bounds, 24);
-    } else if (isObfuscatedPoint) {
-      mapInstance.fitBounds(buildAccuracyBounds(geom.center, locationAccuracyM!));
     } else {
       mapInstance.setCenter(geom.center);
       mapInstance.setZoom(15);
@@ -238,38 +259,39 @@ export function MiniParcelMap({
         options={mapOptions}
         onLoad={handleMapLoad}
       >
-        {hasPolygon
-          ? geom.paths.map((path, i) => (
-              <Polygon
-                key={i}
-                paths={path}
-                options={{
-                  fillColor: "#fbbf24",
-                  fillOpacity: 0.2,
-                  strokeColor: "#fbbf24",
-                  strokeWeight: 2,
-                  strokeOpacity: 0.95,
-                  clickable: false,
-                }}
-              />
-            ))
-          : isObfuscatedPoint
-            ? null
-            : (
-              <Marker
-                position={geom.center}
-                clickable={false}
-                icon={{
-                  path: google.maps.SymbolPath.CIRCLE,
-                  fillColor: "#fbbf24",
-                  fillOpacity: 0.6,
-                  strokeColor: "#fbbf24",
-                  strokeWeight: 2,
-                  strokeOpacity: 0.95,
-                  scale: 9,
-                }}
-              />
-            )}
+        {/* Locked: nothing drawn — the disc bounds + capped zoom carry
+            the location signal without leaking it. Unlocked: polygon if
+            we have one, otherwise an exact pin. */}
+        {locked ? null : hasPolygon ? (
+          geom.paths.map((path, i) => (
+            <Polygon
+              key={i}
+              paths={path}
+              options={{
+                fillColor: "#fbbf24",
+                fillOpacity: 0.2,
+                strokeColor: "#fbbf24",
+                strokeWeight: 2,
+                strokeOpacity: 0.95,
+                clickable: false,
+              }}
+            />
+          ))
+        ) : (
+          <Marker
+            position={geom.center}
+            clickable={false}
+            icon={{
+              path: google.maps.SymbolPath.CIRCLE,
+              fillColor: "#fbbf24",
+              fillOpacity: 0.6,
+              strokeColor: "#fbbf24",
+              strokeWeight: 2,
+              strokeOpacity: 0.95,
+              scale: 9,
+            }}
+          />
+        )}
       </GoogleMap>
       {overlaysEnabled && (
         <LayerPanel

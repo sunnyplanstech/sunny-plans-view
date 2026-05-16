@@ -136,6 +136,7 @@ function ThumbnailSection({
       <div className="h-40 w-full overflow-hidden rounded-md border border-border bg-muted/30">
         <MiniParcelMap
           geomJson={geom}
+          locked={!accessGranted}
           locationAccuracyM={accessGranted ? null : fallbackAccuracyM}
           className="w-full h-full"
         />

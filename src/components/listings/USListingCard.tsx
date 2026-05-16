@@ -94,6 +94,7 @@ const USListingCard = ({ listing, showRank = "global", onSelect }: USListingCard
         <div className="relative w-full sm:w-40 h-32 sm:h-auto sm:min-h-[180px] flex-shrink-0 overflow-hidden">
           <MiniParcelMap
             geomJson={listing.geom_json}
+            locked
             locationAccuracyM={listing.location_accuracy_m}
             className="w-full h-full"
           />
@@ -224,6 +225,7 @@ function USListingTerminalRow({
         <div className="h-[88px] w-[88px] flex-shrink-0 overflow-hidden rounded-md border border-border/60 bg-muted/30">
           <MiniParcelMap
             geomJson={listing.geom_json}
+            locked
             locationAccuracyM={listing.location_accuracy_m}
             className="w-full h-full"
           />

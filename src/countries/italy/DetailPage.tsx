@@ -146,6 +146,7 @@ export function ITDetailPage({ id, listing, onPaymentSuccess }: DetailPageProps<
         <section className="relative rounded-xl overflow-hidden mb-6 h-64 md:h-96">
           <MiniParcelMap
             geomJson={listing.geom_json}
+            locked={!accessGranted}
             locationAccuracyM={listing.location_accuracy_m}
             className="w-full h-full"
             interactive={accessGranted}
