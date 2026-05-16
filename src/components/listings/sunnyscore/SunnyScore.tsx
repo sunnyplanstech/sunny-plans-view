@@ -370,7 +370,13 @@ const HelpingHurtingColumns = ({
   hovered,
   onHover,
 }: HelpingHurtingColumnsProps) => {
-  const [openGroups, setOpenGroups] = useState<Set<string>>(new Set());
+  const [openGroups, setOpenGroups] = useState<Set<string>>(() => {
+    if (!expandable) return new Set();
+    const all = new Set<string>();
+    for (const r of explanation.helping) all.add(`helping_${r.group}`);
+    for (const r of explanation.hurting) all.add(`hurting_${r.group}`);
+    return all;
+  });
 
   const toggle = (key: string) =>
     setOpenGroups((prev) => {
@@ -553,10 +559,13 @@ const GroupRowItem = ({
                 >
                   {feat.label}
                 </span>
+                <span className="text-[10px] text-muted-foreground tabular-nums">
+                  {Math.round(feat.shareOfTotal * 100)}%
+                </span>
                 {valueText && (
                   <span
                     className={cn(
-                      "text-xs font-semibold tabular-nums rounded px-1.5 py-0.5",
+                      "ml-auto text-xs font-semibold tabular-nums rounded px-1.5 py-0.5",
                       isHelping
                         ? "bg-primary/10 text-primary"
                         : "bg-negative/10 text-negative",
@@ -565,9 +574,6 @@ const GroupRowItem = ({
                     {valueText}
                   </span>
                 )}
-                <span className="ml-auto text-[10px] text-muted-foreground tabular-nums">
-                  {Math.round(feat.shareOfTotal * 100)}%
-                </span>
               </li>
             );
           })}
