@@ -29,7 +29,7 @@ export function DetailShell({ country, region, province, backUrl, backLabel, chi
       </header>
 
       <main className="container mx-auto px-4 py-6">
-        <article className="max-w-4xl mx-auto">{children}</article>
+        <article className="max-w-6xl mx-auto">{children}</article>
       </main>
     </div>
   );
