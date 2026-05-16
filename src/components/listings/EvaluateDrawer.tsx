@@ -7,7 +7,7 @@
 // the in-context evaluation surface.
 import { useQuery } from "@tanstack/react-query";
 import { Link } from "react-router-dom";
-import { ArrowRight, Check, ExternalLink, HelpCircle, X } from "lucide-react";
+import { ArrowRight, Check, HelpCircle, X } from "lucide-react";
 import { Sheet, SheetContent } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
@@ -108,7 +108,7 @@ export function EvaluateDrawer({
             </div>
 
             <footer className="border-t border-border bg-card px-5 py-4">
-              <SourceBlock detail={detail.data} listingId={listing.id} />
+              <SourceBlock listingId={listing.id} />
             </footer>
           </>
         )}
@@ -326,30 +326,12 @@ function ProximitySection({
   );
 }
 
-// Single CTA. Unlocked users jump straight to the source listing;
-// everyone else gets a path into the full detail page, where the
-// per-object proximity breakdown lives and where premium fields
-// show their own paywall CTAs.
-function SourceBlock({
-  detail,
-  listingId,
-}: {
-  detail: ListingDetail | undefined;
-  listingId: string;
-}) {
-  const granted = detail?.access_granted ?? false;
-  const propertyUrl = granted ? detail?.property_url : null;
-
-  if (granted && propertyUrl) {
-    return (
-      <Button asChild className="w-full" size="lg">
-        <a href={propertyUrl} target="_blank" rel="noopener noreferrer">
-          Open original listing
-          <ExternalLink className="ml-2 h-4 w-4" />
-        </a>
-      </Button>
-    );
-  }
+// Single CTA. Always routes into the full detail page — that's where
+// the per-object proximity breakdown lives, where premium fields show
+// their own paywall CTAs, and where unlocked users find the source
+// listing link. Sending unlocked users straight to realtor.com from
+// the drawer skips the product entirely, so we don't.
+function SourceBlock({ listingId }: { listingId: string }) {
   return (
     <Button asChild className="w-full" size="lg">
       <Link to={`/listing/${listingId}`}>
