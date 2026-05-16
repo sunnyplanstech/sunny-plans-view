@@ -206,7 +206,7 @@ const HARD_EXCLUSION_BASE = {
   baseFillColor: [...SCRIM_INK, 140] as [number, number, number, number],
   lineColor:     [...NEUTRAL_SLATE, 230] as [number, number, number, number],
   lineWidth: 1.5,
-  defaultVisible: false,
+  defaultVisible: true,
 };
 
 // Soft suitability (target affordance). The visual goal — set by the
@@ -228,11 +228,16 @@ const HARD_EXCLUSION_BASE = {
 //
 // Alpha 115 ≈ 45%, calibrated to read as "this part of the map is
 // being de-emphasised" without going so dark it becomes unreadable.
+// All overlays default-on so the detail map shows the full constraint
+// landscape (slope, PAD/Natura 2000, NWI) the moment it mounts —
+// primary trust signal for free/public viewers that the underlying
+// data is real and comprehensive. Users can still toggle layers off
+// individually via LayerPanel.
 const SUITABLE_BASE = {
   role: "target" as const,
   kind: "raster" as const,
   fillColor: [...SCRIM_INK, 115] as [number, number, number, number],
-  defaultVisible: false,
+  defaultVisible: true,
 };
 
 // Catalog ordering is the deck.gl render order (earlier = lower z).
@@ -294,7 +299,7 @@ export const PMTILES_LAYERS_BY_COUNTRY: Record<string, PMTilesLayerConfig[]> = {
       lineColor:     [...SLATE_BLUE, 230] as [number, number, number, number],
       lineWidth: 1.5,
       pattern: "horizontal",
-      defaultVisible: false,
+      defaultVisible: true,
       requiresRegionScope: true,
     },
   ],

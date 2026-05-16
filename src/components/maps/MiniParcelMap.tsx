@@ -3,8 +3,16 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { MapPin } from "lucide-react";
 import { useGoogleMaps } from "./GoogleMapsProvider";
 import { LayerPanel } from "./LayerPanel";
-import { pmtilesLayersFor } from "./pmtilesLayers";
+import { pmtilesLayersFor, type PMTilesLayerConfig } from "./pmtilesLayers";
 import { usePMTilesOverlays, type PMTilesLayerState } from "./usePMTilesOverlays";
+
+function initialLayerState(
+  layers: PMTilesLayerConfig[],
+): Record<string, PMTilesLayerState> {
+  return Object.fromEntries(
+    layers.map((l) => [l.id, { visible: l.defaultVisible ?? false }]),
+  );
+}
 
 interface MiniParcelMapProps {
   geomJson: unknown;
@@ -21,8 +29,10 @@ interface MiniParcelMapProps {
   /**
    * Country + region slug enable PMTiles constraint overlays
    * (PAD-US, slope, NWI for US; slope, Natura 2000 for IT) on the
-   * detail-page map for unlocked (polygon) rows. Listing cards leave
-   * these unset so the small per-card maps stay overlay-free.
+   * detail-page map — for both unlocked rows (real polygon) and
+   * free/public rows (obfuscated point, where overlays act as a
+   * regional preview without revealing the parcel). Listing cards
+   * leave these unset so the small per-card maps stay overlay-free.
    */
   country?: string;
   regionSlug?: string;
@@ -64,13 +74,6 @@ function resolveGeom(geomJson: unknown): ResolvedGeom | null {
       const rings = g.coordinates as number[][][];
       if (rings.length === 0) return null;
       const paths = rings.map(ringToPath);
-      return { center: pathCentroid(paths[0]), paths };
-    }
-    if (g.type === "MultiPolygon" && Array.isArray(g.coordinates)) {
-      const polys = g.coordinates as number[][][][];
-      if (polys.length === 0) return null;
-      const paths = polys.flatMap((poly) => poly.map(ringToPath));
-      if (paths.length === 0) return null;
       return { center: pathCentroid(paths[0]), paths };
     }
     return null;
@@ -153,17 +156,10 @@ export function MiniParcelMap({
     [overlaysEnabled, country, regionSlug],
   );
   const [layerState, setLayerState] = useState<Record<string, PMTilesLayerState>>(
-    () =>
-      Object.fromEntries(
-        pmtilesLayers.map((l) => [l.id, { visible: l.defaultVisible ?? false }]),
-      ),
+    () => initialLayerState(pmtilesLayers),
   );
   useEffect(() => {
-    setLayerState(
-      Object.fromEntries(
-        pmtilesLayers.map((l) => [l.id, { visible: l.defaultVisible ?? false }]),
-      ),
-    );
+    setLayerState(initialLayerState(pmtilesLayers));
   }, [pmtilesLayers]);
   const toggleLayer = useCallback((id: string) => {
     setLayerState((prev) => ({
@@ -183,9 +179,14 @@ export function MiniParcelMap({
   }, [map]);
 
   // `mini-parcel-map` scopes the listing-card thumbnail attribution
-  // suppression in src/index.css. Detail-page maps run in `interactive`
-  // mode and keep the Google logo + Map data / Terms links visible.
-  const wrapperClass = `relative ${interactive ? "" : "mini-parcel-map"} ${className ?? ""}`.trim();
+  // suppression in src/index.css. Gated on "no `country` prop" — i.e.
+  // small per-card maps and the evaluate drawer — so that detail-page
+  // maps (which always pass country for the overlay layer config) keep
+  // the Google logo + Map data / Terms links visible for both premium
+  // and free viewers. Tying this to `interactive` was the old signal
+  // and hid attribution from free detail-page users.
+  const isCardThumbnail = !country;
+  const wrapperClass = `relative ${isCardThumbnail ? "mini-parcel-map" : ""} ${className ?? ""}`.trim();
 
   if (!isVisible || !isLoaded || !geom) {
     return (
