@@ -13,9 +13,15 @@
 //   - `s=price_per_acre`        sort key (omitted when default)
 //
 // History strategy:
-//   - Hydrate once from the URL on mount.
+//   - Hydrate once from the URL on mount. If `c=` is absent the
+//     factory seeds defaults from `Layer.defaultSelected` (overlay-
+//     only layers that should be visible on first paint); if `c=` is
+//     present, even as an empty string, that's the user's spec and
+//     we respect it verbatim.
 //   - On change, write back via `replace: true` so toggles don't
-//     pile entries into the browser back-button stack.
+//     pile entries into the browser back-button stack. Once the user
+//     interacts (toggle or clear) we always emit `c=`, including the
+//     empty value, so a deliberate Clear survives a reload.
 //
 // Validation:
 //   - Unknown constraint ids in the URL are silently dropped (the
@@ -56,6 +62,10 @@ function parseConstraintIds(
   return new Set(ids);
 }
 
+function defaultSelectedIds(available: Layer[]): Set<string> {
+  return new Set(available.filter((l) => l.defaultSelected).map((l) => l.id));
+}
+
 function parseSortKey(raw: string | null): SortKey {
   if (!raw) return DEFAULT_SORT_KEY;
   const known = SORT_OPTIONS.some((o) => o.key === raw);
@@ -79,9 +89,19 @@ export function useUrlSpecState(availableLayers: Layer[]): UrlSpecState {
   // up — that would require the page to surrender authority over its
   // own state, which is more complexity than this v1 needs.
   const hydrated = useRef(false);
-  const [selectedIds, setSelectedIds] = useState<Set<string>>(() =>
-    parseConstraintIds(searchParams.get(PARAM_CONSTRAINTS), availableLayers),
+  // `c=` absent on first mount → seed defaults. `c=` present (even
+  // empty) → user has prior state, respect it verbatim.
+  const hadInitialConstraints = useRef(
+    searchParams.has(PARAM_CONSTRAINTS),
   );
+  // Flips on the first toggle/clear; once true the write-back always
+  // emits `c=` (even when empty) so a deliberate clear is sticky.
+  const userInteracted = useRef(false);
+  const [selectedIds, setSelectedIds] = useState<Set<string>>(() => {
+    const raw = searchParams.get(PARAM_CONSTRAINTS);
+    if (raw === null) return defaultSelectedIds(availableLayers);
+    return parseConstraintIds(raw, availableLayers);
+  });
   const [sortKey, setSortKeyState] = useState<SortKey>(() =>
     parseSortKey(searchParams.get(PARAM_SORT)),
   );
@@ -108,11 +128,18 @@ export function useUrlSpecState(availableLayers: Layer[]): UrlSpecState {
   }, [availableLayers]);
 
   // Push state → URL. Replace history so toggling doesn't bloat the
-  // back-button stack. Strip empty values so the URL stays clean.
+  // back-button stack. Before the user has touched the bar, suppress
+  // writes that would only re-emit the default seed — keeps the
+  // landing URL clean. After the user interacts, always emit `c=`
+  // (including the empty string) so a Clear is preserved on reload.
   useEffect(() => {
     const next = new URLSearchParams(searchParams);
     const csv = encodeConstraintIds(selectedIds, availableLayers);
-    if (csv) next.set(PARAM_CONSTRAINTS, csv);
+    const shouldEmit =
+      userInteracted.current ||
+      hadInitialConstraints.current ||
+      csv !== encodeConstraintIds(defaultSelectedIds(availableLayers), availableLayers);
+    if (shouldEmit) next.set(PARAM_CONSTRAINTS, csv);
     else next.delete(PARAM_CONSTRAINTS);
     if (sortKey !== DEFAULT_SORT_KEY) next.set(PARAM_SORT, sortKey);
     else next.delete(PARAM_SORT);
@@ -126,6 +153,7 @@ export function useUrlSpecState(availableLayers: Layer[]): UrlSpecState {
   }, [selectedIds, sortKey, availableLayers, setSearchParams]);
 
   const toggleConstraint = useCallback((id: string) => {
+    userInteracted.current = true;
     setSelectedIds((prev) => {
       const next = new Set(prev);
       if (next.has(id)) next.delete(id);
@@ -134,7 +162,10 @@ export function useUrlSpecState(availableLayers: Layer[]): UrlSpecState {
     });
   }, []);
 
-  const clearConstraints = useCallback(() => setSelectedIds(new Set()), []);
+  const clearConstraints = useCallback(() => {
+    userInteracted.current = true;
+    setSelectedIds(new Set());
+  }, []);
 
   const setSortKey = useCallback((key: SortKey) => setSortKeyState(key), []);
 

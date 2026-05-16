@@ -72,6 +72,12 @@ export interface Layer {
   minZoom: number;
   listingsFilter?: LayerListingsFilter;
   chip?: LayerChip;
+  // Seeded into `selectedIds` on the very first page load (no `c=` in
+  // the URL). Used for overlay-only layers whose visual presence is the
+  // point — the user shouldn't have to opt in to see what's already
+  // been filtered out for them. After any user interaction the URL
+  // takes authority; clearing is sticky across reloads.
+  defaultSelected?: boolean;
 }
 
 const SLOPE_LT_5_CHIP: LayerChip = {
@@ -90,14 +96,45 @@ const SLOPE_LT_5_FILTER: LayerListingsFilter = {
 // users scan top-down and "is this parcel even legal?" must precede
 // "is it suitable?" (see visual-language doc §10).
 //
-// PAD-US, NWI wetlands, and Natura 2000 used to live here as
-// user-toggleable "avoid" constraints; they're now hard mart-level
-// invariants (mart_us_listings.sql, mart_it_parcels.sql) because the
-// permitting reality doesn't admit partial overlap. The PMTiles
-// overlays remain in pmtilesLayers.ts so the detail-page MiniParcelMap
-// can still show them as context — they just don't surface as user
-// toggles on the listings page anymore.
+// PAD-US, NWI wetlands, and Natura 2000 are hard mart-level invariants
+// (mart_us_listings.sql, mart_it_parcels.sql) — they don't filter the
+// listings cohort because the cohort already excludes anything that
+// overlaps them. They appear here as *overlay-only* entries (no chip,
+// no listingsFilter) so the map can still paint the polygons as a
+// trust-signal "this is what we filtered out for you", with the
+// toggle living in ConstraintBar's existing Avoid section. They're
+// `defaultSelected: true` so the overlay is on the moment the page
+// mounts; clicking the toggle hides the polygons without changing
+// which listings qualify.
 export const LAYER_REGISTRY: Layer[] = [
+  {
+    id: "pad_us",
+    label: "Protected areas",
+    description:
+      "PAD-US federal/state protected lands — already excluded from listings, shown for context",
+    vertical: "energy",
+    spatialUnit: "parcel",
+    role: "avoid",
+    country: "united-states",
+    pmtilesLayerId: "pad_us",
+    requiresRegionScope: true,
+    minZoom: 6,
+    defaultSelected: true,
+  },
+  {
+    id: "nwi_us",
+    label: "Wetlands",
+    description:
+      "USFWS National Wetlands Inventory — already excluded from listings, shown for context",
+    vertical: "energy",
+    spatialUnit: "parcel",
+    role: "avoid",
+    country: "united-states",
+    pmtilesLayerId: "nwi_us",
+    requiresRegionScope: true,
+    minZoom: 11,
+    defaultSelected: true,
+  },
   {
     id: "slope_lt_5_us",
     label: "Flat land (<5% slope)",
@@ -112,6 +149,20 @@ export const LAYER_REGISTRY: Layer[] = [
     minZoom: 11,
     listingsFilter: SLOPE_LT_5_FILTER,
     chip: SLOPE_LT_5_CHIP,
+  },
+  {
+    id: "natura2000_it",
+    label: "Natura 2000",
+    description:
+      "EU Natura 2000 protected sites — already excluded from particelle, shown for context",
+    vertical: "energy",
+    spatialUnit: "parcel",
+    role: "avoid",
+    country: "italy",
+    pmtilesLayerId: "natura2000_it",
+    requiresRegionScope: true,
+    minZoom: 6,
+    defaultSelected: true,
   },
   {
     id: "slope_lt_5_it",

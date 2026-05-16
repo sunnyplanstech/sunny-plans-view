@@ -21,10 +21,12 @@
 //
 // Constraint filtering runs client-side via `evaluateLayer` against
 // the per-listing fields the API already returns (e.g. flat_5_acres
-// for slope_lt_5). PAD, wetlands, and Natura 2000 are no longer
-// user-toggleable here — they're hard mart-level cuts (see Phase 3
-// comments in mart_us_listings.sql / mart_it_parcels.sql). Their
-// PMTiles overlays survive only as detail-page context layers.
+// for slope_lt_5). PAD, wetlands, and Natura 2000 are hard mart-level
+// cuts (see Phase 3 comments in mart_us_listings.sql / mart_it_parcels.sql)
+// — they appear as default-on, overlay-only toggles in ConstraintBar:
+// the polygons paint as a "this is what we filtered out for you" trust
+// signal, but flipping the toggle only hides the overlay; the qualifying
+// cohort stays exactly the same.
 import { useCallback, useMemo, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { MapHud } from "@/components/maps/MapHud";
