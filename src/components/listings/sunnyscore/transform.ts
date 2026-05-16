@@ -36,65 +36,131 @@ export const GROUP_LABEL: Record<GroupKey, string> = {
   constraints: "Constraints & distances",
 };
 
-// Feature → group mapping. Confirmed against the live payload's actual
-// feature names; unknown features fall through (silently dropped — they
-// would log in a real impl). Update when adding model inputs.
+// Feature → group mapping. Source of truth is the trained model's
+// `feature_names_in_` (`model_solar_xgb@prod`, shared US+IT), which is
+// the union of:
+//   - the OSM tag pairs in
+//     pipelines/dbt/models/osm/solar_osm_candidate_features.sql,
+//     materialised by pipelines/core/common/osm_distances.py with the
+//     column-name convention `{osm_key}_{osm_value}` (53 distance
+//     features in metres), and
+//   - `flat_5_acres_pct` + `ghi_kwh_m2_yr` + `dni_kwh_m2_yr` +
+//     `pv_specific_yield_kwh_kwp_yr` from
+//     pipelines/dbt/models/us/sunnyscore/feat_solar_all.sql.
+// `pad_acres`, `nwi_acres`, and `flat_5_acres` are excluded at training
+// time (pipelines/core/notebooks/sunnyscore/model_solar_xgb.py
+// NON_FEATURE_COLS), so they never appear in the SHAP payload.
+// Every key the model emits has an entry here so it counts toward the
+// helping/hurting totals — unknown keys are silently dropped at
+// buildExplanation, which would distort the gauge. Refresh this dict
+// when adding/removing rows from solar_osm_candidate_features or
+// feat_solar_all.
 export const FEATURE_TO_GROUP: Record<string, GroupKey> = {
-  // Grid
-  power_substation: "grid",
+  // Grid — power infrastructure (closer = positive signal)
   power_line: "grid",
+  power_minor_line: "grid",
+  power_pole: "grid",
   power_tower: "grid",
-  voltage_kv_within_5km: "grid",
-  // Solar
-  irradiance_annual_mean: "solar",
-  cloud_cover_p50: "solar",
-  temperature_factor: "solar",
+  power_substation: "grid",
+  power_transformer: "grid",
+
+  // Solar resource (GSA-derived per-parcel sample)
   ghi_kwh_m2_yr: "solar",
   dni_kwh_m2_yr: "solar",
   pv_specific_yield_kwh_kwp_yr: "solar",
-  // Terrain
-  flat_5_acres: "terrain",
+
+  // Terrain (parcel-internal buildability)
   flat_5_acres_pct: "terrain",
-  slope_p95: "terrain",
-  slope_p50: "terrain",
-  slope_mean: "terrain",
-  elevation_kurtosis: "terrain",
-  // Land use
+
+  // Land use — surrounding land character: residential / industrial /
+  // commercial neighbours, plus civil infrastructure proximity. Driver
+  // for "what's next door?"
   landuse_residential: "land_use",
-  landuse_residential_distance: "land_use",
-  landuse_agricultural_share: "land_use",
-  natural_wetland: "land_use",
-  land_use_diversity_index: "land_use",
-  // Constraints
+  landuse_commercial: "land_use",
+  landuse_industrial: "land_use",
+  landuse_retail: "land_use",
+  landuse_reservoir: "land_use",
+  landuse_brownfield: "land_use",
+  landuse_landfill: "land_use",
+  landuse_quarry: "land_use",
+  landuse_railway: "land_use",
+  building_residential: "land_use",
+  building_commercial: "land_use",
+  building_industrial: "land_use",
+  building_school: "land_use",
+  building_hospital: "land_use",
+  building_university: "land_use",
+  amenity_hospital: "land_use",
+  amenity_school: "land_use",
+  amenity_university: "land_use",
+  natural_wood: "land_use",
+  natural_water: "land_use",
+  tourism_attraction: "land_use",
+  tourism_museum: "land_use",
+  tourism_zoo: "land_use",
+  highway_motorway: "land_use",
+  highway_trunk: "land_use",
+  highway_primary: "land_use",
+  highway_secondary: "land_use",
+  highway_tertiary: "land_use",
+  railway_rail: "land_use",
+  railway_station: "land_use",
+
+  // Constraints — regulatory exclusions, hazard buffers, water-body
+  // setbacks. Distances that hurt suitability when too small.
+  landuse_military: "constraints",
   military_base: "constraints",
-  protected_area: "constraints",
-  airport_distance: "constraints",
-  airport: "constraints",
-  water_body_distance: "constraints",
-  water_body: "constraints",
+  military_airfield: "constraints",
+  military_danger_area: "constraints",
+  military_training_area: "constraints",
+  aeroway_aerodrome: "constraints",
+  aeroway_heliport: "constraints",
+  leisure_nature_reserve: "constraints",
+  leisure_park: "constraints",
+  natural_wetland: "constraints",
+  natural_cliff: "constraints",
+  natural_peak: "constraints",
+  natural_ridge: "constraints",
+  waterway_river: "constraints",
+  waterway_stream: "constraints",
+  waterway_canal: "constraints",
+  waterway_dam: "constraints",
 };
 
+// Curated subset of FEATURE_TO_GROUP — only the entries here render as
+// their own bar; everything else folds into the per-group "Other ___
+// factors" residual. Keep this lean so the explanation stays scannable.
 export const FEATURE_LABEL: Record<string, string> = {
+  // Grid
   power_substation: "Distance to nearest substation",
   power_line: "Distance to transmission line",
-  power_tower: "Distance to nearest tower",
-  voltage_kv_within_5km: "Voltage class within 5 km",
-  irradiance_annual_mean: "Average annual irradiance",
+  power_tower: "Distance to transmission tower",
+  // Solar
   ghi_kwh_m2_yr: "Annual global irradiance",
   dni_kwh_m2_yr: "Annual direct irradiance",
   pv_specific_yield_kwh_kwp_yr: "Expected PV yield",
-  flat_5_acres: "Flat (<5%) acres on parcel",
+  // Terrain
   flat_5_acres_pct: "Share of parcel that's flat",
+  // Land use
   landuse_residential: "Distance to nearest residential parcel",
-  landuse_residential_distance: "Distance to nearest residential parcel",
-  landuse_agricultural_share: "Share of agricultural neighbours",
-  natural_wetland: "Distance to nearest wetland",
+  landuse_industrial: "Distance to nearest industrial area",
+  landuse_commercial: "Distance to nearest commercial area",
+  landuse_brownfield: "Distance to nearest brownfield",
+  landuse_landfill: "Distance to nearest landfill",
+  landuse_quarry: "Distance to nearest quarry",
+  building_residential: "Distance to nearest residential building",
+  natural_wood: "Distance to nearest forest",
+  natural_water: "Distance to nearest water body",
+  highway_motorway: "Distance to nearest motorway",
+  highway_primary: "Distance to nearest primary road",
+  railway_rail: "Distance to nearest railway",
+  // Constraints
   military_base: "Distance to nearest military base",
-  protected_area: "Distance to nearest protected area",
-  airport: "Distance to nearest airport",
-  airport_distance: "Distance to nearest airport",
-  water_body: "Distance to nearest water body",
-  water_body_distance: "Distance to nearest water body",
+  aeroway_aerodrome: "Distance to nearest airport",
+  leisure_nature_reserve: "Distance to nearest nature reserve",
+  leisure_park: "Distance to nearest park",
+  natural_wetland: "Distance to nearest wetland",
+  waterway_river: "Distance to nearest river",
 };
 
 // Suffixes that mark a feature as opaque to a non-technical reader; it
