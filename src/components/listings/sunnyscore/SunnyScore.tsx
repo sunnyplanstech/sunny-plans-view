@@ -554,7 +554,14 @@ const GroupRowItem = ({
                   {feat.label}
                 </span>
                 {valueText && (
-                  <span className="text-[10px] text-muted-foreground tabular-nums">
+                  <span
+                    className={cn(
+                      "text-xs font-semibold tabular-nums rounded px-1.5 py-0.5",
+                      isHelping
+                        ? "bg-primary/10 text-primary"
+                        : "bg-negative/10 text-negative",
+                    )}
+                  >
                     {valueText}
                   </span>
                 )}
