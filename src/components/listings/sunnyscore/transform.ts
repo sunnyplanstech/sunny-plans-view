@@ -7,6 +7,7 @@
 // adding/renaming a group never requires a model retrain.
 
 export type Contributions = Record<string, number>;
+export type FeatureValues = Record<string, number | null | undefined>;
 
 export interface ParcelPayload {
   score: number;
@@ -19,6 +20,12 @@ export interface ParcelPayload {
   // baseline silently falls out there; the reference-strip avg tick
   // reads it explicitly via baselineScoreFromPayload below.
   contributions: Contributions;
+  // Optional raw feature values keyed by the same names as `contributions`
+  // — e.g. `power_substation → 850` (metres). When supplied the SHAP card
+  // surfaces the measured value next to each feature row so the reader
+  // sees both "how strong is this signal" (SHAP) and "what is its
+  // underlying measurement" (the raw value). Missing keys render blank.
+  featureValues?: FeatureValues;
 }
 
 export type GroupKey =
@@ -176,6 +183,13 @@ export interface FeatureRow {
   value: number;
   signedValue: number;
   shareOfSide: number;
+  // |SHAP value| / (helpingTotal + hurtingTotal) — i.e. this feature's
+  // share of all SHAP magnitude moving the score away from the baseline.
+  // Comparable across helping/hurting; used to report "% of overall".
+  shareOfTotal: number;
+  // Raw measured value pulled from ParcelPayload.featureValues, or null
+  // for residuals / when the caller didn't supply a value.
+  rawValue: number | null;
   isResidual: boolean;
 }
 
@@ -185,6 +199,7 @@ export interface GroupRow {
   total: number;
   signedSum: number;
   shareOfSide: number;
+  shareOfTotal: number;
   bars: FeatureRow[];
 }
 
@@ -233,6 +248,7 @@ export function buildExplanation(payload: ParcelPayload): Explanation {
         .filter((f) => Math.sign(f.value) !== Math.sign(net))
         .reduce((s, f) => s + f.value, 0);
 
+    const fv = payload.featureValues ?? {};
     const bars: FeatureRow[] = explainable
       .map((f) => ({
         feature: f.name,
@@ -240,6 +256,8 @@ export function buildExplanation(payload: ParcelPayload): Explanation {
         value: Math.abs(f.value),
         signedValue: f.value,
         shareOfSide: 0,
+        shareOfTotal: 0,
+        rawValue: fv[f.name] ?? null,
         isResidual: false,
       }))
       .sort((a, b) => b.value - a.value);
@@ -251,6 +269,8 @@ export function buildExplanation(payload: ParcelPayload): Explanation {
         value: Math.abs(residualValue),
         signedValue: residualValue,
         shareOfSide: 0,
+        shareOfTotal: 0,
+        rawValue: null,
         isResidual: true,
       });
     }
@@ -261,6 +281,7 @@ export function buildExplanation(payload: ParcelPayload): Explanation {
       total: Math.abs(net),
       signedSum: net,
       shareOfSide: 0,
+      shareOfTotal: 0,
       bars,
     };
 
@@ -273,13 +294,22 @@ export function buildExplanation(payload: ParcelPayload): Explanation {
     }
   });
 
+  const overallTotal = Math.max(helpingTotal + hurtingTotal, 1e-9);
   helping.forEach((g) => {
     g.shareOfSide = g.total / Math.max(helpingTotal, 1e-9);
-    g.bars.forEach((b) => (b.shareOfSide = b.value / Math.max(helpingTotal, 1e-9)));
+    g.shareOfTotal = g.total / overallTotal;
+    g.bars.forEach((b) => {
+      b.shareOfSide = b.value / Math.max(helpingTotal, 1e-9);
+      b.shareOfTotal = b.value / overallTotal;
+    });
   });
   hurting.forEach((g) => {
     g.shareOfSide = g.total / Math.max(hurtingTotal, 1e-9);
-    g.bars.forEach((b) => (b.shareOfSide = b.value / Math.max(hurtingTotal, 1e-9)));
+    g.shareOfTotal = g.total / overallTotal;
+    g.bars.forEach((b) => {
+      b.shareOfSide = b.value / Math.max(hurtingTotal, 1e-9);
+      b.shareOfTotal = b.value / overallTotal;
+    });
   });
 
   helping.sort((a, b) => b.total - a.total);
@@ -307,6 +337,8 @@ export interface ContributionFeature {
   isResidual: boolean;
   widthOfGroup: number;
   shareOfSide: number;
+  shareOfTotal: number;
+  rawValue: number | null;
 }
 
 export interface ContributionGroup {
@@ -314,6 +346,7 @@ export interface ContributionGroup {
   label: string;
   side: ColumnSide;
   widthOfSide: number;
+  shareOfTotal: number;
   features: ContributionFeature[];
 }
 
@@ -340,6 +373,7 @@ export function computeContributionBar(explanation: Explanation): ContributionBa
     label: g.label,
     side,
     widthOfSide: g.total / Math.max(sideTotal, 1e-9),
+    shareOfTotal: g.shareOfTotal,
     features: g.bars.map((b) => ({
       key: b.feature,
       label: b.label,
@@ -347,6 +381,8 @@ export function computeContributionBar(explanation: Explanation): ContributionBa
       isResidual: b.isResidual,
       widthOfGroup: b.value / Math.max(g.total, 1e-9),
       shareOfSide: b.shareOfSide,
+      shareOfTotal: b.shareOfTotal,
+      rawValue: b.rawValue,
     })),
   });
 
@@ -382,6 +418,48 @@ export function findFeature(
     if (f) return f;
   }
   return null;
+}
+
+// Per-feature value formatting. OSM distance features fold into one
+// "metres" branch (with imperial conversion when requested); the
+// non-distance features each have their own unit. Keep in sync with
+// the FEATURE_TO_GROUP mapping above: any new feature key needs an
+// entry here or it falls through to the generic numeric formatter.
+export type FeatureUnit = "imperial" | "metric";
+
+const isDistanceFeature = (feature: string): boolean =>
+  feature in FEATURE_TO_GROUP &&
+  !(
+    feature === "flat_5_acres_pct" ||
+    feature === "ghi_kwh_m2_yr" ||
+    feature === "dni_kwh_m2_yr" ||
+    feature === "pv_specific_yield_kwh_kwp_yr"
+  );
+
+const fmtDistance = (meters: number, unit: FeatureUnit): string => {
+  if (unit === "imperial") {
+    const miles = meters * 0.000621371;
+    if (miles < 0.1) return `${Math.round(meters)} m`;
+    return `${miles.toFixed(miles < 10 ? 2 : 1)} mi`;
+  }
+  if (meters < 1000) return `${Math.round(meters)} m`;
+  const km = meters / 1000;
+  return `${km.toFixed(km < 10 ? 2 : 1)} km`;
+};
+
+export function formatFeatureValue(
+  feature: string,
+  value: number | null,
+  unit: FeatureUnit = "imperial",
+): string {
+  if (value == null || !Number.isFinite(value)) return "";
+  if (feature === "flat_5_acres_pct") return `${Math.round(value * 100)}% flat`;
+  if (feature === "ghi_kwh_m2_yr") return `${Math.round(value)} kWh/m²/yr GHI`;
+  if (feature === "dni_kwh_m2_yr") return `${Math.round(value)} kWh/m²/yr DNI`;
+  if (feature === "pv_specific_yield_kwh_kwp_yr")
+    return `${Math.round(value)} kWh/kWp/yr`;
+  if (isDistanceFeature(feature)) return fmtDistance(value, unit);
+  return `${value}`;
 }
 
 // Reserved non-feature key in `contributions` that carries the model's

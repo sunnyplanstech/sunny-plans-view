@@ -16,11 +16,13 @@ import {
   buildExplanation,
   computeContributionBar,
   findFeature,
+  formatFeatureValue,
   type ColumnSide,
   type ContributionBar,
   type ContributionFeature,
   type ContributionGroup,
   type Explanation,
+  type FeatureUnit,
   type GroupRow,
   type HoverHandler,
   type HoverState,
@@ -39,6 +41,8 @@ interface SunnyScoreExplanationProps {
   // Show a "tap to expand" chevron on un-expandable rows (card surface
   // hint that the detail page has more).
   expandableHint?: boolean;
+  // Unit system for distance-typed feature values. Defaults to imperial.
+  unit?: FeatureUnit;
 }
 
 export const SunnyScoreExplanation = ({
@@ -47,6 +51,7 @@ export const SunnyScoreExplanation = ({
   maxRowsPerSide,
   expandable = false,
   expandableHint = false,
+  unit = "imperial",
 }: SunnyScoreExplanationProps) => {
   const explanation = useMemo(() => buildExplanation(payload), [payload]);
   const contributionBar = useMemo(
@@ -74,6 +79,7 @@ export const SunnyScoreExplanation = ({
         expandable={expandable}
         expandableHint={expandableHint}
         maxRowsPerSide={maxRowsPerSide}
+        unit={unit}
         hovered={hovered}
         onHover={setHovered}
       />
@@ -194,7 +200,7 @@ const ScoreGauge = ({
             </span>
             <span className="text-muted-foreground">
               {" — "}
-              {Math.round(hoveredFeature.shareOfSide * 100)}% of {hovered?.side}
+              {Math.round(hoveredFeature.shareOfTotal * 100)}% of score
             </span>
           </span>
         ) : (
@@ -311,7 +317,7 @@ const ContributionSegment = ({
     ? "bg-negative/40"
     : "bg-negative";
 
-  const sharePct = Math.round(feature.shareOfSide * 100);
+  const sharePct = Math.round(feature.shareOfTotal * 100);
 
   return (
     <div
@@ -336,9 +342,7 @@ const ContributionSegment = ({
             ? `inset ${dividerThickness}px 0 0 hsl(var(--card))`
             : undefined,
       }}
-      title={`${feature.label} — ${sharePct}% of ${
-        isHelping ? "helping" : "hurting"
-      }`}
+      title={`${feature.label} — ${sharePct}% of score`}
     />
   );
 };
@@ -352,6 +356,7 @@ interface HelpingHurtingColumnsProps {
   expandable?: boolean;
   expandableHint?: boolean;
   maxRowsPerSide?: number;
+  unit?: FeatureUnit;
   hovered?: HoverState | null;
   onHover?: HoverHandler;
 }
@@ -361,6 +366,7 @@ const HelpingHurtingColumns = ({
   expandable,
   expandableHint,
   maxRowsPerSide,
+  unit = "imperial",
   hovered,
   onHover,
 }: HelpingHurtingColumnsProps) => {
@@ -403,6 +409,7 @@ const HelpingHurtingColumns = ({
                 expandableHint={expandableHint}
                 isOpen={isOpen}
                 onToggle={() => expandable && toggle(key)}
+                unit={unit}
                 hovered={hovered}
                 onHover={onHover}
               />
@@ -447,6 +454,7 @@ interface GroupRowItemProps {
   expandableHint?: boolean;
   isOpen: boolean;
   onToggle: () => void;
+  unit?: FeatureUnit;
   hovered?: HoverState | null;
   onHover?: HoverHandler;
 }
@@ -458,11 +466,12 @@ const GroupRowItem = ({
   expandableHint,
   isOpen,
   onToggle,
+  unit = "imperial",
   hovered,
   onHover,
 }: GroupRowItemProps) => {
   const isHelping = side === "helping";
-  const sharePct = Math.round(row.shareOfSide * 100);
+  const sharePct = Math.round(row.shareOfTotal * 100);
   const groupHovered =
     hovered?.groupKey === row.group && hovered?.side === side;
 
@@ -516,6 +525,7 @@ const GroupRowItem = ({
         <ul className="mt-2 ml-5 space-y-0.5 text-xs border-l border-border/60 pl-3">
           {row.bars.map((feat) => {
             const isHov = hovered?.key === feat.feature;
+            const valueText = formatFeatureValue(feat.feature, feat.rawValue, unit);
             return (
               <li
                 key={feat.feature}
@@ -543,8 +553,13 @@ const GroupRowItem = ({
                 >
                   {feat.label}
                 </span>
+                {valueText && (
+                  <span className="text-[10px] text-muted-foreground tabular-nums">
+                    {valueText}
+                  </span>
+                )}
                 <span className="ml-auto text-[10px] text-muted-foreground tabular-nums">
-                  {Math.round(feat.shareOfSide * 100)}%
+                  {Math.round(feat.shareOfTotal * 100)}%
                 </span>
               </li>
             );

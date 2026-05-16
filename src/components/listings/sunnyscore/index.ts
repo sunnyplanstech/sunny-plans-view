@@ -5,6 +5,7 @@ export {
   computeContributionBar,
   findFeature,
   baselineScoreFromPayload,
+  formatFeatureValue,
   BASELINE_KEY,
   GROUP_LABEL,
   FEATURE_LABEL,
@@ -13,6 +14,7 @@ export {
 } from "./transform";
 export type {
   Contributions,
+  FeatureValues,
   ParcelPayload,
   GroupKey,
   GroupRow,
@@ -22,6 +24,7 @@ export type {
   ContributionBar,
   ContributionGroup,
   ContributionFeature,
+  FeatureUnit,
   HoverState,
   HoverHandler,
 } from "./transform";
