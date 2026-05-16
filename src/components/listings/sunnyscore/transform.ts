@@ -174,8 +174,27 @@ export const FEATURE_LABEL: Record<string, string> = {
 // will collapse into a per-group residual instead of getting its own row.
 const OPAQUE_PATTERN = /(_p\d+|_mean|_std|_kurtosis|_diversity_index|_log|_embedding)$/;
 
+// Per-group cap on how many features render as their own row. The top-N
+// by |SHAP| win their own bar; the rest fold into "Other ___ factors".
+// Tune here to make the card denser or sparser.
+const MAX_FEATURES_PER_GROUP = 5;
+
 export const isExplainable = (feature: string): boolean =>
-  feature in FEATURE_LABEL && !OPAQUE_PATTERN.test(feature);
+  !OPAQUE_PATTERN.test(feature);
+
+// Fallback label for OSM distance features that aren't in FEATURE_LABEL.
+// The model emits `{osm_key}_{osm_value}` (see osm_distances.py); we
+// humanize both halves. `military_danger_area` → key=`military`,
+// value=`danger area`. Non-distance features always have a curated entry.
+const humanizeOsmFeature = (feature: string): string => {
+  const idx = feature.indexOf("_");
+  if (idx < 0) return feature.replace(/_/g, " ");
+  const value = feature.slice(idx + 1).replace(/_/g, " ");
+  return `Distance to nearest ${value}`;
+};
+
+export const labelFor = (feature: string): string =>
+  FEATURE_LABEL[feature] ?? humanizeOsmFeature(feature);
 
 export interface FeatureRow {
   feature: string;
@@ -240,27 +259,28 @@ export function buildExplanation(payload: ParcelPayload): Explanation {
     // Surface group-level signal; counter-direction features fold into
     // the residual rather than fighting the group's headline direction.
     const sameSign = features.filter((f) => Math.sign(f.value) === Math.sign(net));
-    const explainable = sameSign.filter((f) => isExplainable(f.name));
+    const ranked = sameSign
+      .filter((f) => isExplainable(f.name))
+      .sort((a, b) => Math.abs(b.value) - Math.abs(a.value));
+    const surfaced = ranked.slice(0, MAX_FEATURES_PER_GROUP);
     const residualValue =
       sameSign.reduce((s, f) => s + f.value, 0) -
-      explainable.reduce((s, f) => s + f.value, 0) +
+      surfaced.reduce((s, f) => s + f.value, 0) +
       features
         .filter((f) => Math.sign(f.value) !== Math.sign(net))
         .reduce((s, f) => s + f.value, 0);
 
     const fv = payload.featureValues ?? {};
-    const bars: FeatureRow[] = explainable
-      .map((f) => ({
-        feature: f.name,
-        label: FEATURE_LABEL[f.name] ?? f.name,
-        value: Math.abs(f.value),
-        signedValue: f.value,
-        shareOfSide: 0,
-        shareOfTotal: 0,
-        rawValue: fv[f.name] ?? null,
-        isResidual: false,
-      }))
-      .sort((a, b) => b.value - a.value);
+    const bars: FeatureRow[] = surfaced.map((f) => ({
+      feature: f.name,
+      label: labelFor(f.name),
+      value: Math.abs(f.value),
+      signedValue: f.value,
+      shareOfSide: 0,
+      shareOfTotal: 0,
+      rawValue: fv[f.name] ?? null,
+      isResidual: false,
+    }));
 
     if (Math.abs(residualValue) > 0.01) {
       bars.push({
