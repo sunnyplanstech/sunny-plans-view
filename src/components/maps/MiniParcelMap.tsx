@@ -136,12 +136,16 @@ export function MiniParcelMap({
     return () => observer.disconnect();
   }, [requestLoad]);
 
-  // Overlays mount only for unlocked rows (polygon present) when the
-  // detail page passes country+regionSlug. Free preview rows arrive as
-  // an obfuscated Point — overlaying constraints on a jittered location
-  // would be misleading.
+  // Overlays mount on both unlocked rows (real polygon) and free/public
+  // rows (obfuscated point). For the obfuscated view the location stays
+  // hidden — no marker is drawn, zoom is locked by `interactive=false` —
+  // but the regional constraint landscape around the disc renders the
+  // same layers a paying user would see. That preview is the trust
+  // signal: "we really do have these layers", without leaking the parcel.
   const hasPolygon = (geom?.paths.length ?? 0) > 0;
-  const overlaysEnabled = hasPolygon && !!country;
+  const isObfuscatedPoint =
+    !hasPolygon && locationAccuracyM != null && locationAccuracyM > 0;
+  const overlaysEnabled = (hasPolygon || isObfuscatedPoint) && !!country;
 
   const [map, setMap] = useState<google.maps.Map | null>(null);
   const pmtilesLayers = useMemo(
@@ -193,8 +197,6 @@ export function MiniParcelMap({
       </div>
     );
   }
-
-  const isObfuscatedPoint = !hasPolygon && locationAccuracyM != null && locationAccuracyM > 0;
 
   const mapOptions: google.maps.MapOptions = {
     mapTypeId: "satellite",

@@ -2,7 +2,6 @@ export { SunnyScoreExplanation } from "./SunnyScore";
 export type { SunnyScoreSize } from "./SunnyScore";
 export {
   buildExplanation,
-  buildDrivers,
   computeContributionBar,
   findFeature,
   baselineScoreFromPayload,
@@ -25,7 +24,6 @@ export type {
   ContributionBar,
   ContributionGroup,
   ContributionFeature,
-  Driver,
   FeatureUnit,
   HoverState,
   HoverHandler,

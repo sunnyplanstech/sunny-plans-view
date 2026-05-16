@@ -141,7 +141,8 @@ const ITListingCard = ({
                   contributions: listing.contributions!,
                 }}
                 size="sm"
-                maxDrivers={4}
+                maxRowsPerSide={2}
+                expandableHint
               />
             ) : (
               <div className="space-y-1">

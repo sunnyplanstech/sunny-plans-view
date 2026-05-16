@@ -142,61 +142,71 @@ export function ITDetailPage({ id, listing, onPaymentSuccess }: DetailPageProps<
           </h1>
         </section>
 
-        {hasExplanation ? (
-          <Card className="mb-8 border-primary/20 bg-gradient-to-b from-primary/[0.03] to-transparent">
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Sun className="w-5 h-5 text-primary" />
-                Perche questa particella ha punteggio {listing.score}
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <SunnyScoreExplanation
-                payload={{
-                  score: listing.score!,
-                  contributions: listing.contributions!,
-                  featureValues,
-                }}
-                size="lg"
-                unit="metric"
-              />
-            </CardContent>
-          </Card>
-        ) : (
-          <Card className="mb-8">
-            <CardContent className="pt-6 space-y-2">
-              <div className="flex justify-between">
-                <span className="text-sm font-medium">Probabilita Solare</span>
-                <span className="text-sm font-bold text-primary">
-                  {scoreInt !== null ? `${scoreInt}%` : "N/A"}
-                </span>
-              </div>
-              <div className="h-3 bg-muted rounded-full overflow-hidden">
-                <div
-                  className="h-full bg-gradient-to-r from-primary/80 to-primary rounded-full transition-all"
-                  style={{ width: `${scoreInt || 0}%` }}
-                />
-              </div>
-              <p className="text-xs text-muted-foreground">
-                Questa particella ha una probabilita del {scoreInt}% di essere idonea allo
-                sviluppo fotovoltaico.
-              </p>
-            </CardContent>
-          </Card>
-        )}
+        {/* Hero: map first, score badge overlaid. SHAP card below. */}
+        <section className="relative rounded-xl overflow-hidden mb-6 h-64 md:h-96">
+          <MiniParcelMap
+            geomJson={listing.geom_json}
+            locationAccuracyM={listing.location_accuracy_m}
+            className="w-full h-full"
+            interactive={accessGranted}
+            country={country}
+            regionSlug={region}
+          />
+          <div className="absolute top-4 left-4 flex flex-wrap gap-2">
+            {scoreInt !== null && (
+              <Badge className="text-lg py-1 px-3 bg-primary">
+                <Sun className="w-4 h-4 mr-1" />
+                {scoreInt}
+              </Badge>
+            )}
+          </div>
+          {!accessGranted && <MapLockedOverlay onUnlock={openPaywall} lang="it" />}
+        </section>
 
         <div className="grid md:grid-cols-3 gap-6 mb-8">
-          <section className="md:col-span-2 relative rounded-xl overflow-hidden h-64 md:h-80">
-            <MiniParcelMap
-              geomJson={listing.geom_json}
-              locationAccuracyM={listing.location_accuracy_m}
-              className="w-full h-full"
-              interactive={accessGranted}
-              country={country}
-              regionSlug={region}
-            />
-            {!accessGranted && <MapLockedOverlay onUnlock={openPaywall} lang="it" />}
-          </section>
+          {hasExplanation ? (
+            <Card className="md:col-span-2 border-primary/20 bg-gradient-to-b from-primary/[0.03] to-transparent">
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Sun className="w-5 h-5 text-primary" />
+                  Perche questa particella ha punteggio {listing.score}
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <SunnyScoreExplanation
+                  payload={{
+                    score: listing.score!,
+                    contributions: listing.contributions!,
+                    featureValues,
+                  }}
+                  size="lg"
+                  unit="metric"
+                  expandable
+                />
+              </CardContent>
+            </Card>
+          ) : (
+            <Card className="md:col-span-2">
+              <CardContent className="pt-6 space-y-2">
+                <div className="flex justify-between">
+                  <span className="text-sm font-medium">Probabilita Solare</span>
+                  <span className="text-sm font-bold text-primary">
+                    {scoreInt !== null ? `${scoreInt}%` : "N/A"}
+                  </span>
+                </div>
+                <div className="h-3 bg-muted rounded-full overflow-hidden">
+                  <div
+                    className="h-full bg-gradient-to-r from-primary/80 to-primary rounded-full transition-all"
+                    style={{ width: `${scoreInt || 0}%` }}
+                  />
+                </div>
+                <p className="text-xs text-muted-foreground">
+                  Questa particella ha una probabilita del {scoreInt}% di essere idonea allo
+                  sviluppo fotovoltaico.
+                </p>
+              </CardContent>
+            </Card>
+          )}
 
           <Card className="bg-primary/5 border-primary/20">
             <CardContent className="pt-6 space-y-4">

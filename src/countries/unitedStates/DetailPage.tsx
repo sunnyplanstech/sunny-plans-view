@@ -176,63 +176,71 @@ export function USDetailPage({ id, listing, onPaymentSuccess }: DetailPageProps<
           </h1>
         </section>
 
-        {/* Hero: the SunnyScore explanation is the page's main attraction.
-            Full-width, large size, every driver visible at once. */}
-        {hasExplanation ? (
-          <Card className="mb-8 border-primary/20 bg-gradient-to-b from-primary/[0.03] to-transparent">
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Sun className="w-5 h-5 text-primary" />
-                Why this parcel scores {listing.score}
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <SunnyScoreExplanation
-                payload={{
-                  score: listing.score!,
-                  contributions: listing.contributions!,
-                  featureValues,
-                }}
-                size="lg"
-                unit="imperial"
-              />
-            </CardContent>
-          </Card>
-        ) : (
-          <Card className="mb-8">
-            <CardContent className="pt-6 space-y-2">
-              <div className="flex justify-between">
-                <span className="text-sm font-medium">Solar Probability</span>
-                <span className="text-sm font-bold text-primary">
-                  {scoreInt !== null ? `${scoreInt}%` : "N/A"}
-                </span>
-              </div>
-              <div className="h-3 bg-muted rounded-full overflow-hidden">
-                <div
-                  className="h-full bg-gradient-to-r from-primary/80 to-primary rounded-full transition-all"
-                  style={{ width: `${scoreInt || 0}%` }}
-                />
-              </div>
-              <p className="text-xs text-muted-foreground">
-                This parcel has a {scoreInt}% probability of being suitable for solar
-                development based on our analysis.
-              </p>
-            </CardContent>
-          </Card>
-        )}
+        {/* Hero: map is the visual anchor, with the score badge overlaid
+            on the corner. The SunnyScore explanation card sits below as
+            the analytical centrepiece. */}
+        <section className="relative rounded-xl overflow-hidden mb-6 h-64 md:h-96">
+          <MiniParcelMap
+            geomJson={listing.geom_json}
+            locationAccuracyM={listing.location_accuracy_m}
+            className="w-full h-full"
+            interactive={accessGranted}
+            country={country}
+            regionSlug={region}
+          />
+          <div className="absolute top-4 left-4 flex flex-wrap gap-2">
+            <Badge className="text-lg py-1 px-3 bg-primary">
+              <Sun className="w-4 h-4 mr-1" />
+              {scoreInt ?? "N/A"}
+            </Badge>
+          </div>
+          {!accessGranted && <MapLockedOverlay onUnlock={openPaywall} lang="en" />}
+        </section>
 
         <div className="grid md:grid-cols-3 gap-6 mb-8">
-          <section className="md:col-span-2 relative rounded-xl overflow-hidden h-64 md:h-80">
-            <MiniParcelMap
-              geomJson={listing.geom_json}
-              locationAccuracyM={listing.location_accuracy_m}
-              className="w-full h-full"
-              interactive={accessGranted}
-              country={country}
-              regionSlug={region}
-            />
-            {!accessGranted && <MapLockedOverlay onUnlock={openPaywall} lang="en" />}
-          </section>
+          {hasExplanation ? (
+            <Card className="md:col-span-2 border-primary/20 bg-gradient-to-b from-primary/[0.03] to-transparent">
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Sun className="w-5 h-5 text-primary" />
+                  Why this parcel scores {listing.score}
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <SunnyScoreExplanation
+                  payload={{
+                    score: listing.score!,
+                    contributions: listing.contributions!,
+                    featureValues,
+                  }}
+                  size="lg"
+                  unit="imperial"
+                  expandable
+                />
+              </CardContent>
+            </Card>
+          ) : (
+            <Card className="md:col-span-2">
+              <CardContent className="pt-6 space-y-2">
+                <div className="flex justify-between">
+                  <span className="text-sm font-medium">Solar Probability</span>
+                  <span className="text-sm font-bold text-primary">
+                    {scoreInt !== null ? `${scoreInt}%` : "N/A"}
+                  </span>
+                </div>
+                <div className="h-3 bg-muted rounded-full overflow-hidden">
+                  <div
+                    className="h-full bg-gradient-to-r from-primary/80 to-primary rounded-full transition-all"
+                    style={{ width: `${scoreInt || 0}%` }}
+                  />
+                </div>
+                <p className="text-xs text-muted-foreground">
+                  This parcel has a {scoreInt}% probability of being suitable for solar
+                  development based on our analysis.
+                </p>
+              </CardContent>
+            </Card>
+          )}
 
           <Card className="bg-primary/5 border-primary/20">
             <CardContent className="pt-6 space-y-4">
