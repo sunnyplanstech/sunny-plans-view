@@ -398,6 +398,28 @@ export function computeContributionBar(explanation: Explanation): ContributionBa
   };
 }
 
+// Flat driver projection — each explainable feature row, tagged with its
+// group and helping/hurting side, sorted by |SHAP| descending. The
+// detail-page card renders this directly instead of the two-column
+// helping/hurting split: one ranked list with diverging bars reads
+// better at a glance than two parallel columns.
+export interface Driver extends FeatureRow {
+  group: GroupKey;
+  side: ColumnSide;
+}
+
+export function buildDrivers(explanation: Explanation): Driver[] {
+  const drivers: Driver[] = [];
+  for (const row of explanation.helping) {
+    for (const bar of row.bars) drivers.push({ ...bar, group: row.group, side: "helping" });
+  }
+  for (const row of explanation.hurting) {
+    for (const bar of row.bars) drivers.push({ ...bar, group: row.group, side: "hurting" });
+  }
+  drivers.sort((a, b) => b.value - a.value);
+  return drivers;
+}
+
 export interface HoverState {
   key: string | null;
   groupKey: GroupKey;

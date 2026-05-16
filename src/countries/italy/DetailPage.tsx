@@ -159,7 +159,6 @@ export function ITDetailPage({ id, listing, onPaymentSuccess }: DetailPageProps<
                 }}
                 size="lg"
                 unit="metric"
-                expandable
               />
             </CardContent>
           </Card>

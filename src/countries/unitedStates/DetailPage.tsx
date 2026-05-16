@@ -177,7 +177,7 @@ export function USDetailPage({ id, listing, onPaymentSuccess }: DetailPageProps<
         </section>
 
         {/* Hero: the SunnyScore explanation is the page's main attraction.
-            Full-width, large size, expandable drill-down on every group. */}
+            Full-width, large size, every driver visible at once. */}
         {hasExplanation ? (
           <Card className="mb-8 border-primary/20 bg-gradient-to-b from-primary/[0.03] to-transparent">
             <CardHeader>
@@ -195,7 +195,6 @@ export function USDetailPage({ id, listing, onPaymentSuccess }: DetailPageProps<
                 }}
                 size="lg"
                 unit="imperial"
-                expandable
               />
             </CardContent>
           </Card>

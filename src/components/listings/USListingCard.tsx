@@ -131,9 +131,9 @@ const USListingCard = ({ listing, showRank = "global", onSelect }: USListingCard
               </div>
             </div>
 
-            {/* SunnyScore explanation — gauge + helping/hurting bars
-                + ranked driver columns. Falls back to a simple bar if
-                the pipeline hasn't populated score+contributions yet. */}
+            {/* SunnyScore explanation — score header + top diverging
+                driver bars. Falls back to a simple bar if the pipeline
+                hasn't populated score+contributions yet. */}
             {hasExplanation ? (
               <SunnyScoreExplanation
                 payload={{
@@ -141,8 +141,7 @@ const USListingCard = ({ listing, showRank = "global", onSelect }: USListingCard
                   contributions: listing.contributions!,
                 }}
                 size="sm"
-                maxRowsPerSide={2}
-                expandableHint
+                maxDrivers={4}
               />
             ) : (
               <div className="space-y-1">

@@ -101,8 +101,7 @@ const CardSurface = ({ payload, parcelLabel, parcelMeta }: SurfaceProps) => (
       <SunnyScoreExplanation
         payload={payload}
         size="sm"
-        maxRowsPerSide={2}
-        expandableHint
+        maxDrivers={4}
       />
       <div className="pt-2 mt-1 border-t border-border/50 flex items-center justify-end text-[11px] text-primary font-medium">
         <span className="flex items-center gap-0.5">
@@ -122,11 +121,11 @@ const DetailSurface = ({ payload, parcelLabel, parcelMeta }: SurfaceProps) => (
       </div>
     </CardHeader>
     <CardContent className="space-y-6">
-      <SunnyScoreExplanation payload={payload} size="lg" expandable />
+      <SunnyScoreExplanation payload={payload} size="lg" />
       <div className="text-xs text-muted-foreground italic flex items-center gap-1.5">
         <Info className="h-3 w-3" />
-        Click any group to see which features inside it move the score, or
-        hover the bars above.
+        Every driver is ranked by its impact on the score; helpers extend
+        right, hurters left.
       </div>
     </CardContent>
   </Card>
@@ -152,7 +151,7 @@ const LandingSurface = ({ payload, parcelLabel, parcelMeta }: SurfaceProps) => {
         </div>
       </CardHeader>
       <CardContent className="space-y-6">
-        <SunnyScoreExplanation payload={payload} size="lg" expandable />
+        <SunnyScoreExplanation payload={payload} size="lg" />
         {(topHelper || topDrag) && (
           <div className="space-y-2 text-sm pt-2 border-t border-border/40">
             {topHelper && (

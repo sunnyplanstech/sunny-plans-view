@@ -1,31 +1,28 @@
-// SunnyScore™ explanation visual — gauge + helping/hurting bars + columns.
+// SunnyScore™ explanation visual.
 //
-// Locked-in idiom from p2-e1-sunnyscore-visual.md. Three callers hand
-// the same props in three sizes (card / detail / landing); the
-// components below adapt density via the `size` and `expandable` props
-// and otherwise render identically. All grouping, sign-splitting, and
-// per-side normalisation lives in ./transform.ts — this file is pure
-// rendering plus the shared hover-state hook.
+// First-principles redesign (2026-05): one ranked list of drivers, each
+// rendered as a diverging bar centered on a zero midline — helpers
+// extend right (primary), hurters extend left (negative). Per-row raw
+// feature value and signed % of overall sit on the row. No hover or
+// expansion is required to see the signal; the bar IS the visualisation.
+//
+// All grouping, sign-splitting, and per-side normalisation lives in
+// ./transform.ts (buildExplanation + buildDrivers). This file is pure
+// rendering, and adapts density to three surfaces (card / detail /
+// landing) via the `size` and `maxDrivers` props.
 
-import { useMemo, useState } from "react";
-import { ChevronDown, ChevronRight, TrendingDown, TrendingUp } from "lucide-react";
+import { useMemo } from "react";
+import { TrendingDown, TrendingUp } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 import {
   baselineScoreFromPayload,
+  buildDrivers,
   buildExplanation,
-  computeContributionBar,
-  findFeature,
   formatFeatureValue,
-  type ColumnSide,
-  type ContributionBar,
-  type ContributionFeature,
-  type ContributionGroup,
-  type Explanation,
+  GROUP_LABEL,
+  type Driver,
   type FeatureUnit,
-  type GroupRow,
-  type HoverHandler,
-  type HoverState,
   type ParcelPayload,
 } from "./transform";
 
@@ -34,13 +31,9 @@ export type SunnyScoreSize = "sm" | "md" | "lg";
 interface SunnyScoreExplanationProps {
   payload: ParcelPayload;
   size?: SunnyScoreSize;
-  // Card surface caps the column to N rows per side and disables drill-
-  // down; detail/landing surfaces leave both unset.
-  maxRowsPerSide?: number;
-  expandable?: boolean;
-  // Show a "tap to expand" chevron on un-expandable rows (card surface
-  // hint that the detail page has more).
-  expandableHint?: boolean;
+  // Card surface caps the driver list to N rows; detail/landing surfaces
+  // leave this unset and render every explainable driver.
+  maxDrivers?: number;
   // Unit system for distance-typed feature values. Defaults to imperial.
   unit?: FeatureUnit;
 }
@@ -48,77 +41,55 @@ interface SunnyScoreExplanationProps {
 export const SunnyScoreExplanation = ({
   payload,
   size = "md",
-  maxRowsPerSide,
-  expandable = false,
-  expandableHint = false,
+  maxDrivers,
   unit = "imperial",
 }: SunnyScoreExplanationProps) => {
   const explanation = useMemo(() => buildExplanation(payload), [payload]);
-  const contributionBar = useMemo(
-    () => computeContributionBar(explanation),
-    [explanation],
-  );
+  const drivers = useMemo(() => buildDrivers(explanation), [explanation]);
   const baselineScore = useMemo(
     () => baselineScoreFromPayload(payload),
     [payload],
   );
-  const [hovered, setHovered] = useState<HoverState | null>(null);
+  const visible = maxDrivers != null ? drivers.slice(0, maxDrivers) : drivers;
+  // Bar widths are normalised against the largest driver in the visible
+  // set, so the strongest signal always pegs to the edge regardless of
+  // absolute SHAP magnitude. Empty/edge-case fallbacks to 1e-9.
+  const maxShare = Math.max(...visible.map((d) => d.shareOfTotal), 1e-9);
 
   return (
-    <div className="space-y-3">
-      <ScoreGauge
+    <div className="space-y-4">
+      <ScoreHeader
         score={payload.score}
         baselineScore={baselineScore}
         size={size}
-        contributionBar={contributionBar}
-        hovered={hovered}
-        onHover={setHovered}
       />
-      <HelpingHurtingColumns
-        explanation={explanation}
-        expandable={expandable}
-        expandableHint={expandableHint}
-        maxRowsPerSide={maxRowsPerSide}
-        unit={unit}
-        hovered={hovered}
-        onHover={setHovered}
-      />
+      {visible.length > 0 && (
+        <DriverList
+          drivers={visible}
+          maxShare={maxShare}
+          unit={unit}
+          size={size}
+        />
+      )}
     </div>
   );
 };
 
 // ---------------------------------------------------------------------------
-// Gauge — score number, 0–100 reference strip, helping/hurting bars.
+// ScoreHeader — score number, delta vs avg, 0–100 reference strip.
 // ---------------------------------------------------------------------------
 
-interface ScoreGaugeProps {
+interface ScoreHeaderProps {
   score: number;
   baselineScore: number;
   size?: SunnyScoreSize;
-  contributionBar: ContributionBar;
-  hovered?: HoverState | null;
-  onHover?: HoverHandler;
 }
 
-const ScoreGauge = ({
-  score,
-  baselineScore,
-  size = "md",
-  contributionBar,
-  hovered,
-  onHover,
-}: ScoreGaugeProps) => {
+const ScoreHeader = ({ score, baselineScore, size = "md" }: ScoreHeaderProps) => {
   const delta = score - baselineScore;
   const aboveAvg = delta >= 0;
-  const barHeight = size === "sm" ? "h-3" : size === "lg" ? "h-5" : "h-4";
   const numberSize =
     size === "sm" ? "text-2xl" : size === "lg" ? "text-5xl" : "text-3xl";
-  const labelSize = size === "sm" ? "text-[11px]" : "text-xs";
-
-  const { helpingWidth, hurtingWidth, helpingGroups, hurtingGroups } =
-    contributionBar;
-
-  const hoveredFeature = findFeature(contributionBar, hovered);
 
   return (
     <div className="space-y-2">
@@ -161,411 +132,130 @@ const ScoreGauge = ({
           title={`This parcel: ${score}`}
         />
       </div>
-
-      <div className="space-y-2">
-        <SideBar
-          label="Helping"
-          icon={<TrendingUp className="h-3 w-3" />}
-          labelClass="text-primary"
-          groups={helpingGroups}
-          sideWidth={helpingWidth}
-          height={barHeight}
-          hovered={hovered}
-          onHover={onHover}
-        />
-        <SideBar
-          label="Hurting"
-          icon={<TrendingDown className="h-3 w-3" />}
-          labelClass="text-negative"
-          groups={hurtingGroups}
-          sideWidth={hurtingWidth}
-          height={barHeight}
-          hovered={hovered}
-          onHover={onHover}
-        />
-      </div>
-
-      <div className={cn("min-h-[1.25rem] flex items-center", labelSize)}>
-        {hoveredFeature ? (
-          <span>
-            <span
-              className={cn(
-                "font-semibold",
-                hovered?.side === "helping"
-                  ? "text-primary"
-                  : "text-negative",
-              )}
-            >
-              {hoveredFeature.label}
-            </span>
-            <span className="text-muted-foreground">
-              {" — "}
-              {Math.round(hoveredFeature.shareOfTotal * 100)}% of score
-            </span>
-          </span>
-        ) : (
-          <span className="text-muted-foreground/60 italic">
-            Hover any segment to see what it represents
-          </span>
-        )}
+      <div className="flex justify-between text-[10px] text-muted-foreground tabular-nums">
+        <span>0</span>
+        <span>avg {baselineScore}</span>
+        <span>100</span>
       </div>
     </div>
   );
 };
 
-interface SideBarProps {
-  label: string;
-  icon: React.ReactNode;
-  labelClass: string;
-  groups: ContributionGroup[];
-  sideWidth: number;
-  height: string;
-  hovered?: HoverState | null;
-  onHover?: HoverHandler;
+// ---------------------------------------------------------------------------
+// DriverList — ranked, diverging bars.
+// ---------------------------------------------------------------------------
+
+interface DriverListProps {
+  drivers: Driver[];
+  maxShare: number;
+  unit: FeatureUnit;
+  size: SunnyScoreSize;
 }
 
-const SideBar = ({
-  label,
-  icon,
-  labelClass,
-  groups,
-  sideWidth,
-  height,
-  hovered,
-  onHover,
-}: SideBarProps) => (
-  <div className="flex items-center gap-3">
-    <div
-      className={cn(
-        "flex items-center gap-1 text-[11px] font-semibold uppercase tracking-wider w-16 shrink-0",
-        labelClass,
-      )}
-    >
-      {icon}
-      {label}
-    </div>
-    <div className={cn("relative flex-1 bg-muted/40 rounded-sm", height)}>
-      <div
-        className="absolute inset-y-0 left-0 flex overflow-hidden rounded-sm"
-        style={{ width: `${sideWidth * 100}%` }}
-      >
-        {groups.map((g, gi) => (
-          <div
-            key={g.key}
-            className="h-full flex"
-            style={{ width: `${g.widthOfSide * 100}%` }}
-          >
-            {g.features.map((f, fi) => (
-              <ContributionSegment
-                key={f.key}
-                group={g}
-                feature={f}
-                groupIndexInSide={gi}
-                featureIndexInGroup={fi}
-                hovered={hovered}
-                onHover={onHover}
-              />
-            ))}
-          </div>
-        ))}
+const DriverList = ({ drivers, maxShare, unit, size }: DriverListProps) => {
+  const rowGap = size === "sm" ? "space-y-2" : "space-y-3";
+  return (
+    <div>
+      <div className="flex items-center justify-between text-[11px] uppercase tracking-wider text-muted-foreground mb-3">
+        <span>What's moving the score</span>
+        <div className="flex items-center gap-3 text-[10px]">
+          <span className="flex items-center gap-1">
+            <span className="w-2 h-2 rounded-sm bg-negative" />
+            hurts
+          </span>
+          <span className="flex items-center gap-1">
+            <span className="w-2 h-2 rounded-sm bg-primary" />
+            helps
+          </span>
+        </div>
       </div>
+      <ul className={cn(rowGap)}>
+        {drivers.map((d) => (
+          <DriverRow key={d.feature} driver={d} maxShare={maxShare} unit={unit} />
+        ))}
+      </ul>
+    </div>
+  );
+};
+
+interface DriverRowProps {
+  driver: Driver;
+  maxShare: number;
+  unit: FeatureUnit;
+}
+
+const DriverRow = ({ driver, maxShare, unit }: DriverRowProps) => {
+  const isHelping = driver.side === "helping";
+  const pct = Math.round(driver.shareOfTotal * 100);
+  // Bar width as a fraction of one half of the row. The strongest
+  // visible driver gets the full half; everything else scales linearly.
+  const halfWidthPct = (driver.shareOfTotal / maxShare) * 100;
+  const valueText = formatFeatureValue(driver.feature, driver.rawValue, unit);
+
+  return (
+    <li className="space-y-1">
+      <div className="flex items-baseline gap-2 min-w-0">
+        <Badge
+          variant="outline"
+          className="px-1.5 py-0 h-4 text-[9px] uppercase tracking-wider font-medium text-muted-foreground border-border/60 shrink-0"
+        >
+          {GROUP_LABEL[driver.group]}
+        </Badge>
+        <span
+          className={cn(
+            "text-sm truncate",
+            driver.isResidual && "italic text-muted-foreground",
+          )}
+        >
+          {driver.label}
+        </span>
+        {valueText && (
+          <span className="text-xs text-muted-foreground tabular-nums shrink-0">
+            {valueText}
+          </span>
+        )}
+        <span
+          className={cn(
+            "ml-auto text-xs font-semibold tabular-nums shrink-0",
+            isHelping ? "text-primary" : "text-negative",
+          )}
+        >
+          {isHelping ? "+" : "−"}
+          {pct}%
+        </span>
+      </div>
+      <DivergingBar isHelping={isHelping} halfWidthPct={halfWidthPct} />
+    </li>
+  );
+};
+
+interface DivergingBarProps {
+  isHelping: boolean;
+  halfWidthPct: number;
+}
+
+// Two equal half-tracks separated by a zero midline. Hurters fill the
+// left half from the midline outward; helpers fill the right half from
+// the midline outward. Width within the half is proportional to this
+// driver's share relative to the strongest visible driver.
+const DivergingBar = ({ isHelping, halfWidthPct }: DivergingBarProps) => (
+  <div className="relative h-1.5 flex">
+    <div className="flex-1 bg-muted/30 rounded-l-sm relative">
+      {!isHelping && (
+        <div
+          className="absolute top-0 bottom-0 right-0 bg-negative rounded-l-sm"
+          style={{ width: `${halfWidthPct}%` }}
+        />
+      )}
+    </div>
+    <div className="w-px bg-foreground/40" />
+    <div className="flex-1 bg-muted/30 rounded-r-sm relative">
+      {isHelping && (
+        <div
+          className="absolute top-0 bottom-0 left-0 bg-primary rounded-r-sm"
+          style={{ width: `${halfWidthPct}%` }}
+        />
+      )}
     </div>
   </div>
 );
-
-interface ContributionSegmentProps {
-  group: ContributionGroup;
-  feature: ContributionFeature;
-  groupIndexInSide: number;
-  featureIndexInGroup: number;
-  hovered?: HoverState | null;
-  onHover?: HoverHandler;
-}
-
-const ContributionSegment = ({
-  group,
-  feature,
-  groupIndexInSide,
-  featureIndexInGroup,
-  hovered,
-  onHover,
-}: ContributionSegmentProps) => {
-  const isHov = hovered?.key === feature.key;
-  const isHelping = group.side === "helping";
-  const widthPctOfGroup = feature.widthOfGroup * 100;
-
-  // Default state is one solid colour per side; structure (dividers,
-  // residual shading) only appears while the user is interrogating
-  // this side via hover, so the at-a-glance signal stays unfragmented.
-  const showStructure = hovered?.side === group.side;
-
-  const isFirstOfSide = groupIndexInSide === 0 && featureIndexInGroup === 0;
-  const isFirstOfGroup = featureIndexInGroup === 0;
-  const dividerThickness = !showStructure
-    ? 0
-    : isFirstOfSide
-    ? 0
-    : isFirstOfGroup
-    ? 3
-    : 1;
-
-  const baseColor = isHelping
-    ? showStructure && feature.isResidual
-      ? "bg-primary/40"
-      : "bg-primary"
-    : showStructure && feature.isResidual
-    ? "bg-negative/40"
-    : "bg-negative";
-
-  const sharePct = Math.round(feature.shareOfTotal * 100);
-
-  return (
-    <div
-      onMouseEnter={() =>
-        onHover?.({
-          key: feature.key,
-          groupKey: group.key,
-          side: group.side,
-        })
-      }
-      onMouseLeave={() => onHover?.(null)}
-      className={cn(
-        "h-full transition-all cursor-default",
-        baseColor,
-        isHov &&
-          "brightness-150 outline outline-[3px] -outline-offset-[3px] outline-foreground z-30 relative",
-      )}
-      style={{
-        width: `${widthPctOfGroup}%`,
-        boxShadow:
-          dividerThickness > 0
-            ? `inset ${dividerThickness}px 0 0 hsl(var(--card))`
-            : undefined,
-      }}
-      title={`${feature.label} — ${sharePct}% of score`}
-    />
-  );
-};
-
-// ---------------------------------------------------------------------------
-// Helping/Hurting columns — ranked named drivers with optional drill-down.
-// ---------------------------------------------------------------------------
-
-interface HelpingHurtingColumnsProps {
-  explanation: Explanation;
-  expandable?: boolean;
-  expandableHint?: boolean;
-  maxRowsPerSide?: number;
-  unit?: FeatureUnit;
-  hovered?: HoverState | null;
-  onHover?: HoverHandler;
-}
-
-const HelpingHurtingColumns = ({
-  explanation,
-  expandable,
-  expandableHint,
-  maxRowsPerSide,
-  unit = "imperial",
-  hovered,
-  onHover,
-}: HelpingHurtingColumnsProps) => {
-  const [openGroups, setOpenGroups] = useState<Set<string>>(new Set());
-
-  const toggle = (key: string) =>
-    setOpenGroups((prev) => {
-      const next = new Set(prev);
-      if (next.has(key)) next.delete(key);
-      else next.add(key);
-      return next;
-    });
-
-  const trim = (rows: GroupRow[]): GroupRow[] =>
-    maxRowsPerSide ? rows.slice(0, maxRowsPerSide) : rows;
-
-  const renderColumn = (rows: GroupRow[], side: ColumnSide) => (
-    <div className="flex-1 min-w-0">
-      <SideHeader side={side} />
-      {rows.length === 0 ? (
-        <div className="text-xs text-muted-foreground italic py-2">
-          {side === "helping"
-            ? "No significant helpers."
-            : "No drags worth flagging."}
-        </div>
-      ) : (
-        <div className="space-y-1">
-          {rows.map((row) => {
-            const key = `${side}_${row.group}`;
-            const clickedOpen = openGroups.has(key);
-            const hoverOpen =
-              hovered?.groupKey === row.group && hovered?.side === side;
-            const isOpen = clickedOpen || hoverOpen;
-            return (
-              <GroupRowItem
-                key={key}
-                row={row}
-                side={side}
-                expandable={!!expandable}
-                expandableHint={expandableHint}
-                isOpen={isOpen}
-                onToggle={() => expandable && toggle(key)}
-                unit={unit}
-                hovered={hovered}
-                onHover={onHover}
-              />
-            );
-          })}
-        </div>
-      )}
-    </div>
-  );
-
-  return (
-    <div className="grid grid-cols-2 gap-6">
-      {renderColumn(trim(explanation.helping), "helping")}
-      {renderColumn(trim(explanation.hurting), "hurting")}
-    </div>
-  );
-};
-
-const SideHeader = ({ side }: { side: ColumnSide }) => {
-  const isHelping = side === "helping";
-  return (
-    <div
-      className={cn(
-        "flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-wider mb-2",
-        isHelping ? "text-primary" : "text-negative",
-      )}
-    >
-      {isHelping ? (
-        <TrendingUp className="h-3 w-3" />
-      ) : (
-        <TrendingDown className="h-3 w-3" />
-      )}
-      {isHelping ? "Helping" : "Hurting"}
-    </div>
-  );
-};
-
-interface GroupRowItemProps {
-  row: GroupRow;
-  side: ColumnSide;
-  expandable: boolean;
-  expandableHint?: boolean;
-  isOpen: boolean;
-  onToggle: () => void;
-  unit?: FeatureUnit;
-  hovered?: HoverState | null;
-  onHover?: HoverHandler;
-}
-
-const GroupRowItem = ({
-  row,
-  side,
-  expandable,
-  expandableHint,
-  isOpen,
-  onToggle,
-  unit = "imperial",
-  hovered,
-  onHover,
-}: GroupRowItemProps) => {
-  const isHelping = side === "helping";
-  const sharePct = Math.round(row.shareOfTotal * 100);
-  const groupHovered =
-    hovered?.groupKey === row.group && hovered?.side === side;
-
-  return (
-    <div>
-      <button
-        type="button"
-        disabled={!expandable}
-        onClick={onToggle}
-        onMouseEnter={() =>
-          onHover?.({ key: null, groupKey: row.group, side })
-        }
-        onMouseLeave={() => onHover?.(null)}
-        className={cn(
-          "block w-full text-left rounded transition-colors px-2 py-1 -mx-1.5",
-          expandable && "cursor-pointer",
-          groupHovered &&
-            (isHelping ? "bg-primary/10" : "bg-negative/10"),
-        )}
-      >
-        <div className="flex items-center gap-1.5">
-          {expandable && (
-            <span className="text-muted-foreground">
-              {isOpen ? (
-                <ChevronDown className="h-3 w-3" />
-              ) : (
-                <ChevronRight className="h-3 w-3" />
-              )}
-            </span>
-          )}
-          <span className="text-sm font-medium">{row.label}</span>
-          <span className="ml-auto text-[10px] text-muted-foreground tabular-nums">
-            {sharePct}%
-          </span>
-          {expandableHint && !expandable && (
-            <ChevronRight className="h-3 w-3 text-muted-foreground/70" />
-          )}
-        </div>
-        <div className="h-1.5 bg-muted/40 rounded-full overflow-hidden mt-1.5">
-          <div
-            className={cn(
-              "h-full rounded-full",
-              isHelping ? "bg-primary" : "bg-negative",
-            )}
-            style={{ width: `${sharePct}%` }}
-          />
-        </div>
-      </button>
-
-      {expandable && isOpen && row.bars.length > 0 && (
-        <ul className="mt-2 ml-5 space-y-0.5 text-xs border-l border-border/60 pl-3">
-          {row.bars.map((feat) => {
-            const isHov = hovered?.key === feat.feature;
-            const valueText = formatFeatureValue(feat.feature, feat.rawValue, unit);
-            return (
-              <li
-                key={feat.feature}
-                onMouseEnter={() =>
-                  onHover?.({
-                    key: feat.feature,
-                    groupKey: row.group,
-                    side,
-                  })
-                }
-                onMouseLeave={() => onHover?.(null)}
-                className={cn(
-                  "flex items-baseline gap-2 px-2 py-1 -mx-1.5 rounded transition-colors",
-                  isHov &&
-                    (isHelping
-                      ? "bg-primary/30 ring-2 ring-primary/70"
-                      : "bg-negative/30 ring-2 ring-negative/70"),
-                )}
-              >
-                <span
-                  className={cn(
-                    feat.isResidual && "italic text-muted-foreground",
-                    isHov && "font-semibold",
-                  )}
-                >
-                  {feat.label}
-                </span>
-                {valueText && (
-                  <span className="text-[10px] text-muted-foreground tabular-nums">
-                    {valueText}
-                  </span>
-                )}
-                <span className="ml-auto text-[10px] text-muted-foreground tabular-nums">
-                  {Math.round(feat.shareOfTotal * 100)}%
-                </span>
-              </li>
-            );
-          })}
-        </ul>
-      )}
-    </div>
-  );
-};
