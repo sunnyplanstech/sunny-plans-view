@@ -291,6 +291,17 @@ const ContributionSegment = ({
   onHover,
 }: ContributionSegmentProps) => {
   const isHov = hovered?.key === feature.key;
+  const isGroupHov =
+    !!hovered &&
+    hovered.groupKey === group.key &&
+    hovered.side === group.side &&
+    !hovered.key;
+  // Same side hovered, but a *different* group — fade this one back so
+  // the active group reads as the foreground.
+  const isOtherGroupOnSide =
+    !!hovered &&
+    hovered.side === group.side &&
+    hovered.groupKey !== group.key;
   const isHelping = group.side === "helping";
   const widthPctOfGroup = feature.widthOfGroup * 100;
 
@@ -332,6 +343,8 @@ const ContributionSegment = ({
       className={cn(
         "h-full transition-all cursor-default",
         baseColor,
+        isGroupHov && "brightness-125",
+        isOtherGroupOnSide && "opacity-40",
         isHov &&
           "brightness-150 outline outline-[3px] -outline-offset-[3px] outline-foreground z-30 relative",
       )}
