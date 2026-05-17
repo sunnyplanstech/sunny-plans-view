@@ -35,6 +35,7 @@ import type {
   LayerProgress,
   PMTilesLayerState,
 } from "@/components/maps/usePMTilesOverlays";
+import { useUrlMapState } from "@/components/maps/useUrlMapState";
 import {
   useUSCountyAggregate,
   useITProvinceAggregate,
@@ -128,7 +129,16 @@ const CountryPreview = ({ adapter, country, region, province }: InnerProps) => {
     clearConstraints,
     setSortKey,
   } = useUrlSpecState(layers);
-  const [evaluating, setEvaluating] = useState<BaseListing | null>(null);
+  // Selected parcel lives in the URL (`?p=<id>`) so detail-back, shared
+  // links, and the browser back-button all reproduce the drawer state.
+  // See p1-e2-map-url-addressable-state. The drawer reads `evaluating`
+  // (resolved from id below); writes go through setSelectedParcelId.
+  const {
+    initialViewport,
+    selectedParcelId,
+    setViewport,
+    setSelectedParcelId,
+  } = useUrlMapState();
   const [listExpanded, setListExpanded] = useState(false);
   const [railOpen, setRailOpen] = useState(true);
   const [mobileSurface, setMobileSurface] = useState<MobileSurface>("map");
@@ -237,6 +247,16 @@ const CountryPreview = ({ adapter, country, region, province }: InnerProps) => {
   const seo = adapter.seoCopy(scope, visibleListings);
   const canonicalUrl = buildCanonicalUrl(country, region, province);
   const hasRegionScope = !!region;
+
+  // Resolve the URL's parcel id back to a listing. Unknown ids (parcel
+  // out of current scope, stale shared link) yield `null` — the drawer
+  // stays closed and we don't surface an error. Silent-drop posture
+  // matches useUrlSpecState's handling of unknown constraint ids.
+  const evaluating = useMemo<BaseListing | null>(() => {
+    if (!selectedParcelId) return null;
+    return allListings.find((l) => l.id === selectedParcelId) ?? null;
+  }, [allListings, selectedParcelId]);
+
   // Drawer identity comes from the clicked parcel's own admin fields,
   // not the page's URL scope — at state zoom every parcel would share
   // the same title otherwise. Summary lines (country-specific size +
@@ -250,18 +270,15 @@ const CountryPreview = ({ adapter, country, region, province }: InnerProps) => {
     : undefined;
 
   const handleSelectListing = useCallback(
-    (listing: BaseListing) => setEvaluating(listing),
-    [],
+    (listing: BaseListing) => setSelectedParcelId(listing.id),
+    [setSelectedParcelId],
   );
-  // Marker click in the map fires with just the id (the country
-  // adapter's map shape may not match BaseListing exactly). Resolve
-  // here so the drawer always sees the page's authoritative listing.
+  // Marker click in the map fires with just the id. The hook validates
+  // existence on render (see `evaluating` above); we don't need to
+  // resolve eagerly here.
   const handleSelectById = useCallback(
-    (id: string) => {
-      const found = allListings.find((l) => l.id === id);
-      if (found) setEvaluating(found);
-    },
-    [allListings],
+    (id: string) => setSelectedParcelId(id),
+    [setSelectedParcelId],
   );
 
   // US first-level admin unit is "state"; Italy uses "region". Drives
@@ -358,6 +375,8 @@ const CountryPreview = ({ adapter, country, region, province }: InnerProps) => {
     pmtilesLayers,
     pmtilesState,
     onLayerProgressChange: setLayerProgress,
+    initialViewport,
+    onViewportChange: setViewport,
     overlays: mapHud,
     choropleth: choroplethFeatures
       ? {
@@ -501,7 +520,7 @@ const CountryPreview = ({ adapter, country, region, province }: InnerProps) => {
         title={drawerTitle}
         summary={drawerSummary}
         unit={country === "italy" ? "metric" : "imperial"}
-        onClose={() => setEvaluating(null)}
+        onClose={() => setSelectedParcelId(null)}
       />
     </>
   );

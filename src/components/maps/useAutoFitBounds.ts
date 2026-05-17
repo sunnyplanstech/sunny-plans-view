@@ -10,6 +10,13 @@ interface UseAutoFitBoundsArgs {
   /** Coordinates to fit. Empty list is a no-op. */
   coords: ReadonlyArray<{ lat: number; lng: number }>;
   padding?: google.maps.Padding;
+  /**
+   * Pre-latch the fit guard on first render so the initial mount skips
+   * auto-fit. Used when the URL already carries a viewport (`v=`): we
+   * want the user's preserved view, not a refit. Scope changes still
+   * reset the latch — navigating to a new region refits as before.
+   */
+  skipInitial?: boolean;
 }
 
 const DEFAULT_PADDING: google.maps.Padding = {
@@ -35,8 +42,9 @@ export function useAutoFitBounds({
   scopeKey,
   coords,
   padding = DEFAULT_PADDING,
+  skipInitial = false,
 }: UseAutoFitBoundsArgs): void {
-  const fittedRef = useRef(false);
+  const fittedRef = useRef(skipInitial);
 
   useEffect(() => {
     fittedRef.current = false;

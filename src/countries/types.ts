@@ -7,6 +7,7 @@ import type {
   LayerProgress,
   PMTilesLayerState,
 } from "@/components/maps/usePMTilesOverlays";
+import type { MapViewport } from "@/components/maps/useUrlMapState";
 
 export type { HexCell };
 
@@ -71,6 +72,12 @@ export interface MapRenderProps {
   pmtilesState?: Record<string, PMTilesLayerState>;
   onLayerHeadersChange?: (headers: Record<string, LayerHeader>) => void;
   onLayerProgressChange?: (progress: Record<string, LayerProgress>) => void;
+  // URL-addressable viewport (p1-e2-map-url-addressable-state). The
+  // page hydrates `initialViewport` from the URL on mount and persists
+  // user-driven pan/zoom via `onViewportChange`. Both flow through the
+  // adapter unchanged — country-specific maps share the same contract.
+  initialViewport?: MapViewport | null;
+  onViewportChange?: (viewport: MapViewport) => void;
   // Optional absolutely-positioned overlays rendered on top of the
   // map (HUD, LayerPanel, custom chrome). Pages own the imperative
   // subsystems these UIs read from; the map is just the canvas.

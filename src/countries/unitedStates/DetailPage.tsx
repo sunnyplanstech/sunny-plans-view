@@ -140,7 +140,13 @@ export function USDetailPage({ id, listing, onPaymentSuccess }: DetailPageProps<
     };
   }
 
-  const backUrl = province && region ? `/${country}/${region}/${province}` : `/${country}/${region ?? ""}`;
+  // Land back on the listings map with the drawer pre-opened on this
+  // parcel — p1-e2-map-url-addressable-state. The `p=` param is
+  // silently dropped if the listing isn't in the current result set
+  // (e.g. constraint stack filters it out), so we never block back-nav.
+  const backBase =
+    province && region ? `/${country}/${region}/${province}` : `/${country}/${region ?? ""}`;
+  const backUrl = `${backBase}?p=${encodeURIComponent(id)}`;
 
   return (
     <>

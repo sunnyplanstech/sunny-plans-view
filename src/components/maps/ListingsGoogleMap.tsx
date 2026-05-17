@@ -20,6 +20,8 @@ import { useChoroplethLayer } from "./useChoroplethLayer";
 import { useHexHeatmapLayer } from "./useHexHeatmapLayer";
 import { useListingMarkers, type ListingMarkerItem } from "./useListingMarkers";
 import { useMapZoom } from "./useMapZoom";
+import type { MapViewport } from "./useUrlMapState";
+import { useViewportPersistence } from "./useViewportPersistence";
 import {
   usePMTilesOverlays,
   type LayerHeader,
@@ -62,6 +64,14 @@ interface ListingsGoogleMapProps {
   pmtilesState?: Record<string, PMTilesLayerState>;
   onLayerHeadersChange?: (headers: Record<string, LayerHeader>) => void;
   onLayerProgressChange?: (progress: Record<string, LayerProgress>) => void;
+  // URL-driven viewport (p1-e2-map-url-addressable-state). When non-null,
+  // the map opens at this center+zoom and auto-fit is suppressed for the
+  // initial mount — the user's preserved or shared view wins. Scope
+  // changes still re-fit (see useAutoFitBounds.skipInitial).
+  initialViewport?: MapViewport | null;
+  // Fires when the user settles a pan/zoom (Google Maps `idle` event).
+  // The page persists this to the URL so reload/share reproduces the view.
+  onViewportChange?: (viewport: MapViewport) => void;
   // Absolutely-positioned children rendered inside the map's
   // relative wrapper. Use this for HUD, LayerPanel, and any other
   // page-owned chrome that needs to sit on top of the map canvas.
@@ -100,6 +110,8 @@ export function ListingsGoogleMap({
   pmtilesState = EMPTY_PMTILES_STATE,
   onLayerHeadersChange,
   onLayerProgressChange,
+  initialViewport,
+  onViewportChange,
   overlays,
 }: ListingsGoogleMapProps) {
   const { isLoaded, hasApiKey, requestLoad } = useGoogleMaps();
@@ -156,7 +168,10 @@ export function ListingsGoogleMap({
     enabled: !choroplethVisible,
     scopeKey: `${country ?? ""}/${regionSlug ?? ""}`,
     coords: fitCoords,
+    skipInitial: !!initialViewport,
   });
+
+  useViewportPersistence({ map, onChange: onViewportChange });
 
   useListingMarkers({
     map,
@@ -201,13 +216,19 @@ export function ListingsGoogleMap({
   const countryKey = country ?? "united-states";
   const defaultCenter = DEFAULT_CENTERS[countryKey] ?? FALLBACK_CENTER;
   const defaultZoom = DEFAULT_ZOOMS[countryKey] ?? FALLBACK_ZOOM;
+  // URL-supplied viewport wins over country defaults. Captured once at
+  // mount by useUrlMapState, so the value is stable for the map's life.
+  const initialCenter = initialViewport
+    ? { lat: initialViewport.lat, lng: initialViewport.lng }
+    : defaultCenter;
+  const initialZoom = initialViewport ? initialViewport.zoom : defaultZoom;
 
   return (
     <div className={`relative ${className ?? ""}`}>
       <GoogleMap
         mapContainerStyle={MAP_CONTAINER_STYLE}
-        center={defaultCenter}
-        zoom={defaultZoom}
+        center={initialCenter}
+        zoom={initialZoom}
         options={mapOptions}
         onLoad={setMap}
       />
