@@ -4,6 +4,7 @@ import { optionalAuthApi } from "@/lib/apiClient";
 import { DetailLoading, DetailNotFound } from "@/components/listings/DetailShell";
 import { USDetailPage, type USListingDetail } from "@/countries/unitedStates/DetailPage";
 import { ITDetailPage, type ITListingDetail } from "@/countries/italy/DetailPage";
+import { useAuth } from "@/hooks/useAuth";
 
 type DetailResponse =
   | (USListingDetail & { country: "us" })
@@ -11,8 +12,18 @@ type DetailResponse =
 
 const ListingDetail = () => {
   const { id } = useParams<{ id: string }>();
+  const { user } = useAuth();
   const queryClient = useQueryClient();
-  const queryKey = ["listing-detail", id];
+  // The detail endpoint's payload shape depends on auth identity + paid
+  // status (free → "****", premium → real values). The user id covers
+  // anon↔logged-in flips; has_active_subscription covers the subscription
+  // toggling without a re-login (Stripe webhook between visibility refetches).
+  const queryKey = [
+    "listing-detail",
+    id,
+    user?.id ?? null,
+    user?.has_active_subscription ?? false,
+  ];
 
   const { data, isLoading, error } = useQuery({
     queryKey,

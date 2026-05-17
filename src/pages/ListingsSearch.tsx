@@ -28,7 +28,7 @@
 // signal, but flipping the toggle only hides the overlay; the qualifying
 // cohort stays exactly the same.
 import { useCallback, useMemo, useState } from "react";
-import { useNavigate, useParams } from "react-router-dom";
+import { Navigate, useNavigate, useParams, useLocation } from "react-router-dom";
 import { MapHud } from "@/components/maps/MapHud";
 import { pmtilesLayersFor } from "@/components/maps/pmtilesLayers";
 import type {
@@ -97,10 +97,21 @@ const CHOROPLETH_MAX_ZOOM = 10;
 type MobileSurface = "constraints" | "map" | "list";
 
 const ListingsSearch = () => {
-  const { country, region, province } = useParams();
+  const { country, region, province, municipality } = useParams();
+  const location = useLocation();
   const adapter = getCountryAdapter(country);
   if (!adapter || (country !== "united-states" && country !== "italy")) {
     return <CountryNotSupported slug={country} />;
+  }
+  // Municipality-level URLs are routed (App.tsx) but the scope model
+  // only goes as deep as province/subregion. Until municipality-aware
+  // querying exists, redirect upward to the deepest functional level
+  // rather than silently rendering the province page under a misleading
+  // URL — the user thinks they've drilled in but the listings haven't
+  // narrowed.
+  if (municipality) {
+    const parts = ["solar", "app", country, region, province].filter(Boolean);
+    return <Navigate to={`/${parts.join("/")}${location.search}`} replace />;
   }
   return (
     <CountryPreview
@@ -228,13 +239,6 @@ const CountryPreview = ({ adapter, country, region, province }: InnerProps) => {
         .filter((s) => s.eliminated > 0)
         .map((s) => ({ layer: s.layer, eliminated: s.eliminated })),
     [steps],
-  );
-
-  // Stable signature of the spec stack — drives a key-based remount of
-  // the cards container so they re-animate in on filter/sort change.
-  const specSignature = useMemo(
-    () => `${sortKey}|${selectedLayers.map((l) => l.id).join(",")}`,
-    [sortKey, selectedLayers],
   );
 
   const locationName = adapter.formatScopeName(scope);
@@ -394,7 +398,6 @@ const CountryPreview = ({ adapter, country, region, province }: InnerProps) => {
       selectedConstraintCount={selectedLayers.length}
       onClearConstraints={clearConstraints}
       eliminationByLayer={eliminationByLayer}
-      animationKey={specSignature}
     />
   );
 
@@ -593,10 +596,6 @@ interface ListingsRailProps {
   // breakdown line rendered (the rail header stays compact when
   // selections don't bite the cohort).
   eliminationByLayer: { layer: Layer; eliminated: number }[];
-  // Stable signature of the spec stack; changing it remounts the
-  // cards container so the stagger fade-in plays each time the
-  // user changes their spec.
-  animationKey: string;
 }
 
 const ListingsRail = ({
@@ -613,7 +612,6 @@ const ListingsRail = ({
   selectedConstraintCount,
   onClearConstraints,
   eliminationByLayer,
-  animationKey,
 }: ListingsRailProps) => (
   <>
     <header className="sticky top-0 z-10 border-b border-border/60 bg-gradient-subtle px-4 py-3 flex items-start justify-between gap-2">
@@ -676,12 +674,16 @@ const ListingsRail = ({
         />
       ) : (
         <div
-          key={animationKey}
           className={cn(
             "space-y-3",
             expanded && "grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-3 space-y-0",
           )}
         >
+          {/* No container key on a spec/sort change — remounting the
+              list would re-instantiate each card's Google Maps thumbnail
+              (~20 instances) on every constraint toggle. AnimatedCard's
+              mount animation still plays for newly-added cards; existing
+              cards just stay put. */}
           {listings.map((listing, i) => (
             <AnimatedCard key={listing.id} index={i}>
               {adapter.renderListingCard(listing, scope, i, { onSelect })}

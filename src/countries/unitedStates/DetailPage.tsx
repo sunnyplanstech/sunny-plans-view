@@ -144,8 +144,11 @@ export function USDetailPage({ id, listing, onPaymentSuccess }: DetailPageProps<
     };
   }
 
-  const backUrl =
-    province && region ? `/${country}/${region}/${province}` : `/${country}/${region ?? ""}`;
+  // SPA listings live under /solar/app/... — bare /<country>/... is the
+  // legacy pSEO surface (Netlify-301'd, no route in App.tsx), so a back
+  // link there bounces the user out of the app.
+  const backParts = ["solar", "app", country, region, province].filter(Boolean);
+  const backUrl = `/${backParts.join("/")}`;
 
   return (
     <>

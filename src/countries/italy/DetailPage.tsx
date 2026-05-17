@@ -106,8 +106,10 @@ export function ITDetailPage({ id, listing, onPaymentSuccess }: DetailPageProps<
     ],
   };
 
-  const backUrl =
-    province && region ? `/${country}/${region}/${province}` : `/${country}/${region ?? ""}`;
+  // See US DetailPage — back link must target the SPA at /solar/app/...,
+  // not the legacy bare /<country>/... pSEO path.
+  const backParts = ["solar", "app", country, region, province].filter(Boolean);
+  const backUrl = `/${backParts.join("/")}`;
 
   return (
     <>

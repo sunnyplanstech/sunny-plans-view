@@ -11,6 +11,29 @@ export class ApiError extends Error {
   }
 }
 
+function withAuthHeader(options: RequestInit, token: string | null): RequestInit {
+  if (!token) return options;
+  const headers = new Headers(options.headers);
+  headers.set("Authorization", `Bearer ${token}`);
+  return { ...options, headers };
+}
+
+/**
+ * Send a request with the current access token (if any) and retry once on
+ * 401 with a force-refreshed token. The refresh-on-401 path only fires
+ * when we actually had a token — anonymous 401s aren't a token problem,
+ * so retrying is pointless.
+ */
+async function sendWithAuthRetry(path: string, options: RequestInit): Promise<Response> {
+  const access = await ensureAccessToken();
+  const res = await fetch(`${API_BASE}${path}`, withAuthHeader(options, access));
+  if (res.status !== 401 || !access) return res;
+
+  const fresh = await ensureAccessToken({ forceRefresh: true });
+  if (!fresh) return res;
+  return fetch(`${API_BASE}${path}`, withAuthHeader(options, fresh));
+}
+
 /** Unauthenticated GET. Throws ApiError on non-2xx. */
 export async function publicApi<T>(path: string): Promise<T> {
   const res = await fetch(`${API_BASE}${path}`);
@@ -23,18 +46,19 @@ export async function publicApi<T>(path: string): Promise<T> {
  * anonymously. For endpoints whose response shape varies by access state
  * (e.g. the listing detail endpoint, which returns "****" placeholders
  * for free users and formatted display strings for paying users).
+ *
+ * Refreshes the access token once on a 401 — same posture as `apiClient` —
+ * so a stale-but-recoverable session doesn't fall back to the anonymous
+ * response shape.
  */
 export async function optionalAuthApi<T>(path: string): Promise<T> {
-  const access = await ensureAccessToken();
-  const headers: Record<string, string> = {};
-  if (access) headers["Authorization"] = `Bearer ${access}`;
-  const res = await fetch(`${API_BASE}${path}`, { headers });
+  const res = await sendWithAuthRetry(path, {});
   if (!res.ok) throw new ApiError(res.status, path);
   return (await res.json()) as T;
 }
 
 /**
- * Authenticated request. Attaches a Bearer token and refreshes once on a 401
+ * Authenticated request. Requires a session and refreshes once on a 401
  * (e.g., the access token was revoked server-side before its local exp).
  *
  * Returns the raw Response so callers can inspect status — they should only
@@ -43,17 +67,5 @@ export async function optionalAuthApi<T>(path: string): Promise<T> {
 export async function apiClient(path: string, options: RequestInit = {}): Promise<Response> {
   const access = await ensureAccessToken();
   if (!access) throw new ApiError(401, path);
-
-  const send = (token: string) => {
-    const headers = new Headers(options.headers);
-    headers.set("Authorization", `Bearer ${token}`);
-    return fetch(`${API_BASE}${path}`, { ...options, headers });
-  };
-
-  const res = await send(access);
-  if (res.status !== 401) return res;
-
-  const fresh = await ensureAccessToken({ forceRefresh: true });
-  if (!fresh) throw new ApiError(401, path);
-  return send(fresh);
+  return sendWithAuthRetry(path, options);
 }

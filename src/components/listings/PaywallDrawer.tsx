@@ -111,52 +111,69 @@ export function PaywallDrawer({
     onOpenChange(false);
   };
 
+  const showIntentFailed = (description?: string) =>
+    toast({
+      title: t.intentFailed,
+      description,
+      variant: "destructive",
+    });
+
   const handleSubscribe = async () => {
-    const outcome = await startSubscription(user);
-    switch (outcome.kind) {
-      case "needs_register":
-        sendToRegister("subscribe");
-        return;
-      case "needs_verify":
-        setState({ kind: "verify" });
-        return;
-      case "ok":
-        window.location.href = outcome.checkoutUrl;
-        return;
-      case "error":
-        toast({
-          title: "Checkout failed",
-          description: outcome.message,
-          variant: "destructive",
-        });
+    setState({ kind: "redirecting" });
+    try {
+      const outcome = await startSubscription(user);
+      switch (outcome.kind) {
+        case "needs_register":
+          sendToRegister("subscribe");
+          return;
+        case "needs_verify":
+          setState({ kind: "verify" });
+          return;
+        case "ok":
+          window.location.href = outcome.checkoutUrl;
+          return;
+        case "error":
+          showIntentFailed(outcome.message);
+          setState({ kind: "choice" });
+      }
+    } catch (err) {
+      // startSubscription is expected to return outcome.kind === "error"
+      // on failure; a thrown exception escapes that contract (network
+      // blip, unexpected SDK error) and must not strand the UI in
+      // "redirecting" forever.
+      showIntentFailed(err instanceof Error ? err.message : undefined);
+      setState({ kind: "choice" });
     }
   };
 
   const handleUnlock = async () => {
     setState({ kind: "redirecting" });
-    const outcome = await startParcelPurchase(user, listingId);
-    switch (outcome.kind) {
-      case "needs_register":
-        sendToRegister("unlock");
-        return;
-      case "needs_verify":
-        setState({ kind: "verify" });
-        return;
-      case "duplicate":
-        toast({ title: t.duplicate });
-        onPaymentSuccess();
-        onOpenChange(false);
-        return;
-      case "ok":
-        window.location.href = outcome.checkoutUrl;
-        return;
-      case "error":
-        toast({
-          title: t.intentFailed,
-          description: outcome.message,
-          variant: "destructive",
-        });
-        setState({ kind: "choice" });
+    try {
+      const outcome = await startParcelPurchase(user, listingId);
+      switch (outcome.kind) {
+        case "needs_register":
+          sendToRegister("unlock");
+          return;
+        case "needs_verify":
+          setState({ kind: "verify" });
+          return;
+        case "duplicate":
+          toast({ title: t.duplicate });
+          onPaymentSuccess();
+          onOpenChange(false);
+          return;
+        case "ok":
+          window.location.href = outcome.checkoutUrl;
+          return;
+        case "error":
+          showIntentFailed(outcome.message);
+          setState({ kind: "choice" });
+      }
+    } catch (err) {
+      // See handleSubscribe — defensive against thrown errors so the
+      // drawer never sticks on "Opening secure checkout…".
+      showIntentFailed(err instanceof Error ? err.message : undefined);
+      setState({ kind: "choice" });
     }
   };
 

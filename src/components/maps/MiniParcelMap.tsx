@@ -213,7 +213,7 @@ export function MiniParcelMap({
     return (
       <div
         ref={containerRef}
-        className={`bg-muted/50 flex items-center justify-center ${className}`}
+        className={`bg-muted/50 flex items-center justify-center ${className ?? ""}`}
       >
         <MapPin className="w-6 h-6 text-muted-foreground" />
       </div>

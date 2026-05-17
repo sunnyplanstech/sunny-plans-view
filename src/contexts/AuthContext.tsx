@@ -85,9 +85,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const signup = useCallback(
     async (email: string, password1: string, password2: string) => {
-      const { tokens, user: profile } = await apiSignup(email, password1, password2);
-      setSession(tokens);
-      setUser(profile);
+      // Discard the tokens dj-rest-auth returns. The user must verify
+      // their email and explicitly log in — otherwise Register would
+      // silently authenticate them and they'd enter the app with
+      // email_verified=false, bypassing the /check-your-email gate.
+      await apiSignup(email, password1, password2);
     },
     [],
   );
