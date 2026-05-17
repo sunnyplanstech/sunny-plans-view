@@ -20,7 +20,6 @@ import { useChoroplethLayer } from "./useChoroplethLayer";
 import { useHexHeatmapLayer } from "./useHexHeatmapLayer";
 import { useListingMarkers, type ListingMarkerItem } from "./useListingMarkers";
 import { useMapZoom } from "./useMapZoom";
-import { useMapViewportUrl } from "./useMapViewportUrl";
 import {
   usePMTilesOverlays,
   type LayerHeader,
@@ -80,9 +79,6 @@ const DEFAULT_ZOOMS: Record<string, number> = {
   "united-states": 4,
   italy: 6,
 };
-
-const FALLBACK_CENTER = DEFAULT_CENTERS["united-states"];
-const FALLBACK_ZOOM = DEFAULT_ZOOMS["united-states"];
 
 const EMPTY_PMTILES_LAYERS: PMTilesLayerConfig[] = [];
 const EMPTY_PMTILES_STATE: Record<string, PMTilesLayerState> = {};
@@ -151,35 +147,13 @@ export function ListingsGoogleMap({
     [markerItems],
   );
 
-  // URL-addressable viewport (?v=lat,lng,zoom). The hook reads once on
-  // mount and writes via history.replaceState so URL updates don't
-  // re-render React — the map's `idle` event drives the write, which is
-  // the standard pattern used by Google Maps / Airbnb / Mapbox.
-  const { initialViewport, persist: persistViewport } = useMapViewportUrl();
-
   useAutoFitBounds({
     map,
     isLoaded,
     enabled: !choroplethVisible,
     scopeKey: `${country ?? ""}/${regionSlug ?? ""}`,
     coords: fitCoords,
-    skipInitial: !!initialViewport,
   });
-
-  // Persist viewport on every settled pan/zoom. `idle` fires once per
-  // settled motion (Google Maps debounces internally), so no extra
-  // throttle is needed. Reading center/zoom off the map at fire-time is
-  // more accurate than shadowing them in React state.
-  useEffect(() => {
-    if (!map || typeof google === "undefined") return;
-    const listener = map.addListener("idle", () => {
-      const center = map.getCenter();
-      const zoom = map.getZoom();
-      if (!center || zoom === undefined) return;
-      persistViewport({ lat: center.lat(), lng: center.lng(), zoom });
-    });
-    return () => listener.remove();
-  }, [map, persistViewport]);
 
   useListingMarkers({
     map,
@@ -204,20 +178,13 @@ export function ListingsGoogleMap({
   // (fighting user pan) and re-initialize the map controls (visible flicker
   // in the top-right where MapTypeControl + fullscreen sit). useMemo
   // anchors identity so we only pay the cost when something genuinely
-  // changes. `initialViewport` is captured once by useMapViewportUrl
-  // (useState initializer), so its identity is stable for the lifetime
-  // of the component.
+  // changes.
   const countryKey = country ?? "united-states";
   const initialCenter = useMemo(
-    () =>
-      initialViewport
-        ? { lat: initialViewport.lat, lng: initialViewport.lng }
-        : DEFAULT_CENTERS[countryKey] ?? FALLBACK_CENTER,
-    [initialViewport, countryKey],
+    () => DEFAULT_CENTERS[countryKey] ?? DEFAULT_CENTERS["united-states"],
+    [countryKey],
   );
-  const initialZoom = initialViewport
-    ? initialViewport.zoom
-    : DEFAULT_ZOOMS[countryKey] ?? FALLBACK_ZOOM;
+  const initialZoom = DEFAULT_ZOOMS[countryKey] ?? DEFAULT_ZOOMS["united-states"];
   const mapOptions = useMemo<google.maps.MapOptions | undefined>(() => {
     // `google` is undefined until the API loads. The GoogleMap is also
     // gated on `isLoaded` (we render MapLoadingFallback below otherwise),
