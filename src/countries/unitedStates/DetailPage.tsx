@@ -41,11 +41,13 @@ function buildFeatureValues(
 }
 
 /**
- * Detail-endpoint response shape — same keys regardless of access. The
- * backend renders premium numeric/url/date fields as the literal string
- * "****" when locked, formatted display strings (e.g. "$397,500",
- * "47.18", "2026-04-22") when unlocked. geom_json carries a disc-jittered
- * Point (with location_accuracy_m as the disc radius) when locked and the
+ * Detail-endpoint response shape. Paid numeric/date fields render as
+ * the literal string "****" when locked, formatted display strings
+ * (e.g. "$397,500", "47.18", "2026-04-22") when unlocked. property_url
+ * is the one paid field that is *omitted* from the locked payload
+ * (USListingPublicSerializer doesn't declare it) — the FE shows a
+ * paywall CTA in its place. geom_json carries a disc-jittered Point
+ * (with location_accuracy_m as the disc radius) when locked and the
  * exact polygon when unlocked.
  */
 export interface USListingDetail extends OsmDistanceFields {
@@ -60,9 +62,9 @@ export interface USListingDetail extends OsmDistanceFields {
   price_per_sqft: string;
   price_per_acre: string;
   sqft: string;
-  // null on rank-1 — the free teaser unlocks every field except the
-  // source URL (see api/listings/serializers.py).
-  property_url: string | null;
+  // Present only when the row is unlocked. Locked payloads omit the
+  // key entirely; the FE shows a paywall CTA in place of the link.
+  property_url?: string;
   last_verified_at: string;
   prob_solar: number;
   // SunnyScore™ + per-feature TreeSHAP contributions. Free-tier
@@ -273,16 +275,21 @@ export function USDetailPage({ id, listing, onPaymentSuccess }: DetailPageProps<
               </SpecTile>
             </div>
 
-            {listing.property_url && (
-              <div className="pt-2">
+            <div className="pt-2">
+              {listing.property_url && !isLocked(listing.property_url) ? (
                 <Button asChild variant="outline" size="sm">
                   <a href={listing.property_url} target="_blank" rel="noopener noreferrer">
                     Open original listing
                     <ExternalLink className="w-3 h-3 ml-2" />
                   </a>
                 </Button>
-              </div>
-            )}
+              ) : (
+                <Button variant="outline" size="sm" onClick={openPaywall}>
+                  Open original listing
+                  <Lock className="w-3 h-3 ml-2" />
+                </Button>
+              )}
+            </div>
           </CardContent>
         </Card>
 
