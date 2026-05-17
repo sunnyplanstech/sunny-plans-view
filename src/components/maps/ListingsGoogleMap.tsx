@@ -223,6 +223,11 @@ export function ListingsGoogleMap({
     // gated on `isLoaded` (we render MapLoadingFallback below otherwise),
     // so the options object only matters once the API is available.
     if (!isLoaded || typeof google === "undefined") return undefined;
+    // mapId is required for AdvancedMarkerElement (useListingMarkers) —
+    // without it the Maps JS API throws the "can't load Google Maps
+    // correctly" popup. The ID itself is non-secret (ends up in the
+    // browser bundle) so we read it from a public Vite env var.
+    const mapId = import.meta.env.VITE_GOOGLE_MAP_ID;
     return {
       mapTypeId: "satellite",
       mapTypeControl: true,
@@ -232,6 +237,7 @@ export function ListingsGoogleMap({
       zoomControl: true,
       streetViewControl: false,
       fullscreenControl: true,
+      ...(mapId ? { mapId } : {}),
     };
   }, [isLoaded]);
 
