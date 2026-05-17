@@ -51,7 +51,6 @@ import { cn } from "@/lib/utils";
 import ListingsBreadcrumb from "@/components/listings/ListingsBreadcrumb";
 import ListingsFooter from "@/components/listings/ListingsFooter";
 import ListingsSEOContent from "@/components/listings/ListingsSEOContent";
-import SubdivisionNav from "@/components/listings/SubdivisionNav";
 import SEOHead from "@/components/listings/SEOHead";
 import EvaluateDrawer from "@/components/listings/EvaluateDrawer";
 import SortSelector from "@/components/listings/SortSelector";
@@ -496,11 +495,6 @@ const CountryPreview = ({ adapter, country, region, province }: InnerProps) => {
           <ListingsSEOContent
             locationName={locationName}
             listingsCount={allListings.length}
-          />
-          <SubdivisionNav
-            country={country}
-            region={region}
-            province={province}
           />
           <ListingsFooter
             currentCountry={country}
