@@ -3,7 +3,7 @@ import { ReactNode, createContext, useContext, useState, useCallback } from "rea
 
 const GOOGLE_MAPS_API_KEY = import.meta.env.VITE_GOOGLE_MAPS_API_KEY || "";
 
-const libraries: ("places" | "geometry" | "drawing" | "visualization")[] = ["geometry"];
+const libraries: ("places" | "geometry" | "drawing" | "visualization" | "marker")[] = ["geometry", "marker"];
 
 // Context to check if Google Maps is available
 const GoogleMapsContext = createContext<{

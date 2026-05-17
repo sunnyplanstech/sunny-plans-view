@@ -16,6 +16,20 @@ interface UseListingMarkersArgs {
   onClick?: (id: string) => void;
 }
 
+// Match the legacy SymbolPath.CIRCLE marker: scale 7 → ~14px circle,
+// black 1px stroke, 90% opacity.
+function buildMarkerContent(color: string): HTMLElement {
+  const dot = document.createElement("div");
+  dot.style.width = "14px";
+  dot.style.height = "14px";
+  dot.style.borderRadius = "50%";
+  dot.style.backgroundColor = color;
+  dot.style.opacity = "0.9";
+  dot.style.border = "1px solid #1a1a1a";
+  dot.style.cursor = "pointer";
+  return dot;
+}
+
 /**
  * Render one circle marker per listing, colored by SunnyScore probability.
  *
@@ -29,7 +43,7 @@ export function useListingMarkers({
   items,
   onClick,
 }: UseListingMarkersArgs): void {
-  const markersRef = useRef<google.maps.Marker[]>([]);
+  const markersRef = useRef<google.maps.marker.AdvancedMarkerElement[]>([]);
   const onClickRef = useRef(onClick);
   useEffect(() => {
     onClickRef.current = onClick;
@@ -37,24 +51,18 @@ export function useListingMarkers({
 
   useEffect(() => {
     if (!map || !isLoaded || typeof google === "undefined") return;
-    for (const m of markersRef.current) m.setMap(null);
+    if (!google.maps.marker?.AdvancedMarkerElement) return;
+    for (const m of markersRef.current) m.map = null;
     markersRef.current = [];
     if (!enabled) return;
     for (const { listing, coords } of items) {
       const color = probSolarToColor(listing.prob_solar ?? 0);
       const titlePct =
         listing.prob_solar !== null ? Math.round(listing.prob_solar * 100) : "?";
-      const marker = new google.maps.Marker({
+      const marker = new google.maps.marker.AdvancedMarkerElement({
         position: coords,
         map,
-        icon: {
-          path: google.maps.SymbolPath.CIRCLE,
-          scale: 7,
-          fillColor: color,
-          fillOpacity: 0.9,
-          strokeColor: "#1a1a1a",
-          strokeWeight: 1,
-        },
+        content: buildMarkerContent(color),
         title: `Solar ${titlePct}%`,
       });
       marker.addListener("click", () => {
@@ -63,7 +71,7 @@ export function useListingMarkers({
       markersRef.current.push(marker);
     }
     return () => {
-      for (const m of markersRef.current) m.setMap(null);
+      for (const m of markersRef.current) m.map = null;
       markersRef.current = [];
     };
   }, [map, isLoaded, enabled, items]);
