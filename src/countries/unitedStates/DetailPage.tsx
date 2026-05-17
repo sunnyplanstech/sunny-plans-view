@@ -60,7 +60,9 @@ export interface USListingDetail extends OsmDistanceFields {
   price_per_sqft: string;
   price_per_acre: string;
   sqft: string;
-  property_url: string;
+  // null on rank-1 — the free teaser unlocks every field except the
+  // source URL (see api/listings/serializers.py).
+  property_url: string | null;
   last_verified_at: string;
   prob_solar: number;
   // SunnyScore™ + per-feature TreeSHAP contributions. Free-tier
@@ -271,7 +273,7 @@ export function USDetailPage({ id, listing, onPaymentSuccess }: DetailPageProps<
               </SpecTile>
             </div>
 
-            {accessGranted && !isLocked(listing.property_url) && listing.property_url && (
+            {listing.property_url && (
               <div className="pt-2">
                 <Button asChild variant="outline" size="sm">
                   <a href={listing.property_url} target="_blank" rel="noopener noreferrer">

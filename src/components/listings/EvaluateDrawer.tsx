@@ -47,7 +47,7 @@ interface EvaluateDrawerProps {
 // aren't parcel-identifying so the API returns them in the clear.
 type ListingDetail = OsmDistanceFields & {
   access_granted: boolean;
-  property_url: string;
+  property_url: string | null;
   geom_json: unknown;
 };
 
