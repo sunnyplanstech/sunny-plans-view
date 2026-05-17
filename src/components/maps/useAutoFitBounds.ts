@@ -46,7 +46,15 @@ export function useAutoFitBounds({
 }: UseAutoFitBoundsArgs): void {
   const fittedRef = useRef(skipInitial);
 
+  // Reset the fit latch only when scope *changes* — not on mount.
+  // Comparing against a held previous-scope ref means the initial
+  // mount short-circuits and preserves `skipInitial`. The naive
+  // `useEffect(..., [scopeKey])` fires on mount too and would stomp
+  // skipInitial back to false the first time it ran.
+  const prevScopeKeyRef = useRef(scopeKey);
   useEffect(() => {
+    if (prevScopeKeyRef.current === scopeKey) return;
+    prevScopeKeyRef.current = scopeKey;
     fittedRef.current = false;
   }, [scopeKey]);
 

@@ -35,7 +35,6 @@ import type {
   LayerProgress,
   PMTilesLayerState,
 } from "@/components/maps/usePMTilesOverlays";
-import { useUrlMapState } from "@/components/maps/useUrlMapState";
 import {
   useUSCountyAggregate,
   useITProvinceAggregate,
@@ -129,16 +128,11 @@ const CountryPreview = ({ adapter, country, region, province }: InnerProps) => {
     clearConstraints,
     setSortKey,
   } = useUrlSpecState(layers);
-  // Selected parcel lives in the URL (`?p=<id>`) so detail-back, shared
-  // links, and the browser back-button all reproduce the drawer state.
-  // See p1-e2-map-url-addressable-state. The drawer reads `evaluating`
-  // (resolved from id below); writes go through setSelectedParcelId.
-  const {
-    initialViewport,
-    selectedParcelId,
-    setViewport,
-    setSelectedParcelId,
-  } = useUrlMapState();
+  // Selected parcel is transient quick-view state — the drawer is a
+  // preview before the user clicks through to the canonical detail
+  // route at /listing/:id, which already covers share + deep-link.
+  // Keeping it in plain useState avoids router roundtrips per click.
+  const [selectedParcelId, setSelectedParcelId] = useState<string | null>(null);
   const [listExpanded, setListExpanded] = useState(false);
   const [railOpen, setRailOpen] = useState(true);
   const [mobileSurface, setMobileSurface] = useState<MobileSurface>("map");
@@ -375,8 +369,6 @@ const CountryPreview = ({ adapter, country, region, province }: InnerProps) => {
     pmtilesLayers,
     pmtilesState,
     onLayerProgressChange: setLayerProgress,
-    initialViewport,
-    onViewportChange: setViewport,
     overlays: mapHud,
     choropleth: choroplethFeatures
       ? {

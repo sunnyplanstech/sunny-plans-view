@@ -20,8 +20,7 @@ import { useChoroplethLayer } from "./useChoroplethLayer";
 import { useHexHeatmapLayer } from "./useHexHeatmapLayer";
 import { useListingMarkers, type ListingMarkerItem } from "./useListingMarkers";
 import { useMapZoom } from "./useMapZoom";
-import type { MapViewport } from "./useUrlMapState";
-import { useViewportPersistence } from "./useViewportPersistence";
+import { useMapViewportUrl } from "./useMapViewportUrl";
 import {
   usePMTilesOverlays,
   type LayerHeader,
@@ -64,14 +63,6 @@ interface ListingsGoogleMapProps {
   pmtilesState?: Record<string, PMTilesLayerState>;
   onLayerHeadersChange?: (headers: Record<string, LayerHeader>) => void;
   onLayerProgressChange?: (progress: Record<string, LayerProgress>) => void;
-  // URL-driven viewport (p1-e2-map-url-addressable-state). When non-null,
-  // the map opens at this center+zoom and auto-fit is suppressed for the
-  // initial mount — the user's preserved or shared view wins. Scope
-  // changes still re-fit (see useAutoFitBounds.skipInitial).
-  initialViewport?: MapViewport | null;
-  // Fires when the user settles a pan/zoom (Google Maps `idle` event).
-  // The page persists this to the URL so reload/share reproduces the view.
-  onViewportChange?: (viewport: MapViewport) => void;
   // Absolutely-positioned children rendered inside the map's
   // relative wrapper. Use this for HUD, LayerPanel, and any other
   // page-owned chrome that needs to sit on top of the map canvas.
@@ -110,8 +101,6 @@ export function ListingsGoogleMap({
   pmtilesState = EMPTY_PMTILES_STATE,
   onLayerHeadersChange,
   onLayerProgressChange,
-  initialViewport,
-  onViewportChange,
   overlays,
 }: ListingsGoogleMapProps) {
   const { isLoaded, hasApiKey, requestLoad } = useGoogleMaps();
@@ -162,6 +151,12 @@ export function ListingsGoogleMap({
     [markerItems],
   );
 
+  // URL-addressable viewport (?v=lat,lng,zoom). The hook reads once on
+  // mount and writes via history.replaceState so URL updates don't
+  // re-render React — the map's `idle` event drives the write, which is
+  // the standard pattern used by Google Maps / Airbnb / Mapbox.
+  const { initialViewport, persist: persistViewport } = useMapViewportUrl();
+
   useAutoFitBounds({
     map,
     isLoaded,
@@ -171,7 +166,20 @@ export function ListingsGoogleMap({
     skipInitial: !!initialViewport,
   });
 
-  useViewportPersistence({ map, onChange: onViewportChange });
+  // Persist viewport on every settled pan/zoom. `idle` fires once per
+  // settled motion (Google Maps debounces internally), so no extra
+  // throttle is needed. Reading center/zoom off the map at fire-time is
+  // more accurate than shadowing them in React state.
+  useEffect(() => {
+    if (!map || typeof google === "undefined") return;
+    const listener = map.addListener("idle", () => {
+      const center = map.getCenter();
+      const zoom = map.getZoom();
+      if (!center || zoom === undefined) return;
+      persistViewport({ lat: center.lat(), lng: center.lng(), zoom });
+    });
+    return () => listener.remove();
+  }, [map, persistViewport]);
 
   useListingMarkers({
     map,
@@ -196,8 +204,9 @@ export function ListingsGoogleMap({
   // (fighting user pan) and re-initialize the map controls (visible flicker
   // in the top-right where MapTypeControl + fullscreen sit). useMemo
   // anchors identity so we only pay the cost when something genuinely
-  // changes. `initialViewport` is captured once by useUrlMapState, so
-  // these dependencies are effectively load-time-only.
+  // changes. `initialViewport` is captured once by useMapViewportUrl
+  // (useState initializer), so its identity is stable for the lifetime
+  // of the component.
   const countryKey = country ?? "united-states";
   const initialCenter = useMemo(
     () =>

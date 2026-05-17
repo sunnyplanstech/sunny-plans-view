@@ -106,11 +106,8 @@ export function ITDetailPage({ id, listing, onPaymentSuccess }: DetailPageProps<
     ],
   };
 
-  // Mirror of USDetailPage: land back on the map with the drawer
-  // pre-opened on this parcel (p1-e2-map-url-addressable-state).
-  const backBase =
+  const backUrl =
     province && region ? `/${country}/${region}/${province}` : `/${country}/${region ?? ""}`;
-  const backUrl = `${backBase}?p=${encodeURIComponent(id)}`;
 
   return (
     <>

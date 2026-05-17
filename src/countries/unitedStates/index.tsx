@@ -172,8 +172,6 @@ export const unitedStates: CountryAdapter = {
         pmtilesState={props.pmtilesState}
         onLayerHeadersChange={props.onLayerHeadersChange}
         onLayerProgressChange={props.onLayerProgressChange}
-        initialViewport={props.initialViewport}
-        onViewportChange={props.onViewportChange}
         overlays={props.overlays}
       />
     );
