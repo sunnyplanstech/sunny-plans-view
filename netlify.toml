@@ -15,11 +15,9 @@
 # shape, so they redirect to the homepage. These must precede the SPA
 # catch-all below or the rewrite would mask them.
 
-[[redirects]]
-  from = "/united-states/*"
-  to = "/solar/:splat"
-  status = 301
-  force = true
+# Exact-match rules must precede their wildcard siblings: Netlify is
+# first-match, and `/united-states/*` greedily matches `/united-states`
+# with an empty splat, which would 301 it to `/solar/` (a 404).
 
 [[redirects]]
   from = "/united-states"
@@ -28,7 +26,7 @@
   force = true
 
 [[redirects]]
-  from = "/italy/*"
+  from = "/united-states/*"
   to = "/solar/:splat"
   status = 301
   force = true
@@ -36,6 +34,12 @@
 [[redirects]]
   from = "/italy"
   to = "/"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/italy/*"
+  to = "/solar/:splat"
   status = 301
   force = true
 
