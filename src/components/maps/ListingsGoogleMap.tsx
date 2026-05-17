@@ -190,6 +190,42 @@ export function ListingsGoogleMap({
 
   useChoroplethLayer({ map, isLoaded, surface: choropleth });
 
+  // Stable initial center/zoom/options. <GoogleMap> treats `center` and
+  // `options` as controlled props and re-applies them on identity change —
+  // so an object literal recreated each render would re-center the map
+  // (fighting user pan) and re-initialize the map controls (visible flicker
+  // in the top-right where MapTypeControl + fullscreen sit). useMemo
+  // anchors identity so we only pay the cost when something genuinely
+  // changes. `initialViewport` is captured once by useUrlMapState, so
+  // these dependencies are effectively load-time-only.
+  const countryKey = country ?? "united-states";
+  const initialCenter = useMemo(
+    () =>
+      initialViewport
+        ? { lat: initialViewport.lat, lng: initialViewport.lng }
+        : DEFAULT_CENTERS[countryKey] ?? FALLBACK_CENTER,
+    [initialViewport, countryKey],
+  );
+  const initialZoom = initialViewport
+    ? initialViewport.zoom
+    : DEFAULT_ZOOMS[countryKey] ?? FALLBACK_ZOOM;
+  const mapOptions = useMemo<google.maps.MapOptions | undefined>(() => {
+    // `google` is undefined until the API loads. The GoogleMap is also
+    // gated on `isLoaded` (we render MapLoadingFallback below otherwise),
+    // so the options object only matters once the API is available.
+    if (!isLoaded || typeof google === "undefined") return undefined;
+    return {
+      mapTypeId: "satellite",
+      mapTypeControl: true,
+      mapTypeControlOptions: {
+        position: google.maps.ControlPosition.TOP_RIGHT,
+      },
+      zoomControl: true,
+      streetViewControl: false,
+      fullscreenControl: true,
+    };
+  }, [isLoaded]);
+
   if (!isLoaded) {
     return (
       <MapLoadingFallback
@@ -199,29 +235,6 @@ export function ListingsGoogleMap({
       />
     );
   }
-
-  // `google` is defined past this point — it's safe to read enums for
-  // map options that need ControlPosition etc.
-  const mapOptions: google.maps.MapOptions = {
-    mapTypeId: "satellite",
-    mapTypeControl: true,
-    mapTypeControlOptions: {
-      position: google.maps.ControlPosition.TOP_RIGHT,
-    },
-    zoomControl: true,
-    streetViewControl: false,
-    fullscreenControl: true,
-  };
-
-  const countryKey = country ?? "united-states";
-  const defaultCenter = DEFAULT_CENTERS[countryKey] ?? FALLBACK_CENTER;
-  const defaultZoom = DEFAULT_ZOOMS[countryKey] ?? FALLBACK_ZOOM;
-  // URL-supplied viewport wins over country defaults. Captured once at
-  // mount by useUrlMapState, so the value is stable for the map's life.
-  const initialCenter = initialViewport
-    ? { lat: initialViewport.lat, lng: initialViewport.lng }
-    : defaultCenter;
-  const initialZoom = initialViewport ? initialViewport.zoom : defaultZoom;
 
   return (
     <div className={`relative ${className ?? ""}`}>
