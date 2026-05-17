@@ -7,6 +7,7 @@ import type {
   LayerProgress,
   PMTilesLayerState,
 } from "@/components/maps/usePMTilesOverlays";
+import type { Layer } from "@/components/layers/registry";
 
 export type { HexCell };
 
@@ -150,6 +151,11 @@ export interface RenderCardOptions {
   // this instead of routing to /listing/:id. The receiving page opens
   // the EvaluateDrawer for the listing.
   onSelect?: (listing: BaseListing) => void;
+  // Active constraint filters — drives per-card pass/fail badges so the
+  // rail reads "this is why this parcel survived your filters". Omit on
+  // surfaces without a constraint bar (DemoSection, production listings
+  // page) and the badge row renders nothing.
+  selectedLayers?: ReadonlyArray<Layer>;
 }
 
 export function parseScopeFromParams(params: { region?: string; province?: string }): Scope {

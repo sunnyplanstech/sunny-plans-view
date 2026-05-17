@@ -160,6 +160,7 @@ export const italy: CountryAdapter = {
         showRank={rankShowFor(scope)}
         listPosition={listIndex + 1}
         onSelect={options?.onSelect as ((l: ITListing) => void) | undefined}
+        selectedLayers={options?.selectedLayers}
       />
     );
   },

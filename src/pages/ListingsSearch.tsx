@@ -393,6 +393,7 @@ const CountryPreview = ({ adapter, country, region, province }: InnerProps) => {
       adapter={adapter}
       scope={scope}
       onSelect={handleSelectListing}
+      selectedLayers={selectedLayers}
       expanded={listExpanded}
       onToggleExpanded={() => setListExpanded((v) => !v)}
       selectedConstraintCount={selectedLayers.length}
@@ -587,6 +588,7 @@ interface ListingsRailProps {
   adapter: CountryAdapter;
   scope: ReturnType<CountryAdapter["parseScope"]>;
   onSelect: (listing: BaseListing) => void;
+  selectedLayers: ReadonlyArray<Layer>;
   expanded: boolean;
   onToggleExpanded: () => void;
   selectedConstraintCount: number;
@@ -607,6 +609,7 @@ const ListingsRail = ({
   adapter,
   scope,
   onSelect,
+  selectedLayers,
   expanded,
   onToggleExpanded,
   selectedConstraintCount,
@@ -686,7 +689,7 @@ const ListingsRail = ({
               cards just stay put. */}
           {listings.map((listing, i) => (
             <AnimatedCard key={listing.id} index={i}>
-              {adapter.renderListingCard(listing, scope, i, { onSelect })}
+              {adapter.renderListingCard(listing, scope, i, { onSelect, selectedLayers })}
             </AnimatedCard>
           ))}
         </div>

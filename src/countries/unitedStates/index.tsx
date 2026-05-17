@@ -148,6 +148,7 @@ export const unitedStates: CountryAdapter = {
         listing={us}
         showRank={rankShowFor(scope)}
         onSelect={options?.onSelect as ((l: USListing) => void) | undefined}
+        selectedLayers={options?.selectedLayers}
       />
     );
   },
