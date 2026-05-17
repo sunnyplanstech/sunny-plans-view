@@ -102,10 +102,10 @@ const SLOPE_LT_5_FILTER: LayerListingsFilter = {
 // overlaps them. They appear here as *overlay-only* entries (no chip,
 // no listingsFilter) so the map can still paint the polygons as a
 // trust-signal "this is what we filtered out for you", with the
-// toggle living in ConstraintBar's existing Avoid section. They're
-// `defaultSelected: true` so the overlay is on the moment the page
-// mounts; clicking the toggle hides the polygons without changing
-// which listings qualify.
+// toggle living in ConstraintBar's existing Avoid section. They
+// default OFF so the map starts uncluttered; users opt in when they
+// want to see what was filtered out. Toggling does not change which
+// listings qualify — only whether the polygons are painted.
 export const LAYER_REGISTRY: Layer[] = [
   {
     id: "pad_us",
@@ -119,7 +119,6 @@ export const LAYER_REGISTRY: Layer[] = [
     pmtilesLayerId: "pad_us",
     requiresRegionScope: true,
     minZoom: 6,
-    defaultSelected: true,
   },
   {
     id: "nwi_us",
@@ -133,7 +132,6 @@ export const LAYER_REGISTRY: Layer[] = [
     pmtilesLayerId: "nwi_us",
     requiresRegionScope: true,
     minZoom: 11,
-    defaultSelected: true,
   },
   {
     id: "slope_lt_5_us",
@@ -162,7 +160,6 @@ export const LAYER_REGISTRY: Layer[] = [
     pmtilesLayerId: "natura2000_it",
     requiresRegionScope: true,
     minZoom: 6,
-    defaultSelected: true,
   },
   {
     id: "slope_lt_5_it",
