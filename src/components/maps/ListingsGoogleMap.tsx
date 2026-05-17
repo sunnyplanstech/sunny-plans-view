@@ -106,7 +106,8 @@ export function ListingsGoogleMap({
     requestLoad();
   }, [requestLoad]);
 
-  const choroplethVisible = choropleth?.visible ?? false;
+  // TEMP: choropleth disabled
+  const choroplethVisible = false;
 
   // PMTiles overlays. The hook is a no-op when `pmtilesLayers` is empty
   // (legacy callers / countries with no tiles configured); when it has
@@ -170,7 +171,8 @@ export function ListingsGoogleMap({
     cells: hexCells,
   });
 
-  useChoroplethLayer({ map, isLoaded, surface: choropleth });
+  // TEMP: choropleth disabled
+  useChoroplethLayer({ map, isLoaded, surface: undefined });
 
   // Stable initial center/zoom/options. <GoogleMap> treats `center` and
   // `options` as controlled props and re-applies them on identity change —
