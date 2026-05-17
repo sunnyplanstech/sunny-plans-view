@@ -20,12 +20,12 @@ import {
 const COUNTRIES = {
   us: {
     label: "United States",
-    browsePath: "/united-states",
+    browsePath: "/solar/app/united-states",
     browseLabel: "Browse US Listings",
   },
   it: {
     label: "Italy",
-    browsePath: "/italy",
+    browsePath: "/solar/app/italy",
     browseLabel: "Browse Italy Listings",
   },
 } as const;

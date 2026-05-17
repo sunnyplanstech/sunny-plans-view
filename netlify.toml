@@ -43,6 +43,21 @@
   status = 301
   force = true
 
+# SPA map exception — must precede the /solar/* GCS proxy below.
+# /solar/app/... is the interactive solar map (App.tsx routes); without
+# this rewrite, Netlify's first-match would force-proxy those URLs to
+# gs://sunnyplans-seo/solar/app/index.html, which doesn't exist.
+
+[[redirects]]
+  from = "/solar/app/*"
+  to = "/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/solar/app"
+  to = "/index.html"
+  status = 200
+
 # Static pSEO surface served from gs://sunnyplans-seo.
 # Pages are rendered as <path>/index.html objects; GCS does not auto-append
 # index.html on its public HTTPS endpoint, so the rewrite spells it out.

@@ -31,22 +31,37 @@ npm run preview      # Preview production build locally
 
 ### URL-Driven Hierarchical Routing
 
-The app uses geographic URL hierarchy for SEO. All listing pages are handled by `ListingsSearch.tsx`:
+The interactive map is namespaced under the vertical it belongs to so
+new verticals (van life, etc.) can ship side-by-side without URL
+collisions. Today only solar is shipped, so all routes live under
+`/solar/app/...`. The static pSEO surface for the same vertical sits
+at `/solar/<state>/<county>/...` (see `netlify.toml`, proxied from
+`gs://sunnyplans-seo`); both are sunnyplans-docs/03_marketing/00_positioning.md
+verticals.
+
+All scope levels are handled by `ListingsSearch.tsx`:
 
 ```
-/                                           → Homepage (Index.tsx)
-/:country                                   → Country listings
-/:country/:region                           → State/region listings
-/:country/:region/:province                 → Province/county listings
-/:country/:region/:province/:municipality   → Municipality listings
-/:country/:region/:province/listing/:id     → Individual listing (ListingDetail.tsx)
+/                                                         → Homepage (Index.tsx)
+/solar/app                                                → Solar map, US default
+/solar/app/:country                                       → Country scope
+/solar/app/:country/:region                               → State/region scope
+/solar/app/:country/:region/:province                     → Province/county scope
+/solar/app/:country/:region/:province/:municipality       → Municipality scope
+/listing/:id                                              → Individual listing (ListingDetail.tsx)
 ```
 
 URL variants — the `/listings` (US) and `/particelle` (IT) suffix is only
 valid at the **province** and **municipality** levels, not at country or
-state. So `/united-states/california/` is correct but
-`/united-states/california/listings` is a 404. See `App.tsx` for the
-exact routes.
+state. So `/solar/app/united-states/california/` is correct but
+`/solar/app/united-states/california/listings` is a 404. See `App.tsx`
+for the exact routes.
+
+Legacy bare `/united-states`, `/italy`, and `/united-states/<state>/...`
+shapes are intercepted by Netlify 301s in `netlify.toml` (the country
+roots go to `/`; deeper paths go to the static `/solar/...` SEO pages).
+The interactive map is only reachable at `/solar/app/...` — there is no
+SPA route at the bare country path.
 
 ### Key Data Files
 

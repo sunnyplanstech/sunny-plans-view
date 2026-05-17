@@ -26,7 +26,7 @@ const Footer = () => {
               {featuredUS.map((state) => (
                 <li key={state.slug}>
                   <Link
-                    to={`/united-states/${state.slug}`}
+                    to={`/solar/app/united-states/${state.slug}`}
                     className="hover:text-primary transition-colors"
                   >
                     {state.name}
@@ -35,7 +35,7 @@ const Footer = () => {
               ))}
               <li>
                 <Link
-                  to="/united-states"
+                  to="/solar/app/united-states"
                   className="hover:text-primary transition-colors font-medium"
                 >
                   View all states &rarr;
@@ -53,7 +53,7 @@ const Footer = () => {
               {featuredIT.map((region) => (
                 <li key={region.slug}>
                   <Link
-                    to={`/italy/${region.slug}`}
+                    to={`/solar/app/italy/${region.slug}`}
                     className="hover:text-primary transition-colors"
                   >
                     {region.name}
@@ -62,7 +62,7 @@ const Footer = () => {
               ))}
               <li>
                 <Link
-                  to="/italy"
+                  to="/solar/app/italy"
                   className="hover:text-primary transition-colors font-medium"
                 >
                   View all regions &rarr;

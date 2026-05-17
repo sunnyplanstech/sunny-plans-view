@@ -319,7 +319,7 @@ const CountryPreview = ({ adapter, country, region, province }: InnerProps) => {
         if (!stateCode || !countyName) return;
         const stateSlug = stateCodeToSlug(stateCode);
         if (!stateSlug) return;
-        navigate(`/united-states/${stateSlug}/${countyToSlug(countyName)}`);
+        navigate(`/solar/app/united-states/${stateSlug}/${countyToSlug(countyName)}`);
         return;
       }
       // Italy — partition-name → URL slug match. The IT region URL
@@ -332,7 +332,7 @@ const CountryPreview = ({ adapter, country, region, province }: InnerProps) => {
         (r) => r.slug.replace(/-/g, "").toLowerCase() === normalized,
       );
       if (!match) return;
-      navigate(`/italy/${match.slug}`);
+      navigate(`/solar/app/italy/${match.slug}`);
     },
     [country, navigate],
   );
@@ -870,7 +870,7 @@ function buildCanonicalUrl(
   province?: string,
 ): string {
   const base = "https://sunnyplans.com";
-  const parts = [country, region, province].filter(Boolean);
+  const parts = ["solar", "app", country, region, province].filter(Boolean);
   return `${base}/${parts.join("/")}`;
 }
 

@@ -25,7 +25,7 @@ const ListingsFooter = ({ currentCountry, currentRegion, currentProvince }: List
             {usStates.map((state) => (
               <li key={state.slug}>
                 <Link
-                  to={`/united-states/${state.slug}`}
+                  to={`/solar/app/united-states/${state.slug}`}
                   className={`text-sm transition-colors ${
                     currentCountry === "united-states" && state.slug === currentRegion?.toLowerCase()
                       ? "text-primary font-medium"
@@ -49,7 +49,7 @@ const ListingsFooter = ({ currentCountry, currentRegion, currentProvince }: List
             {itRegions.map((region) => (
               <li key={region.slug}>
                 <Link
-                  to={`/italy/${region.slug}`}
+                  to={`/solar/app/italy/${region.slug}`}
                   className={`text-sm transition-colors ${
                     currentCountry === "italy" && region.slug === currentRegion?.toLowerCase()
                       ? "text-primary font-medium"

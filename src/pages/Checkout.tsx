@@ -67,10 +67,10 @@ const SubscriptionSuccess = () => {
           </p>
           <div className="w-full space-y-3">
             <Button asChild className="w-full" size="lg">
-              <Link to="/united-states">Browse US listings</Link>
+              <Link to="/solar/app/united-states">Browse US listings</Link>
             </Button>
             <Button asChild variant="outline" className="w-full">
-              <Link to="/italy">Browse Italian listings</Link>
+              <Link to="/solar/app/italy">Browse Italian listings</Link>
             </Button>
           </div>
         </div>

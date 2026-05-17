@@ -4,7 +4,7 @@ import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import Index from "./pages/Index";
 import NotFound from "./pages/NotFound";
 import { GoogleMapsProvider } from "@/components/maps/GoogleMapsProvider";
@@ -51,23 +51,26 @@ const App = () => (
               Visual sandbox — gauge + helping/hurting bars across surfaces. */}
           <Route path="/preview/sunnyscore" element={<Suspense fallback={<PageLoader />}><SunnyScorePreview /></Suspense>} />
 
-          {/* Country-level pages */}
-          <Route path="/:country" element={<Suspense fallback={<PageLoader />}><ListingsSearch /></Suspense>} />
-
-          {/* Region/State-level pages */}
-          <Route path="/:country/:region" element={<Suspense fallback={<PageLoader />}><ListingsSearch /></Suspense>} />
-
-          {/* Province/County-level pages */}
-          <Route path="/:country/:region/:province" element={<Suspense fallback={<PageLoader />}><ListingsSearch /></Suspense>} />
-
-          {/* Listings pages (with /listings/ or /particelle/ suffix) */}
-          <Route path="/:country/:region/:province/listings" element={<Suspense fallback={<PageLoader />}><ListingsSearch /></Suspense>} />
-          <Route path="/:country/:region/:province/particelle" element={<Suspense fallback={<PageLoader />}><ListingsSearch /></Suspense>} />
-
-          {/* Municipality/Comuni-level pages */}
-          <Route path="/:country/:region/:province/:municipality" element={<Suspense fallback={<PageLoader />}><ListingsSearch /></Suspense>} />
-          <Route path="/:country/:region/:province/:municipality/listings" element={<Suspense fallback={<PageLoader />}><ListingsSearch /></Suspense>} />
-          <Route path="/:country/:region/:province/:municipality/particelle" element={<Suspense fallback={<PageLoader />}><ListingsSearch /></Suspense>} />
+          {/* Solar-vertical SPA map — hierarchical scope under /solar/app.
+              The bare /<country> shape was retired by the p1-e3 pSEO
+              migration (netlify.toml 301s those paths to the static
+              /solar surface), so the interactive map lives under
+              /solar/app/... — sibling to the static /solar/<state>/<county>
+              pSEO pages, both namespaced to the solar vertical
+              (sunnyplans-docs/03_marketing/00_positioning.md). Future
+              verticals (van life, etc.) will live under /<vertical>/app/.
+              Bare /solar/app defaults to the US country scope; a country
+              picker would belong here once a second country needs equal
+              billing on the entry. */}
+          <Route path="/solar/app" element={<Navigate to="/solar/app/united-states" replace />} />
+          <Route path="/solar/app/:country" element={<Suspense fallback={<PageLoader />}><ListingsSearch /></Suspense>} />
+          <Route path="/solar/app/:country/:region" element={<Suspense fallback={<PageLoader />}><ListingsSearch /></Suspense>} />
+          <Route path="/solar/app/:country/:region/:province" element={<Suspense fallback={<PageLoader />}><ListingsSearch /></Suspense>} />
+          <Route path="/solar/app/:country/:region/:province/listings" element={<Suspense fallback={<PageLoader />}><ListingsSearch /></Suspense>} />
+          <Route path="/solar/app/:country/:region/:province/particelle" element={<Suspense fallback={<PageLoader />}><ListingsSearch /></Suspense>} />
+          <Route path="/solar/app/:country/:region/:province/:municipality" element={<Suspense fallback={<PageLoader />}><ListingsSearch /></Suspense>} />
+          <Route path="/solar/app/:country/:region/:province/:municipality/listings" element={<Suspense fallback={<PageLoader />}><ListingsSearch /></Suspense>} />
+          <Route path="/solar/app/:country/:region/:province/:municipality/particelle" element={<Suspense fallback={<PageLoader />}><ListingsSearch /></Suspense>} />
 
           {/* Individual listing detail — id is globally unique across US/IT marts */}
           <Route path="/listing/:id" element={<Suspense fallback={<PageLoader />}><ListingDetail /></Suspense>} />

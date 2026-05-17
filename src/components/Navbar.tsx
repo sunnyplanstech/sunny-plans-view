@@ -74,14 +74,14 @@ const Navbar = () => {
                   onMouseDown={(e) => e.preventDefault()}
                 >
                   <Link
-                    to="/united-states"
+                    to="/solar/app/united-states"
                     onClick={() => setListingsOpen(false)}
                     className="flex items-center gap-2 px-4 py-2 text-sm text-muted-foreground hover:text-foreground hover:bg-accent transition-colors"
                   >
                     🇺🇸 United States
                   </Link>
                   <Link
-                    to="/italy"
+                    to="/solar/app/italy"
                     onClick={() => setListingsOpen(false)}
                     className="flex items-center gap-2 px-4 py-2 text-sm text-muted-foreground hover:text-foreground hover:bg-accent transition-colors"
                   >
@@ -145,14 +145,14 @@ const Navbar = () => {
               Listings
             </p>
             <Link
-              to="/united-states"
+              to="/solar/app/united-states"
               onClick={() => setMobileOpen(false)}
               className="flex items-center gap-2 px-3 py-2 text-sm text-muted-foreground hover:text-foreground hover:bg-accent rounded-md transition-colors"
             >
               🇺🇸 United States
             </Link>
             <Link
-              to="/italy"
+              to="/solar/app/italy"
               onClick={() => setMobileOpen(false)}
               className="flex items-center gap-2 px-3 py-2 text-sm text-muted-foreground hover:text-foreground hover:bg-accent rounded-md transition-colors"
             >
