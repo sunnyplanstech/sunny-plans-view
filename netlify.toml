@@ -39,6 +39,23 @@
   status = 301
   force = true
 
+# Static pSEO surface served from gs://sunnyplans-seo.
+# Pages are rendered as <path>/index.html objects; GCS does not auto-append
+# index.html on its public HTTPS endpoint, so the rewrite spells it out.
+# Sitemaps (index + per-grain) sit at the bucket root.
+
+[[redirects]]
+  from = "/solar/*"
+  to = "https://storage.googleapis.com/sunnyplans-seo/solar/:splat/index.html"
+  status = 200
+  force = true
+
+[[redirects]]
+  from = "/sitemap*"
+  to = "https://storage.googleapis.com/sunnyplans-seo/sitemap:splat"
+  status = 200
+  force = true
+
 [[redirects]]
   from = "/*"
   to = "/index.html"
