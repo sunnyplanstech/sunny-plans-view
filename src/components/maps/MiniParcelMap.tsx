@@ -220,6 +220,11 @@ export function MiniParcelMap({
     );
   }
 
+  // mapId silences the "initialized without a valid Map ID" popup that
+  // the Maps JS API throws whenever the globally-loaded `marker` library
+  // (see GoogleMapsProvider) meets a map without one — even though this
+  // map only uses the legacy Marker.
+  const mapId = import.meta.env.VITE_GOOGLE_MAP_ID;
   const mapOptions: google.maps.MapOptions = {
     mapTypeId: "satellite",
     disableDefaultUI: true,
@@ -233,6 +238,7 @@ export function MiniParcelMap({
     maxZoom: locked && locationAccuracyM != null
       ? computeAccuracyMaxZoom(locationAccuracyM, geom.center.lat)
       : 19,
+    ...(mapId ? { mapId } : {}),
   };
 
   // Map is fully uncontrolled: viewport is set imperatively in onLoad. Passing
