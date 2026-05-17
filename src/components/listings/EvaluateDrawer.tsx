@@ -13,7 +13,7 @@ import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { optionalAuthApi } from "@/lib/apiClient";
 import { useAuth } from "@/hooks/useAuth";
-import { evaluateLayer, type Verdict } from "@/components/layers/evaluate";
+import { specVerdict, type SpecVerdict } from "@/components/layers/evaluate";
 import type { Layer } from "@/components/layers/registry";
 import type { BaseListing } from "@/countries/types";
 import type { OsmDistanceFields } from "@/data/osmDistanceFields";
@@ -203,9 +203,14 @@ function SpecSection({
   if (layers.length === 0) return null;
   const verdicts = layers.map((l) => ({
     layer: l,
-    verdict: evaluateLayer(listing, l),
+    verdict: specVerdict(listing, l),
   }));
-  const pass = verdicts.filter((v) => v.verdict === "pass").length;
+  // `guaranteed` counts toward pass: the mart contract excludes
+  // failing parcels for chip-less layers, so every visible listing
+  // passes them by construction.
+  const pass = verdicts.filter(
+    (v) => v.verdict === "pass" || v.verdict === "guaranteed",
+  ).length;
   const total = verdicts.length;
   const allPass = pass === total;
 
@@ -227,6 +232,11 @@ function SpecSection({
             <span className="text-sm text-foreground truncate">
               {layer.label}
             </span>
+            {verdict === "guaranteed" && (
+              <span className="text-[10.5px] uppercase tracking-wider text-muted-foreground">
+                pre-filtered
+              </span>
+            )}
           </li>
         ))}
       </ul>
@@ -234,8 +244,8 @@ function SpecSection({
   );
 }
 
-function VerdictIcon({ verdict }: { verdict: Verdict }) {
-  if (verdict === "pass") {
+function VerdictIcon({ verdict }: { verdict: SpecVerdict }) {
+  if (verdict === "pass" || verdict === "guaranteed") {
     return (
       <span className="inline-flex h-5 w-5 flex-shrink-0 items-center justify-center rounded-full bg-primary/15 text-primary">
         <Check className="h-3 w-3" strokeWidth={3} />

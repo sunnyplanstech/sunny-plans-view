@@ -20,6 +20,19 @@ export function evaluateLayer(listing: BaseListing, layer: Layer): Verdict {
   return chip.condition(value) ? "pass" : "fail";
 }
 
+// Spec-section verdict. Extends `evaluateLayer` with a `"guaranteed"`
+// case for overlay-only layers (no chip): these are mart-level
+// invariants — the listings cohort already excludes anything that
+// fails them (PAD-US, NWI wetlands, Natura 2000). Showing them as
+// "unknown" in the drawer was misleading; every listing in the
+// cohort passes by construction.
+export type SpecVerdict = Verdict | "guaranteed";
+
+export function specVerdict(listing: BaseListing, layer: Layer): SpecVerdict {
+  if (!layer.chip) return "guaranteed";
+  return evaluateLayer(listing, layer);
+}
+
 export interface LayerEffect {
   passing: number;
   failing: number;
