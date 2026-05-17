@@ -2,7 +2,7 @@ import { CreditCard, ExternalLink, Lock, Ruler, Zap } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { seoKeywords } from "@/data/mockListings";
 import { STATE_CODE_TO_SLUG } from "@/data/locations";
-import { LockedField, isLocked } from "@/components/listings/LockedField";
+import { LockedField } from "@/components/listings/LockedField";
 import type { OsmDistanceFields } from "@/data/osmDistanceFields";
 import {
   SharedDetailPage,
@@ -76,8 +76,11 @@ const usAdapter: DetailAdapter<USListingDetail> = {
     const accessGranted = listing.access_granted;
     const solarPercentage =
       listing.prob_solar != null ? Math.round(listing.prob_solar * 100) : null;
+    // When accessGranted=false the serializer overwrites paid fields with
+    // "****"; when true they're the formatted string ("" if the source was
+    // null). So a simple truthy check is enough — no need to re-test isLocked.
     const titleAcres =
-      accessGranted && !isLocked(listing.lot_acres) ? `${listing.lot_acres} Acres ` : "";
+      accessGranted && listing.lot_acres ? `${listing.lot_acres} Acres ` : "";
 
     const title = `${titleAcres}Solar Land for Sale - ${listing.county}, ${listing.state_code} | Sunnyplans`;
     const description = `${titleAcres}Land in ${listing.county}, ${listing.state_code}. ${solarPercentage}% solar probability. Pre-vetted for BESS & solar projects.`;
@@ -103,7 +106,7 @@ const usAdapter: DetailAdapter<USListingDetail> = {
         { "@type": "PropertyValue", name: "Solar Probability", value: `${solarPercentage}%` },
       ],
     };
-    if (accessGranted && !isLocked(listing.list_price)) {
+    if (accessGranted && listing.list_price) {
       structuredData.offers = {
         "@type": "Offer",
         priceCurrency: "USD",
@@ -134,7 +137,9 @@ const usAdapter: DetailAdapter<USListingDetail> = {
         </div>
 
         <div className="pt-2">
-          {listing.property_url && !isLocked(listing.property_url) ? (
+          {/* property_url is omitted from the public payload entirely (see
+              USListingPublicSerializer) — its presence alone means unlocked. */}
+          {listing.property_url ? (
             <Button asChild variant="outline" size="sm">
               <a href={listing.property_url} target="_blank" rel="noopener noreferrer">
                 Open original listing

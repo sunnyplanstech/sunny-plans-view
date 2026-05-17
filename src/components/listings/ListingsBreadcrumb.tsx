@@ -25,11 +25,14 @@ const ListingsBreadcrumb = ({ country, region, province, municipality }: Listing
       .join(' ');
   };
 
+  // Interactive map lives under /solar/app/...; the bare /<country>/...
+  // paths are legacy pSEO that Netlify 301s away (see netlify.toml).
+  const base = "/solar/app";
   const items = [
     { label: "Home", href: "/", icon: Home },
-    country && { label: formatName(country), href: `/${country}` },
-    region && { label: formatName(region), href: `/${country}/${region.toLowerCase()}` },
-    province && { label: formatName(province), href: `/${country}/${region?.toLowerCase()}/${province.toLowerCase()}` },
+    country && { label: formatName(country), href: `${base}/${country}` },
+    region && { label: formatName(region), href: `${base}/${country}/${region.toLowerCase()}` },
+    province && { label: formatName(province), href: `${base}/${country}/${region?.toLowerCase()}/${province.toLowerCase()}` },
     municipality && { label: formatName(municipality), href: null }, // Current page, no link
   ].filter(Boolean) as Array<{ label: string; href: string | null; icon?: typeof Home }>;
 
