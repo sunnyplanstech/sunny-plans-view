@@ -61,8 +61,19 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     };
   }, [reloadUser]);
 
-  // Cross-tab sync: another tab logged in or out.
-  useEffect(() => subscribeTokenChanges(() => void reloadUser()), [reloadUser]);
+  // Session-change sync: fires on cross-tab login/logout AND on same-tab
+  // terminal refresh failures (ensureAccessToken clears tokens internally
+  // and broadcasts via clearStoredTokens). Reload the profile *and* drop
+  // the React Query cache — premium payloads from a previous identity
+  // must not survive a session flip.
+  useEffect(
+    () =>
+      subscribeTokenChanges(() => {
+        queryClient.clear();
+        void reloadUser();
+      }),
+    [reloadUser, queryClient],
+  );
 
   // Profile refetch when the user returns to the tab — covers the Stripe
   // checkout round-trip, where `has_active_subscription` flips server-side
@@ -77,11 +88,18 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     return () => document.removeEventListener("visibilitychange", onVisible);
   }, [reloadUser]);
 
-  const login = useCallback(async (email: string, password: string) => {
-    const { tokens, user: profile } = await apiLogin(email, password);
-    setSession(tokens);
-    setUser(profile);
-  }, []);
+  const login = useCallback(
+    async (email: string, password: string) => {
+      const { tokens, user: profile } = await apiLogin(email, password);
+      // Drop any data fetched anonymously — symmetric to logout. Without
+      // this, listing/heatmap queries cached as the anon user (with
+      // `****` placeholders) stay live until natural staleness.
+      queryClient.clear();
+      setSession(tokens);
+      setUser(profile);
+    },
+    [queryClient],
+  );
 
   const signup = useCallback(
     async (email: string, password1: string, password2: string) => {
@@ -94,11 +112,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     [],
   );
 
-  const loginWithGoogle = useCallback(async (code: string) => {
-    const { tokens, user: profile } = await apiLoginWithGoogle(code);
-    setSession(tokens);
-    setUser(profile);
-  }, []);
+  const loginWithGoogle = useCallback(
+    async (code: string) => {
+      const { tokens, user: profile } = await apiLoginWithGoogle(code);
+      queryClient.clear();
+      setSession(tokens);
+      setUser(profile);
+    },
+    [queryClient],
+  );
 
   const logout = useCallback(async () => {
     // Clear local state first so the UI updates immediately and a hung

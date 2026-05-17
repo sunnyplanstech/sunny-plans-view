@@ -13,13 +13,15 @@ export function formatPricePerAcre(price: number | null | undefined): string {
 }
 
 export function formatSubstationDistance(meters: number | null | undefined): string {
-  if (!meters) return "N/A";
+  // `== null` and not `!meters` — a parcel literally on the substation
+  // (0 m) is the best possible match, not missing data.
+  if (meters == null) return "N/A";
   const miles = meters * 0.000621371;
   return `${Math.round(meters)} m (${miles.toFixed(1)} mi)`;
 }
 
 export function formatSubstationDistanceMetric(meters: number | null | undefined): string {
-  if (!meters) return "N/A";
+  if (meters == null) return "N/A";
   if (meters < 1000) return `${Math.round(meters)} m`;
   return `${(meters / 1000).toFixed(1)} km`;
 }

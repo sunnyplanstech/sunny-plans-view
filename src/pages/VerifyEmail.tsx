@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import SEOHead from "@/components/listings/SEOHead";
 import Footer from "@/components/Footer";
@@ -12,6 +12,11 @@ const VerifyEmail = () => {
   const { key } = useParams<{ key: string }>();
   const [status, setStatus] = useState<Status>("pending");
   const [errorMessage, setErrorMessage] = useState<string>("");
+  // Verification keys are single-use server-side; StrictMode's effect
+  // double-invocation (and any other unintended re-run) would burn the
+  // key on the first call and report "expired" on the second. Guard
+  // against running the POST more than once per mount per key.
+  const submittedKey = useRef<string | null>(null);
 
   useEffect(() => {
     if (!key) {
@@ -19,6 +24,8 @@ const VerifyEmail = () => {
       setErrorMessage("Missing verification key.");
       return;
     }
+    if (submittedKey.current === key) return;
+    submittedKey.current = key;
 
     const controller = new AbortController();
     fetch(`${API_BASE}/api/auth/registration/verify-email/`, {

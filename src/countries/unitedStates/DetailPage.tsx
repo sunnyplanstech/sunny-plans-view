@@ -80,7 +80,9 @@ export interface USListingDetail extends OsmDistanceFields {
 }
 
 function formatSubstationDistance(meters: number | null): string {
-  if (!meters) return "N/A";
+  // 0 m means "parcel sits on the substation" — a legit best match,
+  // not a missing value. Use `== null`, not `!meters`.
+  if (meters == null) return "N/A";
   const miles = meters * 0.000621371;
   return `${Math.round(meters)} m (${miles.toFixed(1)} mi)`;
 }

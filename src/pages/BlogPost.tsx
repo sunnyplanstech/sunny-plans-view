@@ -15,9 +15,19 @@ const BlogPost = () => {
 
   useEffect(() => {
     window.scrollTo(0, 0);
-    if (slug) {
-      getArticle(slug).then(setArticle);
-    }
+    // Reset to the loading state on slug change so the previous post's
+    // body doesn't linger while the new one fetches.
+    setArticle(undefined);
+    if (!slug) return;
+    // Cancellation sentinel: fast slug-switches can resolve out of
+    // order; ignore any response that's no longer for the current slug.
+    let cancelled = false;
+    getArticle(slug).then((a) => {
+      if (!cancelled) setArticle(a);
+    });
+    return () => {
+      cancelled = true;
+    };
   }, [slug]);
 
   if (article === undefined) {

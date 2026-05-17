@@ -62,7 +62,8 @@ export interface ITListingDetail extends OsmDistanceFields {
 }
 
 function formatSubstationDistance(meters: number | null): string {
-  if (!meters) return "N/A";
+  // See US DetailPage — `== null` so 0 m doesn't render as "N/A".
+  if (meters == null) return "N/A";
   return `${Math.round(meters)} m`;
 }
 

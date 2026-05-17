@@ -12,6 +12,7 @@ import { Sheet, SheetContent } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { optionalAuthApi } from "@/lib/apiClient";
+import { useAuth } from "@/hooks/useAuth";
 import { evaluateLayer, type Verdict } from "@/components/layers/evaluate";
 import type { Layer } from "@/components/layers/registry";
 import type { BaseListing } from "@/countries/types";
@@ -52,8 +53,17 @@ type ListingDetail = OsmDistanceFields & {
 };
 
 function useListingDetail(id: string | null) {
+  // Auth identity is part of the cache key — the detail endpoint's
+  // payload shape depends on it (free → "****", premium → real values).
+  // See ListingDetail.tsx for the matching pattern on the standalone page.
+  const { user } = useAuth();
   return useQuery({
-    queryKey: ["listing-detail", id],
+    queryKey: [
+      "listing-detail",
+      id,
+      user?.id ?? null,
+      user?.has_active_subscription ?? false,
+    ],
     queryFn: () => optionalAuthApi<ListingDetail>(`/api/listings/${id}/detail/`),
     enabled: !!id,
   });

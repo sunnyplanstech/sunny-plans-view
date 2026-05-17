@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/hooks/useAuth";
@@ -89,6 +89,34 @@ export default function GoogleButton({
   const [client, setClient] = useState<CodeClient | null>(null);
   const [busy, setBusy] = useState(false);
 
+  // Track mount state so the GSI callback (which can fire after the
+  // user has already navigated away on success) doesn't setState on an
+  // unmounted component.
+  const mountedRef = useRef(true);
+  useEffect(() => {
+    mountedRef.current = true;
+    return () => {
+      mountedRef.current = false;
+    };
+  }, []);
+
+  // Latest-value refs for the callback-shaped props/values. The GSI
+  // CodeClient is created once and captures whatever's in scope at
+  // creation time, so if we put `next`/`onError`/`loginWithGoogle` in
+  // the effect deps we re-init the client on every prop change and
+  // orphan the previous CodeClient in closure. Refs let the effect run
+  // once while still reading the current callback at fire time.
+  const loginWithGoogleRef = useRef(loginWithGoogle);
+  const navigateRef = useRef(navigate);
+  const nextRef = useRef(next);
+  const onErrorRef = useRef(onError);
+  useEffect(() => {
+    loginWithGoogleRef.current = loginWithGoogle;
+    navigateRef.current = navigate;
+    nextRef.current = next;
+    onErrorRef.current = onError;
+  });
+
   useEffect(() => {
     if (!GOOGLE_CLIENT_ID) return;
     let cancelled = false;
@@ -101,31 +129,35 @@ export default function GoogleButton({
           ux_mode: "popup",
           callback: async (response) => {
             if (!response.code) {
-              setBusy(false);
+              if (mountedRef.current) setBusy(false);
               return;
             }
             try {
-              await loginWithGoogle(response.code);
-              navigate(next, { replace: true });
+              await loginWithGoogleRef.current(response.code);
+              navigateRef.current(nextRef.current, { replace: true });
+              // Skip `setBusy(false)` here — navigate has unmounted us
+              // on the success path. The mountedRef guard in `finally`
+              // would catch it, but returning makes intent explicit.
+              return;
             } catch (err) {
               const message =
                 err instanceof AuthError ? err.message : "Google sign-in failed.";
-              onError?.(message);
+              onErrorRef.current?.(message);
             } finally {
-              setBusy(false);
+              if (mountedRef.current) setBusy(false);
             }
           },
           error_callback: () => {
-            setBusy(false);
+            if (mountedRef.current) setBusy(false);
           },
         });
-        setClient(c);
+        if (!cancelled) setClient(c);
       })
-      .catch(() => onError?.("Could not load Google sign-in."));
+      .catch(() => onErrorRef.current?.("Could not load Google sign-in."));
     return () => {
       cancelled = true;
     };
-  }, [loginWithGoogle, navigate, next, onError]);
+  }, []);
 
   if (!GOOGLE_CLIENT_ID) return null;
 

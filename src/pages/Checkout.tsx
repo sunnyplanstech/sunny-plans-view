@@ -31,9 +31,11 @@ const SubscriptionSuccess = () => {
   const { user, refreshUser } = useAuth();
   const [polls, setPolls] = useState(0);
   const subscribed = user?.has_active_subscription === true;
+  const timedOut = !subscribed && polls >= MAX_POLLS;
 
   // Stripe webhook flips has_active_subscription server-side; poll briefly
-  // until we see it, then stop.
+  // until we see it, then stop. After timeout the user can hit "Check again"
+  // to re-arm the poll loop — beats telling them to reload the page.
   useEffect(() => {
     if (subscribed || polls >= MAX_POLLS) return;
     const timer = setTimeout(() => {
@@ -42,6 +44,11 @@ const SubscriptionSuccess = () => {
     }, POLL_INTERVAL_MS);
     return () => clearTimeout(timer);
   }, [subscribed, polls, refreshUser]);
+
+  const handleCheckAgain = () => {
+    setPolls(0);
+    void refreshUser();
+  };
 
   return (
     <div className="min-h-screen bg-background flex flex-col">
@@ -59,14 +66,19 @@ const SubscriptionSuccess = () => {
           <p className="text-muted-foreground mb-6">
             {subscribed ? (
               <>Your Premium subscription is active. Exact coordinates and source links are now unlocked.</>
-            ) : polls >= MAX_POLLS ? (
-              <>Your payment was received. Premium access usually activates within a minute — refresh the page if you don't see it yet.</>
+            ) : timedOut ? (
+              <>Your payment was received. Premium access usually activates within a minute — tap "Check again" if you don't see it yet.</>
             ) : (
               <>Activating your Premium access…</>
             )}
           </p>
           <div className="w-full space-y-3">
-            <Button asChild className="w-full" size="lg">
+            {timedOut && (
+              <Button className="w-full" size="lg" onClick={handleCheckAgain}>
+                Check again
+              </Button>
+            )}
+            <Button asChild className="w-full" size="lg" variant={timedOut ? "outline" : "default"}>
               <Link to="/solar/app/united-states">Browse US listings</Link>
             </Button>
             <Button asChild variant="outline" className="w-full">
