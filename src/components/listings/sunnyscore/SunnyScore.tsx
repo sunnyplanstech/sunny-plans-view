@@ -17,6 +17,7 @@ import {
   computeContributionBar,
   findFeature,
   formatFeatureValue,
+  MIN_VISIBLE_SHARE,
   type ColumnSide,
   type ContributionBar,
   type ContributionFeature,
@@ -164,7 +165,7 @@ const ScoreGauge = ({
 
       <div className="space-y-2">
         <SideBar
-          label="Helping"
+          label="Strengths"
           icon={<TrendingUp className="h-3 w-3" />}
           labelClass="text-primary"
           groups={helpingGroups}
@@ -174,7 +175,7 @@ const ScoreGauge = ({
           onHover={onHover}
         />
         <SideBar
-          label="Hurting"
+          label="Weaknesses"
           icon={<TrendingDown className="h-3 w-3" />}
           labelClass="text-negative"
           groups={hurtingGroups}
@@ -399,8 +400,13 @@ const HelpingHurtingColumns = ({
       return next;
     });
 
-  const trim = (rows: GroupRow[]): GroupRow[] =>
-    maxRowsPerSide ? rows.slice(0, maxRowsPerSide) : rows;
+  // Drop rows that round to 0% before applying the per-side row cap, so
+  // the cap surfaces the next-most-significant driver rather than burning
+  // a slot on a sub-1% sliver.
+  const trim = (rows: GroupRow[]): GroupRow[] => {
+    const visible = rows.filter((r) => r.shareOfTotal >= MIN_VISIBLE_SHARE);
+    return maxRowsPerSide ? visible.slice(0, maxRowsPerSide) : visible;
+  };
 
   const renderColumn = (rows: GroupRow[], side: ColumnSide) => (
     <div className="flex-1 min-w-0">
@@ -408,8 +414,8 @@ const HelpingHurtingColumns = ({
       {rows.length === 0 ? (
         <div className="text-xs text-muted-foreground italic py-2">
           {side === "helping"
-            ? "No significant helpers."
-            : "No drags worth flagging."}
+            ? "No notable strengths."
+            : "No notable weaknesses."}
         </div>
       ) : (
         <div className="space-y-1">
@@ -461,7 +467,7 @@ const SideHeader = ({ side }: { side: ColumnSide }) => {
       ) : (
         <TrendingDown className="h-3 w-3" />
       )}
-      {isHelping ? "Helping" : "Hurting"}
+      {isHelping ? "Strengths" : "Weaknesses"}
     </div>
   );
 };
@@ -493,6 +499,9 @@ const GroupRowItem = ({
   const sharePct = Math.round(row.shareOfTotal * 100);
   const groupHovered =
     hovered?.groupKey === row.group && hovered?.side === side;
+  const visibleBars = row.bars.filter(
+    (b) => b.shareOfTotal >= MIN_VISIBLE_SHARE,
+  );
 
   return (
     <div>
@@ -540,9 +549,9 @@ const GroupRowItem = ({
         </div>
       </button>
 
-      {expandable && isOpen && row.bars.length > 0 && (
+      {expandable && isOpen && visibleBars.length > 0 && (
         <ul className="mt-2 ml-5 space-y-0.5 text-xs border-l border-border/60 pl-3">
-          {row.bars.map((feat) => {
+          {visibleBars.map((feat) => {
             const isHov = hovered?.key === feat.feature;
             const valueText = formatFeatureValue(feat.feature, feat.rawValue, unit);
             return (

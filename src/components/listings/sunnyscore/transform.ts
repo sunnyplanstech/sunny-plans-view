@@ -246,11 +246,20 @@ const EPSILON_SIGNAL = 1e-6;
 // sliver adds no information and just lengthens the column.
 const RESIDUAL_THRESHOLD = 0.01;
 
-// Side-specific noun for the residual label: "Other land use helpers" vs
-// "Other land use drags". Centralised so the strings are easy to audit.
+// Column rows/bars strictly below 1% of the total SHAP magnitude are
+// hidden in the Strengths/Weaknesses columns — once percentages are the
+// unit, a sub-1% driver isn't worth a row. Visible percentages won't sum
+// to exactly 100%; that's intentional. The gauge segments still render
+// everything so the full distribution stays visible at a glance.
+export const MIN_VISIBLE_SHARE = 0.01;
+
+// Side-specific noun for the residual label: "Other land use strengths"
+// vs "Other land use weaknesses". Centralised so the strings are easy to
+// audit. Note: ColumnSide values stay "helping"/"hurting" internally —
+// only the display strings reframe the column as parcel attributes.
 const RESIDUAL_NOUN: Record<ColumnSide, string> = {
-  helping: "helpers",
-  hurting: "drags",
+  helping: "strengths",
+  hurting: "weaknesses",
 };
 
 interface RawFeature {
