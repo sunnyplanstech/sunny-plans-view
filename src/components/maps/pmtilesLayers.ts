@@ -227,17 +227,19 @@ const HARD_EXCLUSION_BASE = {
 //   - RGB → scrim colour (the dim ink the layer paints with)
 //   - A   → max scrim alpha (how dark the dim looks at full strength)
 //
-// Alpha 115 ≈ 45%, calibrated to read as "this part of the map is
-// being de-emphasised" without going so dark it becomes unreadable.
-// All overlays default-on so the detail map shows the full constraint
-// landscape (slope, PAD/Natura 2000, NWI) the moment it mounts —
-// primary trust signal for free/public viewers that the underlying
-// data is real and comprehensive. Users can still toggle layers off
-// individually via LayerPanel.
+// SCRIM_INK_DEEP is the near-black ink picked from the in-page A/B
+// preset comparison: at ~82% opacity the unsuitable wash reads as
+// intentional darkening — not basemap shadow — and the contrast at
+// the slope_lt_5 boundary is obvious without needing a separate
+// vector outline pass. Distinct from the neutral SCRIM_INK used by
+// HARD_EXCLUSION_BASE (which sits under a hatch and needs to stay
+// lighter so the stripes remain legible).
+const SCRIM_INK_DEEP = [12, 14, 18] as const;
+
 const SUITABLE_BASE = {
   role: "target" as const,
   kind: "raster" as const,
-  fillColor: [...SCRIM_INK, 115] as [number, number, number, number],
+  fillColor: [...SCRIM_INK_DEEP, 210] as [number, number, number, number],
   defaultVisible: true,
 };
 
