@@ -75,6 +75,16 @@
   status = 200
   force = true
 
+# Shared analytics loader (GA4 + Hotjar + outbound-click tracking).
+# Source: pipelines/core/seo/static/analytics.js, published to GCS via
+# `make publish-analytics`. Both the SPA and the static pSEO pages load
+# it from /analytics.js so there's one source of truth for tracking.
+[[redirects]]
+  from = "/analytics.js"
+  to = "https://storage.googleapis.com/sunnyplans-seo/analytics.js"
+  status = 200
+  force = true
+
 [[redirects]]
   from = "/*"
   to = "/index.html"
