@@ -43,12 +43,14 @@ export async function signup(
   email: string,
   password1: string,
   password2: string,
+  turnstileToken?: string,
 ): Promise<AuthResult> {
   return unwrapLogin(
     await postJson<DjRestAuthLoginResponse>("/api/auth/registration/", {
       email,
       password1,
       password2,
+      turnstile_token: turnstileToken ?? "",
     }),
   );
 }

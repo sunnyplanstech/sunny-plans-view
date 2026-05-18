@@ -25,7 +25,7 @@ export interface AuthContextValue {
   isAuthenticated: boolean;
   isLoading: boolean;
   login: (email: string, password: string) => Promise<void>;
-  signup: (email: string, password1: string, password2: string) => Promise<void>;
+  signup: (email: string, password1: string, password2: string, turnstileToken?: string) => Promise<void>;
   loginWithGoogle: (code: string) => Promise<void>;
   logout: () => Promise<void>;
   /** Re-fetch the profile (e.g. after Stripe checkout updates the subscription). */
@@ -102,12 +102,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   );
 
   const signup = useCallback(
-    async (email: string, password1: string, password2: string) => {
+    async (email: string, password1: string, password2: string, turnstileToken?: string) => {
       // Discard the tokens dj-rest-auth returns. The user must verify
       // their email and explicitly log in — otherwise Register would
       // silently authenticate them and they'd enter the app with
       // email_verified=false, bypassing the /check-your-email gate.
-      await apiSignup(email, password1, password2);
+      await apiSignup(email, password1, password2, turnstileToken);
     },
     [],
   );

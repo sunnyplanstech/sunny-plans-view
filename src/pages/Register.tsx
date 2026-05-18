@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useCallback, useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -9,8 +9,11 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "
 import SEOHead from "@/components/listings/SEOHead";
 import Footer from "@/components/Footer";
 import GoogleButton from "@/components/auth/GoogleButton";
+import Turnstile from "@/components/auth/Turnstile";
 import { useAuth } from "@/hooks/useAuth";
 import { AuthError, buildNextQuery, readNextParam } from "@/lib/auth";
+
+const TURNSTILE_SITE_KEY = import.meta.env.VITE_TURNSTILE_SITE_KEY ?? "";
 
 const schema = z
   .object({
@@ -31,20 +34,29 @@ const Register = () => {
   const navigate = useNavigate();
   const next = readNextParam(location.search);
   const [error, setError] = useState<string | null>(null);
+  const [turnstileToken, setTurnstileToken] = useState<string>("");
 
   const form = useForm<FormValues>({
     resolver: zodResolver(schema),
     defaultValues: { email: "", password1: "", password2: "" },
   });
 
+  const handleTurnstileVerify = useCallback((token: string) => setTurnstileToken(token), []);
+  const handleTurnstileExpire = useCallback(() => setTurnstileToken(""), []);
+
   const onSubmit = async (values: FormValues) => {
     setError(null);
+    if (TURNSTILE_SITE_KEY && !turnstileToken) {
+      setError("Please complete the captcha before submitting.");
+      return;
+    }
     try {
-      await signup(values.email, values.password1, values.password2);
+      await signup(values.email, values.password1, values.password2, turnstileToken);
       const params = new URLSearchParams({ email: values.email });
       if (next !== "/") params.set("next", next);
       navigate(`/check-your-email?${params.toString()}`, { replace: true });
     } catch (err) {
+      setTurnstileToken("");
       setError(err instanceof AuthError ? err.message : "Signup failed. Please try again.");
     }
   };
@@ -123,6 +135,14 @@ const Register = () => {
                   </FormItem>
                 )}
               />
+              {TURNSTILE_SITE_KEY && (
+                <Turnstile
+                  siteKey={TURNSTILE_SITE_KEY}
+                  onVerify={handleTurnstileVerify}
+                  onExpire={handleTurnstileExpire}
+                  onError={handleTurnstileExpire}
+                />
+              )}
               <Button type="submit" className="w-full" disabled={form.formState.isSubmitting}>
                 {form.formState.isSubmitting ? "Creating account..." : "Sign up"}
               </Button>
