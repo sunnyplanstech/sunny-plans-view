@@ -230,107 +230,172 @@ export interface Explanation {
   maxSideTotal: number;
 }
 
-export function buildExplanation(payload: ParcelPayload): Explanation {
-  const byGroup: Record<GroupKey, { name: string; value: number }[]> = {
+// ---------------------------------------------------------------------------
+// buildExplanation — pure pipeline from raw contributions to the
+// renderable per-side structure. Lifted helpers below the constants keep
+// the orchestrator at the bottom readable as prose.
+// ---------------------------------------------------------------------------
+
+export type ColumnSide = "helping" | "hurting";
+
+// SHAP magnitudes below this are treated as no signal: zero-net groups
+// and floating-point dust would otherwise emit empty rows.
+const EPSILON_SIGNAL = 1e-6;
+
+// Residuals below this magnitude are dropped — a sub-0.01 "Other ___"
+// sliver adds no information and just lengthens the column.
+const RESIDUAL_THRESHOLD = 0.01;
+
+// Side-specific noun for the residual label: "Other land use helpers" vs
+// "Other land use drags". Centralised so the strings are easy to audit.
+const RESIDUAL_NOUN: Record<ColumnSide, string> = {
+  helping: "helpers",
+  hurting: "drags",
+};
+
+interface RawFeature {
+  name: string;
+  value: number;
+}
+
+const bucketFeaturesByGroup = (
+  contributions: Contributions,
+): Record<GroupKey, RawFeature[]> => {
+  const byGroup: Record<GroupKey, RawFeature[]> = {
     grid: [],
     solar: [],
     terrain: [],
     land_use: [],
     constraints: [],
   };
-
-  for (const [feature, value] of Object.entries(payload.contributions)) {
-    const group = FEATURE_TO_GROUP[feature];
-    if (!group) continue;
-    byGroup[group].push({ name: feature, value });
+  for (const [name, value] of Object.entries(contributions)) {
+    const group = FEATURE_TO_GROUP[name];
+    if (group) byGroup[group].push({ name, value });
   }
+  return byGroup;
+};
+
+const splitBySign = (
+  features: RawFeature[],
+): { positives: RawFeature[]; negatives: RawFeature[] } => ({
+  positives: features.filter((f) => f.value > 0),
+  negatives: features.filter((f) => f.value < 0),
+});
+
+const sumValues = (features: RawFeature[]): number =>
+  features.reduce((s, f) => s + f.value, 0);
+
+// Top-N most informative features for this side, ranked by |SHAP|.
+// Opaque-named features (see OPAQUE_PATTERN) are excluded from the
+// surfaced list and fall into the residual instead.
+const rankSurfaceableFeatures = (features: RawFeature[]): RawFeature[] =>
+  features
+    .filter((f) => isExplainable(f.name))
+    .sort((a, b) => Math.abs(b.value) - Math.abs(a.value))
+    .slice(0, MAX_FEATURES_PER_GROUP);
+
+const buildFeatureBar = (
+  feature: RawFeature,
+  rawValue: number | null,
+): FeatureRow => ({
+  feature: feature.name,
+  label: labelFor(feature.name),
+  value: Math.abs(feature.value),
+  signedValue: feature.value,
+  shareOfSide: 0,
+  shareOfTotal: 0,
+  rawValue,
+  isResidual: false,
+});
+
+const buildResidualBar = (
+  group: GroupKey,
+  side: ColumnSide,
+  residualValue: number,
+): FeatureRow => ({
+  feature: `__residual_${side}_${group}`,
+  label: `Other ${GROUP_LABEL[group].toLowerCase()} ${RESIDUAL_NOUN[side]}`,
+  value: Math.abs(residualValue),
+  signedValue: residualValue,
+  shareOfSide: 0,
+  shareOfTotal: 0,
+  rawValue: null,
+  isResidual: true,
+});
+
+// Build the GroupRow for one (group, side) combination. Each feature
+// lands on its own side by SHAP sign, so a group with mixed signal
+// produces two rows — one per column. Returns null when the side has no
+// meaningful signal for this group.
+const buildSideRow = (
+  group: GroupKey,
+  sideFeatures: RawFeature[],
+  side: ColumnSide,
+  featureValues: FeatureValues,
+): GroupRow | null => {
+  const sideSum = sumValues(sideFeatures);
+  if (Math.abs(sideSum) < EPSILON_SIGNAL) return null;
+
+  const surfaced = rankSurfaceableFeatures(sideFeatures);
+  const residualValue = sideSum - sumValues(surfaced);
+
+  const bars: FeatureRow[] = surfaced.map((f) =>
+    buildFeatureBar(f, featureValues[f.name] ?? null),
+  );
+  if (Math.abs(residualValue) > RESIDUAL_THRESHOLD) {
+    bars.push(buildResidualBar(group, side, residualValue));
+  }
+
+  return {
+    group,
+    label: GROUP_LABEL[group],
+    total: Math.abs(sideSum),
+    signedSum: sideSum,
+    shareOfSide: 0,
+    shareOfTotal: 0,
+    bars,
+  };
+};
+
+// In-place share normalisation: each row gets shareOfSide (weight within
+// its column) and shareOfTotal (weight across both columns). The
+// denominators are floored so empty sides can't divide by zero.
+const assignShares = (
+  rows: GroupRow[],
+  sideTotal: number,
+  overallTotal: number,
+): void => {
+  const sideDenominator = Math.max(sideTotal, EPSILON_SIGNAL);
+  const overallDenominator = Math.max(overallTotal, EPSILON_SIGNAL);
+  for (const row of rows) {
+    row.shareOfSide = row.total / sideDenominator;
+    row.shareOfTotal = row.total / overallDenominator;
+    for (const bar of row.bars) {
+      bar.shareOfSide = bar.value / sideDenominator;
+      bar.shareOfTotal = bar.value / overallDenominator;
+    }
+  }
+};
+
+export function buildExplanation(payload: ParcelPayload): Explanation {
+  const featureValues = payload.featureValues ?? {};
+  const byGroup = bucketFeaturesByGroup(payload.contributions);
 
   const helping: GroupRow[] = [];
   const hurting: GroupRow[] = [];
-  let helpingTotal = 0;
-  let hurtingTotal = 0;
+  for (const group of Object.keys(byGroup) as GroupKey[]) {
+    const { positives, negatives } = splitBySign(byGroup[group]);
+    const helpingRow = buildSideRow(group, positives, "helping", featureValues);
+    const hurtingRow = buildSideRow(group, negatives, "hurting", featureValues);
+    if (helpingRow) helping.push(helpingRow);
+    if (hurtingRow) hurting.push(hurtingRow);
+  }
 
-  (Object.keys(byGroup) as GroupKey[]).forEach((group) => {
-    const features = byGroup[group];
-    if (features.length === 0) return;
-    const net = features.reduce((s, f) => s + f.value, 0);
-    if (Math.abs(net) < 1e-6) return;
-
-    // Surface group-level signal; counter-direction features fold into
-    // the residual rather than fighting the group's headline direction.
-    const sameSign = features.filter((f) => Math.sign(f.value) === Math.sign(net));
-    const ranked = sameSign
-      .filter((f) => isExplainable(f.name))
-      .sort((a, b) => Math.abs(b.value) - Math.abs(a.value));
-    const surfaced = ranked.slice(0, MAX_FEATURES_PER_GROUP);
-    const residualValue =
-      sameSign.reduce((s, f) => s + f.value, 0) -
-      surfaced.reduce((s, f) => s + f.value, 0) +
-      features
-        .filter((f) => Math.sign(f.value) !== Math.sign(net))
-        .reduce((s, f) => s + f.value, 0);
-
-    const fv = payload.featureValues ?? {};
-    const bars: FeatureRow[] = surfaced.map((f) => ({
-      feature: f.name,
-      label: labelFor(f.name),
-      value: Math.abs(f.value),
-      signedValue: f.value,
-      shareOfSide: 0,
-      shareOfTotal: 0,
-      rawValue: fv[f.name] ?? null,
-      isResidual: false,
-    }));
-
-    if (Math.abs(residualValue) > 0.01) {
-      bars.push({
-        feature: `__residual_${group}`,
-        label: `Other ${GROUP_LABEL[group].toLowerCase()} factors`,
-        value: Math.abs(residualValue),
-        signedValue: residualValue,
-        shareOfSide: 0,
-        shareOfTotal: 0,
-        rawValue: null,
-        isResidual: true,
-      });
-    }
-
-    const row: GroupRow = {
-      group,
-      label: GROUP_LABEL[group],
-      total: Math.abs(net),
-      signedSum: net,
-      shareOfSide: 0,
-      shareOfTotal: 0,
-      bars,
-    };
-
-    if (net > 0) {
-      helping.push(row);
-      helpingTotal += Math.abs(net);
-    } else {
-      hurting.push(row);
-      hurtingTotal += Math.abs(net);
-    }
-  });
-
-  const overallTotal = Math.max(helpingTotal + hurtingTotal, 1e-9);
-  helping.forEach((g) => {
-    g.shareOfSide = g.total / Math.max(helpingTotal, 1e-9);
-    g.shareOfTotal = g.total / overallTotal;
-    g.bars.forEach((b) => {
-      b.shareOfSide = b.value / Math.max(helpingTotal, 1e-9);
-      b.shareOfTotal = b.value / overallTotal;
-    });
-  });
-  hurting.forEach((g) => {
-    g.shareOfSide = g.total / Math.max(hurtingTotal, 1e-9);
-    g.shareOfTotal = g.total / overallTotal;
-    g.bars.forEach((b) => {
-      b.shareOfSide = b.value / Math.max(hurtingTotal, 1e-9);
-      b.shareOfTotal = b.value / overallTotal;
-    });
-  });
+  const helpingTotal = helping.reduce((s, r) => s + r.total, 0);
+  const hurtingTotal = hurting.reduce((s, r) => s + r.total, 0);
+  const overallTotal = helpingTotal + hurtingTotal;
+  assignShares(helping, helpingTotal, overallTotal);
+  assignShares(hurting, hurtingTotal, overallTotal);
 
   helping.sort((a, b) => b.total - a.total);
   hurting.sort((a, b) => b.total - a.total);
@@ -340,15 +405,14 @@ export function buildExplanation(payload: ParcelPayload): Explanation {
     hurting,
     helpingTotal,
     hurtingTotal,
-    maxSideTotal: Math.max(helpingTotal, hurtingTotal, 1e-9),
+    maxSideTotal: Math.max(helpingTotal, hurtingTotal, EPSILON_SIGNAL),
   };
 }
 
 // ---------------------------------------------------------------------------
 // Contribution-bar layout — per-side normalised widths for the gauge.
+// (ColumnSide is declared above so buildExplanation's helpers can use it.)
 // ---------------------------------------------------------------------------
-
-export type ColumnSide = "helping" | "hurting";
 
 export interface ContributionFeature {
   key: string;
