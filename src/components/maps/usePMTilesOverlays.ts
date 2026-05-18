@@ -5,8 +5,6 @@ import {
   HATCH_PATTERN_SCALE,
   getHatchAtlasUrl,
 } from "./hatchPatternAtlas";
-import { TargetScrimBitmapLayer } from "./targetScrimBitmapLayer";
-
 // Per-layer toggle state owned by the parent (LayerPanel writes, this
 // hook reads). Kept separate from PMTilesLayerConfig so the immutable
 // catalog stays decoupled from the live UI state.
@@ -369,25 +367,16 @@ export function usePMTilesOverlays(
               // BitmapLayer bounds = [west, south, east, north].
               // TileLayer's boundingBox is [[w,s],[e,n]] in lon/lat.
               const [[w, s], [e, n]] = props.tile.boundingBox;
-              // Target-role raster: the source PNG is a *mask* of the
-              // suitability predicate. TargetScrimBitmapLayer inverts
-              // the alpha channel in its fragment shader so the same
-              // tile renders as a scrim with a polygon-shaped hole —
-              // the user sees the basemap unmodified inside the mask
-              // and a dimmed surround outside, with an olive boundary
-              // line at the transition.
-              const isTarget = layer.role === "target";
-              const Ctor = isTarget
-                ? TargetScrimBitmapLayer
-                : mods.BitmapLayer;
-              return new Ctor({
+              // Target-role rasters (slope) are baked so alpha=255
+              // means "scrim this pixel" and alpha=0 means "leave
+              // alone"; the bake also clips to the partition polygon
+              // so neighbouring region tiles don't overlap. A plain
+              // BitmapLayer with tintColor reproduces the dim exactly:
+              // RGB → tint colour, A → per-pixel opacity.
+              return new mods.BitmapLayer({
                 id: `${props.id}-bitmap`,
                 image: props.data as ImageBitmap,
                 bounds: [w, s, e, n],
-                // For non-target rasters, RGB → tint, A → opacity, the
-                // same convention BitmapLayer has always used.
-                // For target rasters, the custom layer reinterprets
-                // RGB → scrim colour and A → scrim alpha.
                 tintColor: [fill[0], fill[1], fill[2]],
                 opacity: fill[3] / 255,
               });
@@ -439,10 +428,6 @@ export function usePMTilesOverlays(
       });
     });
 
-    // The spotlight scrim is now intrinsic to each target raster —
-    // TargetScrimBitmapLayer renders the dim itself, with the
-    // polygon-shaped hole baked in by its inverted-alpha fragment
-    // shader. No separate world-bbox SolidPolygonLayer is needed.
     overlay.setProps({ layers: visibleLayers });
   }, [layers, state, headers, bumpInflight]);
 

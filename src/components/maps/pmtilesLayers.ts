@@ -25,20 +25,23 @@
 //     doc specs as "visibly blocking, basemap still readable".
 //   - NWI keeps a slate-blue base + hatch (water convention is strong
 //     enough that breaking it confuses more than it helps).
-//   - Soft-suitability *target* layers (slope_lt_5) are rendered by a
-//     custom subclass — `TargetScrimBitmapLayer` — whose fragment
-//     shader inverts the source mask alpha at render time. Where the
-//     bake's PNG is white (predicate true), the layer emits a fully
-//     transparent pixel; where the PNG is transparent, the layer
-//     emits the scrim ink. The target polygon stays at original
-//     basemap brightness; everything else darkens. The eye lands on
-//     the un-dimmed patches.
+//   - Soft-suitability *target* layers (slope_lt_5) are baked so the
+//     scrim pixels — inside the partition polygon AND failing the
+//     suitability predicate — carry alpha=255, and everything else
+//     (outside the polygon, or suitable terrain) carries alpha=0. A
+//     plain BitmapLayer with tintColor=SCRIM_INK then paints the dim
+//     directly: target-suitable patches and out-of-region area both
+//     show the unmodified basemap; only the unsuitable in-region
+//     pixels darken. Clipping in the bake is what lets neighbouring
+//     region tiles sit side-by-side without painting scrim into each
+//     other's territory.
 //   - Same ink (`SCRIM_INK`, near-black) does the dimming job in both
 //     directions: painted *inside* an avoid polygon as the base fill
-//     under the hatch (so the avoid area looks de-emphasised), or
-//     *outside* a target polygon by the inverted-alpha shader (so the
-//     surroundings look de-emphasised). One hue, two complementary
-//     uses, encoding intent symmetrically across the two roles.
+//     under the hatch (so the avoid area looks de-emphasised), or on
+//     the unsuitable pixels of a target raster (so non-flat terrain
+//     inside the region looks de-emphasised). One hue, two
+//     complementary uses, encoding intent symmetrically across the
+//     two roles.
 //   - Parcels (rendered separately, see ListingsGoogleMap.tsx) remain
 //     the only saturated thing on the map. Nothing here may be louder.
 
@@ -209,22 +212,20 @@ const HARD_EXCLUSION_BASE = {
   defaultVisible: true,
 };
 
-// Soft suitability (target affordance). The visual goal — set by the
-// spotlight-scrim direction in the visual-language doc — is for the
-// target polygon to read as *un-dimmed basemap* against a darkened
-// surround, with an olive boundary line at the transition.
+// Soft suitability (target affordance). Visual goal: target-suitable
+// patches read as *un-dimmed basemap*, surrounded by darkened
+// unsuitable terrain — but only inside the partition's polygon. Out
+// of region stays clean so neighbouring region tiles compose
+// seamlessly into a national picture.
 //
-// `TargetScrimBitmapLayer` (the custom subclass used for any raster
-// target layer) inverts the source PNG's alpha at render time: the
-// PNG is white where slope < 5% / transparent elsewhere, and the
-// custom shader flips that so the polygon area is fully transparent
-// (basemap shines through) while the rest of the tile renders as the
-// scrim colour. The shader also runs a 4-neighbour edge detect on
-// the source alpha and paints the transition in brand olive.
+// The raster bake (`raster_pmtiles.py`) encodes this directly: alpha
+// is 255 where (inside polygon) AND (predicate false), 0 everywhere
+// else. A plain BitmapLayer with `tintColor` then paints the scrim
+// where alpha is high and leaves the rest of the tile transparent.
 //
-// `fillColor` is reinterpreted by the custom layer:
-//   - RGB → scrim colour (the dim painted *outside* the predicate)
-//   - A   → scrim alpha (how dark the dim looks)
+// `fillColor`:
+//   - RGB → scrim colour (the dim ink the layer paints with)
+//   - A   → max scrim alpha (how dark the dim looks at full strength)
 //
 // Alpha 115 ≈ 45%, calibrated to read as "this part of the map is
 // being de-emphasised" without going so dark it becomes unreadable.
