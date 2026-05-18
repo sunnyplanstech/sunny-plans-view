@@ -1,5 +1,10 @@
-[build]
-  environment = { SECRETS_SCAN_OMIT_KEYS = "VITE_SUPABASE_PROJECT_ID,VITE_SUPABASE_PUBLISHABLE_KEY,VITE_SUPABASE_URL,VITE_GOOGLE_MAPS_API_KEY,VITE_GOOGLE_MAP_ID,VITE_GOOGLE_CLIENT_ID" }
+# Note on env vars: every VITE_* var is, by Vite contract, inlined into
+# the client bundle and shipped to every visitor. They MUST NOT be
+# flagged is_secret=true on Netlify — that strips the post_processing
+# scope and causes Netlify to substitute the mask string ("****…") into
+# the bundle, silently breaking prod. vite.config.ts asserts this at
+# build time. No SECRETS_SCAN_OMIT_KEYS needed: with VITE_* vars
+# correctly marked non-secret, the scanner has nothing to flag.
 
 [[redirects]]
   from = "/api/*"

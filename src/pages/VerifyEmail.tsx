@@ -3,8 +3,9 @@ import { Link, useParams } from "react-router-dom";
 import SEOHead from "@/components/listings/SEOHead";
 import Footer from "@/components/Footer";
 import { Button } from "@/components/ui/button";
+import { env } from "@/env";
 
-const API_BASE = import.meta.env.VITE_API_BASE_URL ?? "";
+const API_BASE = env.VITE_API_BASE_URL;
 
 type Status = "pending" | "success" | "error";
 

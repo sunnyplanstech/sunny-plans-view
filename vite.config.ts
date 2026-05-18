@@ -1,10 +1,40 @@
-import { defineConfig, Plugin } from "vite";
+import { defineConfig, loadEnv, Plugin } from "vite";
 import react from "@vitejs/plugin-react-swc";
 import path from "path";
 import { componentTagger } from "lovable-tagger";
 import Sitemap from 'vite-plugin-sitemap';
 
 import { generateDynamicSeoPaths } from './src/data/seoPaths';
+
+// Required public env vars. Empty values, or values starting with `*`
+// (Netlify's masked placeholder, emitted when a var is mistakenly
+// flagged is_secret=true), fail the production build instead of
+// shipping a broken bundle to users.
+const REQUIRED_PUBLIC_ENV = [
+  "VITE_GOOGLE_MAPS_API_KEY",
+  "VITE_GOOGLE_MAP_ID",
+] as const;
+
+function assertPublicEnv(mode: string) {
+  if (mode !== "production") return;
+  const env = loadEnv(mode, process.cwd(), "VITE_");
+  const problems: string[] = [];
+  for (const key of REQUIRED_PUBLIC_ENV) {
+    const value = env[key] ?? "";
+    if (!value) {
+      problems.push(`${key} is empty`);
+    } else if (value.startsWith("*")) {
+      problems.push(
+        `${key} starts with "*" — Netlify mask detected. Flip is_secret=false on the env var (VITE_* is public by definition).`,
+      );
+    }
+  }
+  if (problems.length) {
+    throw new Error(
+      `Frontend env misconfigured — production build aborted:\n  - ${problems.join("\n  - ")}`,
+    );
+  }
+}
 
 // Plugin to convert CSS links to non-render-blocking preload pattern
 function cssPreloadPlugin(): Plugin {
@@ -23,7 +53,9 @@ function cssPreloadPlugin(): Plugin {
 }
 
 // https://vitejs.dev/config/
-export default defineConfig(({ mode }) => ({
+export default defineConfig(({ mode }) => {
+  assertPublicEnv(mode);
+  return {
   server: {
     host: "::",
     port: 8080,
@@ -81,4 +113,5 @@ export default defineConfig(({ mode }) => ({
     minify: 'esbuild',
     target: 'es2020',
   },
-}));
+  };
+});

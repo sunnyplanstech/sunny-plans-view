@@ -5,6 +5,7 @@ import { useGoogleMaps } from "./GoogleMapsProvider";
 import { LayerPanel } from "./LayerPanel";
 import { pmtilesLayersFor, type PMTilesLayerConfig } from "./pmtilesLayers";
 import { usePMTilesOverlays, type PMTilesLayerState } from "./usePMTilesOverlays";
+import { env } from "@/env";
 
 function initialLayerState(
   layers: PMTilesLayerConfig[],
@@ -224,7 +225,7 @@ export function MiniParcelMap({
   // the Maps JS API throws whenever the globally-loaded `marker` library
   // (see GoogleMapsProvider) meets a map without one — even though this
   // map only uses the legacy Marker.
-  const mapId = import.meta.env.VITE_GOOGLE_MAP_ID;
+  const mapId = env.VITE_GOOGLE_MAP_ID;
   const mapOptions: google.maps.MapOptions = {
     mapTypeId: "satellite",
     disableDefaultUI: true,

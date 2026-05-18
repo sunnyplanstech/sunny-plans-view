@@ -1,7 +1,8 @@
 import { useJsApiLoader } from "@react-google-maps/api";
 import { ReactNode, createContext, useContext, useState, useCallback } from "react";
+import { env } from "@/env";
 
-const GOOGLE_MAPS_API_KEY = import.meta.env.VITE_GOOGLE_MAPS_API_KEY || "";
+const GOOGLE_MAPS_API_KEY = env.VITE_GOOGLE_MAPS_API_KEY;
 
 const libraries: ("places" | "geometry" | "drawing" | "visualization" | "marker")[] = ["geometry", "marker"];
 

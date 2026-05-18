@@ -13,6 +13,7 @@ import type { ChoroplethSurface } from "@/countries/types";
 import { getParcelCenter } from "@/lib/geo";
 import { useGoogleMaps } from "./GoogleMapsProvider";
 import { MapLoadingFallback } from "./MapLoadingFallback";
+import { env } from "@/env";
 import type { PMTilesLayerConfig } from "./pmtilesLayers";
 import { PremiumLabelsGate } from "./PremiumLabelsGate";
 import { useAutoFitBounds } from "./useAutoFitBounds";
@@ -194,9 +195,8 @@ export function ListingsGoogleMap({
     if (!isLoaded || typeof google === "undefined") return undefined;
     // mapId is required for AdvancedMarkerElement (useListingMarkers) —
     // without it the Maps JS API throws the "can't load Google Maps
-    // correctly" popup. The ID itself is non-secret (ends up in the
-    // browser bundle) so we read it from a public Vite env var.
-    const mapId = import.meta.env.VITE_GOOGLE_MAP_ID;
+    // correctly" popup.
+    const mapId = env.VITE_GOOGLE_MAP_ID;
     return {
       mapTypeId: "satellite",
       mapTypeControl: true,

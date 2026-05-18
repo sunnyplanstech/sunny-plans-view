@@ -123,6 +123,33 @@ The CTA button is injected by `BlogPost.tsx` between the CTA paragraph and the S
 
 **Keyword cannibalization**: Before writing a new article, identify its primary target query and confirm it doesn't overlap with existing articles. Each article should own a distinct query. Add a `target_query` field in the frontmatter (e.g. `target_query: "solar land lease rates landowners"`) so future articles can check before drifting into the same territory. Never use an HTML comment for this — it will render as visible text.
 
+## Env Vars (`VITE_*` is public, by definition)
+
+Vite inlines `import.meta.env.VITE_*` as **string literals** into the
+client bundle at build time. Every `VITE_*` value ships to every visitor
+and lives in CDN-cached JS. There is no such thing as a "secret VITE_
+var" — if it needs to be secret, route it through the Django API.
+
+**Netlify rule:** every `VITE_*` env var must have `is_secret=false`
+with the scope `builds,functions,post_processing,runtime`. Marking a
+`VITE_*` var as secret strips the `post_processing` scope, which causes
+Netlify to substitute its masked placeholder (`****…last4`) into the
+bundle — silent failure that breaks the app at user runtime, not at
+build time.
+
+Two guardrails enforce this:
+
+- `vite.config.ts` runs `assertPublicEnv()` in production builds; missing
+  or mask-prefixed required vars throw and abort the build.
+- `src/env.ts` is the single typed source of truth (Zod-validated). Never
+  read `import.meta.env.VITE_*` directly from a component — always
+  `import { env } from "@/env"`.
+
+To add a new public var: add it to `.env.example`, declare it in
+`src/env.ts` (mark required vars with `.min(1)` / domain rules), and if
+it's required for the build to be valid, add it to `REQUIRED_PUBLIC_ENV`
+in `vite.config.ts`.
+
 ## Commit Style
 
 One-liner commit messages, no co-authored-by lines.

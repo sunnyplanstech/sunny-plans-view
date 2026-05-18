@@ -12,8 +12,9 @@ import GoogleButton from "@/components/auth/GoogleButton";
 import Turnstile from "@/components/auth/Turnstile";
 import { useAuth } from "@/hooks/useAuth";
 import { AuthError, buildNextQuery, readNextParam } from "@/lib/auth";
+import { env } from "@/env";
 
-const TURNSTILE_SITE_KEY = import.meta.env.VITE_TURNSTILE_SITE_KEY ?? "";
+const TURNSTILE_SITE_KEY = env.VITE_TURNSTILE_SITE_KEY;
 
 const schema = z
   .object({
