@@ -14,17 +14,20 @@
  */
 import { z } from "zod";
 
-const notMasked = (label: string) =>
+// .refine() must come LAST in the chain — it returns ZodEffects, which
+// drops the string-builder methods (.min(), etc.).
+const publicString = (label: string, minLen: number) =>
   z
     .string()
+    .min(minLen)
     .refine(
       (v) => !v.startsWith("*"),
       `${label} starts with "*" — this is the Netlify mask. Flip is_secret=false on the env var.`,
     );
 
 const schema = z.object({
-  VITE_GOOGLE_MAPS_API_KEY: notMasked("VITE_GOOGLE_MAPS_API_KEY").min(20),
-  VITE_GOOGLE_MAP_ID: notMasked("VITE_GOOGLE_MAP_ID").min(8),
+  VITE_GOOGLE_MAPS_API_KEY: publicString("VITE_GOOGLE_MAPS_API_KEY", 20),
+  VITE_GOOGLE_MAP_ID: publicString("VITE_GOOGLE_MAP_ID", 8),
   VITE_GOOGLE_CLIENT_ID: z.string().default(""),
   VITE_TURNSTILE_SITE_KEY: z.string().default(""),
   VITE_API_BASE_URL: z.string().default(""),
