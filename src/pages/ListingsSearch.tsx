@@ -30,6 +30,7 @@
 import { useCallback, useMemo, useState } from "react";
 import { Navigate, useNavigate, useParams, useLocation } from "react-router-dom";
 import { MapHud } from "@/components/maps/MapHud";
+import { SlopeRenderModeChip } from "@/components/maps/SlopeRenderModeChip";
 import { pmtilesLayersFor } from "@/components/maps/pmtilesLayers";
 import type {
   LayerProgress,
@@ -349,16 +350,30 @@ const CountryPreview = ({ adapter, country, region, province }: InnerProps) => {
   const choroplethCount = choroplethVisible
     ? choroplethFeatures?.features.length ?? 0
     : 0;
+  // Slope-render preset chip is only useful while the slope overlay is
+  // actually painting; otherwise the chip would pollute the map for
+  // users not comparing presets. Any target-role overlay being active
+  // is the trigger (today: slope_lt_5_us / slope_lt_5_it).
+  const slopeChipVisible = useMemo(
+    () =>
+      layers.some(
+        (l) => l.role === "target" && l.pmtilesLayerId && overlayIds.has(l.pmtilesLayerId),
+      ),
+    [layers, overlayIds],
+  );
   const mapHud = (
-    <MapHud
-      country={country}
-      regionSlug={pmtilesRegionSlug}
-      zoom={currentZoom}
-      choroplethVisible={choroplethVisible}
-      choroplethCount={choroplethCount}
-      listingCount={visibleListings.length}
-      overlayCount={overlayIds.size}
-    />
+    <>
+      <MapHud
+        country={country}
+        regionSlug={pmtilesRegionSlug}
+        zoom={currentZoom}
+        choroplethVisible={choroplethVisible}
+        choroplethCount={choroplethCount}
+        listingCount={visibleListings.length}
+        overlayCount={overlayIds.size}
+      />
+      <SlopeRenderModeChip visible={slopeChipVisible} />
+    </>
   );
 
   const map = adapter.renderMap({

@@ -5,6 +5,10 @@ import {
   HATCH_PATTERN_SCALE,
   getHatchAtlasUrl,
 } from "./hatchPatternAtlas";
+import {
+  SLOPE_RENDER_PRESETS,
+  getSlopeRenderPreset,
+} from "./slopeRenderMode";
 // Per-layer toggle state owned by the parent (LayerPanel writes, this
 // hook reads). Kept separate from PMTilesLayerConfig so the immutable
 // catalog stays decoupled from the live UI state.
@@ -303,6 +307,13 @@ export function usePMTilesOverlays(
     // skipped in that case and the layer renders as a plain solid fill.
     const hatchAtlasUrl = getHatchAtlasUrl();
 
+    // Resolve the active slope-preset paint once per render pass so
+    // every target-role tile shares the same tint without re-reading
+    // the URL per BitmapLayer. Production override is `?slope-render=…`;
+    // see slopeRenderMode.ts. When the preset is absent or unrecognised
+    // this returns the layer's own `fillColor` verbatim.
+    const slopePreset = SLOPE_RENDER_PRESETS[getSlopeRenderPreset()];
+
     const visibleLayers = layers.flatMap((layer) => {
       const s = state[layer.id];
       if (!s || !s.visible) return [];
@@ -373,12 +384,21 @@ export function usePMTilesOverlays(
               // so neighbouring region tiles don't overlap. A plain
               // BitmapLayer with tintColor reproduces the dim exactly:
               // RGB → tint colour, A → per-pixel opacity.
+              //
+              // Target-role layers honour the slope-render preset so
+              // we can A/B alternate paints (deep dim, cool ink, …)
+              // without rebuilding tiles. Non-target rasters (none
+              // today) fall back to the layer's own `fillColor`.
+              const paint =
+                layer.role === "target"
+                  ? slopePreset
+                  : { rgb: [fill[0], fill[1], fill[2]] as [number, number, number], alpha: fill[3] };
               return new mods.BitmapLayer({
                 id: `${props.id}-bitmap`,
                 image: props.data as ImageBitmap,
                 bounds: [w, s, e, n],
-                tintColor: [fill[0], fill[1], fill[2]],
-                opacity: fill[3] / 255,
+                tintColor: paint.rgb,
+                opacity: paint.alpha / 255,
               });
             }
             // Pattern fills are opt-in per layer; layers without a
