@@ -51,7 +51,7 @@
 # SPA map exception — must precede the /solar/* GCS proxy below.
 # /solar/app/... is the interactive solar map (App.tsx routes); without
 # this rewrite, Netlify's first-match would force-proxy those URLs to
-# gs://sunnyplans-seo/solar/app/index.html, which doesn't exist.
+# gs://sunnyplans-seo-eu/solar/app/index.html, which doesn't exist.
 
 [[redirects]]
   from = "/solar/app/*"
@@ -63,20 +63,20 @@
   to = "/index.html"
   status = 200
 
-# Static pSEO surface served from gs://sunnyplans-seo.
+# Static pSEO surface served from gs://sunnyplans-seo-eu.
 # Pages are rendered as <path>/index.html objects; GCS does not auto-append
 # index.html on its public HTTPS endpoint, so the rewrite spells it out.
 # Sitemaps (index + per-grain) sit at the bucket root.
 
 [[redirects]]
   from = "/solar/*"
-  to = "https://storage.googleapis.com/sunnyplans-seo/solar/:splat/index.html"
+  to = "https://storage.googleapis.com/sunnyplans-seo-eu/solar/:splat/index.html"
   status = 200
   force = true
 
 [[redirects]]
   from = "/sitemap*"
-  to = "https://storage.googleapis.com/sunnyplans-seo/sitemap:splat"
+  to = "https://storage.googleapis.com/sunnyplans-seo-eu/sitemap:splat"
   status = 200
   force = true
 
@@ -86,7 +86,7 @@
 # it from /analytics.js so there's one source of truth for tracking.
 [[redirects]]
   from = "/analytics.js"
-  to = "https://storage.googleapis.com/sunnyplans-seo/analytics.js"
+  to = "https://storage.googleapis.com/sunnyplans-seo-eu/analytics.js"
   status = 200
   force = true
 

@@ -36,7 +36,7 @@ new verticals (van life, etc.) can ship side-by-side without URL
 collisions. Today only solar is shipped, so all routes live under
 `/solar/app/...`. The static pSEO surface for the same vertical sits
 at `/solar/<state>/<county>/...` (see `netlify.toml`, proxied from
-`gs://sunnyplans-seo`); both are sunnyplans-docs/03_marketing/00_positioning.md
+`gs://sunnyplans-seo-eu`); both are sunnyplans-docs/03_marketing/00_positioning.md
 verticals.
 
 All scope levels are handled by `ListingsSearch.tsx`:
