@@ -1,9 +1,9 @@
 // Pure color scales shared across the map's overlays. Kept free of
 // React and Google Maps so they're trivially testable and stay
-// consistent between the parcel markers, hex heatmap, and choropleth.
+// consistent between the parcel markers and choropleth.
 
 /**
- * SunnyScore probability → marker / hex tint.
+ * SunnyScore probability → marker tint.
  * Yellow at low scores → orange at mid → red at high.
  * `prob` is clamped to [0, 1] so callers can pass raw values.
  */
@@ -15,15 +15,6 @@ export function probSolarToColor(prob: number): string {
   }
   const hue = 30 - (clamped - 0.5) * 60;
   return `hsl(${hue}, 100%, 50%)`;
-}
-
-/**
- * Hex-cell fill opacity scaled by point count.
- * Lighter when the cell is sparse, denser when it's near the global max.
- */
-export function probSolarToOpacity(pointCount: number, maxCount: number): number {
-  if (maxCount === 0) return 0.3;
-  return 0.25 + 0.5 * (pointCount / maxCount);
 }
 
 /**

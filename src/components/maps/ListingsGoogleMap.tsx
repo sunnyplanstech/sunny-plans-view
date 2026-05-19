@@ -1,4 +1,4 @@
-// Listings map — Google Maps canvas plus markers / heatmap / choropleth /
+// Listings map — Google Maps canvas plus markers / choropleth /
 // PMTiles overlays. The page owns selection state and the layer catalog
 // (passed in via `pmtilesLayers` + `pmtilesState`); the map drives the
 // deck.gl wiring against its own `google.maps.Map` instance and emits
@@ -8,7 +8,6 @@
 import { GoogleMap } from "@react-google-maps/api";
 import { useEffect, useMemo, useState, type ReactNode } from "react";
 import type { USListing } from "@/countries/unitedStates";
-import type { HexCell } from "@/hooks/useHexHeatmap";
 import type { ChoroplethSurface } from "@/countries/types";
 import { getParcelCenter } from "@/lib/geo";
 import { useGoogleMaps } from "./GoogleMapsProvider";
@@ -18,7 +17,6 @@ import type { PMTilesLayerConfig } from "./pmtilesLayers";
 import { PremiumLabelsGate } from "./PremiumLabelsGate";
 import { useAutoFitBounds } from "./useAutoFitBounds";
 import { useChoroplethLayer } from "./useChoroplethLayer";
-import { useHexHeatmapLayer } from "./useHexHeatmapLayer";
 import { useListingMarkers, type ListingMarkerItem } from "./useListingMarkers";
 import { useMapZoom } from "./useMapZoom";
 import {
@@ -35,13 +33,6 @@ interface ListingsGoogleMapProps {
   // URL scope hint — drives the auto-fit-bounds latch reset and the
   // default center/zoom.
   regionSlug?: string;
-  hexCells?: HexCell[];
-  showHeatmap?: boolean;
-  hexLoading?: boolean;
-  // Reserved for the in-map LayerPanel composed by the production
-  // listings page. The map itself doesn't render the panel; the
-  // page passes it via `overlays`.
-  onToggleHeatmap?: () => void;
   // Surfaces every zoom_changed event to the parent. The layer-first
   // page uses this to gate the constraint bar's "zoom in to apply"
   // hint. `undefined` until the map mounts.
@@ -89,8 +80,6 @@ export function ListingsGoogleMap({
   className,
   country,
   regionSlug,
-  hexCells,
-  showHeatmap = false,
   onZoomChange,
   onListingClick,
   choropleth,
@@ -163,13 +152,6 @@ export function ListingsGoogleMap({
     enabled: !choroplethVisible,
     items: markerItems,
     onClick: onListingClick,
-  });
-
-  useHexHeatmapLayer({
-    map,
-    isLoaded,
-    enabled: showHeatmap,
-    cells: hexCells,
   });
 
   // TEMP: choropleth disabled

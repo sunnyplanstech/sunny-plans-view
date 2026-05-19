@@ -1,7 +1,6 @@
 import { useState } from "react";
 import { ChevronDown, ChevronUp, Layers, Loader2 } from "lucide-react";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Button } from "@/components/ui/button";
 import type { PMTilesLayerConfig } from "./pmtilesLayers";
 import type {
   LayerHeader,
@@ -30,13 +29,6 @@ interface LayerPanelProps {
   // continuous as the user pans/zooms — there's no honest total.
   layerProgress?: Record<string, LayerProgress>;
   currentZoom?: number;
-
-  // Heatmap is special-cased here so the user has one place to manage
-  // every overlay; the underlying data shape (server-rendered hexes vs.
-  // client-loaded PMTiles) is incidental.
-  showHeatmap?: boolean;
-  hexLoading?: boolean;
-  onToggleHeatmap?: () => void;
 }
 
 function rgbCss([r, g, b]: [number, number, number, number]): string {
@@ -74,19 +66,12 @@ export function LayerPanel({
   layerHeaders,
   layerProgress,
   currentZoom,
-  showHeatmap,
-  hexLoading,
-  onToggleHeatmap,
 }: LayerPanelProps) {
   const [open, setOpen] = useState(false);
 
-  const showHeatmapRow = !!onToggleHeatmap;
-  const showLayerRows = layers.length > 0;
-  if (!showHeatmapRow && !showLayerRows) return null;
+  if (layers.length === 0) return null;
 
-  const visibleCount =
-    (showHeatmap ? 1 : 0) +
-    layers.filter((l) => state[l.id]?.visible).length;
+  const visibleCount = layers.filter((l) => state[l.id]?.visible).length;
 
   return (
     <div className="absolute top-3 left-3 z-10 w-64 rounded-lg border-0 bg-gray-800/85 text-white shadow-lg backdrop-blur-sm">
@@ -113,35 +98,6 @@ export function LayerPanel({
 
       {open && (
         <div className="space-y-3 border-t border-white/10 px-3 py-3">
-          {showHeatmapRow && (
-            <div className="space-y-1.5">
-              <Button
-                variant={showHeatmap ? "default" : "outline"}
-                size="sm"
-                onClick={onToggleHeatmap}
-                disabled={hexLoading}
-                className="w-full justify-start border-white/20 bg-transparent text-white hover:bg-white/10"
-              >
-                {hexLoading ? (
-                  <Loader2 className="mr-2 h-3.5 w-3.5 animate-spin" />
-                ) : (
-                  <span
-                    className="mr-2 inline-block h-3 w-3 rounded-sm"
-                    style={{
-                      background:
-                        "linear-gradient(90deg, hsl(60,100%,50%), hsl(0,100%,50%))",
-                    }}
-                  />
-                )}
-                {hexLoading
-                  ? "Loading heatmap…"
-                  : showHeatmap
-                    ? "Hide heatmap"
-                    : "Show heatmap"}
-              </Button>
-            </div>
-          )}
-
           {layers.map((layer) => {
             const s = state[layer.id] ?? {
               visible: layer.defaultVisible ?? false,

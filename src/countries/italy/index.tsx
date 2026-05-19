@@ -3,7 +3,6 @@ import { publicApi } from "@/lib/apiClient";
 import { COUNTRIES } from "@/data/locations";
 import ITListingCard from "@/components/listings/ITListingCard";
 import ListingsGoogleMap from "@/components/maps/ListingsGoogleMap";
-import { useITHexHeatmap } from "@/hooks/useHexHeatmap";
 import type {
   BaseListing,
   CountryAdapter,
@@ -141,7 +140,6 @@ export const italy: CountryAdapter = {
 
   parseScope: parseScopeFromParams,
   useListings: useITListings as CountryAdapter["useListings"],
-  useHeatmap: useITHexHeatmap,
 
   formatScopeName: scopeName,
   formatParentName: parentName,
@@ -174,10 +172,6 @@ export const italy: CountryAdapter = {
         className="w-full h-full min-h-[400px]"
         country="italy"
         regionSlug={regionSlug}
-        hexCells={props.hexCells}
-        showHeatmap={props.showHeatmap}
-        hexLoading={props.hexLoading}
-        onToggleHeatmap={props.onToggleHeatmap}
         onZoomChange={props.onZoomChange}
         onListingClick={props.onListingClick}
         choropleth={props.choropleth}

@@ -44,7 +44,6 @@ const tiers = [
     period: "",
     description: "Scalable geo-analytics for portfolio expansion. Interactive tools, no emails—just results.",
     features: [
-      "Interactive heatmap for discovery",
       "API integrations",
       "Dedicated manager",
       "Unlimited exports",

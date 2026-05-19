@@ -2,7 +2,7 @@ import type { CountryAdapter } from "./types";
 import { unitedStates } from "./unitedStates";
 import { italy } from "./italy";
 
-export type { CountryAdapter, Scope, BaseListing, HexCell, SeoCopy, MapRenderProps } from "./types";
+export type { CountryAdapter, Scope, BaseListing, SeoCopy, MapRenderProps } from "./types";
 export { unitedStates, italy };
 
 const REGISTRY: Record<string, CountryAdapter> = {

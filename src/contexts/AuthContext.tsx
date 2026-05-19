@@ -92,8 +92,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     async (email: string, password: string) => {
       const { tokens, user: profile } = await apiLogin(email, password);
       // Drop any data fetched anonymously — symmetric to logout. Without
-      // this, listing/heatmap queries cached as the anon user (with
-      // `****` placeholders) stay live until natural staleness.
+      // this, listing queries cached as the anon user (with `****`
+      // placeholders) stay live until natural staleness.
       queryClient.clear();
       setSession(tokens);
       setUser(profile);

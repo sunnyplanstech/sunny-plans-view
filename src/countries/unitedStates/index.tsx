@@ -7,7 +7,6 @@ import {
 } from "@/data/mockListings";
 import USListingCard from "@/components/listings/USListingCard";
 import ListingsGoogleMap from "@/components/maps/ListingsGoogleMap";
-import { useUSHexHeatmap } from "@/hooks/useHexHeatmap";
 import type {
   BaseListing,
   CountryAdapter,
@@ -130,7 +129,6 @@ export const unitedStates: CountryAdapter = {
 
   parseScope: parseScopeFromParams,
   useListings: useUSListings as CountryAdapter["useListings"],
-  useHeatmap: useUSHexHeatmap,
 
   formatScopeName: scopeName,
   formatParentName: parentName,
@@ -162,10 +160,6 @@ export const unitedStates: CountryAdapter = {
         className="w-full h-full min-h-[400px]"
         country="united-states"
         regionSlug={regionSlug}
-        hexCells={props.hexCells}
-        showHeatmap={props.showHeatmap}
-        hexLoading={props.hexLoading}
-        onToggleHeatmap={props.onToggleHeatmap}
         onZoomChange={props.onZoomChange}
         onListingClick={props.onListingClick}
         choropleth={props.choropleth}

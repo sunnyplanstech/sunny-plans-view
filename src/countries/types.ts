@@ -1,6 +1,5 @@
 import type { ReactNode } from "react";
 import type { UseQueryResult } from "@tanstack/react-query";
-import type { HexCell } from "@/hooks/useHexHeatmap";
 import type { PMTilesLayerConfig } from "@/components/maps/pmtilesLayers";
 import type {
   LayerHeader,
@@ -8,8 +7,6 @@ import type {
   PMTilesLayerState,
 } from "@/components/maps/usePMTilesOverlays";
 import type { Layer } from "@/components/layers/registry";
-
-export type { HexCell };
 
 export type Scope =
   | { level: "national" }
@@ -46,10 +43,6 @@ export interface SeoCopy {
 export interface MapRenderProps {
   listings: BaseListing[];
   scope: Scope;
-  hexCells?: HexCell[];
-  showHeatmap: boolean;
-  hexLoading: boolean;
-  onToggleHeatmap?: () => void;
   // Zoom-aware UI hooks: the constraint bar uses the current map zoom
   // to surface a "zoom in to apply (zN+)" hint per layer. The map
   // calls this on every zoom_changed event. `undefined` means the map
@@ -126,7 +119,6 @@ export interface CountryAdapter {
     limit: number,
     extraParams?: URLSearchParams,
   ): UseQueryResult<BaseListing[]>;
-  useHeatmap(enabled: boolean): UseQueryResult<HexCell[]>;
 
   formatScopeName(scope: Scope): string;
   formatParentName(scope: Scope): string;

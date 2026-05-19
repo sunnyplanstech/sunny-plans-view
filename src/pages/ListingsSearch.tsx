@@ -181,7 +181,6 @@ const CountryPreview = ({ adapter, country, region, province }: InnerProps) => {
     [pmtilesLayers, overlayIds],
   );
   const listingsQuery = adapter.useListings(scope, LIMIT);
-  const heatmapQuery = adapter.useHeatmap(false);
   const allListings = useMemo(
     () => listingsQuery.data ?? [],
     [listingsQuery.data],
@@ -364,9 +363,6 @@ const CountryPreview = ({ adapter, country, region, province }: InnerProps) => {
   const map = adapter.renderMap({
     listings: visibleListings,
     scope,
-    hexCells: heatmapQuery.data,
-    showHeatmap: false,
-    hexLoading: false,
     onZoomChange: setCurrentZoom,
     onListingClick: handleSelectById,
     pmtilesLayers,

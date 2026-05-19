@@ -24,7 +24,7 @@ const steps = [
   {
     number: "05",
     title: "Curated Opportunities",
-    description: "Receive top-ranked, pre-vetted parcels with full scoring breakdowns—delivered to your inbox or explored on our interactive heatmap.",
+    description: "Receive top-ranked, pre-vetted parcels with full scoring breakdowns—delivered to your inbox or explored on our interactive map.",
   },
 ];
 

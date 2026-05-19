@@ -1,5 +1,5 @@
 import { Card, CardContent } from "@/components/ui/card";
-import { Database, Filter, DollarSign, Clock, Shield, Globe, Brain, Map } from "lucide-react";
+import { Database, Filter, DollarSign, Clock, Shield, Globe, Brain } from "lucide-react";
 
 const features = [
   {
@@ -21,11 +21,6 @@ const features = [
     icon: DollarSign,
     title: "Reduce Infrastructure Costs",
     description: "Target substation-proximate parcels to minimize electrical infrastructure expenses and interconnection fees.",
-  },
-  {
-    icon: Map,
-    title: "Interactive Heatmap",
-    description: "Explore solar potential across regions with our live heatmap. Instantly spot high-opportunity zones and drill down to individual parcels.",
   },
   {
     icon: Clock,

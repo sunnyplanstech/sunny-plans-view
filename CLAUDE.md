@@ -90,7 +90,7 @@ import { Button } from "@/components/ui/button";
 
 ## Data Sources
 
-- **Live data** comes from the Django API (`/api/listings/...`). See `src/hooks/useUSListings.ts`, `src/hooks/useITListings.ts`, `src/hooks/useHexHeatmap.ts`, and `src/hooks/usePremiumListing.ts`.
+- **Live data** comes from the Django API (`/api/listings/...`). See `src/hooks/useUSListings.ts`, `src/hooks/useITListings.ts`, and `src/hooks/usePremiumListing.ts`.
 - **Static structural data** (`src/data/counties.json`, `src/data/comuni.json`) lists the available counties/comuni and is baked from the marts; refresh by re-running the bake script in the parent repo.
 - **Mock data** in `src/data/mockListings.ts` is only used by demo/landing components.
 
