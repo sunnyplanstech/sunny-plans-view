@@ -14,7 +14,7 @@ The national range that gets cited most often — somewhere between $500 and $2,
 
 The rate a developer can offer tracks how much it costs to get power from a parcel to the grid. A solar project needs a point of interconnection — typically a substation with available capacity — and every additional mile of transmission line a developer has to build adds cost that comes out of the lease rate. A parcel two miles from a high-capacity substation supports a higher annual payment than one twelve miles away, even if both parcels have identical solar irradiance and zoning.
 
-NREL's analysis of utility-scale solar siting consistently ranks substation proximity as a top-tier constraint variable, and the [criteria developers use to evaluate land viability](/blog/what-makes-land-viable-solar-farm) reflect exactly that — grid access shapes the financial model before irradiance enters the calculation.
+NREL's analysis of utility-scale solar siting consistently ranks substation proximity as a top-tier constraint variable, and the [criteria developers use to evaluate land viability](/solar/blog/what-makes-land-viable-solar-farm) reflect exactly that — grid access shapes the financial model before irradiance enters the calculation.
 
 ## ISO/RTO Territory Shapes Developer Competition
 
@@ -53,7 +53,7 @@ Ranges for Midwest and Mid-Atlantic states are directional — the variation wit
 
 The top of the rate range reflects parcels where most of the developer's risk and cost has already been filtered out: grid proximity under two miles, no significant wetland or conservation constraints, clear zoning, and an interconnection zone where studies aren't backed up for years. These parcels are a minority.
 
-The bottom of the range reflects land where the developer absorbs real cost or risk — distance from infrastructure, flood zone exposure, a congested [interconnection queue](/blog/solar-interconnection-queue-explained) that could add years to the project timeline. The lower offer isn't a negotiating position; it's what the project economics can support once those costs are priced in.
+The bottom of the range reflects land where the developer absorbs real cost or risk — distance from infrastructure, flood zone exposure, a congested [interconnection queue](/solar/blog/solar-interconnection-queue-explained) that could add years to the project timeline. The lower offer isn't a negotiating position; it's what the project economics can support once those costs are priced in.
 
 A parcel that clears the grid proximity filter reliably commands the top of the range. One that requires a developer to absorb interconnection uncertainty or extra transmission cost is going to land somewhere lower — and that gap is worth understanding before evaluating any offer.
 

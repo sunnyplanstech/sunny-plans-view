@@ -100,7 +100,26 @@ Custom Tailwind theme in `tailwind.config.ts` with CSS variables (HSL) in `src/i
 
 ## Blog Articles
 
-Articles live in `articles/*.md` with frontmatter (title, description, date, author, tags).
+Articles live in `articles/<vertical>/*.md` with frontmatter (title, description, date, author, tags). Today only `articles/solar/` has content; `articles/vanlife/` is staged for when that vertical ships.
+
+### How the blog is built
+
+**Not a SPA route.** The blog is rendered to static HTML at build time and served directly from the Netlify deploy. There is no `/blog` or `/solar/blog/:slug` route in `App.tsx` — those URLs hit prebuilt `index.html` files via `netlify.toml` carve-outs that take precedence over the `/solar/*` GCS proxy.
+
+**Pipeline:** `npm run build` does `vite build && node scripts/build-blog.mjs`.
+
+1. `vite build` produces the SPA bundle and emits `dist/.vite/manifest.json` so the blog build can locate the hashed Tailwind CSS file.
+2. `scripts/build-blog.mjs` walks each `articles/<vertical>/` folder, parses frontmatter with `gray-matter`, and loads the SSR entry (`src/entry-blog-ssr.tsx`) through Vite's `ssrLoadModule` — no separate SSR build, the alias `@/` resolves the same way as in the browser build. For each article it calls `renderToString(<BlogPost article={...} basePath="/<vertical>/blog" />)` and stitches the result into `scripts/blog-template.html` with per-page `<head>` tags. Output: `dist/<vertical>/blog/{index.html, <slug>/index.html, sitemap.xml}`.
+
+**To add a vertical:**
+1. Create `articles/<vertical>/` with markdown files.
+2. Add an entry to `VERTICALS` and `VERTICAL_META` in `scripts/build-blog.mjs` (heading, subheading, SEO title/description).
+3. Add a parallel rewrite block to `netlify.toml` (sitemap shadow + `/<vertical>/blog` + `/<vertical>/blog/*`) before the `/solar/*` GCS proxy.
+4. Add the new vertical's sitemap URL to `EXTERNAL_BLOG_SITEMAPS` in `pipelines/core/seo/static_seo_sitemap.py` so Google can discover it via the top-level `sitemap.xml` index.
+
+**Blog components (`src/pages/Blog.tsx`, `src/pages/BlogPost.tsx`) are SSR-only and props-driven.** Don't add a runtime fetcher or wire them into `App.tsx` routes — the static build owns them. They share Navbar/Footer/SEOHead with the SPA, so chrome changes there flow into the blog on the next build.
+
+**Known limitation:** the blog ships static-only with no client-side hydration. The React Navbar renders in its default state (logged out, scroll-static, mobile menu closed) — mobile users can't open the menu from a blog page. Reach other sections via Footer links or the logo. Consistent with the pSEO surface; revisit when interactivity becomes a problem.
 
 ### Writing rules
 

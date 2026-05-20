@@ -16,7 +16,7 @@ The answer is permitting — and permitting for a utility-scale solar project br
 
 There is no single permitting authority for a utility-scale solar project on private land. The federal government has no direct oversight role unless the project touches federal land or receives federal funding. That leaves decision-making split between county-level local government and, in some states, a state siting board.
 
-In most of the country, local government is the primary authority. The county planning board or zoning commission reviews whether the project is an allowed or conditionally allowed use on land of that classification — and if it's conditional, the developer applies for a [Special Use Permit](/blog/solar-special-use-permit), a discretionary approval that requires a public hearing. That process typically takes six months to a year even when a county has reviewed solar applications before.
+In most of the country, local government is the primary authority. The county planning board or zoning commission reviews whether the project is an allowed or conditionally allowed use on land of that classification — and if it's conditional, the developer applies for a [Special Use Permit](/solar/blog/solar-special-use-permit), a discretionary approval that requires a public hearing. That process typically takes six months to a year even when a county has reviewed solar applications before.
 
 Some states have moved this authority to the state level for projects above a certain generating capacity. Fourteen states trigger state-level siting review based on megawatt thresholds — ranging from an extreme low of 15 kW in Vermont (which effectively covers everything) to 300 MW in New Mexico. When a project crosses that threshold, the state siting board preempts the county's zoning ordinance — the county's opinion on the matter stops governing the outcome. The developer deals with a state energy commission or public utilities board instead of county planning staff.
 
@@ -52,7 +52,7 @@ For most private-land solar projects, NEPA never enters the picture. But when it
 
 ## The Interconnection Track Runs Parallel
 
-While the land use permitting is underway, the developer is simultaneously working through the [interconnection queue](/blog/solar-interconnection-queue-explained) — the line of projects waiting for a grid operator (called an ISO or RTO, such as ERCOT in Texas, PJM in the mid-Atlantic, or MISO in the Midwest) to study and approve their grid connection. These two tracks run in parallel, but they rarely finish at the same time.
+While the land use permitting is underway, the developer is simultaneously working through the [interconnection queue](/solar/blog/solar-interconnection-queue-explained) — the line of projects waiting for a grid operator (called an ISO or RTO, such as ERCOT in Texas, PJM in the mid-Atlantic, or MISO in the Midwest) to study and approve their grid connection. These two tracks run in parallel, but they rarely finish at the same time.
 
 In congested grid regions — west Texas, parts of MISO territory, PJM in the mid-Atlantic — the interconnection queue adds two to four years beyond whatever land use permitting requires. Projects that have cleared every local permit and hold a signed lease are still waiting on a grid study result before they can move to construction.
 

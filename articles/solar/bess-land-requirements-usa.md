@@ -22,11 +22,11 @@ A co-located project and a standalone project share almost nothing beyond the ba
 
 ## What Carries Over from Solar
 
-Both technologies need flat terrain, grid access, and land outside wetlands and active floodplains. [FEMA Zone AE](/blog/fema-flood-zones-solar-land) designation — active floodplain — eliminates a parcel regardless of whether the project is panels or battery containers, since elevated flood risk affects both insurability and project financing.
+Both technologies need flat terrain, grid access, and land outside wetlands and active floodplains. [FEMA Zone AE](/solar/blog/fema-flood-zones-solar-land) designation — active floodplain — eliminates a parcel regardless of whether the project is panels or battery containers, since elevated flood risk affects both insurability and project financing.
 
 The slope threshold both share is roughly 5% grade. Above that, site prep costs escalate for different reasons: solar arrays need consistent drainage and panel orientation; battery containers need stable, compacted ground to prevent equipment stress and meet drainage requirements tied to fire suppression systems.
 
-The filters that determine [what makes land viable for a solar farm](/blog/what-makes-land-viable-solar-farm) — wetlands overlays from the NWI, conservation easements, proximity to protected areas in PAD-US — apply to BESS as well. A parcel that fails these screens for solar fails them for storage too.
+The filters that determine [what makes land viable for a solar farm](/solar/blog/what-makes-land-viable-solar-farm) — wetlands overlays from the NWI, conservation easements, proximity to protected areas in PAD-US — apply to BESS as well. A parcel that fails these screens for solar fails them for storage too.
 
 ## No Sun Required
 

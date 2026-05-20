@@ -47,11 +47,11 @@ ERCOT processes small projects — those below 10 MW — on a streamlined interc
 
 ## What the Grid Reality Means for Site Selection
 
-Grid position is more decisive in Texas than the physical attributes of the land itself. A well-sited parcel — flat, agricultural zoning, no wetlands, adequate acreage — in a transmission-congested zone will sit unleasable longer than a moderately constrained parcel in a corridor where the grid still has available capacity to absorb new generation. Understanding [how the interconnection queue works](/blog/solar-interconnection-queue-explained) matters here: a developer's interest in a parcel depends on whether their project can advance through ERCOT's study process, not just whether the land is physically suitable.
+Grid position is more decisive in Texas than the physical attributes of the land itself. A well-sited parcel — flat, agricultural zoning, no wetlands, adequate acreage — in a transmission-congested zone will sit unleasable longer than a moderately constrained parcel in a corridor where the grid still has available capacity to absorb new generation. Understanding [how the interconnection queue works](/solar/blog/solar-interconnection-queue-explained) matters here: a developer's interest in a parcel depends on whether their project can advance through ERCOT's study process, not just whether the land is physically suitable.
 
 ERCOT's transmission maps and interconnection queue data are public. A parcel near a new substation in a congested zone may still fail the economics because the power it produces will be curtailed — produced but unable to flow — before it generates revenue. A parcel near older infrastructure in a zone where the grid isn't yet saturated can be more valuable than the distance to substation alone suggests. Zone position is the first thing worth checking — ERCOT publishes its transmission zone map and interconnection queue by location at ercot.com — before acreage or constraint layers.
 
-Whether a developer will make an offer depends primarily on zone and congestion. Whether the parcel can actually hold a project is a separate question — [the land requirements Texas developers screen for](/blog/solar-farm-land-requirements-texas) (acreage, slope, flood zone, PAD-US conservation constraints, NWI wetlands) apply regardless of which zone the land sits in.
+Whether a developer will make an offer depends primarily on zone and congestion. Whether the parcel can actually hold a project is a separate question — [the land requirements Texas developers screen for](/solar/blog/solar-farm-land-requirements-texas) (acreage, slope, flood zone, PAD-US conservation constraints, NWI wetlands) apply regardless of which zone the land sits in.
 
 ## Lease Rate Ranges in 2026
 

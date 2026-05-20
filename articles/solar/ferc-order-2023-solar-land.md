@@ -17,7 +17,7 @@ FERC Order 2023, issued that July, targeted this specific problem. The rule appl
 
 ## Why the old process broke down
 
-The previous system was serial: one project studied at a time, in arrival order. Every withdrawal triggered a re-run of the analysis for every project behind it — [a cascade that pushed actual timelines to four to six years](/blog/how-long-solar-interconnection-takes) in congested regions like PJM. The deeper problem was cost: entering the queue required a deposit of a few thousand dollars, most of it refundable on exit. Filing speculatively made rational sense. Developers filed early and often. The queue filled with positions that weren't going anywhere.
+The previous system was serial: one project studied at a time, in arrival order. Every withdrawal triggered a re-run of the analysis for every project behind it — [a cascade that pushed actual timelines to four to six years](/solar/blog/how-long-solar-interconnection-takes) in congested regions like PJM. The deeper problem was cost: entering the queue required a deposit of a few thousand dollars, most of it refundable on exit. Filing speculatively made rational sense. Developers filed early and often. The queue filled with positions that weren't going anywhere.
 
 ## What Order 2023 requires
 
@@ -53,7 +53,7 @@ None of this cleared the existing backlog. Cluster reform applies to new applica
 
 ## What it means for land near a substation
 
-The reform sharpened the case for [substation proximity](/blog/substation-proximity-solar-farm) in ways the old system didn't. Under serial studies, a project far from a substation could get studied quickly simply by filing early. Under cluster studies, a project's grid impact is evaluated against every other project in its cohort, against the same transmission constraints. Land that requires less new infrastructure — shorter interconnection lines, smaller upgrade requirements — produces better outcomes across the cluster.
+The reform sharpened the case for [substation proximity](/solar/blog/substation-proximity-solar-farm) in ways the old system didn't. Under serial studies, a project far from a substation could get studied quickly simply by filing early. Under cluster studies, a project's grid impact is evaluated against every other project in its cohort, against the same transmission constraints. Land that requires less new infrastructure — shorter interconnection lines, smaller upgrade requirements — produces better outcomes across the cluster.
 
 Developers now evaluate grid position before committing to site control, because site control comes before the queue. The parcel analysis that used to happen informally during the option period now happens before the lease is signed. That calculus favors land with clean constraint profiles and clear substation proximity.
 

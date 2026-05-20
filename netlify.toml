@@ -63,6 +63,45 @@
   to = "/index.html"
   status = 200
 
+# Blog backward compatibility — the blog moved from /blog/... (SPA route)
+# to /<vertical>/blog/... (static HTML built by scripts/build-blog.mjs).
+# These 301s preserve link equity from articles indexed under the old paths.
+
+[[redirects]]
+  from = "/blog"
+  to = "/solar/blog"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/blog/*"
+  to = "/solar/blog/:splat"
+  status = 301
+  force = true
+
+# Static blog (per vertical) — built into dist/<vertical>/blog/ at deploy
+# time. The /solar/* GCS proxy below has force=true, so we need explicit
+# "shadow" rewrites to ensure local files take precedence. The sitemap
+# rule MUST precede the wildcard, otherwise /solar/blog/sitemap.xml would
+# be rewritten to /solar/blog/sitemap.xml/index.html (a 404).
+#
+# Adding a new vertical = copy this block and replace `solar` → `vanlife`.
+
+[[redirects]]
+  from = "/solar/blog/sitemap.xml"
+  to = "/solar/blog/sitemap.xml"
+  status = 200
+
+[[redirects]]
+  from = "/solar/blog"
+  to = "/solar/blog/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/solar/blog/*"
+  to = "/solar/blog/:splat/index.html"
+  status = 200
+
 # Static pSEO surface served from gs://sunnyplans-seo-eu.
 # Pages are rendered as <path>/index.html objects; GCS does not auto-append
 # index.html on its public HTTPS endpoint, so the rewrite spells it out.

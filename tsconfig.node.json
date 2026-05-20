@@ -19,5 +19,5 @@
     "noUnusedParameters": false,
     "noFallthroughCasesInSwitch": true
   },
-  "include": ["vite.config.ts", "src/data/seoPaths.ts", "src/data/locations.ts", "src/data/counties.json"]
+  "include": ["vite.config.ts"]
 }

@@ -14,8 +14,6 @@ import { AuthProvider } from "@/contexts/AuthContext";
 const ListingsSearch = lazy(() => import("./pages/ListingsSearch"));
 const SunnyScorePreview = lazy(() => import("./pages/SunnyScorePreview"));
 const ListingDetail = lazy(() => import("./pages/ListingDetail"));
-const Blog = lazy(() => import("./pages/Blog"));
-const BlogPost = lazy(() => import("./pages/BlogPost"));
 const Contact = lazy(() => import("./pages/Contact"));
 const Terms = lazy(() => import("./pages/Terms"));
 const VerifyEmail = lazy(() => import("./pages/VerifyEmail"));
@@ -75,9 +73,10 @@ const App = () => (
           {/* Individual listing detail — id is globally unique across US/IT marts */}
           <Route path="/listing/:id" element={<Suspense fallback={<PageLoader />}><ListingDetail /></Suspense>} />
 
-          {/* Blog */}
-          <Route path="/blog" element={<Suspense fallback={<PageLoader />}><Blog /></Suspense>} />
-          <Route path="/blog/:slug" element={<Suspense fallback={<PageLoader />}><BlogPost /></Suspense>} />
+          {/* Blog — served as static HTML from the Netlify deploy under
+              /<vertical>/blog/... (see scripts/build-blog.mjs and
+              netlify.toml). Not a SPA route. The legacy /blog and
+              /blog/:slug paths are 301'd to /solar/blog/... at the edge. */}
 
           {/* Static pages */}
           <Route path="/contact" element={<Suspense fallback={<PageLoader />}><Contact /></Suspense>} />

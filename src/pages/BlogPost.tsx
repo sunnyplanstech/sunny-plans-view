@@ -1,61 +1,65 @@
-import { useEffect, useState } from "react";
-import { useParams, Link } from "react-router-dom";
+import { Link } from "react-router-dom";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
-import { getArticle, type Article } from "@/lib/articles";
+import type { Article } from "@/lib/articles";
 import SEOHead from "@/components/listings/SEOHead";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
-import NotFound from "./NotFound";
 import { Button } from "@/components/ui/button";
 
-const BlogPost = () => {
-  const { slug } = useParams<{ slug: string }>();
-  const [article, setArticle] = useState<Article | null | undefined>(undefined);
+export interface BlogPostProps {
+  article: Article;
+  // Vertical-namespaced base path, e.g. "/solar/blog" or "/vanlife/blog".
+  // Drives the "Back to blog" link and the canonical URL.
+  basePath: string;
+}
 
-  useEffect(() => {
-    window.scrollTo(0, 0);
-    // Reset to the loading state on slug change so the previous post's
-    // body doesn't linger while the new one fetches.
-    setArticle(undefined);
-    if (!slug) return;
-    // Cancellation sentinel: fast slug-switches can resolve out of
-    // order; ignore any response that's no longer for the current slug.
-    let cancelled = false;
-    getArticle(slug).then((a) => {
-      if (!cancelled) setArticle(a);
-    });
-    return () => {
-      cancelled = true;
-    };
-  }, [slug]);
+// Articles place a `**Sources**` heading after the CTA paragraph; the body
+// renderer splits on it so we can drop a CTA button between the article body
+// and the sources block. The exact heading is required by sunny-plans-view
+// CLAUDE.md's "Article ending structure" rules.
+const SOURCES_MARKER = "\n**Sources**";
 
-  if (article === undefined) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="w-8 h-8 border-2 border-primary border-t-transparent rounded-full animate-spin" />
-      </div>
-    );
-  }
+const PROSE_CLASSES = `
+  prose max-w-none
+  prose-headings:text-foreground prose-headings:font-bold
+  prose-h2:text-xl md:prose-h2:text-2xl prose-h2:mt-8 prose-h2:mb-3
+  prose-h3:text-lg md:prose-h3:text-xl prose-h3:mt-6 prose-h3:mb-2
+  prose-p:text-foreground/80 prose-p:leading-relaxed prose-p:mb-5
+  prose-a:text-primary prose-a:no-underline hover:prose-a:underline
+  prose-strong:text-foreground
+  prose-li:text-foreground/80
+  prose-ul:my-4 prose-ol:my-4
+  prose-code:text-primary prose-code:bg-primary/8 prose-code:px-1.5 prose-code:py-0.5 prose-code:rounded prose-code:text-sm prose-code:font-mono
+  prose-pre:bg-muted prose-pre:border prose-pre:border-border
+  prose-blockquote:border-l-primary prose-blockquote:text-muted-foreground
+  prose-hr:border-border
+`;
 
-  if (article === null) return <NotFound />;
+const BlogPost = ({ article, basePath }: BlogPostProps) => {
+  const sourcesIdx = article.content.indexOf(SOURCES_MARKER);
+  const bodyContent = sourcesIdx !== -1
+    ? article.content.slice(0, sourcesIdx)
+    : article.content;
+  const sourcesContent = sourcesIdx !== -1 ? article.content.slice(sourcesIdx) : null;
 
   return (
     <div className="min-h-screen bg-background">
       <SEOHead
         title={`${article.title} - Sunnyplans Blog`}
         description={article.description}
-        canonicalUrl={`https://sunnyplans.com/blog/${article.slug}`}
+        canonicalUrl={`https://sunnyplans.com${basePath}/${article.slug}`}
       />
       <Navbar />
 
       <div className="container max-w-3xl py-32 px-4 mx-auto">
-        {/* Back link */}
-        <Link to="/blog" className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-primary transition-colors mb-10">
+        <Link
+          to={basePath}
+          className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-primary transition-colors mb-10"
+        >
           ← Back to blog
         </Link>
 
-        {/* Post header */}
         <header className="mb-10">
           {article.tags && (
             <div className="flex flex-wrap gap-2 mb-4">
@@ -74,16 +78,32 @@ const BlogPost = () => {
           </h1>
           <p className="text-sm text-muted-foreground flex flex-wrap items-center gap-x-2 gap-y-1 mt-3">
             {article.date && (
-              <span>{new Date(article.date).toLocaleDateString("en-US", {
-                year: "numeric",
-                month: "long",
-                day: "numeric",
-              })}</span>
+              <span>
+                {new Date(article.date).toLocaleDateString("en-US", {
+                  year: "numeric",
+                  month: "long",
+                  day: "numeric",
+                })}
+              </span>
             )}
-            {article.author && <><span className="text-muted-foreground/40">·</span><span>{article.author}</span></>}
+            {article.author && (
+              <>
+                <span className="text-muted-foreground/40">·</span>
+                <span>{article.author}</span>
+              </>
+            )}
             <span className="text-muted-foreground/40">·</span>
             <span className="inline-flex items-center gap-1">
-              <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+              <svg
+                className="w-3.5 h-3.5"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                viewBox="0 0 24 24"
+              >
+                <circle cx="12" cy="12" r="10" />
+                <polyline points="12 6 12 12 16 14" />
+              </svg>
               {article.readingTime} min read
             </span>
           </p>
@@ -91,47 +111,23 @@ const BlogPost = () => {
 
         <div className="border-t border-border mb-10" />
 
-        {/* Article body — brand-matched prose */}
-        {(() => {
-          const proseClasses = `
-            prose max-w-none
-            prose-headings:text-foreground prose-headings:font-bold
-            prose-h2:text-xl md:prose-h2:text-2xl prose-h2:mt-8 prose-h2:mb-3
-            prose-h3:text-lg md:prose-h3:text-xl prose-h3:mt-6 prose-h3:mb-2
-            prose-p:text-foreground/80 prose-p:leading-relaxed prose-p:mb-5
-            prose-a:text-primary prose-a:no-underline hover:prose-a:underline
-            prose-strong:text-foreground
-            prose-li:text-foreground/80
-            prose-ul:my-4 prose-ol:my-4
-            prose-code:text-primary prose-code:bg-primary/8 prose-code:px-1.5 prose-code:py-0.5 prose-code:rounded prose-code:text-sm prose-code:font-mono
-            prose-pre:bg-muted prose-pre:border prose-pre:border-border
-            prose-blockquote:border-l-primary prose-blockquote:text-muted-foreground
-            prose-hr:border-border
-          `;
-          const sourcesIdx = article.content.indexOf('\n**Sources**');
-          const bodyContent = sourcesIdx !== -1 ? article.content.slice(0, sourcesIdx) : article.content;
-          const sourcesContent = sourcesIdx !== -1 ? article.content.slice(sourcesIdx) : null;
-          return (
-            <>
-              <article className={proseClasses}>
-                <ReactMarkdown remarkPlugins={[remarkGfm]}>{bodyContent}</ReactMarkdown>
-              </article>
+        <article className={PROSE_CLASSES}>
+          <ReactMarkdown remarkPlugins={[remarkGfm]}>{bodyContent}</ReactMarkdown>
+        </article>
 
-              {/* CTA button */}
-              <div className="mt-8 flex justify-center">
-                <Button asChild size="lg" className="rounded-full px-8">
-                  <Link to={article.ctaUrl || "/solar/app/united-states"}>Explore land on Sunnyplans →</Link>
-                </Button>
-              </div>
+        <div className="mt-8 flex justify-center">
+          <Button asChild size="lg" className="rounded-full px-8">
+            <Link to={article.ctaUrl || "/solar/app/united-states"}>
+              Explore land on Sunnyplans →
+            </Link>
+          </Button>
+        </div>
 
-              {sourcesContent && (
-                <article className={proseClasses + " mt-10"}>
-                  <ReactMarkdown remarkPlugins={[remarkGfm]}>{sourcesContent}</ReactMarkdown>
-                </article>
-              )}
-            </>
-          );
-        })()}
+        {sourcesContent && (
+          <article className={`${PROSE_CLASSES} mt-10`}>
+            <ReactMarkdown remarkPlugins={[remarkGfm]}>{sourcesContent}</ReactMarkdown>
+          </article>
+        )}
       </div>
 
       <Footer />

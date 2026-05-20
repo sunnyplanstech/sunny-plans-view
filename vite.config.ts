@@ -2,9 +2,6 @@ import { defineConfig, loadEnv, Plugin } from "vite";
 import react from "@vitejs/plugin-react-swc";
 import path from "path";
 import { componentTagger } from "lovable-tagger";
-import Sitemap from 'vite-plugin-sitemap';
-
-import { generateDynamicSeoPaths } from './src/data/seoPaths';
 
 // Required public env vars. Empty values, or values starting with `*`
 // (Netlify's masked placeholder, emitted when a var is mistakenly
@@ -83,16 +80,6 @@ export default defineConfig(({ mode }) => {
     react(),
     mode === "development" && componentTagger(),
     mode === "production" && cssPreloadPlugin(),
-    Sitemap({
-      hostname: 'https://sunnyplans.com',
-
-      dynamicRoutes: generateDynamicSeoPaths(),
-
-      generateRobotsTxt: true,
-      changefreq: 'weekly',
-      priority: 0.7,
-      exclude: ['/404', '/admin/*'],
-    }),
   ].filter(Boolean),
   resolve: {
     alias: {
@@ -100,6 +87,10 @@ export default defineConfig(({ mode }) => {
     },
   },
   build: {
+    // Emit dist/.vite/manifest.json so the static blog build
+    // (scripts/build-blog.mjs) can locate the hashed Tailwind CSS bundle
+    // and link it from each blog page's <head>.
+    manifest: true,
     rollupOptions: {
       output: {
         manualChunks: {

@@ -99,7 +99,7 @@ const Navbar = () => {
             </button>
 
             <a
-              href="/blog"
+              href="/solar/blog"
               target="_blank"
               rel="noopener noreferrer"
               className="px-4 py-2.5 text-base font-medium text-foreground/80 hover:text-foreground rounded-md hover:bg-muted transition-colors"
@@ -165,7 +165,7 @@ const Navbar = () => {
               Pricing
             </button>
             <a
-              href="/blog"
+              href="/solar/blog"
               target="_blank"
               rel="noopener noreferrer"
               onClick={() => setMobileOpen(false)}

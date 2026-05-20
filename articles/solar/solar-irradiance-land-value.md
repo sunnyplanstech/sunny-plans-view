@@ -31,7 +31,7 @@ The premium flows downstream: higher-irradiance states tend to support higher le
 
 ## Why Irradiance Isn't the Primary Driver of Lease Rates
 
-The variation in lease rates across states doesn't approach the variation in solar resource. [Solar land lease rates across the US](/blog/solar-land-lease-rates-usa) range from roughly $500 to $2,000/acre/year in active markets — a 4x spread. The difference in annual GHI between the highest and lowest solar states is around 60%. The two ranges don't align because irradiance is one input into project economics, not the determining one.
+The variation in lease rates across states doesn't approach the variation in solar resource. [Solar land lease rates across the US](/solar/blog/solar-land-lease-rates-usa) range from roughly $500 to $2,000/acre/year in active markets — a 4x spread. The difference in annual GHI between the highest and lowest solar states is around 60%. The two ranges don't align because irradiance is one input into project economics, not the determining one.
 
 Grid access creates the starkest disconnects. The interconnection queue — the waiting list developers join to get permission to connect a new project to the grid — is the binding constraint on solar development in most US regions.
 
@@ -63,7 +63,7 @@ Irradiance functions more as a floor-setter than a value-driver. At annual GHI b
 
 Fixed-tilt panels (mounted at a fixed angle, the standard for most utility-scale projects) are most affected by this threshold; single-axis tracking systems that follow the sun through the day can squeeze more output from lower-irradiance sites, at higher installation cost. Above that range, irradiance becomes one variable among several rather than the deciding one. Parcels in the same county with identical grid access and zoning but 5% higher irradiance don't typically command different lease offers.
 
-What [makes land viable for a solar farm](/blog/what-makes-land-viable-solar-farm) in practice is the combination of adequate irradiance, grid proximity within 5 miles, clean title, zoning that allows solar by right or with a manageable Special Use Permit process, and flood zone status that won't trigger extended FEMA permitting. Irradiance is necessary but rarely the limiting factor once a region clears the minimum threshold.
+What [makes land viable for a solar farm](/solar/blog/what-makes-land-viable-solar-farm) in practice is the combination of adequate irradiance, grid proximity within 5 miles, clean title, zoning that allows solar by right or with a manageable Special Use Permit process, and flood zone status that won't trigger extended FEMA permitting. Irradiance is necessary but rarely the limiting factor once a region clears the minimum threshold.
 
 ---
 

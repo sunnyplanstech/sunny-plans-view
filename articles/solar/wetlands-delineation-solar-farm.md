@@ -55,7 +55,7 @@ Developers order and pay for delineation surveys when a site passes the initial 
 
 A parcel where the survey finds isolated, avoidable wetlands covering less than a half acre at the edge of the buildable footprint is manageable under NWP 57. A parcel where wetlands cover 15 percent of the total acreage — even scattered and seasonal — shrinks the buildable footprint, lengthens the permitting path, and produces an offer that reflects both.
 
-The situation compounds when [FEMA flood zone AE](/blog/fema-flood-zones-solar-land) coverage overlaps with suspected wetlands. Low-lying areas that flood regularly tend to develop hydric soils over time — exactly what surveyors look for. A parcel with Zone AE coverage along a drainage corridor has a materially higher probability of triggering a full delineation requirement, and the Army Corps and local floodplain administrators review those situations jointly. Two constraints in the same location don't add linearly; each makes the other harder to resolve.
+The situation compounds when [FEMA flood zone AE](/solar/blog/fema-flood-zones-solar-land) coverage overlaps with suspected wetlands. Low-lying areas that flood regularly tend to develop hydric soils over time — exactly what surveyors look for. A parcel with Zone AE coverage along a drainage corridor has a materially higher probability of triggering a full delineation requirement, and the Army Corps and local floodplain administrators review those situations jointly. Two constraints in the same location don't add linearly; each makes the other harder to resolve.
 
 ## What to check before any developer conversation
 
@@ -67,7 +67,7 @@ Most landowners don't know their parcel's wetland status until a developer tells
 
 **Topographic context** — Low-lying position relative to surrounding land, proximity to drainage ditches, seasonal ponding in aerial imagery, and any visible vegetation change between the parcel and adjacent upland are indicators worth noting. Surveyors will find them regardless; knowing in advance avoids surprises.
 
-Understanding the full picture of [what makes land viable for a solar farm](/blog/what-makes-land-viable-solar-farm) — grid proximity, acreage, slope, and the constraint layers that sit on top — puts the wetland question in context. Wetlands rarely disqualify a parcel outright; they shrink what's buildable and determine which permitting path applies. The difference between a parcel that works and one that doesn't is usually a matter of where the constraints fall relative to the proposed panel footprint.
+Understanding the full picture of [what makes land viable for a solar farm](/solar/blog/what-makes-land-viable-solar-farm) — grid proximity, acreage, slope, and the constraint layers that sit on top — puts the wetland question in context. Wetlands rarely disqualify a parcel outright; they shrink what's buildable and determine which permitting path applies. The difference between a parcel that works and one that doesn't is usually a matter of where the constraints fall relative to the proposed panel footprint.
 
 ---
 

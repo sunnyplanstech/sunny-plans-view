@@ -45,7 +45,7 @@ In Wagoner County, Oklahoma in 2025, a solar project was rejected after commissi
 
 Most denials share the same underlying combination: the county has a stated policy goal of preserving agricultural character, the specific site borders wetlands or conservation land, and adjacent property owners show up to the hearing. These aren't arbitrary decisions — counties that build their zoning around farmland preservation are telling developers something real about what the board will approve. Checking the county's comprehensive plan (the long-range land use document that guides zoning decisions) before pursuing a parcel is worth doing. A comprehensive plan that lists the area as long-term agricultural will translate into a difficult hearing.
 
-Agrivoltaics — co-locating solar panels with grazing or crops — has been proposed in some counties as a way to keep the land in agricultural use while adding [solar lease income](/blog/how-solar-land-lease-works). In practice, it helps with community optics, and some ordinances explicitly favor dual-use designs. But it doesn't transform the legal classification. Pennsylvania's Commonwealth Court ruled in January 2026 that agrivoltaics does not render a solar farm an "agricultural use" under zoning law — meaning a solar installation that happens to have sheep under the panels still requires the same SUP as any other solar project. Dual-use planning helps, but it doesn't change the underlying zoning question.
+Agrivoltaics — co-locating solar panels with grazing or crops — has been proposed in some counties as a way to keep the land in agricultural use while adding [solar lease income](/solar/blog/how-solar-land-lease-works). In practice, it helps with community optics, and some ordinances explicitly favor dual-use designs. But it doesn't transform the legal classification. Pennsylvania's Commonwealth Court ruled in January 2026 that agrivoltaics does not render a solar farm an "agricultural use" under zoning law — meaning a solar installation that happens to have sheep under the panels still requires the same SUP as any other solar project. Dual-use planning helps, but it doesn't change the underlying zoning question.
 
 ## The Prime Farmland Restriction Wave
 
@@ -71,7 +71,7 @@ Four things are worth checking before making an offer on agricultural land:
 
 3. **NRCS soil survey** — [websoilsurvey.nrcs.usda.gov](https://websoilsurvey.nrcs.usda.gov) provides parcel-level soil classification. Class I and II soils carry increasing regulatory risk, and federal financing restrictions already apply to projects on this land.
 
-4. **[FEMA flood zone classification](/blog/fema-flood-zones-solar-land)** — Zone AE coverage can compound zoning issues, particularly in counties that give extra weight to environmental constraints in the SUP hearing.
+4. **[FEMA flood zone classification](/solar/blog/fema-flood-zones-solar-land)** — Zone AE coverage can compound zoning issues, particularly in counties that give extra weight to environmental constraints in the SUP hearing.
 
 A parcel that clears all four of these checks — solar allowed as a conditional use, no farmland preservation overlay, Class III or lower soils, Zone X — is in a meaningfully better position than one that requires a rezoning fight, sits on prime farmland, and backs up against a conservancy.
 

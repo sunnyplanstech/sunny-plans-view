@@ -72,9 +72,9 @@ Projects in lower-irradiance regions can still be viable, but they need stronger
 
 ## What "Viable" Actually Means in Practice
 
-A parcel passes the viability test when it clears all the hard constraints and produces project economics that justify the developer's permitting and construction investment. That math depends on factors outside the landowner's control — the current state of the [interconnection queue](/blog/solar-interconnection-queue-explained), the contracted power price available in that market, tax credit availability — but the parcel itself contributes most of the inputs.
+A parcel passes the viability test when it clears all the hard constraints and produces project economics that justify the developer's permitting and construction investment. That math depends on factors outside the landowner's control — the current state of the [interconnection queue](/solar/blog/solar-interconnection-queue-explained), the contracted power price available in that market, tax credit availability — but the parcel itself contributes most of the inputs.
 
-The parcels that consistently attract the best [solar land lease](/blog/how-solar-land-lease-works) offers share a profile: 50-plus contiguous flat acres, clean title, agricultural or light commercial zoning, no wetlands or flood risk, and within three to five miles of a substation with available capacity.
+The parcels that consistently attract the best [solar land lease](/solar/blog/how-solar-land-lease-works) offers share a profile: 50-plus contiguous flat acres, clean title, agricultural or light commercial zoning, no wetlands or flood risk, and within three to five miles of a substation with available capacity.
 
 ---
 

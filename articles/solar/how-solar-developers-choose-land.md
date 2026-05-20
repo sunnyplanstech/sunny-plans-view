@@ -29,7 +29,7 @@ After these layers run, surviving parcels get scored by substation distance and 
 
 ## Substation Distance: Where Economics Enter the Screen
 
-Grid proximity isn't just one item on a checklist — it's the filter that determines what the project is worth. Every other constraint is roughly binary. [Substation proximity](/blog/substation-proximity-solar-farm) creates a sliding scale that runs directly into the lease offer.
+Grid proximity isn't just one item on a checklist — it's the filter that determines what the project is worth. Every other constraint is roughly binary. [Substation proximity](/solar/blog/substation-proximity-solar-farm) creates a sliding scale that runs directly into the lease offer.
 
 A developer building a 50 MW project needs to connect to the transmission grid. A parcel within a mile of a high-capacity substation can likely tie in at modest cost using an existing interconnection path. A parcel five miles away requires a privately built generation tie line — a gen-tie — from the project boundary to the grid. Based on EIA benchmarks for 115 kV single-circuit infrastructure, that line costs roughly $1 million per mile to construct. Five miles means $5 million before construction begins.
 
@@ -74,7 +74,7 @@ After constraint exclusion and physical screening, developers look at zoning. Th
 
 Agricultural-zoned land (A-1 or equivalent) is where most rural utility-scale development happens. Many states allow solar as a by-right or conditional use on agricultural land, meaning approval doesn't require a full legislative process. A by-right classification is the best case: standard building permits, no special public hearing. A conditional use requiring a Special Use Permit adds a county board process, potential imposed conditions, and months to the timeline — enough that developers factor permitting risk into how much they're willing to offer.
 
-County-level variation in [agricultural zoning for solar](/blog/agricultural-zoning-solar-farm) is wide enough to matter at the parcel level. Davidson County in North Carolina passed a 24-month moratorium on new solar permits in December 2024 while it worked through new zoning overlay rules. Northampton County imposed restrictions. Halifax County enacted a 120-day temporary moratorium on solar Special Use Permits in October 2024. Developers don't wait out moratoriums — they move to the next county.
+County-level variation in [agricultural zoning for solar](/solar/blog/agricultural-zoning-solar-farm) is wide enough to matter at the parcel level. Davidson County in North Carolina passed a 24-month moratorium on new solar permits in December 2024 while it worked through new zoning overlay rules. Northampton County imposed restrictions. Halifax County enacted a 120-day temporary moratorium on solar Special Use Permits in October 2024. Developers don't wait out moratoriums — they move to the next county.
 
 A variance, where the existing zoning doesn't permit solar at all and the developer would need to argue for an exception, carries permitting risk that most developers won't accept unless the site scores exceptionally well on every other dimension.
 

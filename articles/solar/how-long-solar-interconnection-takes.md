@@ -57,11 +57,11 @@ The practical effect for landowners: timelines are not shortening dramatically y
 
 When a developer signs an option agreement on your land, the option period — typically two to five years — exists largely to accommodate interconnection. The developer needs enough time to complete studies, receive a final interconnection agreement, and confirm whether project economics still hold before committing to a long-term lease.
 
-Understanding how [interconnection queues work](/blog/solar-interconnection-queue-explained) helps interpret developer behavior during the option window. A developer who goes quiet for six months after signing an option is likely waiting on a system impact study result. A request for a one-year extension usually means a restudy cycle, not a project in trouble.
+Understanding how [interconnection queues work](/solar/blog/solar-interconnection-queue-explained) helps interpret developer behavior during the option window. A developer who goes quiet for six months after signing an option is likely waiting on a system impact study result. A request for a one-year extension usually means a restudy cycle, not a project in trouble.
 
 The real risk is that interconnection costs come back higher than the project economics can absorb. An unexpected $8 million substation upgrade requirement on a 15-megawatt project can make the deal unviable regardless of how well the land scores on every other dimension. When that happens, the developer exits the option, you keep the option payments, and the land returns to prior use.
 
-This is also why [substation proximity](/blog/substation-proximity-solar-farm) affects developer economics before a single study is filed. Land close to a substation with available capacity faces a shorter interconnection path and a lower risk that studies return deal-breaking upgrade requirements — a lower risk that gets priced into the lease offer from the beginning.
+This is also why [substation proximity](/solar/blog/substation-proximity-solar-farm) affects developer economics before a single study is filed. Land close to a substation with available capacity faces a shorter interconnection path and a lower risk that studies return deal-breaking upgrade requirements — a lower risk that gets priced into the lease offer from the beginning.
 
 ---
 

@@ -58,9 +58,9 @@ Outdated maps are a frequent source of misclassification. Many rural Flood Insur
 
 ## What This Means If You're Buying Land
 
-For buyers evaluating bare land — agricultural parcels, investment property, parcels being screened for development — Zone AE designation carries regulatory weight that extends beyond insurance. Flood zone status is one layer in [what makes land viable for a solar farm](/blog/what-makes-land-viable-solar-farm) or any other ground-level use: grid proximity, wetland coverage, and Zone AE classification tend to cluster on the same low-lying parcels, and developers evaluate all three before deciding whether a site is worth pursuing.
+For buyers evaluating bare land — agricultural parcels, investment property, parcels being screened for development — Zone AE designation carries regulatory weight that extends beyond insurance. Flood zone status is one layer in [what makes land viable for a solar farm](/solar/blog/what-makes-land-viable-solar-farm) or any other ground-level use: grid proximity, wetland coverage, and Zone AE classification tend to cluster on the same low-lying parcels, and developers evaluate all three before deciding whether a site is worth pursuing.
 
-The specifics of [how Zone AE affects solar farm permitting and project financing](/blog/fema-flood-zones-solar-land) are a separate question — those constraints fall on the developer rather than the landowner holding bare land.
+The specifics of [how Zone AE affects solar farm permitting and project financing](/solar/blog/fema-flood-zones-solar-land) are a separate question — those constraints fall on the developer rather than the landowner holding bare land.
 
 But as a buyer, Zone AE affects resale value, future financing terms, and what you can build without triggering federal floodplain management requirements. The FEMA Flood Map Service Center lets you look up any parcel's current classification before closing. First Street Foundation's [Risk Factor](https://riskfactor.com) tool uses updated climate modeling and often gives a more current read on actual physical risk — it doesn't carry regulatory weight for permitting, but it supplements the FIRM data usefully, especially where maps are old.
 

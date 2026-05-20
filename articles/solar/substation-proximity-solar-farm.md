@@ -40,9 +40,9 @@ The gen-tie is one piece of total interconnection cost. Add substation upgrades 
 
 Developers build their project economics from the revenue side backward — projected power sales over a 25-year term, minus every cost between the land and a working project. The lease payment is what's left after the required return is satisfied. It's the last number in the model, not the first.
 
-That structure is why grid proximity shapes the offer more than [solar irradiance](/blog/solar-irradiance-land-value) does in most markets. Irradiance varies less than interconnection cost across the regions where solar is actively developed. Interconnection cost can swing by millions on a single distance variable, and that swing compresses directly into the lease.
+That structure is why grid proximity shapes the offer more than [solar irradiance](/solar/blog/solar-irradiance-land-value) does in most markets. Irradiance varies less than interconnection cost across the regions where solar is actively developed. Interconnection cost can swing by millions on a single distance variable, and that swing compresses directly into the lease.
 
-On a 100 MW project with a 500-acre footprint, every $5 million increase in interconnection cost works out to roughly a $200/acre/year reduction in the maximum sustainable lease rate. That's not a rounding error — [solar land lease rates across the US](/blog/solar-land-lease-rates-usa) span $500 to $2,000/acre/year in active markets. Two hundred dollars moves an offer from competitive to something a landowner will hesitate to accept without understanding why.
+On a 100 MW project with a 500-acre footprint, every $5 million increase in interconnection cost works out to roughly a $200/acre/year reduction in the maximum sustainable lease rate. That's not a rounding error — [solar land lease rates across the US](/solar/blog/solar-land-lease-rates-usa) span $500 to $2,000/acre/year in active markets. Two hundred dollars moves an offer from competitive to something a landowner will hesitate to accept without understanding why.
 
 When a developer presents a lower number, they rarely explain the line items. You'll hear about "grid access constraints" or "project economics" — technically accurate, but it doesn't tell you that $5 million of the gap is a gen-tie that a neighboring parcel two miles closer to the substation doesn't need.
 

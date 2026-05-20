@@ -28,7 +28,7 @@ In most states, grid proximity is the dominant variable in site selection. In Fl
 
 Southern Florida sits at or near sea level across most of its footprint. The Lake Okeechobee watershed, the Everglades drainage basin, and the coastal lowlands that extend north from Miami through the Treasure Coast carry significant FEMA Zone AE coverage — the 100-year floodplain designation that most project lenders treat as disqualifying for conventional solar financing. The National Wetlands Inventory flags extensive palustrine and estuarine wetlands across the same areas, and hydric soils are widespread enough in the southern interior that a clean NWI result alone doesn't rule out a delineation requirement.
 
-[FEMA flood zone AE](/blog/fema-flood-zones-solar-land) is the constraint that ends more Florida site evaluations than anything else. A parcel in Collier, Lee, Charlotte, or Sarasota counties that clears the utility and acreage filters will often fail the flood screen. The same parcel evaluated in Ohio or Georgia would proceed to interconnection study. In Florida, it doesn't make it past the first GIS layer.
+[FEMA flood zone AE](/solar/blog/fema-flood-zones-solar-land) is the constraint that ends more Florida site evaluations than anything else. A parcel in Collier, Lee, Charlotte, or Sarasota counties that clears the utility and acreage filters will often fail the flood screen. The same parcel evaluated in Ohio or Georgia would proceed to interconnection study. In Florida, it doesn't make it past the first GIS layer.
 
 The filter narrows dramatically as you move inland and north. Highlands County, at an average elevation of around 100 feet above sea level, has a materially different flood and wetland profile than the coastal counties. So does the interior of Marion and Alachua counties in north-central Florida. Developers targeting Florida for independent projects concentrate there for this reason.
 
@@ -65,7 +65,7 @@ FPL's development model also means some Florida landowners receive acquisition o
 
 Independent developers screening Florida parcels run through a specific sequence because the filters that eliminate most sites hit early.
 
-**Flood zone and wetlands first** — before checking substation distance or acreage, look up the parcel in the FEMA Flood Map Service Center and the NWI Wetlands Mapper. In Florida, this filter eliminates a larger share of otherwise attractive parcels than in almost any other high-solar-activity state. Knowing [how wetlands delineation works in solar permitting](/blog/wetlands-delineation-solar-farm) is relevant here: a clean NWI result doesn't mean the parcel is delineation-free, especially in areas with hydric soil coverage.
+**Flood zone and wetlands first** — before checking substation distance or acreage, look up the parcel in the FEMA Flood Map Service Center and the NWI Wetlands Mapper. In Florida, this filter eliminates a larger share of otherwise attractive parcels than in almost any other high-solar-activity state. Knowing [how wetlands delineation works in solar permitting](/solar/blog/wetlands-delineation-solar-farm) is relevant here: a clean NWI result doesn't mean the parcel is delineation-free, especially in areas with hydric soil coverage.
 
 **Utility territory** — identify which utility serves the parcel. FPL and Duke Energy Florida have meaningfully different development cultures and queue dynamics. A parcel in Duke territory may face less competition from the utility's own internal pipeline.
 

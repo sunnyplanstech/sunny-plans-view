@@ -11,7 +11,7 @@ cta_url: "/"
 
 Zone AE land doesn't automatically disqualify a parcel from solar development — but most project lenders treat it as a hard stop, and that shapes everything from the permitting process to what a developer's offer reflects. Whether you can build a solar farm in a flood zone depends less on what FEMA says than on what the project lender decides.
 
-Most landowners find out their parcel's flood classification only when a developer declines to proceed or makes an offer far below the regional [solar land lease rate](/blog/solar-land-lease-rates-usa). The designation affects financing before it affects permitting, which is why deals fall apart later than most landowners expect.
+Most landowners find out their parcel's flood classification only when a developer declines to proceed or makes an offer far below the regional [solar land lease rate](/solar/blog/solar-land-lease-rates-usa). The designation affects financing before it affects permitting, which is why deals fall apart later than most landowners expect.
 
 ## How FEMA Classifies Land
 
@@ -68,7 +68,7 @@ For a more current picture, First Street's Risk Factor tool (firststreet.org) us
 
 ## Where This Intersects With Wetlands
 
-FEMA flood zones and jurisdictional wetlands are distinct constraints determined by different agencies under different criteria. A parcel can be in Zone X and still contain wetlands. A Zone AE parcel may or may not have wetland issues — but flood zone classification is only one layer of [what makes land viable for a solar farm](/blog/what-makes-land-viable-solar-farm). Grid proximity, slope, and zoning all run in parallel, and developers evaluate them together rather than in sequence.
+FEMA flood zones and jurisdictional wetlands are distinct constraints determined by different agencies under different criteria. A parcel can be in Zone X and still contain wetlands. A Zone AE parcel may or may not have wetland issues — but flood zone classification is only one layer of [what makes land viable for a solar farm](/solar/blog/what-makes-land-viable-solar-farm). Grid proximity, slope, and zoning all run in parallel, and developers evaluate them together rather than in sequence.
 
 In practice, flood zones and wetlands frequently overlap — and compound each other. Low-lying areas that flood regularly tend to develop hydric soils and hydrophytic vegetation over time. Those are the field indicators wetland biologists look for during delineation surveys under Army Corps of Engineers Section 404 jurisdiction. A parcel with significant Zone AE coverage is more likely to trigger a wetland delineation requirement, even if it doesn't show up in the National Wetlands Inventory.
 

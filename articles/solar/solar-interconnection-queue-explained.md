@@ -57,13 +57,13 @@ The rule is being implemented on a grid-operator-by-grid-operator basis through 
 
 ## What This Means If You Own Land Being Evaluated for Solar
 
-When a developer approaches you for a [solar land option agreement](/blog/how-solar-land-lease-works), one of the first things they're doing during that option period is running interconnection studies. The option period — typically two to five years — exists largely to accommodate this process.
+When a developer approaches you for a [solar land option agreement](/solar/blog/how-solar-land-lease-works), one of the first things they're doing during that option period is running interconnection studies. The option period — typically two to five years — exists largely to accommodate this process.
 
 A developer who goes quiet after signing an option isn't necessarily abandoning the project. They may be waiting on a system impact study result, negotiating upgrade cost allocations, or navigating a restudy triggered by another project's withdrawal.
 
 The risk for landowners is that a project can clear every local hurdle — zoning, environmental, community approval — and still fail because interconnection costs came in too high to support viable project economics. When that happens, the developer exits the option, you keep your option payments, and the land goes back to its prior use.
 
-This is also why [substation proximity](/blog/substation-proximity-solar-farm) matters so much in the initial offer. A parcel close to a high-capacity substation with available headroom faces a shorter, cheaper interconnection path — and a lower risk that the studies come back with deal-breaking upgrade requirements. That lower risk is priced into the offer from the start.
+This is also why [substation proximity](/solar/blog/substation-proximity-solar-farm) matters so much in the initial offer. A parcel close to a high-capacity substation with available headroom faces a shorter, cheaper interconnection path — and a lower risk that the studies come back with deal-breaking upgrade requirements. That lower risk is priced into the offer from the start.
 
 ---
 

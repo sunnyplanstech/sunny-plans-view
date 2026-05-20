@@ -22,7 +22,7 @@ The practical implication: if a developer approaches you with a lease structure,
 
 ## The 25-Year Math
 
-When a project does get built, [solar land lease rates](/blog/solar-land-lease-rates-usa) in the US range from roughly $500 to $2,000 per acre annually, depending primarily on grid proximity and the ISO territory the land sits in. Mid-range parcels in competitive markets — central Tennessee or the Carolinas, for instance — often settle around $700 to $1,000 per acre.
+When a project does get built, [solar land lease rates](/solar/blog/solar-land-lease-rates-usa) in the US range from roughly $500 to $2,000 per acre annually, depending primarily on grid proximity and the ISO territory the land sits in. Mid-range parcels in competitive markets — central Tennessee or the Carolinas, for instance — often settle around $700 to $1,000 per acre.
 
 On 100 acres at $900 per acre per year over a 25-year lease term, that's $2.25 million in total lease income, often with an annual escalator of 1–2% written into the contract.
 
@@ -60,7 +60,7 @@ If the encumbrance of a 25-year lease conflicts with other plans — refinancing
 
 If a developer or infrastructure investor is offering above the calculated net present value of the lease stream, selling can make financial sense outright. That sometimes happens in high-demand corridors near major load centers where developers are competing for a limited supply of viable parcels.
 
-For most landowners in most situations, [how a solar land lease works](/blog/how-solar-land-lease-works) over a full project lifecycle produces more total income than a one-time payment — provided the project actually gets built. The uncertainty of that condition is the honest reason the comparison isn't as clean as the 25-year math makes it look.
+For most landowners in most situations, [how a solar land lease works](/solar/blog/how-solar-land-lease-works) over a full project lifecycle produces more total income than a one-time payment — provided the project actually gets built. The uncertainty of that condition is the honest reason the comparison isn't as clean as the 25-year math makes it look.
 
 ---
 
