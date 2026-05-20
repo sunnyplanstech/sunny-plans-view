@@ -1,7 +1,7 @@
 // Per-country PMTiles overlay config — see roadmap p2-e2.
 //
 // Each entry maps to one or more .pmtiles files on the public tiles
-// bucket (gs://sunnyplans-tiles/<id>.pmtiles, baked by the matching
+// bucket (gs://sunnyplans-tiles-eu/<id>.pmtiles, baked by the matching
 // `tiles_*` Dagster asset). Adding a layer = one entry here + one
 // asset in pipelines/core/<group>/.
 //
@@ -118,7 +118,7 @@ export interface PMTilesLayerConfig {
 }
 
 const TILES_BUCKET_BASE =
-  "https://storage.googleapis.com/sunnyplans-tiles";
+  "https://storage.googleapis.com/sunnyplans-tiles-eu";
 
 // Sole frontend source of US state codes — derived from the slug map
 // in locations.ts so the list never drifts from URL routing.
