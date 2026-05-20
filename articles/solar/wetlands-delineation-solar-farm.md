@@ -6,7 +6,7 @@ author: "Sunnyplans Team"
 tags: "solar, wetlands, permitting, NWI, delineation, land viability"
 target_query: "wetlands delineation solar farm"
 secondary_query: "NWI map solar permitting"
-cta_url: "/"
+cta_url: "/solar/app/united-states"
 ---
 
 The National Wetlands Inventory doesn't find wetlands. It maps the ones that field biologists have already documented.

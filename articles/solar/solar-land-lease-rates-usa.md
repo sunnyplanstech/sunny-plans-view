@@ -5,7 +5,7 @@ date: "2026-04-08"
 author: "Sunnyplans Team"
 tags: "solar, land lease, lease rates, USA, grid, interconnection"
 target_query: "solar land lease rates by state"
-cta_url: "/"
+cta_url: "/solar/app/united-states"
 ---
 
 The national range that gets cited most often — somewhere between $500 and $2,000 per acre per year — is real, but it tells you almost nothing useful about a specific parcel. A landowner in central Texas and a landowner in rural Indiana can both own flat, sunny, 200-acre parcels and receive lease offers that differ by $800 per acre annually.

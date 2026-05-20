@@ -5,7 +5,7 @@ date: "2026-03-26"
 author: "Sunnyplans Team"
 tags: "solar, interconnection, grid"
 target_query: "solar interconnection queue explained"
-cta_url: "/"
+cta_url: "/solar/app/united-states"
 ---
 
 A solar project can have perfect land, a signed lease, and investor backing — and still sit idle for three to five years waiting for grid approval. The interconnection queue is the single most common reason solar projects are delayed or abandoned, and it's widely misunderstood by everyone except the developers living inside it.

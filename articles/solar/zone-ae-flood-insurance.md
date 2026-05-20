@@ -5,7 +5,7 @@ date: "2026-04-20"
 author: "Sunnyplans Team"
 tags: "FEMA, flood zone, flood insurance, NFIP, Zone AE, land purchase"
 target_query: "does Zone AE require flood insurance"
-cta_url: "/"
+cta_url: "/solar/app/united-states"
 ---
 
 Zone AE does require flood insurance — with a specific set of conditions attached. The obligation isn't automatic. It applies when a property in Zone AE carries a mortgage from a federally regulated or federally insured lender, and the community participates in FEMA's National Flood Insurance Program. Strip out either condition and the legal requirement disappears.

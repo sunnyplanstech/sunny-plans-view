@@ -5,7 +5,7 @@ date: "2026-04-11"
 author: "Sunnyplans Team"
 tags: "solar, Texas, land buying, ERCOT, grid"
 target_query: "buy land for solar farm in Texas"
-cta_url: "/solar/texas"
+cta_url: "/solar/app/united-states/texas"
 ---
 
 Texas runs its own grid. That one fact changes how solar land works here compared to every other state.

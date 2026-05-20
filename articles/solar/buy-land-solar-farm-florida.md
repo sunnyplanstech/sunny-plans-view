@@ -5,7 +5,7 @@ date: "2026-04-24"
 author: "Sunnyplans Team"
 tags: "solar, Florida, land buying, FPL, Duke Energy, interconnection, grid"
 target_query: "buy land for solar farm in Florida"
-cta_url: "/solar/florida"
+cta_url: "/solar/app/united-states/florida"
 ---
 
 Florida has no independent grid operator. Unlike Texas, where ERCOT manages its own interconnection process, or the Midwest, where MISO runs a regional queue open to any developer, Florida's solar interconnection runs through the same utilities that compete with independent developers to build solar projects.

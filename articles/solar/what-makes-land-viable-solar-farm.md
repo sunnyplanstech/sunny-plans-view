@@ -5,7 +5,7 @@ date: "2026-04-01"
 author: "Sunnyplans Team"
 tags: "solar, land viability, site selection"
 target_query: "is my land suitable for a solar farm"
-cta_url: "/"
+cta_url: "/solar/app/united-states"
 ---
 
 Most landowners who receive a solar lease offer assume the developer found them through a broker or a mailing list. In reality, the developer ran your parcel through a filtering process before they ever called — and the same filters that got you on their list will determine the terms they offer.

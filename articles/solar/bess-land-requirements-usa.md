@@ -5,7 +5,7 @@ date: "2026-04-09"
 author: "Sunnyplans Team"
 tags: "BESS, battery storage, land requirements, site selection, zoning, grid"
 target_query: "BESS land requirements"
-cta_url: "/"
+cta_url: "/solar/app/united-states"
 ---
 
 The projects going up fastest in the US right now aren't solar farms — they're battery storage facilities, often sitting next to solar installations or on land that never would have supported one. The EIA projects 24 GW of new utility-scale battery storage will come online in 2026, nearly double the 15 GW added in 2025. Texas alone accounts for 12.9 GW of that.

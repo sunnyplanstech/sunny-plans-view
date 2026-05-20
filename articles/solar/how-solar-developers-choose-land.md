@@ -6,7 +6,7 @@ author: "Sunnyplans Team"
 tags: "solar, land selection, site screening, developers, lease offer"
 target_query: "what solar developers look for in land"
 secondary_query: "how solar developers choose land"
-cta_url: "/"
+cta_url: "/solar/app/united-states"
 ---
 
 Most landowners assume solar developers find land through brokers or word of mouth. The actual process starts with a map — protected area databases, wetland inventories, and substation distance calculations applied across every parcel in a county before anyone makes a call.

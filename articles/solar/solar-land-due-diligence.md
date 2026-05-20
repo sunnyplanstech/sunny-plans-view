@@ -5,7 +5,7 @@ date: "2026-04-29"
 author: "Sunnyplans Team"
 tags: "solar, land, due diligence"
 target_query: "solar land due diligence checklist"
-cta_url: "/"
+cta_url: "/solar/app/united-states"
 ---
 
 Developers don't find land by accident. Before a solar company calls a landowner, the parcel has already been run through a filter — substation distance, flood exposure, wetlands, protected land designations, acreage. The offer arrives because the land passed. The silence, usually, means it didn't.

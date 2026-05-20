@@ -6,7 +6,7 @@ author: "Sunnyplans Team"
 tags: "solar, Texas, land requirements, ERCOT, site selection"
 target_query: "solar farm land requirements Texas"
 secondary_query: "how many acres does a solar farm need in Texas"
-cta_url: "/solar/texas"
+cta_url: "/solar/app/united-states/texas"
 ---
 
 Texas added more solar capacity in 2024 than any other state — reaching nearly 52 GW of cumulative installed solar by year-end, per SEIA's 2024 Solar Market Insight annual rankings — but the ERCOT grid operator's queue of pending solar projects simultaneously held 432 GW of generation requests. 
