@@ -169,6 +169,16 @@ To add a new public var: add it to `.env.example`, declare it in
 it's required for the build to be valid, add it to `REQUIRED_PUBLIC_ENV`
 in `vite.config.ts`.
 
+**Netlify CLI footgun (v24–v26):** `netlify env:set --scope ...` silently
+ignores the `--scope` flag and creates the var with only `builds,
+functions, runtime` — `post_processing` is missing, which triggers the
+masked-bundle failure mode described above. The default `env:set` (no
+`--scope`) has the same bug. Use the dashboard, or POST directly to
+`https://api.netlify.com/api/v1/accounts/{account_id}/env?site_id={site_id}`
+with `scopes: ["builds","functions","post_processing","runtime"]` and
+`is_secret: false`. Verify with `netlify env:list --context production
+--scope post-processing --json | grep <KEY>`.
+
 ## Commit Style
 
 One-liner commit messages, no co-authored-by lines.
