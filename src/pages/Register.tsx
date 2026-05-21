@@ -14,8 +14,6 @@ import { useAuth } from "@/hooks/useAuth";
 import { AuthError, buildNextQuery, readNextParam } from "@/lib/auth";
 import { env } from "@/env";
 
-const TURNSTILE_SITE_KEY = env.VITE_TURNSTILE_SITE_KEY;
-
 const schema = z
   .object({
     email: z.string().email("Enter a valid email"),
@@ -47,7 +45,7 @@ const Register = () => {
 
   const onSubmit = async (values: FormValues) => {
     setError(null);
-    if (TURNSTILE_SITE_KEY && !turnstileToken) {
+    if (!turnstileToken) {
       setError("Please complete the captcha before submitting.");
       return;
     }
@@ -136,14 +134,12 @@ const Register = () => {
                   </FormItem>
                 )}
               />
-              {TURNSTILE_SITE_KEY && (
-                <Turnstile
-                  siteKey={TURNSTILE_SITE_KEY}
-                  onVerify={handleTurnstileVerify}
-                  onExpire={handleTurnstileExpire}
-                  onError={handleTurnstileExpire}
-                />
-              )}
+              <Turnstile
+                siteKey={env.VITE_TURNSTILE_SITE_KEY}
+                onVerify={handleTurnstileVerify}
+                onExpire={handleTurnstileExpire}
+                onError={handleTurnstileExpire}
+              />
               <Button type="submit" className="w-full" disabled={form.formState.isSubmitting}>
                 {form.formState.isSubmitting ? "Creating account..." : "Sign up"}
               </Button>

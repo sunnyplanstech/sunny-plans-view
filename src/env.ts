@@ -28,8 +28,14 @@ const publicString = (label: string, minLen: number) =>
 const schema = z.object({
   VITE_GOOGLE_MAPS_API_KEY: publicString("VITE_GOOGLE_MAPS_API_KEY", 20),
   VITE_GOOGLE_MAP_ID: publicString("VITE_GOOGLE_MAP_ID", 8),
+  // Required: pairs with TURNSTILE_SECRET_KEY in the Django env. If the
+  // backend has the secret set and the bundle ships without this key, the
+  // captcha widget silently dead-code-eliminates and every signup 400s with
+  // "Captcha required." Cloudflare's always-pass test key for local dev:
+  // 1x00000000000000000000AA.
+  VITE_TURNSTILE_SITE_KEY: publicString("VITE_TURNSTILE_SITE_KEY", 20),
   VITE_GOOGLE_CLIENT_ID: z.string().default(""),
-  VITE_TURNSTILE_SITE_KEY: z.string().default(""),
+  VITE_SENTRY_DSN: z.string().default(""),
   VITE_API_BASE_URL: z.string().default(""),
 });
 

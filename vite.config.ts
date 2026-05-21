@@ -10,6 +10,7 @@ import { componentTagger } from "lovable-tagger";
 const REQUIRED_PUBLIC_ENV = [
   "VITE_GOOGLE_MAPS_API_KEY",
   "VITE_GOOGLE_MAP_ID",
+  "VITE_TURNSTILE_SITE_KEY",
 ] as const;
 
 function assertPublicEnv(mode: string) {
