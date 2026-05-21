@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
-import { Calendar, CreditCard, ExternalLink, Lock, Mail } from "lucide-react";
+import { Calendar, CreditCard, Lock, Mail } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -10,15 +10,15 @@ import {
   SheetHeader,
   SheetTitle,
 } from "@/components/ui/sheet";
+import ScheduleCallPopup from "@/components/listings/ScheduleCallPopup";
 import { useAuth } from "@/hooks/useAuth";
 import { toast } from "@/hooks/use-toast";
+import { isCallBooked, markCallBooked } from "@/lib/calendlyPrompt";
 import {
   resendVerificationEmail,
   startParcelPurchase,
   startSubscription,
 } from "@/lib/subscriptions";
-
-const CALENDLY_LINK = "https://calendly.com/eracle/new-meeting";
 
 const STRINGS = {
   en: {
@@ -95,10 +95,19 @@ export function PaywallDrawer({
   const location = useLocation();
   const navigate = useNavigate();
   const [state, setState] = useState<DrawerState>({ kind: "choice" });
+  const [scheduleOpen, setScheduleOpen] = useState(false);
+  // Snapshot the booked flag when the drawer opens so the CTA's
+  // visibility is stable for the lifetime of one drawer view, even if
+  // the user books mid-session (we set the flag, hide the CTA on the
+  // next open). Re-read on each open to catch bookings made elsewhere.
+  const [booked, setBooked] = useState(false);
 
   // Reset to the choice screen each time the drawer reopens.
   useEffect(() => {
-    if (open) setState({ kind: "choice" });
+    if (open) {
+      setState({ kind: "choice" });
+      setBooked(isCallBooked());
+    }
   }, [open]);
 
   const sendToRegister = (action: "subscribe" | "unlock") => {
@@ -188,33 +197,45 @@ export function PaywallDrawer({
   };
 
   return (
-    <Sheet open={open} onOpenChange={onOpenChange}>
-      <SheetContent side="right" className="w-full sm:max-w-md md:max-w-lg overflow-y-auto">
-        <SheetHeader>
-          <SheetTitle>{t.title}</SheetTitle>
-          <SheetDescription>{t.description}</SheetDescription>
-        </SheetHeader>
+    <>
+      <Sheet open={open} onOpenChange={onOpenChange}>
+        <SheetContent side="right" className="w-full sm:max-w-md md:max-w-lg overflow-y-auto">
+          <SheetHeader>
+            <SheetTitle>{t.title}</SheetTitle>
+            <SheetDescription>{t.description}</SheetDescription>
+          </SheetHeader>
 
-        <div className="mt-6 space-y-4">
-          {state.kind === "choice" && (
-            <ChoiceScreen
-              t={t}
-              onSubscribe={handleSubscribe}
-              onUnlock={handleUnlock}
-              userKnown={!!user}
-            />
-          )}
+          <div className="mt-6 space-y-4">
+            {state.kind === "choice" && (
+              <ChoiceScreen
+                t={t}
+                onSubscribe={handleSubscribe}
+                onUnlock={handleUnlock}
+                onScheduleCall={booked ? undefined : () => setScheduleOpen(true)}
+                userKnown={!!user}
+              />
+            )}
 
-          {state.kind === "redirecting" && (
-            <div className="text-center py-12 text-muted-foreground">{t.redirecting}</div>
-          )}
+            {state.kind === "redirecting" && (
+              <div className="text-center py-12 text-muted-foreground">{t.redirecting}</div>
+            )}
 
-          {state.kind === "verify" && (
-            <VerifyScreen t={t} onResend={handleResendVerification} onBack={() => setState({ kind: "choice" })} />
-          )}
-        </div>
-      </SheetContent>
-    </Sheet>
+            {state.kind === "verify" && (
+              <VerifyScreen t={t} onResend={handleResendVerification} onBack={() => setState({ kind: "choice" })} />
+            )}
+          </div>
+        </SheetContent>
+      </Sheet>
+
+      <ScheduleCallPopup
+        open={scheduleOpen}
+        onClose={() => setScheduleOpen(false)}
+        onScheduled={() => {
+          markCallBooked();
+          setBooked(true);
+        }}
+      />
+    </>
   );
 }
 
@@ -222,10 +243,13 @@ interface ChoiceScreenProps {
   t: (typeof STRINGS)[Lang];
   onSubscribe: () => void;
   onUnlock: () => void;
+  /** When undefined, the "schedule a call" CTA is hidden — used to
+   *  suppress the founder-call option for users who have already booked. */
+  onScheduleCall?: () => void;
   userKnown: boolean;
 }
 
-function ChoiceScreen({ t, onSubscribe, onUnlock, userKnown }: ChoiceScreenProps) {
+function ChoiceScreen({ t, onSubscribe, onUnlock, onScheduleCall, userKnown }: ChoiceScreenProps) {
   return (
     <>
       <div className="border rounded-lg p-4 space-y-3">
@@ -254,22 +278,23 @@ function ChoiceScreen({ t, onSubscribe, onUnlock, userKnown }: ChoiceScreenProps
         </Button>
       </div>
 
-      <div className="relative pt-2">
-        <div className="absolute inset-0 flex items-center">
-          <span className="w-full border-t" />
-        </div>
-        <div className="relative flex justify-center text-xs uppercase">
-          <span className="bg-background px-2 text-muted-foreground">{t.or}</span>
-        </div>
-      </div>
+      {onScheduleCall && (
+        <>
+          <div className="relative pt-2">
+            <div className="absolute inset-0 flex items-center">
+              <span className="w-full border-t" />
+            </div>
+            <div className="relative flex justify-center text-xs uppercase">
+              <span className="bg-background px-2 text-muted-foreground">{t.or}</span>
+            </div>
+          </div>
 
-      <Button asChild variant="outline" className="w-full">
-        <a href={CALENDLY_LINK} target="_blank" rel="noopener noreferrer">
-          <Calendar className="w-4 h-4 mr-2" />
-          {t.schedule}
-          <ExternalLink className="w-3 h-3 ml-2" />
-        </a>
-      </Button>
+          <Button variant="outline" className="w-full" onClick={onScheduleCall}>
+            <Calendar className="w-4 h-4 mr-2" />
+            {t.schedule}
+          </Button>
+        </>
+      )}
     </>
   );
 }

@@ -21,9 +21,15 @@ declare global {
 interface ScheduleCallPopupProps {
   open: boolean;
   onClose: () => void;
+  /** Fires when the Calendly widget confirms a booking. Callers use this
+   *  to record the booking so other founder-call CTAs stop showing for
+   *  this browser. The popup itself stays open; closing is up to the
+   *  caller (typically the user clicks the close button after seeing the
+   *  confirmation screen Calendly renders inline). */
+  onScheduled?: () => void;
 }
 
-const ScheduleCallPopup = ({ open, onClose }: ScheduleCallPopupProps) => {
+const ScheduleCallPopup = ({ open, onClose, onScheduled }: ScheduleCallPopupProps) => {
   const containerRef = useRef<HTMLDivElement>(null);
   const [ready, setReady] = useState(false);
 
@@ -65,6 +71,21 @@ const ScheduleCallPopup = ({ open, onClose }: ScheduleCallPopupProps) => {
       parentElement: containerRef.current,
     });
   }, [open, ready]);
+
+  // Calendly's embedded iframe posts a `calendly.event_scheduled` message
+  // to the parent window when a booking is completed. We use that as the
+  // ground truth for "user booked a call" instead of inferring from clicks.
+  useEffect(() => {
+    if (!open || !onScheduled) return;
+    const handler = (e: MessageEvent) => {
+      const data = e.data as { event?: string } | null;
+      if (data && typeof data === "object" && data.event === "calendly.event_scheduled") {
+        onScheduled();
+      }
+    };
+    window.addEventListener("message", handler);
+    return () => window.removeEventListener("message", handler);
+  }, [open, onScheduled]);
 
   return (
     <Dialog open={open} onOpenChange={(isOpen) => !isOpen && onClose()}>

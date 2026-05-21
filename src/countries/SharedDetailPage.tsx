@@ -24,8 +24,12 @@ import { FullAccessBadge } from "@/components/listings/FullAccessBadge";
 import { DetailShell } from "@/components/listings/DetailShell";
 import { MapLockedOverlay } from "@/components/listings/LockedField";
 import { PaywallDrawer } from "@/components/listings/PaywallDrawer";
+import ScheduleCallPopup from "@/components/listings/ScheduleCallPopup";
 import { SunnyScoreExplanation, type FeatureValues } from "@/components/listings/sunnyscore";
+import { useAuth } from "@/hooks/useAuth";
+import { useCalendlyResearchPrompt } from "@/hooks/useCalendlyResearchPrompt";
 import { usePaywallAutoOpen } from "@/hooks/usePaywallAutoOpen";
+import { markCallBooked } from "@/lib/calendlyPrompt";
 import { OSM_DISTANCE_KEYS, type OsmDistanceFields } from "@/data/osmDistanceFields";
 import type { DetailPageProps } from "./types";
 
@@ -130,6 +134,13 @@ export function SharedDetailPage<T extends DetailListing>({
 }: SharedDetailPageProps<T>) {
   const [paywallOpen, setPaywallOpen] = useState(false);
   usePaywallAutoOpen(() => setPaywallOpen(true));
+
+  // Founder-research call (Trigger A): only signed-in free users are
+  // in-audience. Anonymous visitors can't be followed up with; paying
+  // users are out of scope for a sales-research conversation.
+  const { user } = useAuth();
+  const researchEnabled = !!user && !user.has_active_subscription;
+  const researchPrompt = useCalendlyResearchPrompt({ enabled: researchEnabled });
 
   const accessGranted = listing.access_granted;
   const solarPercentage =
@@ -299,6 +310,12 @@ export function SharedDetailPage<T extends DetailListing>({
         onOpenChange={setPaywallOpen}
         onPaymentSuccess={onPaymentSuccess}
         lang={adapter.lang}
+      />
+
+      <ScheduleCallPopup
+        open={researchPrompt.open}
+        onClose={researchPrompt.close}
+        onScheduled={markCallBooked}
       />
     </>
   );
