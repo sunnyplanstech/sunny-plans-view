@@ -1,19 +1,8 @@
 import { useEffect, useState } from "react";
 
-export interface ViewportBounds {
-  north: number;
-  south: number;
-  east: number;
-  west: number;
-}
-
 export interface Viewport {
   zoom: number;
   center: { lat: number; lng: number };
-  // The current visible bounds in lat/lng. Used to filter polygon
-  // collections to features that intersect the viewport (the "list
-  // shows states intersecting the viewport" acceptance criterion).
-  bounds: ViewportBounds;
 }
 
 /**
@@ -38,19 +27,10 @@ export function useDebouncedViewport(
       timer = setTimeout(() => {
         const zoom = map.getZoom();
         const center = map.getCenter();
-        const bounds = map.getBounds();
-        if (zoom === undefined || !center || !bounds) return;
-        const ne = bounds.getNorthEast();
-        const sw = bounds.getSouthWest();
+        if (zoom === undefined || !center) return;
         setViewport({
           zoom,
           center: { lat: center.lat(), lng: center.lng() },
-          bounds: {
-            north: ne.lat(),
-            south: sw.lat(),
-            east: ne.lng(),
-            west: sw.lng(),
-          },
         });
       }, delayMs);
     };

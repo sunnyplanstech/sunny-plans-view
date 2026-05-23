@@ -47,8 +47,7 @@ import {
   type ProvinceProps,
   type PolygonFeature,
 } from "@/hooks/useRegionPolygons";
-import { RegionListRow } from "@/components/listings/RegionListRow";
-import { bboxesIntersect, polygonBbox } from "@/lib/geo";
+import { polygonBbox } from "@/lib/geo";
 import {
   COUNTRIES,
   countyToSlug,
@@ -413,20 +412,6 @@ const CountryPreview = ({ adapter, country, region, province }: InnerProps) => {
     );
   }, [mapInstance, country, region, province, scope, regionFeatures, subregionFeatures]);
 
-  const handleRegionRowClick = useCallback(
-    (geometry: unknown) => {
-      const bbox = polygonBbox(geometry);
-      if (!bbox || !mapInstance) return;
-      mapInstance.fitBounds(
-        new google.maps.LatLngBounds(
-          { lat: bbox.south, lng: bbox.west },
-          { lat: bbox.north, lng: bbox.east },
-        ),
-      );
-    },
-    [mapInstance],
-  );
-
   // Floating HUD shown only in the preview. Rendered as `overlays`
   // so the map stays unaware of page-specific chrome.
   const mapHud = (
@@ -451,47 +436,24 @@ const CountryPreview = ({ adapter, country, region, province }: InnerProps) => {
     overlays: mapHud,
   });
 
-  // The right rail content depends on the URL scope (which the
-  // viewport keeps in sync with the map). At country/region URL scopes
-  // the rail lists named regions; at subregion URL scope it shows the
-  // listings rail (today's behaviour).
-  const listings =
-    scope.level === "subregion" ? (
-      <ListingsRail
-        listings={visibleListings}
-        total={allListings.length}
-        isLoading={isLoading}
-        sortKey={sortKey}
-        onSortChange={setSortKey}
-        adapter={adapter}
-        scope={scope}
-        onSelect={handleSelectListing}
-        selectedLayers={selectedLayers}
-        expanded={listExpanded}
-        onToggleExpanded={() => setListExpanded((v) => !v)}
-        selectedConstraintCount={selectedLayers.length}
-        onClearConstraints={clearConstraints}
-        eliminationByLayer={eliminationByLayer}
-      />
-    ) : (
-      <RegionScopeRail
-        country={country}
-        scopeLevel={scope.level}
-        regionFeatures={regionFeatures}
-        subregionFeatures={subregionFeatures}
-        viewportBounds={viewport?.bounds}
-        onRowClick={handleRegionRowClick}
-        isLoading={
-          scope.level === "national"
-            ? country === "united-states"
-              ? usStatesQuery.isLoading
-              : itRegionsQuery.isLoading
-            : country === "united-states"
-              ? usCountiesQuery.isLoading
-              : itProvincesQuery.isLoading
-        }
-      />
-    );
+  const listings = (
+    <ListingsRail
+      listings={visibleListings}
+      total={allListings.length}
+      isLoading={isLoading}
+      sortKey={sortKey}
+      onSortChange={setSortKey}
+      adapter={adapter}
+      scope={scope}
+      onSelect={handleSelectListing}
+      selectedLayers={selectedLayers}
+      expanded={listExpanded}
+      onToggleExpanded={() => setListExpanded((v) => !v)}
+      selectedConstraintCount={selectedLayers.length}
+      onClearConstraints={clearConstraints}
+      eliminationByLayer={eliminationByLayer}
+    />
+  );
 
   return (
     <>
@@ -921,132 +883,6 @@ const CountryNotSupported = ({ slug }: { slug?: string }) => (
     </p>
   </div>
 );
-
-// Right-rail content at country / state-or-region URL scope. Lists the
-// named regions whose polygon bbox intersects the viewport, sorted by
-// max_sunnyscore (no-data regions tucked at the bottom). Clicking a
-// row fits the map to that region — the URL update follows naturally
-// through the viewport-nav effect.
-interface RegionScopeRailProps {
-  country: CountrySlug;
-  scopeLevel: Scope["level"];
-  regionFeatures:
-    | { features: ReadonlyArray<PolygonFeature<StateProps | RegionProps>> }
-    | undefined;
-  subregionFeatures:
-    | { features: ReadonlyArray<PolygonFeature<CountyProps | ProvinceProps>> }
-    | undefined;
-  viewportBounds?: { north: number; south: number; east: number; west: number };
-  onRowClick: (geometry: unknown) => void;
-  isLoading: boolean;
-}
-
-const RegionScopeRail = ({
-  country,
-  scopeLevel,
-  regionFeatures,
-  subregionFeatures,
-  viewportBounds,
-  onRowClick,
-  isLoading,
-}: RegionScopeRailProps) => {
-  // At national URL we list country-zoom regions (US states / IT
-  // regions); at region URL we list the URL state's counties (or the
-  // URL region's provinces).
-  const sourceFeatures =
-    scopeLevel === "national" ? regionFeatures?.features : subregionFeatures?.features;
-
-  const headerLabel = useMemo(() => {
-    if (scopeLevel === "national") {
-      return country === "united-states" ? "States" : "Regions";
-    }
-    return country === "united-states" ? "Counties" : "Provinces";
-  }, [scopeLevel, country]);
-
-  const rows = useMemo(() => {
-    if (!sourceFeatures) return [];
-    const visible = viewportBounds
-      ? sourceFeatures.filter((f) => {
-          const bbox = polygonBbox(f.geometry);
-          return bbox ? bboxesIntersect(viewportBounds, bbox) : true;
-        })
-      : sourceFeatures;
-    // max_sunnyscore desc, with nulls (no-data) tucked at the bottom
-    // so the top of the rail is always the best match in view.
-    return [...visible].sort((a, b) => {
-      const sa = a.properties.max_sunnyscore;
-      const sb = b.properties.max_sunnyscore;
-      if (sa === null && sb === null) return 0;
-      if (sa === null) return 1;
-      if (sb === null) return -1;
-      return sb - sa;
-    });
-  }, [sourceFeatures, viewportBounds]);
-
-  return (
-    <>
-      <header className="sticky top-0 z-10 border-b border-border/60 bg-gradient-subtle px-4 py-3">
-        <h2 className="text-sm font-semibold text-foreground">{headerLabel}</h2>
-        <p className="mt-0.5 text-xs text-muted-foreground tabular-nums">
-          {isLoading ? (
-            "loading…"
-          ) : (
-            <>
-              <span className="font-medium text-foreground">
-                {rows.length.toLocaleString()}
-              </span>{" "}
-              in view
-            </>
-          )}
-        </p>
-      </header>
-      <div className="p-3 space-y-2">
-        {isLoading ? (
-          <div className="space-y-2">
-            {[1, 2, 3, 4, 5].map((i) => (
-              <div key={i} className="h-14 bg-muted animate-pulse rounded-md" />
-            ))}
-          </div>
-        ) : rows.length === 0 ? (
-          <p className="text-center text-sm text-muted-foreground py-12">
-            No regions in this viewport. Pan the map to find candidates.
-          </p>
-        ) : (
-          rows.map((feature) => (
-            <RegionListRow
-              key={regionFeatureKey(feature)}
-              name={regionFeatureLabel(feature)}
-              parcelCount={feature.properties.parcel_count}
-              maxSunnyscore={feature.properties.max_sunnyscore}
-              onClick={() => onRowClick(feature.geometry)}
-            />
-          ))
-        )}
-      </div>
-    </>
-  );
-};
-
-// Pick a stable key for the polygon row. Feature properties differ per
-// scope/country, so we read whichever id field is set. The double
-// `unknown` cast is the standard TS escape hatch for "I know this is a
-// union with overlapping fields"; structurally the union members each
-// carry at least one of the four key fields.
-function regionFeatureKey(
-  feature: PolygonFeature<StateProps | RegionProps | CountyProps | ProvinceProps>,
-): string {
-  const p = feature.properties as unknown as Record<string, string | undefined>;
-  return p.geoid ?? p.state_code ?? p.province_code ?? p.region ?? "?";
-}
-
-function regionFeatureLabel(
-  feature: PolygonFeature<StateProps | RegionProps | CountyProps | ProvinceProps>,
-): string {
-  const p = feature.properties as unknown as Record<string, string | undefined>;
-  return (
-    p.state_name ?? p.county_name ?? p.province_name ?? p.region ?? "?"
-  );
-}
 
 // Compute the URL implied by the viewport's dominant region/subregion.
 // Returns null if a dominant region can't be resolved yet (polygons

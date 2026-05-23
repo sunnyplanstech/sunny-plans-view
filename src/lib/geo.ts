@@ -92,21 +92,6 @@ export function polygonBbox(
   return { north, south, east, west };
 }
 
-// Standard AABB overlap test. Both inputs are in lng/lat with `east >
-// west`; antimeridian-crossing bboxes aren't a concern here (US and IT
-// are both well inside one hemisphere).
-export function bboxesIntersect(
-  a: { north: number; south: number; east: number; west: number },
-  b: { north: number; south: number; east: number; west: number },
-): boolean {
-  return (
-    a.east >= b.west &&
-    a.west <= b.east &&
-    a.north >= b.south &&
-    a.south <= b.north
-  );
-}
-
 // Linear scan over polygon features. The sets we scan are small
 // (≤50 US states, ≤20 IT regions, ≤63 counties per state, ≤12 provinces
 // per region) so a bounding-box pre-filter isn't worth the indirection.
