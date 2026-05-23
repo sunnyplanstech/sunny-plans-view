@@ -4,6 +4,10 @@ interface MapHudProps {
   zoom: number | undefined;
   listingCount: number;
   overlayCount: number;
+  // Debug indicator for the viewport-nav chain. `undefined` means the
+  // page didn't pass it. Otherwise a short string like "region/CA" or
+  // "vp:none" so issues can be diagnosed without DevTools.
+  navStatus?: string;
 }
 
 /**
@@ -17,6 +21,7 @@ export function MapHud({
   zoom,
   listingCount,
   overlayCount,
+  navStatus,
 }: MapHudProps) {
   const scopeLabel = country === "italy" ? "IT" : "US";
   const regionLabel = regionSlug ? ` · ${regionSlug.toUpperCase()}` : "";
@@ -40,6 +45,12 @@ export function MapHud({
         <span>Ovl</span>
         <b className="tabular-nums">{overlayCount}</b>
       </div>
+      {navStatus !== undefined && (
+        <div className="tp-hud">
+          <span>Nav</span>
+          <b>{navStatus}</b>
+        </div>
+      )}
     </div>
   );
 }

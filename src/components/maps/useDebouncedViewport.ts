@@ -40,11 +40,17 @@ export function useDebouncedViewport(
         });
       }, delayMs);
     };
-    const listener = map.addListener("bounds_changed", schedule);
+    // Belt-and-braces: subscribe to every event that could plausibly
+    // indicate "the user moved the map." On large viewports `idle`
+    // alone is unreliable (tile pipeline keeps the map non-idle);
+    // `bounds_changed` alone failed in field testing too. The four
+    // together cover every documented gesture path.
+    const events = ["zoom_changed", "dragend", "bounds_changed", "idle"];
+    const listeners = events.map((ev) => map.addListener(ev, schedule));
     schedule();
     return () => {
       if (timer !== null) clearTimeout(timer);
-      google.maps.event.removeListener(listener);
+      for (const l of listeners) google.maps.event.removeListener(l);
     };
   }, [map, delayMs]);
   return viewport;

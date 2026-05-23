@@ -392,7 +392,20 @@ const CountryPreview = ({ adapter, country, region, province }: InnerProps) => {
   // that's supposed to navigate.
 
   // Floating HUD shown only in the preview. Rendered as `overlays`
-  // so the map stays unaware of page-specific chrome.
+  // so the map stays unaware of page-specific chrome. The `navStatus`
+  // line surfaces the viewport-nav chain state for in-app diagnosis:
+  // `vp:none` → debounced viewport never fired (event-listener issue),
+  // `poly:none` → polygons didn't load (network issue),
+  // `<scope>/<slug>` → chain works, URL should be following along.
+  const navStatus = (() => {
+    if (!viewport) return "vp:none";
+    if (!regionFeatures) return "poly:none";
+    const slug =
+      regionFeatureToSlug(country, regionFeature) ??
+      subregionFeatureToSlug(country, subregionFeature) ??
+      "-";
+    return `${scopeLevel}/${slug}`;
+  })();
   const mapHud = (
     <MapHud
       country={country}
@@ -400,6 +413,7 @@ const CountryPreview = ({ adapter, country, region, province }: InnerProps) => {
       zoom={currentZoom}
       listingCount={visibleListings.length}
       overlayCount={overlayIds.size}
+      navStatus={navStatus}
     />
   );
 
