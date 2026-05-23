@@ -7,12 +7,18 @@ export interface Viewport {
 
 /**
  * Tracks a Google Map's zoom + centre, settling on its post-gesture
- * value after `delayMs` of quiescence. Google's native `idle` event
- * already fires once the user stops moving the map, so we listen there
- * and add a short trailing debounce on top — that coalesces any
- * adjacent programmatic updates (auto-fit, deep-link bbox fit) into a
- * single observable transition. Returns `undefined` until the map
- * mounts and emits its first idle event.
+ * value after `delayMs` of quiescence.
+ *
+ * Listens to `bounds_changed` rather than `idle`. `idle` is more
+ * elegant in theory (fires once the map has fully settled, including
+ * tile loads) but in practice on large map viewports the tile pipeline
+ * can keep the map non-idle for a long time after the user has
+ * stopped gesturing — `idle` then fires late or not at all, and the
+ * zoom-driven URL update never lands. `bounds_changed` fires on every
+ * pan/zoom step instead; the trailing `setTimeout` debounce gives us
+ * the "user has paused for ≥ delayMs" semantics we actually want.
+ *
+ * Returns `undefined` until the map's first `bounds_changed`.
  */
 export function useDebouncedViewport(
   map: google.maps.Map | null,
@@ -34,7 +40,7 @@ export function useDebouncedViewport(
         });
       }, delayMs);
     };
-    const listener = map.addListener("idle", schedule);
+    const listener = map.addListener("bounds_changed", schedule);
     schedule();
     return () => {
       if (timer !== null) clearTimeout(timer);
