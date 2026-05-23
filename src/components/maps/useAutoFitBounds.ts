@@ -3,7 +3,7 @@ import { useEffect, useRef } from "react";
 interface UseAutoFitBoundsArgs {
   map: google.maps.Map | null;
   isLoaded: boolean;
-  /** When false, the hook is dormant — used to defer to the choropleth view. */
+  /** When false, the hook is dormant. */
   enabled: boolean;
   /** Resets the "have we fit yet?" latch. Pass a stable string per scope. */
   scopeKey: string;

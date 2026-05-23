@@ -1,14 +1,17 @@
-// Listings map — Google Maps canvas plus markers / choropleth /
-// PMTiles overlays. The page owns selection state and the layer catalog
-// (passed in via `pmtilesLayers` + `pmtilesState`); the map drives the
-// deck.gl wiring against its own `google.maps.Map` instance and emits
-// the resulting `headers` / `progress` back up via callbacks. `overlays`
-// is the slot for any absolute UI the page wants on top (HUD, LayerPanel).
+// Listings map — Google Maps canvas plus markers + PMTiles overlays.
+// The page owns selection state and the layer catalog (passed in via
+// `pmtilesLayers` + `pmtilesState`); the map drives the deck.gl wiring
+// against its own `google.maps.Map` instance and emits the resulting
+// `headers` / `progress` back up via callbacks. `overlays` is the slot
+// for any absolute UI the page wants on top (HUD, LayerPanel).
+//
+// The map's instance also bubbles up via `onMapLoad` so the page can
+// drive viewport-based hooks (zoom-driven nav) and imperatively fit
+// bounds when the user clicks a region row in the list rail.
 
 import { GoogleMap } from "@react-google-maps/api";
 import { useEffect, useMemo, useState, type ReactNode } from "react";
 import type { USListing } from "@/countries/unitedStates";
-import type { ChoroplethSurface } from "@/countries/types";
 import { getParcelCenter } from "@/lib/geo";
 import { useGoogleMaps } from "./GoogleMapsProvider";
 import { MapLoadingFallback } from "./MapLoadingFallback";
@@ -16,7 +19,6 @@ import { env } from "@/env";
 import type { PMTilesLayerConfig } from "./pmtilesLayers";
 import { PremiumLabelsGate } from "./PremiumLabelsGate";
 import { useAutoFitBounds } from "./useAutoFitBounds";
-import { useChoroplethLayer } from "./useChoroplethLayer";
 import { useListingMarkers, type ListingMarkerItem } from "./useListingMarkers";
 import { useMapZoom } from "./useMapZoom";
 import {
@@ -42,10 +44,10 @@ interface ListingsGoogleMapProps {
   // EvaluateDrawer. When undefined, markers still render but click is
   // a no-op (production listings page hasn't wired a handler yet).
   onListingClick?: (id: string) => void;
-  // Country/state-zoom polygon overlay (counties for US, provinces
-  // for IT). Page owns the zoom gate via `visible`; when on, parcel
-  // markers are suppressed and the polygons become the click surface.
-  choropleth?: ChoroplethSurface;
+  // Bubbles the underlying `google.maps.Map` instance up so the page
+  // can drive viewport-based hooks and call `map.fitBounds` on
+  // list-row clicks. Fires with the map on load.
+  onMapLoad?: (map: google.maps.Map | null) => void;
   // PMTiles overlays — page passes the (region-narrowed) catalog and the
   // visibility map; the deck.gl wiring lives inside the map. Headers and
   // progress flow back up so the page can render LayerPanel / progress
@@ -82,7 +84,7 @@ export function ListingsGoogleMap({
   regionSlug,
   onZoomChange,
   onListingClick,
-  choropleth,
+  onMapLoad,
   pmtilesLayers = EMPTY_PMTILES_LAYERS,
   pmtilesState = EMPTY_PMTILES_STATE,
   onLayerHeadersChange,
@@ -96,8 +98,9 @@ export function ListingsGoogleMap({
     requestLoad();
   }, [requestLoad]);
 
-  // TEMP: choropleth disabled
-  const choroplethVisible = false;
+  useEffect(() => {
+    onMapLoad?.(map);
+  }, [map, onMapLoad]);
 
   // PMTiles overlays. The hook is a no-op when `pmtilesLayers` is empty
   // (legacy callers / countries with no tiles configured); when it has
@@ -141,7 +144,7 @@ export function ListingsGoogleMap({
   useAutoFitBounds({
     map,
     isLoaded,
-    enabled: !choroplethVisible,
+    enabled: true,
     scopeKey: `${country ?? ""}/${regionSlug ?? ""}`,
     coords: fitCoords,
   });
@@ -149,13 +152,10 @@ export function ListingsGoogleMap({
   useListingMarkers({
     map,
     isLoaded,
-    enabled: !choroplethVisible,
+    enabled: true,
     items: markerItems,
     onClick: onListingClick,
   });
-
-  // TEMP: choropleth disabled
-  useChoroplethLayer({ map, isLoaded, surface: undefined });
 
   // Stable initial center/zoom/options. <GoogleMap> treats `center` and
   // `options` as controlled props and re-applies them on identity change —

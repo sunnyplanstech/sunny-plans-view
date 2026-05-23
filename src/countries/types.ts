@@ -52,11 +52,11 @@ export interface MapRenderProps {
   // the listing's id; the page resolves it back to a BaseListing and
   // opens the EvaluateDrawer.
   onListingClick?: (id: string) => void;
-  // Country/state-zoom choropleth. When `visible`, the map renders the
-  // FeatureCollection as a polygon Data layer tinted by `max_sunnyscore`
-  // and suppresses parcel markers. The page owns the zoom gate and the
-  // click→navigation contract; the map is purely a renderer here.
-  choropleth?: ChoroplethSurface;
+  // Bubbles the underlying `google.maps.Map` instance up to the page so
+  // the page can drive viewport-based hooks (useViewportNavigation) and
+  // imperatively fit bounds on list-row clicks. Called with the map on
+  // load and (currently never) with `null` on unmount.
+  onMapLoad?: (map: google.maps.Map | null) => void;
   // PMTiles overlays. The page owns selection state and the (region-
   // narrowed) catalog; the map drives the deck.gl wiring against its
   // own map instance and emits `headers` / `progress` back so the page
@@ -69,24 +69,6 @@ export interface MapRenderProps {
   // map (HUD, LayerPanel, custom chrome). Pages own the imperative
   // subsystems these UIs read from; the map is just the canvas.
   overlays?: ReactNode;
-}
-
-// Minimal GeoJSON shape — we don't pull in @types/geojson just for two
-// fields. Geometry is whatever the API returned; the map's Data layer
-// handles parsing.
-export interface ChoroplethFeatureLike {
-  type: "Feature";
-  geometry: unknown;
-  properties: Record<string, unknown>;
-}
-
-export interface ChoroplethSurface {
-  features: {
-    type: "FeatureCollection";
-    features: ChoroplethFeatureLike[];
-  };
-  visible: boolean;
-  onFeatureClick?: (properties: Record<string, unknown>) => void;
 }
 
 export interface HeadingStrings {

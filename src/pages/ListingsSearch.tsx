@@ -27,7 +27,7 @@
 // the polygons paint as a "this is what we filtered out for you" trust
 // signal, but flipping the toggle only hides the overlay; the qualifying
 // cohort stays exactly the same.
-import { useCallback, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Navigate, useNavigate, useParams, useLocation } from "react-router-dom";
 import { MapHud } from "@/components/maps/MapHud";
 import { pmtilesLayersFor } from "@/components/maps/pmtilesLayers";
@@ -35,10 +35,20 @@ import type {
   LayerProgress,
   PMTilesLayerState,
 } from "@/components/maps/usePMTilesOverlays";
+import { useViewportNavigation } from "@/components/maps/useViewportNavigation";
 import {
-  useUSCountyAggregate,
-  useITProvinceAggregate,
-} from "@/hooks/useAggregateChoropleth";
+  useUSStates,
+  useUSCounties,
+  useITRegions,
+  useITProvinces,
+  type StateProps,
+  type CountyProps,
+  type RegionProps,
+  type ProvinceProps,
+  type PolygonFeature,
+} from "@/hooks/useRegionPolygons";
+import { RegionListRow } from "@/components/listings/RegionListRow";
+import { bboxesIntersect, polygonBbox } from "@/lib/geo";
 import {
   COUNTRIES,
   countyToSlug,
@@ -73,7 +83,7 @@ import {
 import { layerTag } from "@/components/layers/layerTag";
 import { useUrlSpecState } from "@/components/layers/useUrlSpecState";
 import { getCountryAdapter, type CountryAdapter } from "@/countries";
-import type { BaseListing } from "@/countries/types";
+import type { BaseListing, Scope } from "@/countries/types";
 import type { USListing } from "@/countries/unitedStates";
 import type { ITListing } from "@/countries/italy";
 import {
@@ -84,12 +94,6 @@ import {
 } from "@/lib/format";
 
 const LIMIT = 20;
-// Below this zoom we render the country/state-zoom choropleth (counties
-// for US, provinces for IT) and suppress the parcel-pin map. At/above
-// this zoom the existing parcel layer takes over. The threshold sits
-// just below the per-parcel layers' minZoom (NWI / slope_lt_5 = 11) so
-// the choropleth → pins handoff lines up with constraint activation.
-const CHOROPLETH_MAX_ZOOM = 10;
 
 // On mobile only one surface is visible at a time. Floating buttons
 // at the bottom of the viewport rotate through these three.
@@ -130,6 +134,7 @@ interface InnerProps {
 }
 
 const CountryPreview = ({ adapter, country, region, province }: InnerProps) => {
+  const routerLocation = useLocation();
   const layers = useMemo(() => availableLayers(country), [country]);
   const {
     selectedIds,
@@ -298,63 +303,137 @@ const CountryPreview = ({ adapter, country, region, province }: InnerProps) => {
     />
   );
 
-  // Choropleth wiring (roadmap p1-e3-layer-first-ui — frontend slice).
-  // The aggregate endpoint payload is small (~3,143 county features,
-  // ~107 IT provinces) and per-country, so we cache once and let the
-  // map decide whether to render based on zoom. At/above
-  // CHOROPLETH_MAX_ZOOM the existing parcel-pin map takes over.
-  const choroplethVisible =
-    currentZoom === undefined || currentZoom <= CHOROPLETH_MAX_ZOOM;
-  const usCountyQuery = useUSCountyAggregate(
-    country === "united-states" && choroplethVisible,
-    scope.level !== "national" ? slugToStateCode(scope.regionSlug) : undefined,
-  );
-  const itProvinceQuery = useITProvinceAggregate(
-    country === "italy" && choroplethVisible,
-  );
+  // Zoom-driven hierarchical navigation (roadmap p1-e3-scope-driven-rail).
+  // The map bubbles up its `google.maps.Map` instance so we can drive
+  // a viewport-nav hook (idle → debounced viewport → dominant region
+  // → URL via replaceState) and imperatively `fitBounds` when a row in
+  // the right rail is clicked.
+  const [mapInstance, setMapInstance] = useState<google.maps.Map | null>(null);
   const navigate = useNavigate();
-  const handleChoroplethClick = useCallback(
-    (props: Record<string, unknown>) => {
-      if (country === "united-states") {
-        const stateCode = props.state_code as string | undefined;
-        const countyName = props.county_name as string | undefined;
-        if (!stateCode || !countyName) return;
-        const stateSlug = stateCodeToSlug(stateCode);
-        if (!stateSlug) return;
-        navigate(`/solar/app/united-states/${stateSlug}/${countyToSlug(countyName)}`);
-        return;
-      }
-      // Italy — partition-name → URL slug match. The IT region URL
-      // slugs are inconsistent (`emiliaromagna` vs `valle-daosta`), so
-      // try a normalized name lookup against the static catalog.
-      const partitionName = props.region as string | undefined;
-      if (!partitionName) return;
-      const normalized = partitionName.toLowerCase().replace(/-/g, "");
-      const match = COUNTRIES.italy.regions.find(
-        (r) => r.slug.replace(/-/g, "").toLowerCase() === normalized,
-      );
-      if (!match) return;
-      navigate(`/solar/app/italy/${match.slug}`);
-    },
-    [country, navigate],
+
+  // Country-zoom polygons (US states / IT regions) — always loaded.
+  // Payload is small (~50 US states, ~20 IT regions) and used by the
+  // dominant-region lookup at every scope, plus the country-zoom list.
+  const usStatesQuery = useUSStates(country === "united-states");
+  const itRegionsQuery = useITRegions(country === "italy");
+
+  // The IT regions endpoint keys on the uppercase region name (e.g.
+  // "LOMBARDIA"), but the URL slug is lowercase ("lombardia"). The
+  // slug ↔ region-name mapping is normalised-name-based and lives on
+  // the static catalog — derive the API name from the URL slug once
+  // and reuse it for both the provinces query and the URL effect.
+  const itApiRegion = useMemo<string | undefined>(() => {
+    if (country !== "italy" || scope.level === "national") return undefined;
+    if (!itRegionsQuery.data) return undefined;
+    const wantSlug = scope.regionSlug.replace(/-/g, "").toLowerCase();
+    return itRegionsQuery.data.features.find(
+      (f) => f.properties.region.replace(/-/g, "").toLowerCase() === wantSlug,
+    )?.properties.region;
+  }, [country, scope, itRegionsQuery.data]);
+
+  // State-zoom polygons (counties of the URL's state / provinces of
+  // the URL's region) — fetched only when the page is at region or
+  // subregion scope. The hive-partitioned mart endpoint returns just
+  // the one partition.
+  const usCountiesQuery = useUSCounties(
+    country === "united-states" && scope.level !== "national"
+      ? slugToStateCode(scope.regionSlug)
+      : undefined,
   );
-  const choroplethFeatures =
-    country === "united-states"
-      ? usCountyQuery.data
-      : itProvinceQuery.data;
+  const itProvincesQuery = useITProvinces(itApiRegion);
+
+  const regionFeatures =
+    country === "united-states" ? usStatesQuery.data : itRegionsQuery.data;
+  const subregionFeatures =
+    country === "united-states" ? usCountiesQuery.data : itProvincesQuery.data;
+
+  const { viewport, scopeLevel, regionFeature, subregionFeature } =
+    useViewportNavigation<
+      StateProps | RegionProps,
+      CountyProps | ProvinceProps
+    >({
+      map: mapInstance,
+      regionFeatures,
+      subregionFeatures,
+    });
+
+  // URL effect: when the viewport implies a different (region,
+  // subregion) than the URL already has, push the change via
+  // `replaceState`. The page re-renders with the new URL params and
+  // the downstream queries (listings, subregion polygons) react.
+  useEffect(() => {
+    if (!viewport) return;
+    const url = impliedUrl({
+      country,
+      scopeLevel,
+      regionFeature,
+      subregionFeature,
+      currentRegionSlug: region,
+      currentSubregionSlug: province,
+    });
+    if (!url) return;
+    if (url === routerLocation.pathname) return;
+    navigate(url + routerLocation.search, { replace: true });
+  }, [
+    viewport,
+    scopeLevel,
+    regionFeature,
+    subregionFeature,
+    country,
+    region,
+    province,
+    routerLocation,
+    navigate,
+  ]);
+
+  // Initial-load auto-fit: once the URL-implied region polygon is
+  // available, fit the map to it. Latched-once per (country, region,
+  // province) so subsequent viewport changes don't fight the user's
+  // pan/zoom. Row clicks call `map.fitBounds` directly and bypass the
+  // latch.
+  const fittedScopeRef = useRef<string | null>(null);
+  useEffect(() => {
+    if (!mapInstance) return;
+    const scopeKey = `${country}/${region ?? ""}/${province ?? ""}`;
+    if (fittedScopeRef.current === scopeKey) return;
+    const target = pickFitTarget({
+      scope,
+      regionFeatures,
+      subregionFeatures,
+    });
+    if (!target) return;
+    const bbox = polygonBbox(target.geometry);
+    if (!bbox) return;
+    fittedScopeRef.current = scopeKey;
+    mapInstance.fitBounds(
+      new google.maps.LatLngBounds(
+        { lat: bbox.south, lng: bbox.west },
+        { lat: bbox.north, lng: bbox.east },
+      ),
+    );
+  }, [mapInstance, country, region, province, scope, regionFeatures, subregionFeatures]);
+
+  const handleRegionRowClick = useCallback(
+    (geometry: unknown) => {
+      const bbox = polygonBbox(geometry);
+      if (!bbox || !mapInstance) return;
+      mapInstance.fitBounds(
+        new google.maps.LatLngBounds(
+          { lat: bbox.south, lng: bbox.west },
+          { lat: bbox.north, lng: bbox.east },
+        ),
+      );
+    },
+    [mapInstance],
+  );
 
   // Floating HUD shown only in the preview. Rendered as `overlays`
   // so the map stays unaware of page-specific chrome.
-  const choroplethCount = choroplethVisible
-    ? choroplethFeatures?.features.length ?? 0
-    : 0;
   const mapHud = (
     <MapHud
       country={country}
       regionSlug={pmtilesRegionSlug}
       zoom={currentZoom}
-      choroplethVisible={choroplethVisible}
-      choroplethCount={choroplethCount}
       listingCount={visibleListings.length}
       overlayCount={overlayIds.size}
     />
@@ -365,37 +444,54 @@ const CountryPreview = ({ adapter, country, region, province }: InnerProps) => {
     scope,
     onZoomChange: setCurrentZoom,
     onListingClick: handleSelectById,
+    onMapLoad: setMapInstance,
     pmtilesLayers,
     pmtilesState,
     onLayerProgressChange: setLayerProgress,
     overlays: mapHud,
-    choropleth: choroplethFeatures
-      ? {
-          features: choroplethFeatures,
-          visible: choroplethVisible,
-          onFeatureClick: handleChoroplethClick,
-        }
-      : undefined,
   });
 
-  const listings = (
-    <ListingsRail
-      listings={visibleListings}
-      total={allListings.length}
-      isLoading={isLoading}
-      sortKey={sortKey}
-      onSortChange={setSortKey}
-      adapter={adapter}
-      scope={scope}
-      onSelect={handleSelectListing}
-      selectedLayers={selectedLayers}
-      expanded={listExpanded}
-      onToggleExpanded={() => setListExpanded((v) => !v)}
-      selectedConstraintCount={selectedLayers.length}
-      onClearConstraints={clearConstraints}
-      eliminationByLayer={eliminationByLayer}
-    />
-  );
+  // The right rail content depends on the URL scope (which the
+  // viewport keeps in sync with the map). At country/region URL scopes
+  // the rail lists named regions; at subregion URL scope it shows the
+  // listings rail (today's behaviour).
+  const listings =
+    scope.level === "subregion" ? (
+      <ListingsRail
+        listings={visibleListings}
+        total={allListings.length}
+        isLoading={isLoading}
+        sortKey={sortKey}
+        onSortChange={setSortKey}
+        adapter={adapter}
+        scope={scope}
+        onSelect={handleSelectListing}
+        selectedLayers={selectedLayers}
+        expanded={listExpanded}
+        onToggleExpanded={() => setListExpanded((v) => !v)}
+        selectedConstraintCount={selectedLayers.length}
+        onClearConstraints={clearConstraints}
+        eliminationByLayer={eliminationByLayer}
+      />
+    ) : (
+      <RegionScopeRail
+        country={country}
+        scopeLevel={scope.level}
+        regionFeatures={regionFeatures}
+        subregionFeatures={subregionFeatures}
+        viewportBounds={viewport?.bounds}
+        onRowClick={handleRegionRowClick}
+        isLoading={
+          scope.level === "national"
+            ? country === "united-states"
+              ? usStatesQuery.isLoading
+              : itRegionsQuery.isLoading
+            : country === "united-states"
+              ? usCountiesQuery.isLoading
+              : itProvincesQuery.isLoading
+        }
+      />
+    );
 
   return (
     <>
@@ -825,6 +921,249 @@ const CountryNotSupported = ({ slug }: { slug?: string }) => (
     </p>
   </div>
 );
+
+// Right-rail content at country / state-or-region URL scope. Lists the
+// named regions whose polygon bbox intersects the viewport, sorted by
+// max_sunnyscore (no-data regions tucked at the bottom). Clicking a
+// row fits the map to that region — the URL update follows naturally
+// through the viewport-nav effect.
+interface RegionScopeRailProps {
+  country: CountrySlug;
+  scopeLevel: Scope["level"];
+  regionFeatures:
+    | { features: ReadonlyArray<PolygonFeature<StateProps | RegionProps>> }
+    | undefined;
+  subregionFeatures:
+    | { features: ReadonlyArray<PolygonFeature<CountyProps | ProvinceProps>> }
+    | undefined;
+  viewportBounds?: { north: number; south: number; east: number; west: number };
+  onRowClick: (geometry: unknown) => void;
+  isLoading: boolean;
+}
+
+const RegionScopeRail = ({
+  country,
+  scopeLevel,
+  regionFeatures,
+  subregionFeatures,
+  viewportBounds,
+  onRowClick,
+  isLoading,
+}: RegionScopeRailProps) => {
+  // At national URL we list country-zoom regions (US states / IT
+  // regions); at region URL we list the URL state's counties (or the
+  // URL region's provinces).
+  const sourceFeatures =
+    scopeLevel === "national" ? regionFeatures?.features : subregionFeatures?.features;
+
+  const headerLabel = useMemo(() => {
+    if (scopeLevel === "national") {
+      return country === "united-states" ? "States" : "Regions";
+    }
+    return country === "united-states" ? "Counties" : "Provinces";
+  }, [scopeLevel, country]);
+
+  const rows = useMemo(() => {
+    if (!sourceFeatures) return [];
+    const visible = viewportBounds
+      ? sourceFeatures.filter((f) => {
+          const bbox = polygonBbox(f.geometry);
+          return bbox ? bboxesIntersect(viewportBounds, bbox) : true;
+        })
+      : sourceFeatures;
+    // max_sunnyscore desc, with nulls (no-data) tucked at the bottom
+    // so the top of the rail is always the best match in view.
+    return [...visible].sort((a, b) => {
+      const sa = a.properties.max_sunnyscore;
+      const sb = b.properties.max_sunnyscore;
+      if (sa === null && sb === null) return 0;
+      if (sa === null) return 1;
+      if (sb === null) return -1;
+      return sb - sa;
+    });
+  }, [sourceFeatures, viewportBounds]);
+
+  return (
+    <>
+      <header className="sticky top-0 z-10 border-b border-border/60 bg-gradient-subtle px-4 py-3">
+        <h2 className="text-sm font-semibold text-foreground">{headerLabel}</h2>
+        <p className="mt-0.5 text-xs text-muted-foreground tabular-nums">
+          {isLoading ? (
+            "loading…"
+          ) : (
+            <>
+              <span className="font-medium text-foreground">
+                {rows.length.toLocaleString()}
+              </span>{" "}
+              in view
+            </>
+          )}
+        </p>
+      </header>
+      <div className="p-3 space-y-2">
+        {isLoading ? (
+          <div className="space-y-2">
+            {[1, 2, 3, 4, 5].map((i) => (
+              <div key={i} className="h-14 bg-muted animate-pulse rounded-md" />
+            ))}
+          </div>
+        ) : rows.length === 0 ? (
+          <p className="text-center text-sm text-muted-foreground py-12">
+            No regions in this viewport. Pan the map to find candidates.
+          </p>
+        ) : (
+          rows.map((feature) => (
+            <RegionListRow
+              key={regionFeatureKey(feature)}
+              name={regionFeatureLabel(feature)}
+              parcelCount={feature.properties.parcel_count}
+              maxSunnyscore={feature.properties.max_sunnyscore}
+              onClick={() => onRowClick(feature.geometry)}
+            />
+          ))
+        )}
+      </div>
+    </>
+  );
+};
+
+// Pick a stable key for the polygon row. Feature properties differ per
+// scope/country, so we read whichever id field is set. The double
+// `unknown` cast is the standard TS escape hatch for "I know this is a
+// union with overlapping fields"; structurally the union members each
+// carry at least one of the four key fields.
+function regionFeatureKey(
+  feature: PolygonFeature<StateProps | RegionProps | CountyProps | ProvinceProps>,
+): string {
+  const p = feature.properties as unknown as Record<string, string | undefined>;
+  return p.geoid ?? p.state_code ?? p.province_code ?? p.region ?? "?";
+}
+
+function regionFeatureLabel(
+  feature: PolygonFeature<StateProps | RegionProps | CountyProps | ProvinceProps>,
+): string {
+  const p = feature.properties as unknown as Record<string, string | undefined>;
+  return (
+    p.state_name ?? p.county_name ?? p.province_name ?? p.region ?? "?"
+  );
+}
+
+// Compute the URL implied by the viewport's dominant region/subregion.
+// Returns null if a dominant region can't be resolved yet (polygons
+// loading, or the viewport centre falls outside every region polygon).
+function impliedUrl({
+  country,
+  scopeLevel,
+  regionFeature,
+  subregionFeature,
+  currentRegionSlug,
+  currentSubregionSlug,
+}: {
+  country: CountrySlug;
+  scopeLevel: "national" | "region" | "subregion";
+  regionFeature: PolygonFeature<StateProps | RegionProps> | undefined;
+  subregionFeature: PolygonFeature<CountyProps | ProvinceProps> | undefined;
+  currentRegionSlug?: string;
+  currentSubregionSlug?: string;
+}): string | null {
+  const base = `/solar/app/${country}`;
+  if (scopeLevel === "national") return base;
+
+  // Region slug — resolve from the dominant region feature, falling
+  // back to the URL's existing slug while polygons load to avoid
+  // intermediate drops to country scope.
+  const regionSlug =
+    regionFeatureToSlug(country, regionFeature) ?? currentRegionSlug;
+  if (!regionSlug) return null;
+  if (scopeLevel === "region") return `${base}/${regionSlug}`;
+
+  // Subregion scope. US gets the full <region>/<subregion> URL per
+  // the card. IT keeps the URL at <region> in v1 — the IT listings
+  // endpoint still filters by comune_slug, so writing a province slug
+  // at the third URL slot would silently empty the rail. The
+  // comune-aware path lives in p2-e2-city-granularity.
+  if (country === "italy") return `${base}/${regionSlug}`;
+
+  const subregionSlug =
+    subregionFeatureToSlug(country, subregionFeature) ?? currentSubregionSlug;
+  if (!subregionSlug) return `${base}/${regionSlug}`;
+  return `${base}/${regionSlug}/${subregionSlug}`;
+}
+
+function regionFeatureToSlug(
+  country: CountrySlug,
+  feature: PolygonFeature<StateProps | RegionProps> | undefined,
+): string | undefined {
+  if (!feature) return undefined;
+  if (country === "united-states") {
+    const p = feature.properties as StateProps;
+    return stateCodeToSlug(p.state_code);
+  }
+  const p = feature.properties as RegionProps;
+  // IT region API names are uppercased and hyphenated ("VALLE-AOSTA");
+  // the URL catalog uses lowercase variants that occasionally drop
+  // hyphens ("valle-daosta"). Match on normalised letters only.
+  const wantSlug = p.region.replace(/-/g, "").toLowerCase();
+  return COUNTRIES.italy.regions.find(
+    (r) => r.slug.replace(/-/g, "").toLowerCase() === wantSlug,
+  )?.slug;
+}
+
+function subregionFeatureToSlug(
+  country: CountrySlug,
+  feature: PolygonFeature<CountyProps | ProvinceProps> | undefined,
+): string | undefined {
+  if (!feature) return undefined;
+  if (country === "united-states") {
+    const p = feature.properties as CountyProps;
+    return countyToSlug(p.county_name);
+  }
+  // IT province slug is not used in v1 (URL stays at <region>).
+  return undefined;
+}
+
+// Pick the polygon to fit the map to on initial deep-URL load. Prefer
+// the most specific level present in the URL (subregion polygon if at
+// county/province URL, otherwise the region polygon).
+function pickFitTarget({
+  scope,
+  regionFeatures,
+  subregionFeatures,
+}: {
+  scope: Scope;
+  regionFeatures:
+    | { features: ReadonlyArray<PolygonFeature<StateProps | RegionProps>> }
+    | undefined;
+  subregionFeatures:
+    | { features: ReadonlyArray<PolygonFeature<CountyProps | ProvinceProps>> }
+    | undefined;
+}): PolygonFeature<unknown> | undefined {
+  if (scope.level === "subregion" && subregionFeatures) {
+    const wantSlug = scope.subregionSlug.toLowerCase();
+    const hit = subregionFeatures.features.find((f) => {
+      const p = f.properties as CountyProps | ProvinceProps;
+      const candidate =
+        "county_name" in p
+          ? countyToSlug(p.county_name)
+          : p.province_name.toLowerCase();
+      return candidate === wantSlug;
+    });
+    if (hit) return hit as PolygonFeature<unknown>;
+  }
+  if (scope.level !== "national" && regionFeatures) {
+    const wantSlug = scope.regionSlug.replace(/-/g, "").toLowerCase();
+    const hit = regionFeatures.features.find((f) => {
+      const p = f.properties as StateProps | RegionProps;
+      const candidate =
+        "state_code" in p
+          ? stateCodeToSlug(p.state_code)
+          : p.region.replace(/-/g, "").toLowerCase();
+      return candidate?.replace(/-/g, "") === wantSlug;
+    });
+    if (hit) return hit as PolygonFeature<unknown>;
+  }
+  return undefined;
+}
 
 // Drawer identity + summary, country-specific. The runtime listing is
 // already a USListing or ITListing (the adapter's useListings returns

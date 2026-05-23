@@ -10,7 +10,7 @@ export interface ListingMarkerItem {
 interface UseListingMarkersArgs {
   map: google.maps.Map | null;
   isLoaded: boolean;
-  /** When false, all markers are torn down (e.g. while the choropleth covers the map). */
+  /** When false, all markers are torn down. */
   enabled: boolean;
   items: ReadonlyArray<ListingMarkerItem>;
   onClick?: (id: string) => void;

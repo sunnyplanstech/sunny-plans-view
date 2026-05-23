@@ -1,5 +1,128 @@
 type GeomLike = { type?: string; coordinates?: unknown };
 
+// Ray-casting point-in-polygon. `ring` is a GeoJSON LinearRing: an
+// ordered array of `[lng, lat]` pairs whose first and last entries
+// match. Standard even-odd rule. Boundary points flip with float
+// precision; at the scale we use this (named-region containment for
+// nav) sub-pixel boundary noise is irrelevant.
+function pointInRing(lng: number, lat: number, ring: number[][]): boolean {
+  let inside = false;
+  for (let i = 0, j = ring.length - 1; i < ring.length; j = i++) {
+    const xi = ring[i][0];
+    const yi = ring[i][1];
+    const xj = ring[j][0];
+    const yj = ring[j][1];
+    const intersects =
+      yi > lat !== yj > lat &&
+      lng < ((xj - xi) * (lat - yi)) / (yj - yi) + xi;
+    if (intersects) inside = !inside;
+  }
+  return inside;
+}
+
+// True iff the point lies inside the polygon's outer ring and not
+// inside any of its holes. Holes are subsequent rings in the same
+// Polygon `coordinates` array per the GeoJSON spec.
+function pointInPolygonRings(
+  lng: number,
+  lat: number,
+  rings: number[][][],
+): boolean {
+  if (rings.length === 0) return false;
+  if (!pointInRing(lng, lat, rings[0])) return false;
+  for (let i = 1; i < rings.length; i++) {
+    if (pointInRing(lng, lat, rings[i])) return false;
+  }
+  return true;
+}
+
+// True iff the point lies inside the GeoJSON geometry. Accepts Polygon
+// and MultiPolygon; anything else (Point/LineString/etc.) returns
+// false — named-region polygons in this app are always one of those.
+export function pointInGeometry(
+  point: { lat: number; lng: number },
+  geom: unknown,
+): boolean {
+  const g = geom as GeomLike;
+  if (!g || !g.coordinates) return false;
+  if (g.type === "Polygon") {
+    return pointInPolygonRings(point.lng, point.lat, g.coordinates as number[][][]);
+  }
+  if (g.type === "MultiPolygon") {
+    const polys = g.coordinates as number[][][][];
+    for (const rings of polys) {
+      if (pointInPolygonRings(point.lng, point.lat, rings)) return true;
+    }
+    return false;
+  }
+  return false;
+}
+
+// Compute the axis-aligned bounding box of a GeoJSON Polygon or
+// MultiPolygon in lng/lat. Returns null for unrecognised geometries.
+// Walks every coordinate once — fine at named-region sizes (≤ ~10k
+// vertices for the biggest US states) but not for arbitrary-scale data.
+export function polygonBbox(
+  geom: unknown,
+): { north: number; south: number; east: number; west: number } | null {
+  const g = geom as GeomLike;
+  if (!g || !g.coordinates) return null;
+  let north = -Infinity;
+  let south = Infinity;
+  let east = -Infinity;
+  let west = Infinity;
+  const walkRing = (ring: number[][]) => {
+    for (const [lng, lat] of ring) {
+      if (lat > north) north = lat;
+      if (lat < south) south = lat;
+      if (lng > east) east = lng;
+      if (lng < west) west = lng;
+    }
+  };
+  if (g.type === "Polygon") {
+    for (const ring of g.coordinates as number[][][]) walkRing(ring);
+  } else if (g.type === "MultiPolygon") {
+    for (const rings of g.coordinates as number[][][][]) {
+      for (const ring of rings) walkRing(ring);
+    }
+  } else {
+    return null;
+  }
+  if (!isFinite(north)) return null;
+  return { north, south, east, west };
+}
+
+// Standard AABB overlap test. Both inputs are in lng/lat with `east >
+// west`; antimeridian-crossing bboxes aren't a concern here (US and IT
+// are both well inside one hemisphere).
+export function bboxesIntersect(
+  a: { north: number; south: number; east: number; west: number },
+  b: { north: number; south: number; east: number; west: number },
+): boolean {
+  return (
+    a.east >= b.west &&
+    a.west <= b.east &&
+    a.north >= b.south &&
+    a.south <= b.north
+  );
+}
+
+// Linear scan over polygon features. The sets we scan are small
+// (≤50 US states, ≤20 IT regions, ≤63 counties per state, ≤12 provinces
+// per region) so a bounding-box pre-filter isn't worth the indirection.
+//
+// `T` is preserved end-to-end so callers passing fully-typed
+// FeatureCollections get their concrete feature shape back, not a
+// generic interface.
+export function findContainingFeature<
+  T extends { geometry: unknown },
+>(point: { lat: number; lng: number }, features: ReadonlyArray<T>): T | undefined {
+  for (const feature of features) {
+    if (pointInGeometry(point, feature.geometry)) return feature;
+  }
+  return undefined;
+}
+
 // The Django API ships geom_json as a parsed JSONField, so this always
 // receives an object (or null/undefined when the listing has no geometry).
 export function getParcelCenter(geomJson: unknown): { lat: number; lng: number } | null {
