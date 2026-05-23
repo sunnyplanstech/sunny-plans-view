@@ -141,11 +141,17 @@ export function ListingsGoogleMap({
     [markerItems],
   );
 
+  // Latch the auto-fit on country only, not country+region. The page's
+  // zoom-driven nav (p1-e3) updates the URL's region/subregion as the
+  // user pans/zooms; refitting on every such change would yank the
+  // camera back from where the user just put it. Country changes are
+  // rare (only on internal Link navigation between US ↔ IT) and a
+  // refit there is the right move.
   useAutoFitBounds({
     map,
     isLoaded,
     enabled: true,
-    scopeKey: `${country ?? ""}/${regionSlug ?? ""}`,
+    scopeKey: country ?? "",
     coords: fitCoords,
   });
 

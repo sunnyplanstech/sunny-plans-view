@@ -27,7 +27,7 @@
 // the polygons paint as a "this is what we filtered out for you" trust
 // signal, but flipping the toggle only hides the overlay; the qualifying
 // cohort stays exactly the same.
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { Navigate, useNavigate, useParams, useLocation } from "react-router-dom";
 import { MapHud } from "@/components/maps/MapHud";
 import { pmtilesLayersFor } from "@/components/maps/pmtilesLayers";
@@ -47,7 +47,6 @@ import {
   type ProvinceProps,
   type PolygonFeature,
 } from "@/hooks/useRegionPolygons";
-import { polygonBbox } from "@/lib/geo";
 import {
   COUNTRIES,
   countyToSlug,
@@ -82,7 +81,7 @@ import {
 import { layerTag } from "@/components/layers/layerTag";
 import { useUrlSpecState } from "@/components/layers/useUrlSpecState";
 import { getCountryAdapter, type CountryAdapter } from "@/countries";
-import type { BaseListing, Scope } from "@/countries/types";
+import type { BaseListing } from "@/countries/types";
 import type { USListing } from "@/countries/unitedStates";
 import type { ITListing } from "@/countries/italy";
 import {
@@ -385,32 +384,12 @@ const CountryPreview = ({ adapter, country, region, province }: InnerProps) => {
     navigate,
   ]);
 
-  // Initial-load auto-fit: once the URL-implied region polygon is
-  // available, fit the map to it. Latched-once per (country, region,
-  // province) so subsequent viewport changes don't fight the user's
-  // pan/zoom. Row clicks call `map.fitBounds` directly and bypass the
-  // latch.
-  const fittedScopeRef = useRef<string | null>(null);
-  useEffect(() => {
-    if (!mapInstance) return;
-    const scopeKey = `${country}/${region ?? ""}/${province ?? ""}`;
-    if (fittedScopeRef.current === scopeKey) return;
-    const target = pickFitTarget({
-      scope,
-      regionFeatures,
-      subregionFeatures,
-    });
-    if (!target) return;
-    const bbox = polygonBbox(target.geometry);
-    if (!bbox) return;
-    fittedScopeRef.current = scopeKey;
-    mapInstance.fitBounds(
-      new google.maps.LatLngBounds(
-        { lat: bbox.south, lng: bbox.west },
-        { lat: bbox.north, lng: bbox.east },
-      ),
-    );
-  }, [mapInstance, country, region, province, scope, regionFeatures, subregionFeatures]);
+  // No polygon-based auto-fit. ListingsGoogleMap's `useAutoFitBounds`
+  // handles the initial fit (to listings coords) once per country; any
+  // refit after that would yank the camera away from where the user's
+  // own pan/zoom has settled — and since that pan/zoom is exactly what
+  // drives the URL/listings updates here, refitting fights the gesture
+  // that's supposed to navigate.
 
   // Floating HUD shown only in the preview. Rendered as `overlays`
   // so the map stays unaware of page-specific chrome.
@@ -955,49 +934,6 @@ function subregionFeatureToSlug(
     return countyToSlug(p.county_name);
   }
   // IT province slug is not used in v1 (URL stays at <region>).
-  return undefined;
-}
-
-// Pick the polygon to fit the map to on initial deep-URL load. Prefer
-// the most specific level present in the URL (subregion polygon if at
-// county/province URL, otherwise the region polygon).
-function pickFitTarget({
-  scope,
-  regionFeatures,
-  subregionFeatures,
-}: {
-  scope: Scope;
-  regionFeatures:
-    | { features: ReadonlyArray<PolygonFeature<StateProps | RegionProps>> }
-    | undefined;
-  subregionFeatures:
-    | { features: ReadonlyArray<PolygonFeature<CountyProps | ProvinceProps>> }
-    | undefined;
-}): PolygonFeature<unknown> | undefined {
-  if (scope.level === "subregion" && subregionFeatures) {
-    const wantSlug = scope.subregionSlug.toLowerCase();
-    const hit = subregionFeatures.features.find((f) => {
-      const p = f.properties as CountyProps | ProvinceProps;
-      const candidate =
-        "county_name" in p
-          ? countyToSlug(p.county_name)
-          : p.province_name.toLowerCase();
-      return candidate === wantSlug;
-    });
-    if (hit) return hit as PolygonFeature<unknown>;
-  }
-  if (scope.level !== "national" && regionFeatures) {
-    const wantSlug = scope.regionSlug.replace(/-/g, "").toLowerCase();
-    const hit = regionFeatures.features.find((f) => {
-      const p = f.properties as StateProps | RegionProps;
-      const candidate =
-        "state_code" in p
-          ? stateCodeToSlug(p.state_code)
-          : p.region.replace(/-/g, "").toLowerCase();
-      return candidate?.replace(/-/g, "") === wantSlug;
-    });
-    if (hit) return hit as PolygonFeature<unknown>;
-  }
   return undefined;
 }
 

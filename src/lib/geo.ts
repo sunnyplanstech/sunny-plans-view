@@ -58,40 +58,6 @@ export function pointInGeometry(
   return false;
 }
 
-// Compute the axis-aligned bounding box of a GeoJSON Polygon or
-// MultiPolygon in lng/lat. Returns null for unrecognised geometries.
-// Walks every coordinate once — fine at named-region sizes (≤ ~10k
-// vertices for the biggest US states) but not for arbitrary-scale data.
-export function polygonBbox(
-  geom: unknown,
-): { north: number; south: number; east: number; west: number } | null {
-  const g = geom as GeomLike;
-  if (!g || !g.coordinates) return null;
-  let north = -Infinity;
-  let south = Infinity;
-  let east = -Infinity;
-  let west = Infinity;
-  const walkRing = (ring: number[][]) => {
-    for (const [lng, lat] of ring) {
-      if (lat > north) north = lat;
-      if (lat < south) south = lat;
-      if (lng > east) east = lng;
-      if (lng < west) west = lng;
-    }
-  };
-  if (g.type === "Polygon") {
-    for (const ring of g.coordinates as number[][][]) walkRing(ring);
-  } else if (g.type === "MultiPolygon") {
-    for (const rings of g.coordinates as number[][][][]) {
-      for (const ring of rings) walkRing(ring);
-    }
-  } else {
-    return null;
-  }
-  if (!isFinite(north)) return null;
-  return { north, south, east, west };
-}
-
 // Linear scan over polygon features. The sets we scan are small
 // (≤50 US states, ≤20 IT regions, ≤63 counties per state, ≤12 provinces
 // per region) so a bounding-box pre-filter isn't worth the indirection.
