@@ -149,6 +149,27 @@ const CountryPreview = ({ adapter, country, region, province }: InnerProps) => {
   const [listExpanded, setListExpanded] = useState(false);
   const [railOpen, setRailOpen] = useState(true);
   const [mobileSurface, setMobileSurface] = useState<MobileSurface>("map");
+  // Track which layout (desktop ≥1024px or mobile <1024px) is active.
+  // The page renders {map} in two different layout slots — the
+  // `hidden lg:flex` desktop column and the `lg:hidden` mobile
+  // surface. Tailwind hides the wrong one via CSS, but React still
+  // mounts both ListingsGoogleMap instances, both fire `onMapLoad`,
+  // and the last one wins — so the page's `mapInstance` would point
+  // at the *invisible* map and our zoom-driven nav would listen on
+  // the wrong map. Gating one slot on `isLgUp` and the other on
+  // `!isLgUp` keeps a single map mounted at any moment.
+  const [isLgUp, setIsLgUp] = useState<boolean>(() =>
+    typeof window !== "undefined"
+      ? window.matchMedia("(min-width: 1024px)").matches
+      : true,
+  );
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const mql = window.matchMedia("(min-width: 1024px)");
+    const onChange = (e: MediaQueryListEvent) => setIsLgUp(e.matches);
+    mql.addEventListener("change", onChange);
+    return () => mql.removeEventListener("change", onChange);
+  }, []);
   const [currentZoom, setCurrentZoom] = useState<number | undefined>(undefined);
   const [layerProgress, setLayerProgress] = useState<
     Record<string, LayerProgress>
@@ -500,7 +521,7 @@ const CountryPreview = ({ adapter, country, region, province }: InnerProps) => {
             </button>
           )}
 
-          {!listExpanded && (
+          {!listExpanded && isLgUp && (
             <section className="flex-1 min-w-0 sticky top-0 self-start h-screen">
               <div className="absolute inset-0">{map}</div>
             </section>
@@ -522,7 +543,7 @@ const CountryPreview = ({ adapter, country, region, province }: InnerProps) => {
           {mobileSurface === "constraints" && (
             <div className="p-3">{constraintBar}</div>
           )}
-          {mobileSurface === "map" && (
+          {mobileSurface === "map" && !isLgUp && (
             <div className="h-[calc(100vh-220px)] min-h-[420px]">{map}</div>
           )}
           {mobileSurface === "list" && (
