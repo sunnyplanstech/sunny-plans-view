@@ -8,6 +8,9 @@ import SEOHead from "@/components/listings/SEOHead";
 const DemoSection = lazy(() => import("@/components/DemoSection"));
 const Features = lazy(() => import("@/components/Features"));
 const HowItWorks = lazy(() => import("@/components/HowItWorks"));
+const LandingSunnyScoreExample = lazy(
+  () => import("@/components/LandingSunnyScoreExample"),
+);
 const Testimonial = lazy(() => import("@/components/Testimonial"));
 const Pricing = lazy(() => import("@/components/Pricing"));
 const FAQ = lazy(() => import("@/components/FAQ"));
@@ -58,6 +61,9 @@ const Index = () => {
       </Suspense>
       <Suspense fallback={<SectionFallback />}>
         <HowItWorks />
+      </Suspense>
+      <Suspense fallback={<SectionFallback />}>
+        <LandingSunnyScoreExample />
       </Suspense>
       <Suspense fallback={<SectionFallback />}>
         <Testimonial />
