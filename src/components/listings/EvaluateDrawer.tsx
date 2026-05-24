@@ -18,6 +18,7 @@ import type { Layer } from "@/components/layers/registry";
 import type { BaseListing } from "@/countries/types";
 import type { OsmDistanceFields } from "@/data/osmDistanceFields";
 import MiniParcelMap from "@/components/maps/MiniParcelMap";
+import { SunnyScoreExplanation } from "@/components/listings/sunnyscore";
 
 interface EvaluateDrawerProps {
   // The parcel under evaluation. `null` collapses the drawer.
@@ -155,9 +156,32 @@ function ThumbnailSection({
   );
 }
 
-// SunnyScore — single signal carrying grid viability that's not
-// exposed as a toggleable layer. Tone-graded against brand primary.
+// SunnyScore — gauge + helping/hurting columns from the shared idiom
+// (same component the listing card and detail page use). Stable across
+// surfaces is a UX principle of p2-e1-sunnyscore-visual. Falls back to
+// the legacy prob_solar bar when SHAP contributions aren't populated
+// yet (the LEFT JOIN in the mart can ship score-without-contributions).
 function ScoreSection({ listing }: { listing: BaseListing }) {
+  const hasExplanation =
+    listing.score != null &&
+    listing.contributions != null &&
+    Object.keys(listing.contributions).length > 0;
+
+  if (hasExplanation) {
+    return (
+      <section className="px-5 py-5">
+        <SunnyScoreExplanation
+          payload={{
+            score: listing.score!,
+            contributions: listing.contributions!,
+          }}
+          size="md"
+          expandable
+        />
+      </section>
+    );
+  }
+
   const value =
     listing.prob_solar === null ? null : Math.round(listing.prob_solar * 100);
   const tone =

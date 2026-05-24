@@ -253,6 +253,14 @@ const RESIDUAL_THRESHOLD = 0.01;
 // everything so the full distribution stays visible at a glance.
 export const MIN_VISIBLE_SHARE = 0.01;
 
+// A side whose total |SHAP| is below this threshold is suppressed
+// entirely (empty rows, zero-width gauge bar). The pathological case is
+// a parcel with one tiny lone negative that, without this floor, fills
+// 100% of the hurting bar and reads as a meaningful drag — answers Open
+// Question 5 in p2-e1-sunnyscore-visual.md. Applied symmetrically so
+// near-baseline parcels also don't fabricate a helping side from noise.
+const MIN_SIDE_TOTAL = 0.05;
+
 // Side-specific noun for the residual label: "Other land use strengths"
 // vs "Other land use weaknesses". Centralised so the strings are easy to
 // audit. Note: ColumnSide values stay "helping"/"hurting" internally —
@@ -400,18 +408,24 @@ export function buildExplanation(payload: ParcelPayload): Explanation {
     if (hurtingRow) hurting.push(hurtingRow);
   }
 
-  const helpingTotal = helping.reduce((s, r) => s + r.total, 0);
-  const hurtingTotal = hurting.reduce((s, r) => s + r.total, 0);
+  const rawHelpingTotal = helping.reduce((s, r) => s + r.total, 0);
+  const rawHurtingTotal = hurting.reduce((s, r) => s + r.total, 0);
+  const helpingSuppressed = rawHelpingTotal < MIN_SIDE_TOTAL;
+  const hurtingSuppressed = rawHurtingTotal < MIN_SIDE_TOTAL;
+  const visibleHelping = helpingSuppressed ? [] : helping;
+  const visibleHurting = hurtingSuppressed ? [] : hurting;
+  const helpingTotal = helpingSuppressed ? 0 : rawHelpingTotal;
+  const hurtingTotal = hurtingSuppressed ? 0 : rawHurtingTotal;
   const overallTotal = helpingTotal + hurtingTotal;
-  assignShares(helping, helpingTotal, overallTotal);
-  assignShares(hurting, hurtingTotal, overallTotal);
+  assignShares(visibleHelping, helpingTotal, overallTotal);
+  assignShares(visibleHurting, hurtingTotal, overallTotal);
 
-  helping.sort((a, b) => b.total - a.total);
-  hurting.sort((a, b) => b.total - a.total);
+  visibleHelping.sort((a, b) => b.total - a.total);
+  visibleHurting.sort((a, b) => b.total - a.total);
 
   return {
-    helping,
-    hurting,
+    helping: visibleHelping,
+    hurting: visibleHurting,
     helpingTotal,
     hurtingTotal,
     maxSideTotal: Math.max(helpingTotal, hurtingTotal, EPSILON_SIGNAL),
