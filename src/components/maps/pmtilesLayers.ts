@@ -110,11 +110,6 @@ export interface PMTilesLayerConfig {
   // the search space without making the basemap unreadable.
   baseFillColor?: [number, number, number, number];
   defaultVisible?: boolean;
-  // Layers like NWI fan out to ~50 partitioned PMTiles files; toggling
-  // one on at the country view triggers tile fetches against every
-  // partition. Set this on dense partitioned layers to keep the toggle
-  // disabled until the user is on a state/region page.
-  requiresRegionScope?: boolean;
 }
 
 const TILES_BUCKET_BASE =
@@ -257,7 +252,6 @@ export const PMTILES_LAYERS_BY_COUNTRY: Record<string, PMTilesLayerConfig[]> = {
       description:
         "Pendenza <5% — the unanimous \"definitely usable\" cutoff for utility solar/BESS siting",
       ...SUITABLE_BASE,
-      requiresRegionScope: true,
     },
     {
       id: "natura2000_it",
@@ -267,7 +261,6 @@ export const PMTILES_LAYERS_BY_COUNTRY: Record<string, PMTilesLayerConfig[]> = {
         "EU Natura 2000 protected sites (Habitats + Birds Directives) — autorizzazione paesaggistica required, ~6–12 month delay",
       ...HARD_EXCLUSION_BASE,
       pattern: "diagonal-left",
-      requiresRegionScope: true,
     },
   ],
   "united-states": [
@@ -278,7 +271,6 @@ export const PMTILES_LAYERS_BY_COUNTRY: Record<string, PMTilesLayerConfig[]> = {
       description:
         "Slope <5% — the unanimous \"definitely usable\" cutoff for utility solar/BESS siting",
       ...SUITABLE_BASE,
-      requiresRegionScope: true,
     },
     {
       id: "pad_us",
@@ -288,7 +280,6 @@ export const PMTILES_LAYERS_BY_COUNTRY: Record<string, PMTilesLayerConfig[]> = {
         "Federal/state protected lands restricted for development (PAD-US Fee + Other, GAP 1–2 / Wilderness / NWR / etc.)",
       ...HARD_EXCLUSION_BASE,
       pattern: "diagonal-right",
-      requiresRegionScope: true,
     },
     {
       id: "nwi_us",
@@ -303,7 +294,6 @@ export const PMTILES_LAYERS_BY_COUNTRY: Record<string, PMTilesLayerConfig[]> = {
       lineWidth: 1.5,
       pattern: "horizontal",
       defaultVisible: true,
-      requiresRegionScope: true,
     },
   ],
 };

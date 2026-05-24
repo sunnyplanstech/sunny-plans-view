@@ -13,10 +13,6 @@ interface LayerPanelProps {
   state: Record<string, PMTilesLayerState>;
   onToggle: (id: string) => void;
 
-  // True when the user is on a state/region (or deeper) page. Layers
-  // declaring `requiresRegionScope` stay disabled until this flips.
-  hasRegionScope?: boolean;
-
   // Per-layer header zoom range from the .pmtiles file plus the map's
   // current zoom. When the current zoom is below header.minZoom, the
   // toggle is disabled with a "Zoom in" hint — the bake config drives
@@ -62,7 +58,6 @@ export function LayerPanel({
   layers,
   state,
   onToggle,
-  hasRegionScope,
   layerHeaders,
   layerProgress,
   currentZoom,
@@ -102,19 +97,13 @@ export function LayerPanel({
             const s = state[layer.id] ?? {
               visible: layer.defaultVisible ?? false,
             };
-            const scopeGated = !!layer.requiresRegionScope && !hasRegionScope;
             const header = layerHeaders?.[layer.id];
             const zoomGated =
-              !scopeGated &&
               header != null &&
               currentZoom != null &&
               currentZoom < header.minZoom;
-            const gated = scopeGated || zoomGated;
-            const hint = scopeGated
-              ? "Open a state to enable this layer."
-              : zoomGated
-                ? "Zoom in to see this layer."
-                : null;
+            const gated = zoomGated;
+            const hint = zoomGated ? "Zoom in to see this layer." : null;
             const labelClass = gated
               ? "flex items-start gap-2 text-sm opacity-50"
               : "flex cursor-pointer items-start gap-2 text-sm";

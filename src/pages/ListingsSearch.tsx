@@ -266,7 +266,6 @@ const CountryPreview = ({ adapter, country, region, province }: InnerProps) => {
   const locationName = adapter.formatScopeName(scope);
   const seo = adapter.seoCopy(scope, visibleListings);
   const canonicalUrl = buildCanonicalUrl(country, region, province);
-  const hasRegionScope = !!region;
 
   // Resolve the URL's parcel id back to a listing. Unknown ids (parcel
   // out of current scope, stale shared link) yield `null` — the drawer
@@ -301,11 +300,6 @@ const CountryPreview = ({ adapter, country, region, province }: InnerProps) => {
     [setSelectedParcelId],
   );
 
-  // US first-level admin unit is "state"; Italy uses "region". Drives
-  // the constraint bar's "Pick a {state/region} first" hint copy.
-  const regionLabel: "state" | "region" =
-    country === "italy" ? "region" : "state";
-
   const constraintBar = (
     <ConstraintBar
       layers={layers}
@@ -316,8 +310,6 @@ const CountryPreview = ({ adapter, country, region, province }: InnerProps) => {
       costsById={costsById}
       totalListings={allListings.length}
       currentZoom={currentZoom}
-      hasRegionScope={hasRegionScope}
-      regionLabel={regionLabel}
       layerProgress={layerProgress}
     />
   );

@@ -60,11 +60,6 @@ export interface Layer {
   // a layer can be filter-only with no overlay, or overlay-only with
   // no listings filter.
   pmtilesLayerId?: string;
-  // True when the layer's overlay needs the user to be on a state /
-  // region (or deeper) page — the catalog already encodes this on the
-  // pmtiles entry; we mirror it here so the panel can show the hint
-  // even when the layer is filter-only.
-  requiresRegionScope?: boolean;
   // Lowest map zoom at which this layer's data is meaningful. Below
   // this zoom the constraint bar surfaces a "zoom in to apply" hint and
   // the row's effect counter is held back. The toggle stays selectable —
@@ -117,7 +112,6 @@ export const LAYER_REGISTRY: Layer[] = [
     role: "avoid",
     country: "united-states",
     pmtilesLayerId: "pad_us",
-    requiresRegionScope: true,
     minZoom: 6,
   },
   {
@@ -130,7 +124,6 @@ export const LAYER_REGISTRY: Layer[] = [
     role: "avoid",
     country: "united-states",
     pmtilesLayerId: "nwi_us",
-    requiresRegionScope: true,
     minZoom: 11,
   },
   {
@@ -143,7 +136,6 @@ export const LAYER_REGISTRY: Layer[] = [
     role: "target",
     country: "united-states",
     pmtilesLayerId: "slope_lt_5_us",
-    requiresRegionScope: true,
     minZoom: 11,
     listingsFilter: SLOPE_LT_5_FILTER,
     chip: SLOPE_LT_5_CHIP,
@@ -158,7 +150,6 @@ export const LAYER_REGISTRY: Layer[] = [
     role: "avoid",
     country: "italy",
     pmtilesLayerId: "natura2000_it",
-    requiresRegionScope: true,
     minZoom: 6,
   },
   {
@@ -170,7 +161,6 @@ export const LAYER_REGISTRY: Layer[] = [
     role: "target",
     country: "italy",
     pmtilesLayerId: "slope_lt_5_it",
-    requiresRegionScope: true,
     minZoom: 11,
     listingsFilter: SLOPE_LT_5_FILTER,
     chip: SLOPE_LT_5_CHIP,

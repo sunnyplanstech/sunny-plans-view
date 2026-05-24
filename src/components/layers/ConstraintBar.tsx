@@ -15,7 +15,7 @@
 // No bundle / preset UI — v1 of the layer-first redesign explicitly
 // drops the fieldkit shortcut. If user testing shows expert users want
 // presets we add them back as a thin wrapper over `onToggle`.
-import { Check, Loader2, MapPin, ZoomIn } from "lucide-react";
+import { Check, Loader2, ZoomIn } from "lucide-react";
 import { cn } from "@/lib/utils";
 import type { Layer, LayerRole } from "./registry";
 import type { LayerEffect } from "./evaluate";
@@ -41,13 +41,6 @@ interface ConstraintBarProps {
   // Current map zoom. Layers with `minZoom > currentZoom` show a
   // "zoom in to use" hint; their toggle stays selectable.
   currentZoom?: number;
-  // True when the user is on a region (state / italian region) page or
-  // deeper. Drives the `requiresRegionScope` hint independently of zoom.
-  hasRegionScope: boolean;
-  // User-facing word for the country's first-level admin unit. Drives
-  // the "Pick a {state/region} first" hint copy on layers that need a
-  // region scope. The page picks the right word per country slug.
-  regionLabel: "state" | "region";
   // Per-layer PMTiles load progress. When present, rows whose overlay
   // is mid-stream (header fetch or in-flight tiles) show a small
   // spinner + tile-counter chip. Streaming has no honest total — the
@@ -57,7 +50,6 @@ interface ConstraintBarProps {
 
 interface RowState {
   belowMinZoom: boolean;
-  needsRegion: boolean;
   effect?: LayerEffect;
 }
 
@@ -96,12 +88,10 @@ function groupByRole(layers: Layer[]): { role: LayerRole; items: Layer[] }[] {
 function rowState(
   layer: Layer,
   effectsById: Record<string, LayerEffect>,
-  hasRegionScope: boolean,
   currentZoom?: number,
 ): RowState {
   return {
     belowMinZoom: currentZoom !== undefined && currentZoom < layer.minZoom,
-    needsRegion: !!layer.requiresRegionScope && !hasRegionScope,
     effect: effectsById[layer.id],
   };
 }
@@ -158,8 +148,6 @@ export function ConstraintBar({
   costsById,
   totalListings,
   currentZoom,
-  hasRegionScope,
-  regionLabel,
   layerProgress,
 }: ConstraintBarProps) {
   if (layers.length === 0) {
@@ -212,8 +200,6 @@ export function ConstraintBar({
                 costsById={costsById}
                 totalListings={totalListings}
                 currentZoom={currentZoom}
-                hasRegionScope={hasRegionScope}
-                regionLabel={regionLabel}
                 layerProgress={layerProgress}
               />
             ))}
@@ -262,8 +248,6 @@ interface LayerRowProps {
   costsById: Record<string, number | null>;
   totalListings: number;
   currentZoom?: number;
-  hasRegionScope: boolean;
-  regionLabel: "state" | "region";
   layerProgress?: Record<string, { headerLoading: boolean; tilesInflight: number }>;
 }
 
@@ -275,11 +259,9 @@ function LayerRow({
   costsById,
   totalListings,
   currentZoom,
-  hasRegionScope,
-  regionLabel,
   layerProgress,
 }: LayerRowProps) {
-  const state = rowState(layer, effectsById, hasRegionScope, currentZoom);
+  const state = rowState(layer, effectsById, currentZoom);
   const ratio = state.effect ? effectRatio(state.effect, totalListings) : null;
   const showRatio = !state.belowMinZoom && ratio !== null;
   const tag = layerTag(layer.id);
@@ -339,12 +321,6 @@ function LayerRow({
               <ScopeHint
                 icon={<ZoomIn className="h-3 w-3" />}
                 text="Zoom in to use"
-              />
-            )}
-            {!state.belowMinZoom && state.needsRegion && (
-              <ScopeHint
-                icon={<MapPin className="h-3 w-3" />}
-                text={`Pick a ${regionLabel} first`}
               />
             )}
             {isLoading && progress && (

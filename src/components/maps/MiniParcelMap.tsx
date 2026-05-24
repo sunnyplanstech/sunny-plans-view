@@ -305,7 +305,6 @@ export function MiniParcelMap({
           layers={pmtilesLayers}
           state={layerState}
           onToggle={toggleLayer}
-          hasRegionScope={!!regionSlug}
           layerHeaders={layerHeaders}
           currentZoom={currentZoom}
         />
