@@ -33,7 +33,8 @@ export type GroupKey =
   | "solar"
   | "terrain"
   | "land_use"
-  | "constraints";
+  | "constraints"
+  | "aef";
 
 export const GROUP_LABEL: Record<GroupKey, string> = {
   grid: "Grid",
@@ -41,7 +42,15 @@ export const GROUP_LABEL: Record<GroupKey, string> = {
   terrain: "Terrain",
   land_use: "Land use & surroundings",
   constraints: "Constraints & distances",
+  aef: "Satellite imagery",
 };
+
+// AlphaEarth Foundations embedding dimensions arrive as `aef_dim_00` …
+// `aef_dim_63`. They're routed to the `aef` group by pattern (not via
+// FEATURE_TO_GROUP), and OPAQUE_PATTERN forces every dim into the
+// per-side residual since individual dims have no human-interpretable
+// meaning (see roadmap card p1-e1-aef-shap-ui.md).
+const AEF_DIM_PATTERN = /^aef_dim_\d{2}$/;
 
 // Feature → group mapping. Source of truth is the trained model's
 // `feature_names_in_` (`model_solar_xgb@prod`, shared US+IT), which is
@@ -172,7 +181,7 @@ export const FEATURE_LABEL: Record<string, string> = {
 
 // Suffixes that mark a feature as opaque to a non-technical reader; it
 // will collapse into a per-group residual instead of getting its own row.
-const OPAQUE_PATTERN = /(_p\d+|_mean|_std|_kurtosis|_diversity_index|_log|_embedding)$/;
+const OPAQUE_PATTERN = /(_p\d+|_mean|_std|_kurtosis|_diversity_index|_log|_embedding)$|^aef_dim_\d{2}$/;
 
 // Per-group cap on how many features render as their own row. The top-N
 // by |SHAP| win their own bar; the rest fold into "Other ___ factors".
@@ -284,8 +293,13 @@ const bucketFeaturesByGroup = (
     terrain: [],
     land_use: [],
     constraints: [],
+    aef: [],
   };
   for (const [name, value] of Object.entries(contributions)) {
+    if (AEF_DIM_PATTERN.test(name)) {
+      byGroup.aef.push({ name, value });
+      continue;
+    }
     const group = FEATURE_TO_GROUP[name];
     if (group) byGroup[group].push({ name, value });
   }
