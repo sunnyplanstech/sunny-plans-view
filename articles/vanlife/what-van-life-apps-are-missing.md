@@ -23,7 +23,7 @@ Popular spots get fresh check-ins constantly. The Dolomites, the Algarve, the Sp
 
 "I opened the app — forty-seven check-ins, four stars," Luca told me. "Last review was March 2023. I got there and there was a metal barrier across the entrance. Three-point turn in the dark, back to the road."
 
-iOverlander added a "last verified" tag in their 2025 redesign, which helps. But the tag only appears when someone actively re-confirmed the spot — it doesn't flag a spot that's been silent for three years as uncertain. From inside the app, three years of silence looks identical to three years of consistent use.
+iOverlander 2 shows a "date last visited" for each spot, which helps. But the date only updates when someone actually checks in — it doesn't flag a spot that's been silent for three years as uncertain. From inside the app, three years of silence looks identical to three years of consistent use.
 
 ## What the Filters Actually Cover
 
