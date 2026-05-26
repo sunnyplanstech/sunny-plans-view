@@ -57,8 +57,15 @@ const Blog = ({
             to={`${basePath}/${article.slug}`}
             className="block group"
           >
-            <article className="h-full flex flex-col p-6 rounded-xl border border-border bg-card hover:border-primary/40 hover:shadow-md transition-all duration-200">
-              <div className="flex-1">
+            <article className="h-full flex flex-col rounded-xl border border-border bg-card hover:border-primary/40 hover:shadow-md transition-all duration-200 overflow-hidden">
+              {article.image && (
+                <img
+                  src={article.image}
+                  alt={article.title}
+                  className="w-full h-48 object-cover"
+                />
+              )}
+              <div className="flex-1 p-6">
                 {article.tags && article.tags.length > 0 && (
                   <div className="flex flex-wrap gap-2 mb-3">
                     {article.tags.map((tag) => (
@@ -80,7 +87,7 @@ const Blog = ({
                   </p>
                 )}
               </div>
-              <div className="flex items-center justify-between mt-5 pt-4 border-t border-border">
+              <div className="flex items-center justify-between mt-5 pt-4 border-t border-border px-6 pb-6">
                 <div className="flex items-center gap-2 text-xs text-muted-foreground">
                   {article.date && (
                     <span>
