@@ -402,9 +402,17 @@ const HelpingHurtingColumns = ({
 
   // Drop rows that round to 0% before applying the per-side row cap, so
   // the cap surfaces the next-most-significant driver rather than burning
-  // a slot on a sub-1% sliver.
+  // a slot on a sub-1% sliver. Also drop groups whose bars all fall below
+  // the per-bar threshold — the header would read as informative but the
+  // drill-down would be empty. AEF is structurally safe: its single
+  // netted bar's share equals the group's share, so passing one implies
+  // passing the other.
   const trim = (rows: GroupRow[]): GroupRow[] => {
-    const visible = rows.filter((r) => r.shareOfTotal >= MIN_VISIBLE_SHARE);
+    const visible = rows.filter(
+      (r) =>
+        r.shareOfTotal >= MIN_VISIBLE_SHARE &&
+        r.bars.some((b) => b.shareOfTotal >= MIN_VISIBLE_SHARE),
+    );
     return maxRowsPerSide ? visible.slice(0, maxRowsPerSide) : visible;
   };
 
