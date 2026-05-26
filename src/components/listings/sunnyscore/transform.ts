@@ -408,6 +408,42 @@ const assignShares = (
   }
 };
 
+// AEF dims are coordinates in an opaque 64-d embedding; positive and
+// negative dim contributions don't represent separate semantic signals
+// the way "close to substation" (+) and "far from highway" (-) do.
+// Split-by-sign would inflate both columns to ~|sum of half the dims|
+// even when the net contribution is near zero. We net first and emit
+// a single row on the side matching the signed sum.
+const buildAefRow = (
+  features: RawFeature[],
+): { row: GroupRow; side: ColumnSide } | null => {
+  const netSum = sumValues(features);
+  if (Math.abs(netSum) < EPSILON_SIGNAL) return null;
+  const side: ColumnSide = netSum > 0 ? "helping" : "hurting";
+  const bar: FeatureRow = {
+    feature: `__aef_${side}`,
+    label: "Satellite-imagery signal",
+    value: Math.abs(netSum),
+    signedValue: netSum,
+    shareOfSide: 0,
+    shareOfTotal: 0,
+    rawValue: null,
+    isResidual: true,
+  };
+  return {
+    row: {
+      group: "aef",
+      label: GROUP_LABEL.aef,
+      total: Math.abs(netSum),
+      signedSum: netSum,
+      shareOfSide: 0,
+      shareOfTotal: 0,
+      bars: [bar],
+    },
+    side,
+  };
+};
+
 export function buildExplanation(payload: ParcelPayload): Explanation {
   const featureValues = payload.featureValues ?? {};
   const byGroup = bucketFeaturesByGroup(payload.contributions);
@@ -415,11 +451,17 @@ export function buildExplanation(payload: ParcelPayload): Explanation {
   const helping: GroupRow[] = [];
   const hurting: GroupRow[] = [];
   for (const group of Object.keys(byGroup) as GroupKey[]) {
+    if (group === "aef") continue;
     const { positives, negatives } = splitBySign(byGroup[group]);
     const helpingRow = buildSideRow(group, positives, "helping", featureValues);
     const hurtingRow = buildSideRow(group, negatives, "hurting", featureValues);
     if (helpingRow) helping.push(helpingRow);
     if (hurtingRow) hurting.push(hurtingRow);
+  }
+  const aef = buildAefRow(byGroup.aef);
+  if (aef) {
+    if (aef.side === "helping") helping.push(aef.row);
+    else hurting.push(aef.row);
   }
 
   const rawHelpingTotal = helping.reduce((s, r) => s + r.total, 0);
