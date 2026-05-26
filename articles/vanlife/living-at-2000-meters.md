@@ -1,7 +1,7 @@
 ---
 title: "Living at 2000 Meters — and Still Not Knowing If the Road Would Hold"
 description: "Four months in the French Alps in a 3,100kg van. Why no navigation app can tell you if the road ahead will actually hold your vehicle — and what that gap costs every day."
-date: "2026-05-26"
+date: "2026-05-19"
 author: "Sunnyplans Team"
 image: "/images/articles/vanlife/van-life-overnight-spot-dolomites-cover.webp"
 tags: "van life, navigation, mountain roads, alpine driving, van life apps"

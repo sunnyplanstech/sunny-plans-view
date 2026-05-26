@@ -45,9 +45,11 @@ Most of this information exists somewhere — in written reviews, buried in comm
 
 The standard annotation across every app: a blue tap icon. Sometimes a note in the comments. That's it.
 
-What the icon doesn't tell you: whether the tap is seasonal (municipal taps in Spain commonly shut off in October), whether you need a key or a token to open it, whether the water is potable or for vehicle washing only, whether the tap that worked in 2022 survived a parking area redesign.
+What the icon doesn't tell you: whether the tap is a proper fill point or a standard public fountain — too small to connect a hose to, positioned where you can't get the van close enough to matter. Whether it's seasonal (Park4Night reviews document taps shut off in October and November across southern France and northern Spain). Whether you need a key or a token to open it. Whether the water is potable or for vehicle washing only. Whether the tap that worked in 2022 survived a parking area redesign.
 
-You end up combining three sources: the app for the location, Street View to confirm the tap still looks intact, a forum search to find whether anyone mentioned it recently. Three tools, ten minutes, still uncertain. What you actually want is a tap you can trust before you leave the previous one.
+The distinction between a fontaine publique and an actual water fill station sounds obvious until you've driven twenty minutes to one and stood there with a hose that doesn't fit anything. Luca said he'd done it more times than he could count across eleven months.
+
+You end up combining three sources: the app for the location, Street View to confirm the tap still looks intact, a forum search to find whether anyone mentioned it recently. Three tools, fifteen minutes, still uncertain. What you actually want is a tap you can trust before you leave the previous one.
 
 ## What the Apps Do Well
 
@@ -73,5 +75,7 @@ Real-time data for van life spots — ground surface, water status, access, nois
 
 **Sources**
 - iOverlander 2.0, tested October 2025–May 2026
-- Park4Night, tested across Spain and Italy 2025–2026
+- Park4Night, tested across Spain and Italy 2025–2026; user reviews documenting seasonal tap closures October–November, park4night.com
 - Campendium, tested 2025
+- Bearfoot Theory, *iOverlander Review: Pros and Cons*, 2024 — confirms outdated spot data as primary complaint
+- Van life user research interview, Beatrice & Simone, May 2026 — water fill points and tool fragmentation
