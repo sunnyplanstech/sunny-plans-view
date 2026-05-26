@@ -9,6 +9,8 @@ target_query: "what van life apps are missing"
 cta_url: "/solar/app"
 ---
 
+![Van lifer holding a phone with a camping map app open, multiple location pins visible, van dashboard blurred in the background](/images/articles/vanlife/van-life-apps-missing-cover.webp)
+
 I met Luca at a roadside stop in Spain. He'd been living in a van for eleven months, moving through Europe without a fixed route, and within half an hour of talking he had mapped out every gap he'd found in the apps he used every day.
 
 He wasn't angry at the apps. He was just very precise about what worked and what didn't.
