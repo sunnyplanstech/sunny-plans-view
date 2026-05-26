@@ -255,12 +255,13 @@ const EPSILON_SIGNAL = 1e-6;
 // sliver adds no information and just lengthens the column.
 const RESIDUAL_THRESHOLD = 0.01;
 
-// Column rows/bars strictly below 1% of the total SHAP magnitude are
+// Column rows/bars strictly below 2% of the total SHAP magnitude are
 // hidden in the Strengths/Weaknesses columns — once percentages are the
-// unit, a sub-1% driver isn't worth a row. Visible percentages won't sum
-// to exactly 100%; that's intentional. The gauge segments still render
-// everything so the full distribution stays visible at a glance.
-export const MIN_VISIBLE_SHARE = 0.01;
+// unit, a sub-2% driver isn't worth a row and just clutters the list.
+// Visible percentages won't sum to exactly 100%; that's intentional. The
+// gauge segments still render everything so the full distribution stays
+// visible at a glance.
+export const MIN_VISIBLE_SHARE = 0.02;
 
 // A side whose total |SHAP| is below this threshold is suppressed
 // entirely (empty rows, zero-width gauge bar). The pathological case is
