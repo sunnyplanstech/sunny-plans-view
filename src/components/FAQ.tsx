@@ -52,11 +52,12 @@ const FAQ = () => {
                 What services does Sunnyplans offer?
               </AccordionTrigger>
               <AccordionContent className="text-muted-foreground">
-                <p className="mb-2">We offer a tiered subscription service:</p>
+                <p className="mb-2">We offer four ways to access the data:</p>
                 <ul className="list-disc pl-5 space-y-2">
-                  <li><strong>Free Tier:</strong> Browse land opportunities across all US states with obfuscated data—no card required.</li>
-                  <li><strong>Premium Tier:</strong> Full access for one US state, including detailed parcel listings with full contact info, solar suitability scores, and substation/infrastructure distance data.</li>
-                  <li><strong>Enterprise Tier:</strong> A custom solution for portfolio growth, featuring an interactive map-based discovery tool, multi-state or custom coverage, and dedicated support.</li>
+                  <li><strong>Free Tier:</strong> Browse every parcel across all 50 US states and 20 Italian regions with obfuscated coordinates and price bands — no card required.</li>
+                  <li><strong>Single Parcel ($49 one-time):</strong> Found one listing worth a deeper look? Pay once and unlock that parcel permanently — exact coordinates and the direct source link — without a subscription.</li>
+                  <li><strong>Premium ($299/month):</strong> Full access to every parcel across the US and Italy — exact coordinates, source-listing links, sun exposure and PV yield, flat-acreage, distance to 53 infrastructure feature types, and the full SunnyScore breakdown for every parcel.</li>
+                  <li><strong>Enterprise:</strong> Custom plan for teams that need API integrations or bulk exports on top of the Premium dataset.</li>
                 </ul>
               </AccordionContent>
             </AccordionItem>
@@ -66,14 +67,18 @@ const FAQ = () => {
                 What kind of data does Sunnyplans provide?
               </AccordionTrigger>
               <AccordionContent className="text-muted-foreground">
-                <p className="mb-2">We provide detailed information on land parcels, including:</p>
+                <p className="mb-2">For every parcel we surface:</p>
                 <ul className="list-disc pl-5 space-y-1">
-                  <li>Location and size</li>
-                  <li>Proximity to substations</li>
-                  <li>Grid connection viability</li>
-                  <li>Constraint filtering (flood, natural, historical, geotechnical risks)</li>
-                  <li>Direct links to real estate listings</li>
+                  <li>Location, lot size, list price, and the direct source listing link</li>
+                  <li>SunnyScore™ (0–100) with the helping and hurting factors broken out per parcel</li>
+                  <li>Distance to 53 OSM feature types — substations, transformers, roads, railways, industrial zones, water, and more</li>
+                  <li>Annual sun exposure (GHI, DNI) and fixed-tilt PV specific yield from the Global Solar Atlas</li>
+                  <li>Sub-5% slope flat-land acreage from the Copernicus 30 m DEM</li>
+                  <li>Constraint screening against PAD-US, NWI wetlands, Natura 2000, and Italian vincolistica</li>
                 </ul>
+                <p className="mt-3 text-sm">
+                  We do not provide owner names or agent/broker contact details — for legal reasons, contact happens through the source listing.
+                </p>
               </AccordionContent>
             </AccordionItem>
 
@@ -92,12 +97,13 @@ const FAQ = () => {
                 How does Sunnyplans identify suitable land?
               </AccordionTrigger>
               <AccordionContent className="text-muted-foreground">
-                <p className="mb-2">We use a proprietary process that involves:</p>
+                <p className="mb-2">Our pipeline:</p>
                 <ol className="list-decimal pl-5 space-y-2">
-                  <li><strong>Indexing real estate data:</strong> We aggregate land listings from various sources across the U.S. and Italy.</li>
-                  <li><strong>Geo-analytics and filtering:</strong> We screen against authoritative datasets—PAD-US, Natura 2000, USPVDB solar plant locations—to filter by substation proximity, land size, and absence of constraints.</li>
-                  <li><strong>ML scoring:</strong> Our proprietary SunnyScore™ machine learning model ranks each parcel from 0 to 100 based on grid proximity, constraint risk, and solar potential.</li>
-                  <li><strong>Delivery:</strong> Top-ranked parcels are browsable directly on the platform.</li>
+                  <li><strong>Indexing real estate data:</strong> We aggregate listings and cadastral parcels from across the U.S. and Italy.</li>
+                  <li><strong>Constraint screening:</strong> Parcels are filtered against PAD-US and NWI wetlands in the U.S., Natura 2000 and Italian vincolistica in Italy, plus existing solar installations (OSM and USPVDB).</li>
+                  <li><strong>Per-parcel signals:</strong> We compute distance to 53 OSM feature types, annual sun exposure and PV yield from the Global Solar Atlas, and sub-5% slope acreage from the Copernicus 30 m DEM.</li>
+                  <li><strong>ML scoring:</strong> Our proprietary SunnyScore™ model ranks each parcel from 0 to 100 and surfaces the helping and hurting factors that drove the score.</li>
+                  <li><strong>Delivery:</strong> Top-ranked parcels are browsable on the interactive map; you can drill from country to state to county and share the exact viewport.</li>
                 </ol>
               </AccordionContent>
             </AccordionItem>
@@ -107,14 +113,19 @@ const FAQ = () => {
                 What are the key constraints you filter for?
               </AccordionTrigger>
               <AccordionContent className="text-muted-foreground">
-                <p className="mb-2">We filter for a variety of constraints to de-risk projects, including:</p>
+                <p className="mb-2">Today we screen and overlay these constraints:</p>
                 <ul className="list-disc pl-5 space-y-2">
-                  <li><strong>Flood Risks:</strong> Screening parcels for flood zone exposure. Integration of the FEMA National Flood Hazard Layer is on our roadmap.</li>
-                  <li><strong>Natural/Naturalistic Constraints:</strong> Identifying protected areas and wildlife habitats using data from the Protected Areas Database of the United States (PAD-US) and the Natura 2000 network in Italy and the EU. Wetland data from the National Wetlands Inventory (NWI) is on our roadmap.</li>
-                  <li><strong>Historical Constraints:</strong> Avoiding sites with cultural or archaeological significance.</li>
-                  <li><strong>Grid Constraints:</strong> Assessing grid capacity and interconnection viability using substation proximity analysis. Enhanced grid modeling with NREL data is on our roadmap.</li>
-                  <li><strong>Geotechnical Constraints:</strong> Evaluating soil stability and topography.</li>
+                  <li><strong>Protected areas (U.S.):</strong> The Protected Areas Database of the United States (PAD-US) — parcels overlapping protected land are filtered out by default and the layer is toggleable on the map.</li>
+                  <li><strong>Wetlands (U.S.):</strong> The National Wetlands Inventory (NWI) — same screening + overlay treatment as protected areas.</li>
+                  <li><strong>Natura 2000 (Italy &amp; EU):</strong> Parcels falling inside Natura 2000 sites are filtered out.</li>
+                  <li><strong>Italian vincolistica:</strong> National and regional regulatory constraints applied server-side.</li>
+                  <li><strong>Existing solar installations:</strong> OSM and the NREL USPVDB — so you can spot a parcel that's already neighbouring a PV plant.</li>
+                  <li><strong>Topography:</strong> Sub-5% slope acreage is precomputed per parcel from the Copernicus 30 m DEM.</li>
                 </ul>
+                <p className="mt-3 text-sm">
+                  On the roadmap: FEMA flood zones, NREL enhanced grid modeling, zoning, and substation hosting-capacity.
+                  Today we surface <em>distance</em> to substations and grid infrastructure, not headroom or capacity.
+                </p>
               </AccordionContent>
             </AccordionItem>
 
@@ -148,7 +159,8 @@ const FAQ = () => {
                 How do I get started with Sunnyplans?
               </AccordionTrigger>
               <AccordionContent className="text-muted-foreground">
-                You can start with our Free Tier to get a feel for our platform. Simply sign up on our website and select your state of interest. If you need more detailed data and features, you can upgrade to our Premium or Enterprise tiers.
+                Sign up free — no card required — and browse every parcel across the U.S. and Italy with obfuscated coordinates and the full SunnyScore breakdown.
+                When you find a parcel you want to act on, either unlock just that one for $49, or go Premium for full access across the platform.
               </AccordionContent>
             </AccordionItem>
           </Accordion>

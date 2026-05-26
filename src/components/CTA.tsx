@@ -21,23 +21,27 @@ const CTA = () => {
                   Today
                 </h2>
                 <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-                  Subscribe to unlock exact coordinates, source URLs, and full constraint analysis
-                  for every parcel on the platform.
+                  Sign up free, or unlock exact coordinates, source links, sun exposure, flat-acreage,
+                  infrastructure distances, and the full SunnyScore breakdown for every parcel.
                 </p>
               </div>
               {/* What You Get */}
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 max-w-2xl mx-auto text-sm">
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 max-w-3xl mx-auto text-sm">
                 <div className="flex items-center gap-2 justify-center">
                   <Check className="w-4 h-4 text-primary flex-shrink-0" />
                   <span>Exact coordinates</span>
                 </div>
                 <div className="flex items-center gap-2 justify-center">
                   <Check className="w-4 h-4 text-primary flex-shrink-0" />
-                  <span>Substation proximity</span>
+                  <span>Sun exposure &amp; PV yield</span>
                 </div>
                 <div className="flex items-center gap-2 justify-center">
                   <Check className="w-4 h-4 text-primary flex-shrink-0" />
-                  <span>SunnyScore™ ranking</span>
+                  <span>SunnyScore™ breakdown</span>
+                </div>
+                <div className="flex items-center gap-2 justify-center">
+                  <Check className="w-4 h-4 text-primary flex-shrink-0" />
+                  <span>Constraint screening</span>
                 </div>
               </div>
               {/* CTA Button */}

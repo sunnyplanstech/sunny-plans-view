@@ -29,8 +29,8 @@ const Hero = () => {
 
           {/* Subheading */}
           <p className="text-lg md:text-xl text-muted-foreground max-w-3xl mx-auto leading-relaxed">
-            Let's simplify your land search together. Our automated geo-analytics index real estate data, 
-            filter out constraints, and deliver pre-vetted parcels optimized for battery storage and small solar development.
+            Every parcel scored 0–100 for solar suitability — with the helping and hurting factors broken out per parcel.
+            Substation distances, sun exposure, flat-land acreage, and constraint screening, all on one map.
           </p>
 
           {/* CTA Buttons */}

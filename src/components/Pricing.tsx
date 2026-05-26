@@ -7,6 +7,7 @@ import { startSubscription } from "@/lib/subscriptions";
 import { toast } from "@/hooks/use-toast";
 
 const ENTERPRISE_URL = "https://calendly.com/eracle/new-meeting";
+const SINGLE_PARCEL_PATH = "/solar/app/united-states";
 
 type Tier = {
   name: string;
@@ -23,28 +24,45 @@ const tiers: Tier[] = [
   {
     name: "Free Tier",
     price: "Free",
-    description: "Explore land opportunities across the US and Italy—no card required. Data is obfuscated.",
+    description: "Explore land opportunities across the US and Italy — no card required. Data is obfuscated.",
     features: [
-      "Browse all US states and Italian regions",
-      "Obfuscated listing data",
-      "Solar suitability scores (SunnyScore™)",
+      "All 50 US states and 20 Italian regions",
+      "SunnyScore™ with helping/hurting breakdown",
+      "Obfuscated coordinates and price bands",
+      "Toggleable constraint-layer overlays",
     ],
     cta: "Start Free",
+    highlighted: false,
+  },
+  {
+    name: "Single Parcel",
+    price: "$49",
+    period: "one-time",
+    description: "Found one parcel worth a deeper look? Unlock just that listing without a subscription.",
+    guarantee: "30-day money-back guarantee — no questions asked.",
+    features: [
+      "Permanent access to one listing",
+      "Exact coordinates",
+      "Direct link to the source listing",
+      "No recurring charge",
+    ],
+    cta: "Browse & Unlock",
     highlighted: false,
   },
   {
     name: "Premium",
     price: "$299",
     period: "/month",
-    description: "Full access to every parcel across the US and Italy with exact coordinates and source links.",
+    description: "Full access to every parcel across the US and Italy.",
     guarantee: "30-day money-back guarantee — no questions asked.",
     features: [
-      "Top-ranked parcels with full details",
       "Exact coordinates for every listing",
-      "Direct links to the source listing (contact agents there)",
-      "Solar suitability scores (SunnyScore™)",
-      "Substation & transformer distance data",
-      "Infrastructure distance data (highway, industrial, water)",
+      "Direct links to source listings",
+      "SunnyScore™ with full helping/hurting breakdown",
+      "Sun exposure & PV yield per parcel (Global Solar Atlas)",
+      "Sub-5% slope flat-acreage per parcel",
+      "Distance to 53 OSM feature types (substations, roads, water…)",
+      "Constraint screening (PAD-US, NWI, Natura 2000, vincolistica)",
       "Priority support",
     ],
     cta: "Go Premium",
@@ -54,12 +72,12 @@ const tiers: Tier[] = [
     name: "Enterprise",
     price: "Custom",
     period: "",
-    description: "Scalable geo-analytics for portfolio expansion. Interactive tools, no emails—just results.",
+    description: "For teams that need integrations and bulk access on top of the platform.",
     features: [
-      "API integrations",
-      "Dedicated manager",
-      "Unlimited exports",
-      "Multi-region coverage (US + Italy)",
+      "Everything in Premium",
+      "API integrations (coming soon)",
+      "Bulk data exports (coming soon)",
+      "Dedicated account manager",
     ],
     cta: "Contact Sales",
     highlighted: false,
@@ -106,9 +124,14 @@ const Pricing = () => {
     window.location.href = ENTERPRISE_URL;
   };
 
+  const handleSingleParcel = () => {
+    navigate(SINGLE_PARCEL_PATH);
+  };
+
   const handlerFor = (tierName: string) => {
     if (tierName === "Premium") return handlePremium;
     if (tierName === "Enterprise") return handleEnterprise;
+    if (tierName === "Single Parcel") return handleSingleParcel;
     return handleFreeTier;
   };
 
@@ -126,13 +149,13 @@ const Pricing = () => {
             Cutting-edge geo-analytics for BESS and small solar projects. Overcome permitting challenges and cut costs—find your perfect plan.
           </p>
         </div>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-7xl mx-auto">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 max-w-7xl mx-auto items-start">
           {tiers.map((tier) => (
             <Card
               key={tier.name}
-              className={`relative ${
+              className={`relative h-full ${
                 tier.highlighted
-                  ? 'border-primary shadow-lg scale-105 bg-gradient-card'
+                  ? 'border-primary shadow-lg bg-gradient-card lg:scale-105'
                   : 'border-border'
               }`}
             >

@@ -1,41 +1,63 @@
 import { Card, CardContent } from "@/components/ui/card";
-import { Database, Filter, DollarSign, Clock, Shield, Globe, Brain } from "lucide-react";
+import {
+  Database,
+  Filter,
+  Sun,
+  Mountain,
+  Zap,
+  Layers,
+  Globe,
+  Brain,
+} from "lucide-react";
 
 const features = [
   {
     icon: Database,
     title: "Automated Land Indexing",
-    description: "We index real estate data first, then select based on substation viability—reversing traditional workflows for faster site acquisition.",
+    description:
+      "We index real estate listings and cadastral parcels first, then rank by grid and solar fundamentals — reversing the traditional 'scout-then-check' workflow.",
   },
   {
     icon: Brain,
     title: "SunnyScore™ ML Rating",
-    description: "Every parcel is ranked by our proprietary machine learning model that evaluates proximity to grid infrastructure, constraint risk, and solar potential into a single 0–100 score.",
+    description:
+      "Every parcel scored 0–100 by our proprietary model — and shipped with the helping and hurting factors broken out, so you can defend the shortlist instead of taking the score on faith.",
+  },
+  {
+    icon: Sun,
+    title: "Per-Parcel Sun Exposure & PV Yield",
+    description:
+      "Annual GHI, DNI, and fixed-tilt PV specific yield sampled at each parcel from the Global Solar Atlas (World Bank / Solargis) — no guessing how productive the site will be.",
+  },
+  {
+    icon: Mountain,
+    title: "Flat-Land Acreage",
+    description:
+      "Acres of sub-5% slope inside each lot, computed from the Copernicus 30 m DEM — sits below every cutoff developers we've talked to actually use.",
+  },
+  {
+    icon: Zap,
+    title: "Substation & Infrastructure Proximity",
+    description:
+      "Distance to 53 OSM feature types per parcel — substations, transformers, roads, railways, industrial zones, water, and more — to anchor your interconnection cost estimate.",
   },
   {
     icon: Filter,
-    title: "Multi-Layer Constraint Filtering",
-    description: "Screen against FEMA flood zones, PAD-US protected areas, Natura 2000 reserves, historical sites, and geotechnical risks—powered by authoritative public datasets.",
+    title: "Constraint Screening",
+    description:
+      "Parcels pre-filtered against PAD-US protected areas and NWI wetlands (US), Natura 2000 and Italian vincolistica (Italy). You only see what survives the filters developers actually run.",
   },
   {
-    icon: DollarSign,
-    title: "Reduce Infrastructure Costs",
-    description: "Target substation-proximate parcels to minimize electrical infrastructure expenses and interconnection fees.",
-  },
-  {
-    icon: Clock,
-    title: "Time-Saving Intelligence",
-    description: "Skip manual scouting near substations. Get pre-vetted, sale-ready parcels with full constraint analysis delivered instantly.",
-  },
-  {
-    icon: Shield,
-    title: "Permitting Viability",
-    description: "Pre-screen sites for regulatory compliance, including historical preservation zones and environmental constraints.",
+    icon: Layers,
+    title: "Toggleable Constraint Layers",
+    description:
+      "Flip protected-area and wetland overlays on and off on the map to see exactly why a parcel was filtered out — no opaque screening.",
   },
   {
     icon: Globe,
     title: "U.S. & Italy Coverage",
-    description: "Live coverage across U.S. states and Italy, with expansion to Spain and Portugal on the roadmap.",
+    description:
+      "Live across all 50 U.S. states and 20 Italian regions, with Spain and Portugal on the roadmap.",
   },
 ];
 
@@ -51,8 +73,8 @@ const Features = () => {
             </span>
           </h2>
           <p className="text-lg text-muted-foreground">
-            Here's how we help small to medium-sized BESS and solar developers navigate the complexities 
-            of land acquisition—from substation mapping to constraint analysis, we're your partner in every step.
+            Eight signals working in concert — score, breakdown, sun, slope, grid, constraints, overlays, and country coverage —
+            so you can move from "long list" to "site visit" without leaving the map.
           </p>
         </div>
 
