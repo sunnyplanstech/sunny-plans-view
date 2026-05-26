@@ -1,6 +1,15 @@
-# Living at 2000 Meters — and Still Not Knowing If the Road Would Hold
+---
+title: "Living at 2000 Meters — and Still Not Knowing If the Road Would Hold"
+description: "Four months in the French Alps in a 3,100kg van. Why no navigation app can tell you if the road ahead will actually hold your vehicle — and what that gap costs every day."
+date: "2026-05-26"
+author: "Sunnyplans Team"
+tags: "van life, navigation, mountain roads, alpine driving, van life apps"
+target_query: "navigation apps van life"
+secondary_query: "van life mountain road planning"
+cta_url: "/van-life"
+---
 
-*[FOTO: il van con la vista delle Alpi, mattina presto]*
+![VW Transporter van parked on a gravel mountain road in the Dolomites at sunset, solar panel on the roof](/images/articles/vanlife/van-life-overnight-spot-dolomites-cover.webp)
 
 Four months in the French Alps. That was the plan — June through September, moving through the mountains at whatever pace the roads allowed.
 
@@ -13,8 +22,6 @@ The last 400 meters changed.
 The track narrowed where the tree line ended, which Street View had shown. What Street View hadn't shown was how the ground had softened after a week of afternoon thunderstorms. The kind of ground that looks like dirt and sounds hollow when you tap it with a boot. My van weighs 3,100 kilos. The front wheels found that out before I did.
 
 I stopped with 200 meters still to go, rear wheels on solid rock, front wheels sinking maybe two centimeters into softened earth. Two centimeters is nothing. Two centimeters is also enough to know you're having a different kind of evening than you planned.
-
-*[FOTO: la strada prima del cedimento — come appare normale dall'esterno]*
 
 I reversed. Slowly, door open, watching the tires. Made it back to the rock section. Parked there instead, 200 meters short of the clearing.
 
@@ -50,15 +57,11 @@ It works, partially. Here's where it breaks down:
 
 The result: twenty minutes of checking per spot, and still an element of uncertainty you only resolve by driving there.
 
-*[FOTO: lo schermo con Street View aperto su una strada di montagna — il rituale serale]*
-
 ## The Knowledge That Doesn't Transfer
 
 By September I knew which passes above 1,800 meters I could take without checking. Not because the tools improved — because I'd driven them already. I knew which tracks held weight after rain and which didn't. That knowledge is mine now.
 
 It doesn't exist anywhere else.
-
-*[FOTO: il van parcheggiato al tramonto, 200 metri prima della meta]*
 
 Every van lifer on their first summer in the Alps rebuilds this from scratch. The experience accumulates in people. It never becomes data anyone else can use.
 
