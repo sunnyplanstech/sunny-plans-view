@@ -79,5 +79,3 @@ Real-time data for van life spots — ground surface, water status, access, nois
 - iOverlander 2.0, tested October 2025–May 2026
 - Park4Night, tested across Spain and Italy 2025–2026; user reviews documenting seasonal tap closures October–November, park4night.com
 - Campendium, tested 2025
-- Bearfoot Theory, *iOverlander Review: Pros and Cons*, 2024 — confirms outdated spot data as primary complaint
-- Van life user research interview, Beatrice & Simone, May 2026 — water fill points and tool fragmentation
