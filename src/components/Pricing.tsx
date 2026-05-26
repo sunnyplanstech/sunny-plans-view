@@ -8,7 +8,18 @@ import { toast } from "@/hooks/use-toast";
 
 const ENTERPRISE_URL = "https://calendly.com/eracle/new-meeting";
 
-const tiers = [
+type Tier = {
+  name: string;
+  price: string;
+  period?: string;
+  description: string;
+  guarantee?: string;
+  features: string[];
+  cta: string;
+  highlighted: boolean;
+};
+
+const tiers: Tier[] = [
   {
     name: "Free Tier",
     price: "Free",
@@ -26,6 +37,7 @@ const tiers = [
     price: "$299",
     period: "/month",
     description: "Full access to every parcel across the US and Italy with exact coordinates and source links.",
+    guarantee: "30-day money-back guarantee — no questions asked.",
     features: [
       "Top-ranked parcels with full details",
       "Exact coordinates for every listing",
@@ -140,6 +152,11 @@ const Pricing = () => {
                     <span className="text-muted-foreground">{tier.period}</span>
                   )}
                 </div>
+                {tier.guarantee && (
+                  <p className="text-xs text-muted-foreground pt-3">
+                    {tier.guarantee}
+                  </p>
+                )}
               </CardHeader>
               <CardContent className="space-y-4">
                 {tier.features.map((feature, featureIndex) => (

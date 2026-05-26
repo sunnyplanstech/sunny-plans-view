@@ -63,7 +63,7 @@ const SubscriptionSuccess = () => {
             <CheckCircle2 className="w-7 h-7 text-primary" />
           </div>
           <h1 className="text-3xl font-bold mb-3">You're all set</h1>
-          <p className="text-muted-foreground mb-6">
+          <p className="text-muted-foreground mb-2">
             {subscribed ? (
               <>Your Premium subscription is active. Exact coordinates and source links are now unlocked.</>
             ) : timedOut ? (
@@ -71,6 +71,9 @@ const SubscriptionSuccess = () => {
             ) : (
               <>Activating your Premium access…</>
             )}
+          </p>
+          <p className="text-sm text-muted-foreground mb-6">
+            Covered by our 30-day money-back guarantee — no questions asked.
           </p>
           <div className="w-full space-y-3">
             {timedOut && (
@@ -104,8 +107,11 @@ const ParcelUnlockSuccess = ({ listingId }: { listingId: string }) => (
           <CheckCircle2 className="w-7 h-7 text-primary" />
         </div>
         <h1 className="text-3xl font-bold mb-3">Parcel unlocked</h1>
-        <p className="text-muted-foreground mb-6">
+        <p className="text-muted-foreground mb-2">
           Payment received. Exact coordinates and the source URL are now visible on this listing.
+        </p>
+        <p className="text-sm text-muted-foreground mb-6">
+          Covered by our 30-day money-back guarantee — no questions asked.
         </p>
         <div className="w-full space-y-3">
           <Button asChild className="w-full" size="lg">
@@ -137,8 +143,11 @@ const CheckoutCancel = () => {
             <XCircle className="w-7 h-7 text-muted-foreground" />
           </div>
           <h1 className="text-3xl font-bold mb-3">Checkout canceled</h1>
-          <p className="text-muted-foreground mb-6">
+          <p className="text-muted-foreground mb-2">
             No payment was taken. You can come back anytime.
+          </p>
+          <p className="text-sm text-muted-foreground mb-6">
+            Every paid purchase is backed by a 30-day money-back guarantee — no questions asked.
           </p>
           <div className="w-full space-y-3">
             <Button asChild className="w-full" size="lg">

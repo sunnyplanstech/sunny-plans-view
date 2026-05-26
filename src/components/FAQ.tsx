@@ -134,6 +134,15 @@ const FAQ = () => {
               </AccordionContent>
             </AccordionItem>
 
+            <AccordionItem value="refund" className="bg-background rounded-lg px-6 border">
+              <AccordionTrigger className="text-left hover:no-underline">
+                What if I'm not happy with my purchase?
+              </AccordionTrigger>
+              <AccordionContent className="text-muted-foreground">
+                Every paid purchase — Premium subscription or one-off parcel unlock — comes with a 30-day money-back guarantee, no questions asked. If it doesn't fit your workflow within the first 30 days, reach out and we'll refund you in full.
+              </AccordionContent>
+            </AccordionItem>
+
             <AccordionItem value="get-started" className="bg-background rounded-lg px-6 border">
               <AccordionTrigger className="text-left hover:no-underline">
                 How do I get started with Sunnyplans?

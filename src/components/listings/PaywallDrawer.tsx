@@ -41,6 +41,7 @@ const STRINGS = {
     back: "Back",
     intentFailed: "Could not start checkout. Please try again.",
     duplicate: "You already have access to this listing.",
+    guarantee: "30-day money-back guarantee on both options — no questions asked.",
   },
   it: {
     title: "Sblocca questa particella",
@@ -62,6 +63,7 @@ const STRINGS = {
     back: "Indietro",
     intentFailed: "Impossibile avviare il pagamento. Riprova.",
     duplicate: "Hai già accesso a questa particella.",
+    guarantee: "Garanzia soddisfatti o rimborsati entro 30 giorni su entrambe le opzioni — nessuna domanda.",
   },
 } as const;
 
@@ -277,6 +279,10 @@ function ChoiceScreen({ t, onSubscribe, onUnlock, onScheduleCall, userKnown }: C
           {userKnown ? t.unlockCta : t.signUpFirst}
         </Button>
       </div>
+
+      <p className="text-xs text-center text-muted-foreground pt-1">
+        {t.guarantee}
+      </p>
 
       {onScheduleCall && (
         <>
