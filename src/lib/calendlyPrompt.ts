@@ -1,27 +1,21 @@
 // Coordinates the founder-call CTAs across the app.
 //
-// Two suppression flags govern when prompts fire:
+// Suppression:
 //   - sp_call_booked: set when Calendly emits `event_scheduled`.
-//     Global suppressor — kills both the research popup and the inline
-//     paywall CTA. Booked users should never see another founder-call
-//     prompt.
-//   - sp_call_research_dismissed: set when the user closes the research
-//     popup without booking. Suppresses only the research popup; the
-//     paywall CTA still appears, because declining a research chat
-//     doesn't mean the user has decided against talking before paying.
+//     Permanent kill-switch — booked users never see another prompt.
 //
-// `sp_detail_view_count` tracks listing-detail mounts for the research
-// popup's N-views trigger. The popup fires exactly once (at view N);
-// closing it sets the research-dismissed flag so subsequent views
-// don't re-trigger.
+// Cadence:
+//   - sp_detail_view_count tracks listing-detail mounts since the last
+//     fire. Every RESEARCH_TRIGGER_EVERY views the popup fires and the
+//     counter resets. Closing without booking is not a dismiss — the
+//     user pays the tax of seeing it again on the next cycle.
 
 const KEYS = {
   booked: "sp_call_booked",
-  researchDismissed: "sp_call_research_dismissed",
   detailViews: "sp_detail_view_count",
 } as const;
 
-const RESEARCH_TRIGGER_AT = 8;
+const RESEARCH_TRIGGER_EVERY = 4;
 
 function readFlag(key: string): boolean {
   try {
@@ -42,46 +36,46 @@ function setFlag(key: string): void {
   }
 }
 
-export function isCallBooked(): boolean {
-  return readFlag(KEYS.booked);
+function readInt(key: string): number | null {
+  try {
+    const raw = localStorage.getItem(key);
+    if (!raw) return null;
+    const n = parseInt(raw, 10);
+    return Number.isFinite(n) ? n : null;
+  } catch {
+    return null;
+  }
 }
 
-export function isResearchDismissed(): boolean {
-  return readFlag(KEYS.researchDismissed);
+function writeInt(key: string, value: number): void {
+  try {
+    localStorage.setItem(key, String(value));
+  } catch {
+    // Same rationale as readFlag.
+  }
+}
+
+export function isCallBooked(): boolean {
+  return readFlag(KEYS.booked);
 }
 
 export function markCallBooked(): void {
   setFlag(KEYS.booked);
 }
 
-export function markResearchDismissed(): void {
-  setFlag(KEYS.researchDismissed);
-}
-
 /** Increment the detail-view counter and report whether this view
  *  should fire the research popup. Returns `false` early when the
- *  user has already booked or dismissed — callers don't need to
- *  pre-check those flags. */
+ *  user has already booked — callers don't need to pre-check. */
 export function recordDetailView(): { shouldPrompt: boolean } {
-  if (isCallBooked() || isResearchDismissed()) return { shouldPrompt: false };
+  if (isCallBooked()) return { shouldPrompt: false };
 
-  let count = 0;
-  try {
-    const raw = localStorage.getItem(KEYS.detailViews);
-    count = raw ? parseInt(raw, 10) || 0 : 0;
-  } catch {
-    return { shouldPrompt: false };
+  const count = (readInt(KEYS.detailViews) ?? 0) + 1;
+
+  if (count >= RESEARCH_TRIGGER_EVERY) {
+    writeInt(KEYS.detailViews, 0);
+    return { shouldPrompt: true };
   }
 
-  count += 1;
-
-  try {
-    localStorage.setItem(KEYS.detailViews, String(count));
-  } catch {
-    // Counter persistence failed — fall through and fire the prompt
-    // anyway if the threshold is met. We'd rather over-prompt once
-    // than never prompt at all in this edge case.
-  }
-
-  return { shouldPrompt: count === RESEARCH_TRIGGER_AT };
+  writeInt(KEYS.detailViews, count);
+  return { shouldPrompt: false };
 }

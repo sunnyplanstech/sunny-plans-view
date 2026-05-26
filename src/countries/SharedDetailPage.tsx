@@ -135,11 +135,11 @@ export function SharedDetailPage<T extends DetailListing>({
   const [paywallOpen, setPaywallOpen] = useState(false);
   usePaywallAutoOpen(() => setPaywallOpen(true));
 
-  // Founder-research call (Trigger A): only signed-in free users are
-  // in-audience. Anonymous visitors can't be followed up with; paying
-  // users are out of scope for a sales-research conversation.
+  // Founder-research call (Trigger A): everyone except paying
+  // subscribers is in-audience. Anonymous visitors get the prompt too;
+  // Calendly captures their email at booking time.
   const { user } = useAuth();
-  const researchEnabled = !!user && !user.has_active_subscription;
+  const researchEnabled = !user?.has_active_subscription;
   const researchPrompt = useCalendlyResearchPrompt({ enabled: researchEnabled });
 
   const accessGranted = listing.access_granted;
