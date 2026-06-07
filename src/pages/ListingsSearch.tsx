@@ -61,6 +61,7 @@ import ListingsFooter from "@/components/listings/ListingsFooter";
 import ListingsSEOContent from "@/components/listings/ListingsSEOContent";
 import SEOHead from "@/components/listings/SEOHead";
 import EvaluateDrawer from "@/components/listings/EvaluateDrawer";
+import ResultsCallCta from "@/components/listings/ResultsCallCta";
 import SortSelector from "@/components/listings/SortSelector";
 import { sortListings, type SortKey } from "@/components/listings/sortListings";
 import ConstraintBar from "@/components/layers/ConstraintBar";
@@ -183,6 +184,14 @@ const CountryPreview = ({ adapter, country, region, province }: InnerProps) => {
   const overlayIds = useMemo(
     () => selectedOverlayIds(selectedIds, layers),
     [selectedIds, layers],
+  );
+
+  // Signature of the user's current browsing action — scope plus the
+  // selected constraint set. Each change feeds the results-page founder-
+  // call CTA's re-prompt cadence (see useResultsCallPrompt).
+  const ctaActionKey = useMemo(
+    () => `${region ?? ""}|${province ?? ""}|${[...selectedIds].sort().join(",")}`,
+    [region, province, selectedIds],
   );
 
   const scope = adapter.parseScope({ region, province });
@@ -482,6 +491,11 @@ const CountryPreview = ({ adapter, country, region, province }: InnerProps) => {
           visibleCount={visibleListings.length}
           selectedCount={selectedLayers.length}
         />
+        {/* Founder-call CTA, surfaced here at the results stage rather
+            than the rarely-reached listing-detail page. Self-suppressing
+            (subscribers / booked / dismissed) so it can mount once above
+            both the desktop and mobile workspaces without a guard. */}
+        <ResultsCallCta actionKey={ctaActionKey} className="container mx-auto my-3 px-4" />
         {/* Desktop workspace — three columns. Map and constraint rail
             stick to the viewport top so the page itself is the scroll
             container: cards in the listings rail scroll past the
