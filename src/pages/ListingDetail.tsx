@@ -1,6 +1,6 @@
 import { useParams } from "react-router-dom";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { optionalAuthApi } from "@/lib/apiClient";
+import { optionalAuthApi } from "@/lib/duckdb/api";
 import { DetailLoading, DetailNotFound } from "@/components/listings/DetailShell";
 import { USDetailPage, type USListingDetail } from "@/countries/unitedStates/DetailPage";
 import { ITDetailPage, type ITListingDetail } from "@/countries/italy/DetailPage";

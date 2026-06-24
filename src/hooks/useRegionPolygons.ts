@@ -11,7 +11,7 @@
 // each call only fetches the relevant parquet partition — DuckDB
 // partition pruning keeps the per-state / per-region payload small.
 import { useQuery } from "@tanstack/react-query";
-import { publicApi } from "@/lib/apiClient";
+import { publicApi } from "@/lib/duckdb/api";
 
 export interface StateProps {
   state_code: string;

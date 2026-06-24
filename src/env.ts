@@ -37,6 +37,11 @@ const schema = z.object({
   VITE_GOOGLE_CLIENT_ID: z.string().default(""),
   VITE_SENTRY_DSN: z.string().default(""),
   VITE_API_BASE_URL: z.string().default(""),
+  // Base URL of the public bucket holding the browser-readable mart
+  // parquet files (the no-backend, DuckDB-WASM data path). Empty means
+  // the legacy Django API is used instead. Example:
+  // https://storage.googleapis.com/sunnyplans-data-eu
+  VITE_DATA_BASE_URL: z.string().default(""),
 });
 
 const parsed = schema.safeParse(import.meta.env);

@@ -17,6 +17,7 @@
     "@deck.gl/geo-layers": "^9.3.2",
     "@deck.gl/google-maps": "^9.3.2",
     "@deck.gl/layers": "^9.3.2",
+    "@duckdb/duckdb-wasm": "^1.33.1-dev57.0",
     "@hookform/resolvers": "^3.10.0",
     "@loaders.gl/core": "^4.4.1",
     "@loaders.gl/mvt": "^4.4.1",

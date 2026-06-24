@@ -1,5 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
-import { publicApi } from "@/lib/apiClient";
+import { publicApi } from "@/lib/duckdb/api";
 import { COUNTRIES, slugToCounty, slugToStateCode } from "@/data/locations";
 import {
   generateListingKeywords,

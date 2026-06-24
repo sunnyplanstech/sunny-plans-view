@@ -13,7 +13,7 @@ import { useQuery } from "@tanstack/react-query";
 import { Link } from "react-router-dom";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ArrowRight } from "lucide-react";
-import { publicApi } from "@/lib/apiClient";
+import { publicApi } from "@/lib/duckdb/api";
 import {
   SunnyScoreExplanation,
   buildExplanation,

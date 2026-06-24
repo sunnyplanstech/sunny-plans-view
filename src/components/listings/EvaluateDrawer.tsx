@@ -11,7 +11,7 @@ import { ArrowRight, Check, HelpCircle, X } from "lucide-react";
 import { Sheet, SheetContent } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
-import { optionalAuthApi } from "@/lib/apiClient";
+import { optionalAuthApi } from "@/lib/duckdb/api";
 import { useAuth } from "@/hooks/useAuth";
 import { specVerdict, type SpecVerdict } from "@/components/layers/evaluate";
 import type { Layer } from "@/components/layers/registry";

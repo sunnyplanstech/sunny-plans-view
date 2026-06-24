@@ -1,5 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
-import { publicApi } from "@/lib/apiClient";
+import { publicApi } from "@/lib/duckdb/api";
 import { COUNTRIES } from "@/data/locations";
 import ITListingCard from "@/components/listings/ITListingCard";
 import ListingsGoogleMap from "@/components/maps/ListingsGoogleMap";
