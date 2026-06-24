@@ -4,8 +4,10 @@ import Hero from "@/components/Hero";
 import Navbar from "@/components/Navbar";
 import SEOHead from "@/components/listings/SEOHead";
 
-// Lazy load below-fold components
-const DemoSection = lazy(() => import("@/components/DemoSection"));
+// Lazy load below-fold components.
+// DemoSection (the live "Top Rated Solar Land" carousel) is intentionally
+// omitted: it fetches listings from the now switched-off backend and would
+// render empty. The rest of the landing is fully static.
 const Features = lazy(() => import("@/components/Features"));
 const HowItWorks = lazy(() => import("@/components/HowItWorks"));
 const LandingSunnyScoreExample = lazy(
@@ -53,9 +55,6 @@ const Index = () => {
       />
       <Navbar />
       <Hero />
-      <Suspense fallback={<SectionFallback />}>
-        <DemoSection />
-      </Suspense>
       <Suspense fallback={<SectionFallback />}>
         <Features />
       </Suspense>

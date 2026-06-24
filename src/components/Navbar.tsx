@@ -1,9 +1,8 @@
 import { useState, useEffect } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { Sun, ChevronDown, Menu, X, LogIn } from "lucide-react";
-import { useAuth } from "@/hooks/useAuth";
-import UserMenu from "@/components/auth/UserMenu";
+import { Sun, ChevronDown, Menu, X, CalendarDays } from "lucide-react";
+import { openCalendlyPopup } from "@/lib/calendly";
 import ThemeToggle from "@/components/ThemeToggle";
 
 const Navbar = () => {
@@ -12,11 +11,6 @@ const Navbar = () => {
   const [mobileOpen, setMobileOpen] = useState(false);
   const location = useLocation();
   const navigate = useNavigate();
-  const { isAuthenticated } = useAuth();
-  const loginHref =
-    location.pathname === "/"
-      ? "/login"
-      : `/login?next=${encodeURIComponent(location.pathname + location.search)}`;
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 10);
@@ -109,18 +103,14 @@ const Navbar = () => {
 
             <ThemeToggle className="ml-1" />
 
-            {isAuthenticated ? (
-              <div className="ml-3">
-                <UserMenu />
-              </div>
-            ) : (
-              <Button asChild size="lg" className="ml-3 text-base px-6">
-                <Link to={loginHref}>
-                  <LogIn className="mr-2 h-4 w-4" />
-                  Sign In
-                </Link>
-              </Button>
-            )}
+            <Button
+              size="lg"
+              className="ml-3 text-base px-6"
+              onClick={() => openCalendlyPopup()}
+            >
+              <CalendarDays className="mr-2 h-4 w-4" />
+              Book a Call
+            </Button>
           </nav>
 
           {/* Mobile: theme toggle + hamburger */}
@@ -173,18 +163,16 @@ const Navbar = () => {
             >
               Blog
             </a>
-            {isAuthenticated ? (
-              <div className="mt-2 flex items-center gap-2 px-3 py-2">
-                <UserMenu />
-              </div>
-            ) : (
-              <Button asChild className="mt-2 w-full">
-                <Link to={loginHref} onClick={() => setMobileOpen(false)}>
-                  <LogIn className="mr-2 h-4 w-4" />
-                  Sign In
-                </Link>
-              </Button>
-            )}
+            <Button
+              className="mt-2 w-full"
+              onClick={() => {
+                setMobileOpen(false);
+                openCalendlyPopup();
+              }}
+            >
+              <CalendarDays className="mr-2 h-4 w-4" />
+              Book a Call
+            </Button>
           </nav>
         </div>
       )}

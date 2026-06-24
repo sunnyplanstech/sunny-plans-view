@@ -1,11 +1,8 @@
-import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { ArrowRight, Check } from "lucide-react";
-import { useAuth } from "@/hooks/useAuth";
+import { openCalendlyPopup } from "@/lib/calendly";
 
 const CTA = () => {
-  const { isAuthenticated } = useAuth();
-
   return (
     <section id="signup" className="py-20 md:py-32 bg-gradient-subtle">
       <div className="container px-4">
@@ -46,29 +43,15 @@ const CTA = () => {
               </div>
               {/* CTA Button */}
               <div className="max-w-md mx-auto">
-                {isAuthenticated ? (
-                  <p className="text-lg font-medium text-primary">
-                    You have full access to all listings.
-                  </p>
-                ) : (
-                  <>
-                    <Button asChild variant="hero" size="lg" className="w-full">
-                      <Link to="/register">
-                        Subscribe Now
-                        <ArrowRight className="ml-2 w-4 h-4" />
-                      </Link>
-                    </Button>
-                    <p className="text-xs text-muted-foreground mt-3">
-                      Already have an account?{" "}
-                      <Link
-                        to="/login"
-                        className="underline hover:text-foreground transition-colors"
-                      >
-                        Log in
-                      </Link>
-                    </p>
-                  </>
-                )}
+                <Button
+                  variant="hero"
+                  size="lg"
+                  className="w-full"
+                  onClick={() => openCalendlyPopup()}
+                >
+                  Book a Call
+                  <ArrowRight className="ml-2 w-4 h-4" />
+                </Button>
               </div>
               {/* Trust Badges */}
               <div className="flex flex-wrap justify-center items-center gap-8 pt-8 text-sm text-muted-foreground">

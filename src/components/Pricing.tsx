@@ -1,13 +1,7 @@
-import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Check } from "lucide-react";
-import { useAuth } from "@/hooks/useAuth";
-import { startSubscription } from "@/lib/subscriptions";
-import { toast } from "@/hooks/use-toast";
-
-const ENTERPRISE_URL = "https://calendly.com/eracle/new-meeting";
-const SINGLE_PARCEL_PATH = "/solar/app/united-states";
+import { openCalendlyPopup } from "@/lib/calendly";
 
 type Tier = {
   name: string;
@@ -85,56 +79,8 @@ const tiers: Tier[] = [
 ];
 
 const Pricing = () => {
-  const { user } = useAuth();
-  const navigate = useNavigate();
-
-  const handlePremium = async () => {
-    const outcome = await startSubscription(user);
-    switch (outcome.kind) {
-      case "needs_register":
-        navigate("/register?next=%2F%23pricing");
-        return;
-      case "needs_verify":
-        toast({
-          title: "Verify your email",
-          description: "Check your inbox for the verification link, then try again.",
-        });
-        return;
-      case "ok":
-        window.location.href = outcome.checkoutUrl;
-        return;
-      case "error":
-        toast({
-          title: "Checkout failed",
-          description: outcome.message,
-          variant: "destructive",
-        });
-    }
-  };
-
-  const handleFreeTier = () => {
-    if (user) {
-      window.location.href = "/";
-    } else {
-      navigate("/register");
-    }
-  };
-
-  const handleEnterprise = () => {
-    window.location.href = ENTERPRISE_URL;
-  };
-
-  const handleSingleParcel = () => {
-    navigate(SINGLE_PARCEL_PATH);
-  };
-
-  const handlerFor = (tierName: string) => {
-    if (tierName === "Premium") return handlePremium;
-    if (tierName === "Enterprise") return handleEnterprise;
-    if (tierName === "Single Parcel") return handleSingleParcel;
-    return handleFreeTier;
-  };
-
+  // The app is switched off, so there is no signup or checkout to run —
+  // every tier CTA opens the Calendly "book a call" popup instead.
   return (
     <section id="pricing" className="py-20 md:py-32">
       <div className="container px-4">
@@ -194,7 +140,7 @@ const Pricing = () => {
                   variant={tier.highlighted ? "hero" : "outline"}
                   className="w-full"
                   size="lg"
-                  onClick={handlerFor(tier.name)}
+                  onClick={() => openCalendlyPopup()}
                 >
                   {tier.cta}
                 </Button>
