@@ -7,11 +7,9 @@ import { componentTagger } from "lovable-tagger";
 // (Netlify's masked placeholder, emitted when a var is mistakenly
 // flagged is_secret=true), fail the production build instead of
 // shipping a broken bundle to users.
-const REQUIRED_PUBLIC_ENV = [
-  "VITE_GOOGLE_MAPS_API_KEY",
-  "VITE_GOOGLE_MAP_ID",
-  "VITE_TURNSTILE_SITE_KEY",
-] as const;
+// SunnyPlans is switched off — the app is a single static notice with no
+// map and no signup, so it needs no public env at all. Nothing is required.
+const REQUIRED_PUBLIC_ENV = [] as const;
 
 function assertPublicEnv(mode: string) {
   if (mode !== "production") return;
