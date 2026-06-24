@@ -25,15 +25,15 @@ const publicString = (label: string, minLen: number) =>
       `${label} starts with "*" — this is the Netlify mask. Flip is_secret=false on the env var.`,
     );
 
+// SunnyPlans is switched off — the app is a single static notice. None of
+// the former runtime keys (Maps, Map ID, Turnstile, API base) are used, so
+// they're all optional and never throw. `publicString` is kept for whenever
+// the product is restored from git history.
+void publicString;
 const schema = z.object({
-  VITE_GOOGLE_MAPS_API_KEY: publicString("VITE_GOOGLE_MAPS_API_KEY", 20),
-  VITE_GOOGLE_MAP_ID: publicString("VITE_GOOGLE_MAP_ID", 8),
-  // Required: pairs with TURNSTILE_SECRET_KEY in the Django env. If the
-  // backend has the secret set and the bundle ships without this key, the
-  // captcha widget silently dead-code-eliminates and every signup 400s with
-  // "Captcha required." Cloudflare's always-pass test key for local dev:
-  // 1x00000000000000000000AA.
-  VITE_TURNSTILE_SITE_KEY: publicString("VITE_TURNSTILE_SITE_KEY", 20),
+  VITE_GOOGLE_MAPS_API_KEY: z.string().default(""),
+  VITE_GOOGLE_MAP_ID: z.string().default(""),
+  VITE_TURNSTILE_SITE_KEY: z.string().default(""),
   VITE_GOOGLE_CLIENT_ID: z.string().default(""),
   VITE_SENTRY_DSN: z.string().default(""),
   VITE_API_BASE_URL: z.string().default(""),

@@ -5,8 +5,8 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "vite build && node scripts/build-blog.mjs",
-    "build:dev": "vite build --mode development && node scripts/build-blog.mjs",
+    "build": "vite build",
+    "build:dev": "vite build --mode development",
     "build:blog": "node scripts/build-blog.mjs",
     "lint": "eslint .",
     "preview": "vite preview"
